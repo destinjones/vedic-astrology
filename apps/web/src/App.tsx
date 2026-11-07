@@ -348,6 +348,7 @@ export default function App() {
         <div className="topbar-actions">
           <QuickSwitch commands={commands} />
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`}>Compare charts</a>
+          <a className="btn-ghost" href={`${import.meta.env.BASE_URL}match/`}>Compatibility</a>
           {chart && (
             <>
               <button className="btn-ghost" onClick={startPresent} title="Full screen walkthrough for a client, a screen share or a recording">▶ Present</button>

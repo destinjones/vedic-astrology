@@ -18,3 +18,4 @@ export * from './interpret';
 export { fromEngineChart } from './adapter';
 export { synastry } from './synastry';
 export type { SynastryPerson, SynastryReport, HouseOverlay, CrossContact, ContactKind, SignRelation } from './synastry';
+export * from './matching';
