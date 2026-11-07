@@ -224,17 +224,26 @@ export default function SkyView({ chart, selection, onSelect }: Props) {
     labels.domElement.addEventListener('pointerup', onUp);
 
     const clock = new THREE.Clock();
-    renderer.setAnimationLoop(() => {
+    const frame = () => {
       const dt = clock.getDelta();
       for (const s of spinners) s.rotation.y += dt * 0.25;
       for (const n of nodesRef.current) if (n.halo.visible) n.halo.rotation.z += dt * 0.8;
       controls.update();
       renderer.render(scene, camera);
       labels.render(scene, camera);
+    };
+    // Only animate while the view is on screen. Drawing the 3D scene every frame while it is
+    // scrolled away kept the CPU busy and, without a GPU, made the rest of the page unresponsive.
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry?.isIntersecting) { clock.getDelta(); renderer.setAnimationLoop(frame); }
+      else renderer.setAnimationLoop(null);
     });
+    io.observe(host);
+    renderer.setAnimationLoop(frame);
 
     return () => {
       disposed = true;
+      io.disconnect();
       renderer.setAnimationLoop(null);
       ro.disconnect();
       controls.dispose();
