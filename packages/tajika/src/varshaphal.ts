@@ -411,6 +411,9 @@ export function computeVarshaphal(engine: Engine, natal: Chart, options: Varshap
     }
   }
 
+  const ORDER: TajikaYoga['id'][] = ['ikkavala', 'induvara', 'ithasala', 'kamboola', 'nakta', 'yamaya', 'duhphali_kuttha', 'ishrafa', 'radda', 'manau'];
+  yogas.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id));
+
   // Sahams
   const pt = (p: Pt): number => {
     switch (p) {

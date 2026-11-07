@@ -36,6 +36,11 @@ try {
   await page.waitForSelector('.sky-card canvas', { timeout: 60000 });
   await page.waitForTimeout(1500);
 
+  await page.locator('#varshaphal').scrollIntoViewIfNeeded();
+  await page.waitForSelector('#varshaphal .vp-moment', { timeout: 60000 });
+  const yearStart = await page.locator('#varshaphal .vp-moment').innerText();
+  if (!/\d{2}:\d{2}:\d{2}/.test(yearStart)) problems.push(`annual chart: no return time to the second, got: ${yearStart}`);
+
   const away = [...offsite];
   if (away.length) problems.push(`opening a chart called other sites: ${away.join(', ')}`);
 } finally {
@@ -47,4 +52,4 @@ if (problems.length) {
   console.error(`Site check failed:\n- ${problems.join('\n- ')}`);
   process.exit(1);
 }
-console.log('Site check passed: landing page, engine, readings, timeline and sky view all load.');
+console.log('Site check passed: landing page, engine, readings, timeline, annual chart and sky view all load.');

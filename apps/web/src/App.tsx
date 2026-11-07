@@ -19,6 +19,7 @@ import { loadKnowledge, type Knowledge } from './lib/readings';
 
 const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
+const VarshaphalSection = lazy(() => import('./components/VarshaphalSection'));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
 function WhenVisible({ children, minHeight }: { children: React.ReactNode; minHeight: number }) {
@@ -243,6 +244,17 @@ export default function App() {
               <WhenVisible minHeight={600}>
                 <Suspense fallback={<div className="sky-overlay static">Working out your timeline…</div>}>
                   <TimingSection key={chart.engineContext.chart.meta.utc} context={chart.engineContext} name={chart.input.name} />
+                </Suspense>
+              </WhenVisible>
+            </section>
+          )}
+
+          {chart.engineContext && (
+            <section className="card" id="varshaphal">
+              <div className="card-head"><h3>Varshaphal, your year ahead</h3><span className="muted">the Tajika annual chart, cast for the second the Sun returns</span></div>
+              <WhenVisible minHeight={600}>
+                <Suspense fallback={<div className="sky-overlay static">Casting your annual chart…</div>}>
+                  <VarshaphalSection key={chart.engineContext.chart.meta.utc} context={chart.engineContext} chart={chart} style={style} />
                 </Suspense>
               </WhenVisible>
             </section>
