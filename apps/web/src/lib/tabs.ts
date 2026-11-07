@@ -4,7 +4,9 @@
  */
 import type { BirthInput, VargaId } from '../types/chart';
 import type { ChartStyle } from '../types/ui';
+import type { LifeEvent } from '@vedic/timing';
 import { sanitizeInput } from './profiles';
+import { loadEvents, sanitizeEvents } from './lifeEvents';
 
 export type EntryKind = 'question' | 'prediction' | 'note';
 export type Outcome = 'open' | 'came-true' | 'partly' | 'did-not';
@@ -31,6 +33,8 @@ export interface Tab {
   notes: string;
   /** Questions, predictions and dated notes, newest first. */
   log: LogEntry[];
+  /** Past life events for the event checker, oldest first. */
+  events: LifeEvent[];
   style?: ChartStyle;
   varga?: VargaId;
   /** true once the person renamed the tab, so later charts keep their label */
@@ -47,7 +51,7 @@ export interface Workspace {
 
 export const MAX_ARCHIVED = 500;
 /** A tab worth keeping when it is closed. */
-export const hasContent = (t: Tab) => !!t.input || !!t.notes.trim() || t.log.length > 0;
+export const hasContent = (t: Tab) => !!t.input || !!t.notes.trim() || t.log.length > 0 || t.events.length > 0;
 
 const KEY = 'vedic.tabs.v1';
 export const MAX_TABS = 24;
@@ -55,7 +59,7 @@ export const MAX_TABS = 24;
 export const newTabId = () =>
   typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `t${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 
-export const blankTab = (n: number): Tab => ({ id: newTabId(), label: `Chart ${n}`, notes: '', log: [] });
+export const blankTab = (n: number): Tab => ({ id: newTabId(), label: `Chart ${n}`, notes: '', log: [], events: [] });
 
 const KINDS: EntryKind[] = ['question', 'prediction', 'note'];
 const OUTCOMES: Outcome[] = ['open', 'came-true', 'partly', 'did-not'];
@@ -91,6 +95,8 @@ export function parseTab(t: unknown, n: number): Tab | null {
     input,
     notes: typeof r.notes === 'string' ? r.notes.slice(0, 20000) : '',
     log: parseLog(r.log),
+    // tabs saved before events moved here pick them up from the old per-birth store
+    events: Array.isArray(r.events) ? sanitizeEvents(r.events) : input ? loadEvents(input) : [],
     style: r.style === 'south' ? 'south' : r.style === 'north' ? 'north' : undefined,
     varga: typeof r.varga === 'string' && /^D\d{1,2}$/.test(r.varga) ? (r.varga as VargaId) : undefined,
     named: r.named === true,
