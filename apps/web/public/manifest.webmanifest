@@ -1,0 +1,11 @@
+{
+  "name": "Jyotisha Explorer",
+  "short_name": "Jyotisha",
+  "description": "Your full Vedic chart, free: 16 divisional charts, yogas, doshas, a 3D sky and a lifetime timeline.",
+  "start_url": "/vedic-astrology/app/",
+  "scope": "/vedic-astrology/",
+  "display": "standalone",
+  "background_color": "#0b0a1a",
+  "theme_color": "#0b0a1a",
+  "icons": [{ "src": "/vedic-astrology/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

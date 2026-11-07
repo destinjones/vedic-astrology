@@ -90,7 +90,7 @@ describe('ephemeris accuracy vs independent astronomy-engine', () => {
         const vec = Astronomy.GeoVector(body, t, true);
         const tropical = Astronomy.Ecliptic(vec).elon; // true ecliptic & equinox of date
         const sidereal = tropical - ay;
-        expect(angDiff(snap.planets[id].longitude, sidereal), `${id}`).toBeLessThan(tol + 0.01);
+        expect(angDiff(snap.planets[id]!.longitude, sidereal), `${id}`).toBeLessThan(tol + 0.01);
       }
     });
   }

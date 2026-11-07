@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sky View Preview</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #05050f; color: #f2cc78; font: 14px Georgia, serif; }
+  canvas { display: block; width: 100%; height: 100%; }
+  #note { position: fixed; left: 16px; bottom: 12px; opacity: .8; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="note">Preview of the Blender assets. Serve the repo root over HTTP and open /blender/preview/sky.html. Longitudes here are sample values.</div>
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const BASE = "../../assets/3d/";
+const manifest = await (await fetch(BASE + "manifest.json")).json();
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(innerWidth, innerHeight);
+document.body.prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 500);
+camera.position.set(3, 15, 21);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0.8, 0);
+controls.enableDamping = true;
+
+const sky = await new THREE.TextureLoader().loadAsync(BASE + manifest.backgrounds.skyEquirect.path);
+sky.mapping = THREE.EquirectangularReflectionMapping;
+sky.colorSpace = THREE.SRGBColorSpace;
+scene.background = sky;
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+scene.add(new THREE.PointLight(0xffd9a8, 200, 0, 1.6));
+
+const loader = new GLTFLoader();
+const wheel = await loader.loadAsync(BASE + manifest.wheel.model.path);
+scene.add(wheel.scene);
+
+// Sample sidereal longitudes, with Rahu and Ketu exactly opposed.
+const sample = { surya: 200, chandra: 75, mangala: 310, budha: 215, guru: 50, shukra: 165, shani: 335, rahu: 15, ketu: 195 };
+const size = { surya: 1, chandra: 0.45, mangala: 0.32, budha: 0.26, guru: 0.62, shukra: 0.36, shani: 0.44, rahu: 0.36, ketu: 0.3 };
+const R = 3.67;
+window.__loaded = [];
+await Promise.all(manifest.grahas.map(async g => {
+  const gltf = await loader.loadAsync(BASE + g.model.path);
+  const lon = THREE.MathUtils.degToRad(sample[g.id]);
+  const r = g.id === "surya" ? 0 : (g.id === "chandra" ? R + 5 : R + 2.8 + Math.random() * 3);
+  gltf.scene.position.set(r * Math.cos(lon), g.id === "surya" ? 2.4 : 1.1, -r * Math.sin(lon));
+  gltf.scene.scale.setScalar(size[g.id]);
+  scene.add(gltf.scene);
+  window.__loaded.push(g.id);
+}));
+window.__ready = true;
+
+addEventListener("resize", () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+</script>
+</body>
+</html>

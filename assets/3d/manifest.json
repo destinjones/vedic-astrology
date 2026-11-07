@@ -1,0 +1,618 @@
+{
+  "version": 1,
+  "conventions": {
+    "wheelPlate": "wheel/wheel-top.webp is an orthographic plate: the wheel's rim (radius 10 units) fills 20/20.4 of the image width. 0 deg sidereal Aries is at 3 o'clock and longitude increases counterclockwise.",
+    "pointOnWheelPlate": "x = 0.5 + r/20.4 * cos(lon), y = 0.5 - r/20.4 * sin(lon) in image fractions (y down); r in wheel units.",
+    "rotatingThePlate": "Rotating the image clockwise by a degrees moves longitude lon to screen angle lon - a (counterclockwise from 3 o'clock). To put the ascendant at 9 o'clock, use a = ascendant - 180.",
+    "wheelRadii": {
+      "grahaTrackInner": 3.19,
+      "grahaTrackOuter": 4.15,
+      "rashiInner": 4.25,
+      "rashiOuter": 6.75,
+      "nakshatraInner": 6.95,
+      "nakshatraOuter": 9.35,
+      "padaOuter": 9.75,
+      "rim": 10.0
+    },
+    "gltf": "Models are Y-up with the wheel in the XZ plane. Longitude lon on the wheel maps to three.js position (r*cos(lon), h, -r*sin(lon)). Graha models have radius 1 (Shani's ring reaches 2.35); wheel.glb has radius 10.",
+    "materials": "Surya and the wheel use emissive maps, so they read without lights. Other grahas need scene lighting.",
+    "sky": "backgrounds/sky-equirect.webp is decorative procedural art, not a real star catalogue. Do not present it as actual star positions."
+  },
+  "grahas": [
+    {
+      "id": "surya",
+      "name": "Surya",
+      "english": "Sun",
+      "glow": "#ff8a1e",
+      "image": {
+        "path": "grahas/surya.webp",
+        "bytes": 102122
+      },
+      "model": {
+        "path": "models/surya.glb",
+        "bytes": 796816
+      }
+    },
+    {
+      "id": "chandra",
+      "name": "Chandra",
+      "english": "Moon",
+      "glow": "#c7d4ff",
+      "image": {
+        "path": "grahas/chandra.webp",
+        "bytes": 40086
+      },
+      "model": {
+        "path": "models/chandra.glb",
+        "bytes": 381320
+      }
+    },
+    {
+      "id": "mangala",
+      "name": "Mangala",
+      "english": "Mars",
+      "glow": "#ff6a3a",
+      "image": {
+        "path": "grahas/mangala.webp",
+        "bytes": 55438
+      },
+      "model": {
+        "path": "models/mangala.glb",
+        "bytes": 455428
+      }
+    },
+    {
+      "id": "budha",
+      "name": "Budha",
+      "english": "Mercury",
+      "glow": "#58e0a2",
+      "image": {
+        "path": "grahas/budha.webp",
+        "bytes": 61844
+      },
+      "model": {
+        "path": "models/budha.glb",
+        "bytes": 561676
+      }
+    },
+    {
+      "id": "guru",
+      "name": "Guru",
+      "english": "Jupiter",
+      "glow": "#ffd68a",
+      "image": {
+        "path": "grahas/guru.webp",
+        "bytes": 43446
+      },
+      "model": {
+        "path": "models/guru.glb",
+        "bytes": 338048
+      }
+    },
+    {
+      "id": "shukra",
+      "name": "Shukra",
+      "english": "Venus",
+      "glow": "#fff0d0",
+      "image": {
+        "path": "grahas/shukra.webp",
+        "bytes": 49508
+      },
+      "model": {
+        "path": "models/shukra.glb",
+        "bytes": 431044
+      }
+    },
+    {
+      "id": "shani",
+      "name": "Shani",
+      "english": "Saturn",
+      "glow": "#7c9bff",
+      "image": {
+        "path": "grahas/shani.webp",
+        "bytes": 87316
+      },
+      "model": {
+        "path": "models/shani.glb",
+        "bytes": 291064
+      }
+    },
+    {
+      "id": "rahu",
+      "name": "Rahu",
+      "english": "North lunar node",
+      "glow": "#ff5a14",
+      "image": {
+        "path": "grahas/rahu.webp",
+        "bytes": 59020
+      },
+      "model": {
+        "path": "models/rahu.glb",
+        "bytes": 317156
+      }
+    },
+    {
+      "id": "ketu",
+      "name": "Ketu",
+      "english": "South lunar node",
+      "glow": "#6fc7c7",
+      "image": {
+        "path": "grahas/ketu.webp",
+        "bytes": 76896
+      },
+      "model": {
+        "path": "models/ketu.glb",
+        "bytes": 596896
+      }
+    }
+  ],
+  "rashis": [
+    {
+      "id": "mesha",
+      "name": "Mesha",
+      "english": "Aries",
+      "startLongitude": 0,
+      "endLongitude": 30,
+      "image": {
+        "path": "rashis/mesha.webp",
+        "bytes": 31976
+      }
+    },
+    {
+      "id": "vrishabha",
+      "name": "Vrishabha",
+      "english": "Taurus",
+      "startLongitude": 30,
+      "endLongitude": 60,
+      "image": {
+        "path": "rashis/vrishabha.webp",
+        "bytes": 33796
+      }
+    },
+    {
+      "id": "mithuna",
+      "name": "Mithuna",
+      "english": "Gemini",
+      "startLongitude": 60,
+      "endLongitude": 90,
+      "image": {
+        "path": "rashis/mithuna.webp",
+        "bytes": 32256
+      }
+    },
+    {
+      "id": "karka",
+      "name": "Karka",
+      "english": "Cancer",
+      "startLongitude": 90,
+      "endLongitude": 120,
+      "image": {
+        "path": "rashis/karka.webp",
+        "bytes": 33312
+      }
+    },
+    {
+      "id": "simha",
+      "name": "Simha",
+      "english": "Leo",
+      "startLongitude": 120,
+      "endLongitude": 150,
+      "image": {
+        "path": "rashis/simha.webp",
+        "bytes": 32022
+      }
+    },
+    {
+      "id": "kanya",
+      "name": "Kanya",
+      "english": "Virgo",
+      "startLongitude": 150,
+      "endLongitude": 180,
+      "image": {
+        "path": "rashis/kanya.webp",
+        "bytes": 32958
+      }
+    },
+    {
+      "id": "tula",
+      "name": "Tula",
+      "english": "Libra",
+      "startLongitude": 180,
+      "endLongitude": 210,
+      "image": {
+        "path": "rashis/tula.webp",
+        "bytes": 31336
+      }
+    },
+    {
+      "id": "vrischika",
+      "name": "Vrischika",
+      "english": "Scorpio",
+      "startLongitude": 210,
+      "endLongitude": 240,
+      "image": {
+        "path": "rashis/vrischika.webp",
+        "bytes": 33218
+      }
+    },
+    {
+      "id": "dhanu",
+      "name": "Dhanu",
+      "english": "Sagittarius",
+      "startLongitude": 240,
+      "endLongitude": 270,
+      "image": {
+        "path": "rashis/dhanu.webp",
+        "bytes": 32364
+      }
+    },
+    {
+      "id": "makara",
+      "name": "Makara",
+      "english": "Capricorn",
+      "startLongitude": 270,
+      "endLongitude": 300,
+      "image": {
+        "path": "rashis/makara.webp",
+        "bytes": 33606
+      }
+    },
+    {
+      "id": "kumbha",
+      "name": "Kumbha",
+      "english": "Aquarius",
+      "startLongitude": 300,
+      "endLongitude": 330,
+      "image": {
+        "path": "rashis/kumbha.webp",
+        "bytes": 33354
+      }
+    },
+    {
+      "id": "meena",
+      "name": "Meena",
+      "english": "Pisces",
+      "startLongitude": 330,
+      "endLongitude": 360,
+      "image": {
+        "path": "rashis/meena.webp",
+        "bytes": 32852
+      }
+    }
+  ],
+  "nakshatras": [
+    {
+      "id": "ashwini",
+      "number": 1,
+      "name": "Ashwini",
+      "startLongitude": 0.0,
+      "endLongitude": 13.333333,
+      "image": {
+        "path": "nakshatras/ashwini.webp",
+        "bytes": 30256
+      }
+    },
+    {
+      "id": "bharani",
+      "number": 2,
+      "name": "Bharani",
+      "startLongitude": 13.333333,
+      "endLongitude": 26.666667,
+      "image": {
+        "path": "nakshatras/bharani.webp",
+        "bytes": 31118
+      }
+    },
+    {
+      "id": "krittika",
+      "number": 3,
+      "name": "Krittika",
+      "startLongitude": 26.666667,
+      "endLongitude": 40.0,
+      "image": {
+        "path": "nakshatras/krittika.webp",
+        "bytes": 31122
+      }
+    },
+    {
+      "id": "rohini",
+      "number": 4,
+      "name": "Rohini",
+      "startLongitude": 40.0,
+      "endLongitude": 53.333333,
+      "image": {
+        "path": "nakshatras/rohini.webp",
+        "bytes": 30638
+      }
+    },
+    {
+      "id": "mrigashira",
+      "number": 5,
+      "name": "Mrigashira",
+      "startLongitude": 53.333333,
+      "endLongitude": 66.666667,
+      "image": {
+        "path": "nakshatras/mrigashira.webp",
+        "bytes": 31910
+      }
+    },
+    {
+      "id": "ardra",
+      "number": 6,
+      "name": "Ardra",
+      "startLongitude": 66.666667,
+      "endLongitude": 80.0,
+      "image": {
+        "path": "nakshatras/ardra.webp",
+        "bytes": 31048
+      }
+    },
+    {
+      "id": "punarvasu",
+      "number": 7,
+      "name": "Punarvasu",
+      "startLongitude": 80.0,
+      "endLongitude": 93.333333,
+      "image": {
+        "path": "nakshatras/punarvasu.webp",
+        "bytes": 30984
+      }
+    },
+    {
+      "id": "pushya",
+      "number": 8,
+      "name": "Pushya",
+      "startLongitude": 93.333333,
+      "endLongitude": 106.666667,
+      "image": {
+        "path": "nakshatras/pushya.webp",
+        "bytes": 31436
+      }
+    },
+    {
+      "id": "ashlesha",
+      "number": 9,
+      "name": "Ashlesha",
+      "startLongitude": 106.666667,
+      "endLongitude": 120.0,
+      "image": {
+        "path": "nakshatras/ashlesha.webp",
+        "bytes": 31298
+      }
+    },
+    {
+      "id": "magha",
+      "number": 10,
+      "name": "Magha",
+      "startLongitude": 120.0,
+      "endLongitude": 133.333333,
+      "image": {
+        "path": "nakshatras/magha.webp",
+        "bytes": 31534
+      }
+    },
+    {
+      "id": "purva-phalguni",
+      "number": 11,
+      "name": "Purva Phalguni",
+      "startLongitude": 133.333333,
+      "endLongitude": 146.666667,
+      "image": {
+        "path": "nakshatras/purva-phalguni.webp",
+        "bytes": 31374
+      }
+    },
+    {
+      "id": "uttara-phalguni",
+      "number": 12,
+      "name": "Uttara Phalguni",
+      "startLongitude": 146.666667,
+      "endLongitude": 160.0,
+      "image": {
+        "path": "nakshatras/uttara-phalguni.webp",
+        "bytes": 32352
+      }
+    },
+    {
+      "id": "hasta",
+      "number": 13,
+      "name": "Hasta",
+      "startLongitude": 160.0,
+      "endLongitude": 173.333333,
+      "image": {
+        "path": "nakshatras/hasta.webp",
+        "bytes": 30936
+      }
+    },
+    {
+      "id": "chitra",
+      "number": 14,
+      "name": "Chitra",
+      "startLongitude": 173.333333,
+      "endLongitude": 186.666667,
+      "image": {
+        "path": "nakshatras/chitra.webp",
+        "bytes": 30922
+      }
+    },
+    {
+      "id": "swati",
+      "number": 15,
+      "name": "Swati",
+      "startLongitude": 186.666667,
+      "endLongitude": 200.0,
+      "image": {
+        "path": "nakshatras/swati.webp",
+        "bytes": 30798
+      }
+    },
+    {
+      "id": "vishakha",
+      "number": 16,
+      "name": "Vishakha",
+      "startLongitude": 200.0,
+      "endLongitude": 213.333333,
+      "image": {
+        "path": "nakshatras/vishakha.webp",
+        "bytes": 32290
+      }
+    },
+    {
+      "id": "anuradha",
+      "number": 17,
+      "name": "Anuradha",
+      "startLongitude": 213.333333,
+      "endLongitude": 226.666667,
+      "image": {
+        "path": "nakshatras/anuradha.webp",
+        "bytes": 31640
+      }
+    },
+    {
+      "id": "jyeshtha",
+      "number": 18,
+      "name": "Jyeshtha",
+      "startLongitude": 226.666667,
+      "endLongitude": 240.0,
+      "image": {
+        "path": "nakshatras/jyeshtha.webp",
+        "bytes": 32346
+      }
+    },
+    {
+      "id": "mula",
+      "number": 19,
+      "name": "Mula",
+      "startLongitude": 240.0,
+      "endLongitude": 253.333333,
+      "image": {
+        "path": "nakshatras/mula.webp",
+        "bytes": 30948
+      }
+    },
+    {
+      "id": "purva-ashadha",
+      "number": 20,
+      "name": "Purva Ashadha",
+      "startLongitude": 253.333333,
+      "endLongitude": 266.666667,
+      "image": {
+        "path": "nakshatras/purva-ashadha.webp",
+        "bytes": 32918
+      }
+    },
+    {
+      "id": "uttara-ashadha",
+      "number": 21,
+      "name": "Uttara Ashadha",
+      "startLongitude": 266.666667,
+      "endLongitude": 280.0,
+      "image": {
+        "path": "nakshatras/uttara-ashadha.webp",
+        "bytes": 32014
+      }
+    },
+    {
+      "id": "shravana",
+      "number": 22,
+      "name": "Shravana",
+      "startLongitude": 280.0,
+      "endLongitude": 293.333333,
+      "image": {
+        "path": "nakshatras/shravana.webp",
+        "bytes": 32314
+      }
+    },
+    {
+      "id": "dhanishta",
+      "number": 23,
+      "name": "Dhanishta",
+      "startLongitude": 293.333333,
+      "endLongitude": 306.666667,
+      "image": {
+        "path": "nakshatras/dhanishta.webp",
+        "bytes": 32528
+      }
+    },
+    {
+      "id": "shatabhisha",
+      "number": 24,
+      "name": "Shatabhisha",
+      "startLongitude": 306.666667,
+      "endLongitude": 320.0,
+      "image": {
+        "path": "nakshatras/shatabhisha.webp",
+        "bytes": 33182
+      }
+    },
+    {
+      "id": "purva-bhadrapada",
+      "number": 25,
+      "name": "Purva Bhadrapada",
+      "startLongitude": 320.0,
+      "endLongitude": 333.333333,
+      "image": {
+        "path": "nakshatras/purva-bhadrapada.webp",
+        "bytes": 33344
+      }
+    },
+    {
+      "id": "uttara-bhadrapada",
+      "number": 26,
+      "name": "Uttara Bhadrapada",
+      "startLongitude": 333.333333,
+      "endLongitude": 346.666667,
+      "image": {
+        "path": "nakshatras/uttara-bhadrapada.webp",
+        "bytes": 33928
+      }
+    },
+    {
+      "id": "revati",
+      "number": 27,
+      "name": "Revati",
+      "startLongitude": 346.666667,
+      "endLongitude": 360.0,
+      "image": {
+        "path": "nakshatras/revati.webp",
+        "bytes": 31192
+      }
+    }
+  ],
+  "wheel": {
+    "top": {
+      "path": "wheel/wheel-top.webp",
+      "bytes": 412442
+    },
+    "hero": {
+      "path": "wheel/wheel-hero.webp",
+      "bytes": 242748
+    },
+    "model": {
+      "path": "models/wheel.glb",
+      "bytes": 539252
+    }
+  },
+  "backgrounds": {
+    "cosmosDesktop": {
+      "path": "backgrounds/cosmos-desktop.webp",
+      "bytes": 60540
+    },
+    "cosmosMobile": {
+      "path": "backgrounds/cosmos-mobile.webp",
+      "bytes": 33500
+    },
+    "heroDesktop": {
+      "path": "backgrounds/navagraha-hero.webp",
+      "bytes": 208676
+    },
+    "heroMobile": {
+      "path": "backgrounds/navagraha-hero-mobile.webp",
+      "bytes": 105148
+    },
+    "skyEquirect": {
+      "path": "backgrounds/sky-equirect.webp",
+      "bytes": 375148
+    }
+  }
+}

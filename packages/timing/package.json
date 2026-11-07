@@ -1,0 +1,42 @@
+{
+  "name": "@vedic/timing",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Timing layer: Vimshottari favourability, Gochara transits, Sade Sati, retrogrades, ashtakavarga, and an interactive timeline UI",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./engine": "./src/adapters/engine.ts",
+    "./ui": "./ui/index.ts",
+    "./ui/timing.css": "./ui/timing.css"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json",
+    "demo": "vite demo",
+    "demo:build": "vite build demo"
+  },
+  "dependencies": {
+    "@vedic/engine": "*",
+    "astronomy-engine": "^2.1.19"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": true }
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.0.0",
+    "vitest": "^3.2.4"
+  }
+}

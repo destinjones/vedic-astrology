@@ -10,9 +10,19 @@
   ],
   "scripts": {
     "test": "npm run test --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "build": "npm run build -w @vedic/web",
+    "build:pages": "node tools/build-pages.mjs",
+    "smoke": "node tools/smoke.mjs",
+    "demos": "node tools/record-demos.mjs"
   },
   "engines": {
     "node": ">=20"
+  },
+  "license": "AGPL-3.0-or-later",
+  "devDependencies": {
+    "gifenc": "^1.0.3",
+    "playwright": "^1.65.0",
+    "pngjs": "^7.0.0"
   }
 }
