@@ -35,13 +35,13 @@ describe('Julian calendar', () => {
     expect(auto.calendar).toBe('julian');
     expect(auto.gregorianDate).toBe('1564-02-25');
     expect(auto.utc.toISOString()).toBe('1564-02-25T11:00:00.000Z');
-    const greg = localToUtc('1564-02-15', '12:00', 'Europe/Rome', 60, undefined, 'gregorian');
+    const greg = localToUtc('1564-02-15', '12:00', 'Europe/Rome', 60, undefined, undefined, 'gregorian');
     expect(greg.calendar).toBe('gregorian');
     expect(greg.utc.toISOString()).toBe('1564-02-15T11:00:00.000Z');
   });
   it('can read a later date as Julian (Britain before 1752)', () => {
     // Isaac Newton: 25 December 1642 (Julian) = 4 January 1643 (Gregorian)
-    const r = localToUtc('1642-12-25', '01:38', 'Europe/London', -1, undefined, 'julian');
+    const r = localToUtc('1642-12-25', '01:38', 'Europe/London', -1, undefined, undefined, 'julian');
     expect(r.gregorianDate).toBe('1643-01-04');
   });
   it('a chart for a Julian date matches the same instant typed in Gregorian', () => {

@@ -831,6 +831,7 @@ export default function App() {
           )}
 
           {chart.engineContext && (
+            <>
             <section className="card" id="eclipses">
               <div className="card-head"><h3>Eclipses and Sankrantis</h3><span className="muted">where the shadows fall, on Earth and on this chart</span></div>
               <WhenVisible minHeight={420}>
@@ -845,6 +846,7 @@ export default function App() {
                 <Personal part="keepsakes" chart={chart} />
               </Suspense>
             </WhenVisible>
+            </>
           )}
 
           <ClientHistory

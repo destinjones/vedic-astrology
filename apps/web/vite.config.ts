@@ -221,7 +221,7 @@ export default defineConfig(async () => ({
     rollupOptions: {
       // reading a property of an imported constant (astronomy-engine's Body enum) has no side effect;
       // without this the timing package's fallback ephemeris drags astronomy-engine into the first load
-      treeshake: { propertyReadSideEffects: false },
+      treeshake: { propertyReadSideEffects: false as const },
       input: { landing: join(here, 'index.html'), app: join(here, 'app/index.html'), compare: join(here, 'compare/index.html'), match: join(here, 'match/index.html'), tools: join(here, 'tools/index.html'),
         privacy: join(here, 'privacy/index.html'), howItWorks: join(here, 'how-it-works/index.html'), check: join(here, 'check/index.html'),
         learn: join(here, 'src/learn/style.ts'), study: join(here, 'study/index.html'), embed: join(here, 'embed/index.html'), credits: join(here, 'credits/index.html'),

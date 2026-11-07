@@ -43,7 +43,6 @@ export function sanitizeInput(raw: unknown): BirthInput | null {
   if (!Number.isFinite(latitude) || Math.abs(latitude) > 90) return null;
   if (!Number.isFinite(longitude) || Math.abs(longitude) > 180) return null;
   if (!timezone || !isTimeZone(timezone)) return null;
-  const offset = num(r.utcOffsetMinutes);
   const calendar = (['auto', 'gregorian', 'julian'] as const).find((c) => c === r.calendar) as CalendarSystem | undefined;
   const rodden = (RODDEN_RATINGS as readonly string[]).includes(str(r.rodden, 2)) ? (r.rodden as RoddenRating) : undefined;
   const timeConfidence = (TIME_CONFIDENCES as readonly string[]).includes(str(r.timeConfidence, 12)) ? (r.timeConfidence as TimeConfidence) : undefined;
