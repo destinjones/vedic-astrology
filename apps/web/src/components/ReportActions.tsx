@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Chart } from '../types/chart';
 import { CONSULT_DEFAULT, sectionChoices } from '../report/registry';
 import type { Brand } from '../report/types';
+import { useI18n } from '../i18n';
 
 const BRAND_KEY = 'vedic.consultBrand';
 const SECTIONS_KEY = 'vedic.consultSections';
@@ -39,13 +40,14 @@ export function ReportActions({ chart }: { chart: Chart }) {
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const ready = !!chart.engineContext;
+  const { locale } = useI18n();
 
   const run = async (opts: Parameters<typeof import('../report').downloadReport>[1]) => {
     setBusy('Starting…');
     setError(null);
     try {
       const { downloadReport } = await import('../report');
-      await downloadReport(chart, { ...opts, onProgress: setBusy });
+      await downloadReport(chart, { ...opts, locale, onProgress: setBusy });
       return true;
     } catch (e) {
       console.error(e);

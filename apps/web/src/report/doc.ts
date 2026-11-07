@@ -1,5 +1,6 @@
 import type { jsPDF } from 'jspdf';
 import { C, CONTENT_W, F, MARGIN, PAGE, type FontName } from './theme';
+import { hasIndic, indicFace, INDIC_SCALE, runs, type IndicFonts } from './indic';
 
 /**
  * A small flow-layout layer over jsPDF: a cursor that moves down the page,
@@ -38,8 +39,9 @@ export interface Cell { text: string; color?: string; font?: FontName; fill?: st
 export type Row = (string | Cell)[];
 
 /**
- * The embedded fonts are latin subsets. Swap the few symbols the readings use
- * and drop any other glyph the fonts lack, rather than printing empty boxes.
+ * The embedded Latin fonts are latin subsets. Swap the few symbols the readings
+ * use and drop any other glyph the fonts lack, rather than printing empty boxes.
+ * Indian scripts are drawn with Noto faces (see indic.ts).
  */
 export const printable = (t: string) =>
   t.replace(/→/g, '–').replace(/≥/g, '>=').replace(/≤/g, '<=').replace(/[\u2190-\u2211\u2213-\u2BFF\u{1F300}-\u{1FAFF}\uFE0E\uFE0F]/gu, '');
@@ -57,10 +59,12 @@ export class ReportDoc {
   private frame: { x: number; w: number } = { x: MARGIN.left, w: CONTENT_W };
   private cols: { n: number; i: number; gap: number; top: number } = { n: 1, i: 0, gap: 0, top: MARGIN.top };
   readonly owner: string;
+  private readonly indic?: IndicFonts;
 
-  constructor(pdf: jsPDF, owner: string) {
+  constructor(pdf: jsPDF, owner: string, indic?: IndicFonts) {
     this.pdf = pdf;
     this.owner = owner;
+    this.indic = indic;
   }
 
   // ------------------------------------------------------------------ basics
@@ -79,22 +83,89 @@ export class ReportDoc {
   }
 
   width(text: string, name?: FontName, size?: number) {
+    if (hasIndic(text)) {
+      const pdf = this.pdf as unknown as { getFont: () => { fontName: FontName }; getFontSize: () => number };
+      return this.runsWidth(this.pieces(text, name ?? pdf.getFont().fontName, size ?? pdf.getFontSize()));
+    }
     if (name) this.pdf.setFont(name, 'normal');
     if (size) this.pdf.setFontSize(size);
     return this.pdf.getTextWidth(text);
   }
 
   wrap(text: string, width: number, name: FontName, size: number): string[] {
+    text = printable(text);
+    if (hasIndic(text)) return this.wrapMixed(text, width, name, size);
     this.pdf.setFont(name, 'normal');
     this.pdf.setFontSize(size);
-    return this.pdf.splitTextToSize(printable(text), width) as string[];
+    return this.pdf.splitTextToSize(text, width) as string[];
   }
 
   /** Draw one line with its top at `top`. */
   line(text: string, x: number, top: number, o: TextOpts = {}) {
     const size = o.size ?? 9.5;
-    this.font(o.font ?? F.sans, size, o.color ?? C.body);
-    this.pdf.text(printable(text), x, top + size * 0.8, { align: o.align ?? 'left', charSpace: o.charSpace });
+    const name = o.font ?? F.sans;
+    this.font(name, size, o.color ?? C.body);
+    text = printable(text);
+    if (hasIndic(text)) return this.lineMixed(text, x, top, name, size, o);
+    this.pdf.text(text, x, top + size * 0.8, { align: o.align ?? 'left', charSpace: o.charSpace });
+  }
+
+  // ------------------------------------------------------------------ mixed scripts
+
+  /** Text cut into runs, each with the face and size to draw it in (Indic runs already shaped). */
+  private pieces(text: string, name: FontName, size: number) {
+    const out: { str: string; font: string; size: number; indic?: boolean }[] = [];
+    for (const r of runs(text)) {
+      if (!r.script) { out.push({ str: r.text, font: name, size }); continue; }
+      if (!this.indic?.has(r.script)) continue; // no font for it: drop, as for other missing glyphs
+      const face = indicFace(name, r.script);
+      out.push({ str: this.indic.shape(face.name, r.text), font: face.name, size: size * INDIC_SCALE[face.kind], indic: true });
+    }
+    return out;
+  }
+
+  /** Letter spacing would break the joined strokes of Indic scripts, so it applies to Latin runs only. */
+  private runsWidth(pieces: { str: string; font: string; size: number; indic?: boolean }[], charSpace = 0) {
+    let w = 0;
+    for (const p of pieces) {
+      this.pdf.setFont(p.font, 'normal');
+      this.pdf.setFontSize(p.size);
+      w += this.pdf.getTextWidth(p.str) + (p.indic ? 0 : charSpace * p.str.length);
+    }
+    return w;
+  }
+
+  private wrapMixed(text: string, width: number, name: FontName, size: number): string[] {
+    const space = this.width(' ', name, size);
+    const lines: string[] = [];
+    for (const para of text.split('\n')) {
+      let cur = '';
+      let curW = 0;
+      for (const word of para.split(' ')) {
+        const w = this.runsWidth(this.pieces(word, name, size));
+        if (cur && curW + space + w > width) { lines.push(cur); cur = word; curW = w; }
+        else { curW += (cur ? space : 0) + w; cur = cur ? `${cur} ${word}` : word; }
+      }
+      lines.push(cur);
+    }
+    return lines;
+  }
+
+  private lineMixed(text: string, x: number, top: number, name: FontName, size: number, o: TextOpts) {
+    const pieces = this.pieces(text, name, size);
+    const cs = o.charSpace ?? 0;
+    const total = this.runsWidth(pieces, cs);
+    let px = o.align === 'center' ? x - total / 2 : o.align === 'right' ? x - total : x;
+    const base = top + size * 0.8;
+    for (const p of pieces) {
+      this.pdf.setFont(p.font, 'normal');
+      this.pdf.setFontSize(p.size);
+      const c = p.indic ? 0 : cs;
+      this.pdf.text(p.str, px, base, { charSpace: c || undefined });
+      px += this.pdf.getTextWidth(p.str) + c * p.str.length;
+    }
+    this.pdf.setFont(name, 'normal');
+    this.pdf.setFontSize(size);
   }
 
   fill(color: string) { this.pdf.setFillColor(color); return this; }
