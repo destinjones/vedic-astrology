@@ -15,6 +15,8 @@ import { getVarga } from './lib/astro';
 import { ART } from './data/art';
 
 import { YogaDoshaCard } from './components/YogaDoshaCard';
+import { FamousCharts } from './components/FamousCharts';
+import { famousChartById, RODDEN_MEANING, type FamousChart } from './data/famousCharts';
 import { loadKnowledge, type Knowledge } from './lib/readings';
 
 const SkyView = lazy(() => import('./components/SkyView'));
@@ -61,8 +63,14 @@ export default function App() {
   const [hoverPlanet, setHoverPlanet] = useState<PlanetId | null>(null);
   const [wheelMode, setWheelMode] = useState<WheelMode>('art');
   const [knowledge, setKnowledge] = useState<Knowledge | null>(null);
+  const [showFamous, setShowFamous] = useState(false);
+  const [famous, setFamous] = useState<FamousChart | null>(null);
 
-  const run = async (i: BirthInput) => {
+  const setHash = (h: string) => {
+    try { history.replaceState(null, '', h ? `#${h}` : location.pathname + location.search); } catch { /* ignore */ }
+  };
+
+  const run = async (i: BirthInput, from: FamousChart | null = null) => {
     setBusy(true);
     try {
       const c = await computeChart(i);
@@ -70,7 +78,14 @@ export default function App() {
       setChart(c);
       setEditing(false);
       setSelection({ kind: 'asc' });
-      try { localStorage.setItem(STORE_KEY, JSON.stringify(i)); } catch { /* ignore */ }
+      setFamous(from);
+      setShowFamous(false);
+      // a famous chart gets a shareable link and never replaces the visitor's own saved details
+      if (from) { setHash(`famous=${from.id}`); window.scrollTo({ top: 0 }); }
+      else {
+        if (location.hash.startsWith('#famous')) setHash('');
+        try { localStorage.setItem(STORE_KEY, JSON.stringify(i)); } catch { /* ignore */ }
+      }
     } finally {
       setBusy(false);
     }
@@ -88,6 +103,13 @@ export default function App() {
   // /app/#sample opens the sample chart straight away (the landing page links here).
   useEffect(() => {
     if (location.hash === '#sample') void run(DEFAULT_INPUT);
+    // /app/#famous opens the famous charts library, /app/#famous=<id> opens one chart.
+    const m = /^#famous(?:=([\w-]+))?$/.exec(location.hash);
+    if (m) {
+      const c = m[1] ? famousChartById(m[1]) : undefined;
+      if (c) void run(c.input, c);
+      else setShowFamous(true);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -120,9 +142,12 @@ export default function App() {
             <p>Vedic birth chart, every placement, every varga</p>
           </div>
         </a>
-        {chart && !editing && (
-          <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>
-        )}
+        <div className="topbar-actions">
+          <button className="btn-ghost" aria-expanded={showFamous} onClick={() => setShowFamous((v) => !v)}>Famous charts</button>
+          {chart && !editing && (
+            <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>
+          )}
+        </div>
       </header>
 
       {chart?.meta.source === 'mock' && (
@@ -131,7 +156,11 @@ export default function App() {
         </div>
       )}
 
-      {(editing || !chart) && (
+      {showFamous && (
+        <FamousCharts busy={busy} onOpen={(c) => void run(c.input, c)} onClose={() => setShowFamous(false)} />
+      )}
+
+      {(editing || !chart) && !showFamous && (
         <section className={`intake ${chart ? 'intake-compact' : ''}`}>
           {!chart && (
             <div className="intake-copy">
@@ -140,7 +169,7 @@ export default function App() {
             </div>
           )}
           <div className="card form-card">
-            <BirthForm initial={input} busy={busy} onSubmit={run} onSample={() => run(DEFAULT_INPUT)} />
+            <BirthForm key={famous?.id ?? 'own'} initial={input} busy={busy} onSubmit={(i) => run(i)} onSample={() => run(DEFAULT_INPUT)} />
           </div>
         </section>
       )}
@@ -172,6 +201,17 @@ export default function App() {
               <small>{chart.input.name || 'Birth'}</small>
               <b>{chart.input.date} · {chart.input.time} · {chart.input.place}</b>
             </div>
+            {famous && (
+              <div className="summary-item">
+                <small>Rodden rating</small>
+                <b title={RODDEN_MEANING[famous.rodden]}>
+                  {famous.rodden}{' '}
+                  {famous.sourceUrl
+                    ? <a className="muted" href={famous.sourceUrl} target="_blank" rel="noopener noreferrer">{famous.source}</a>
+                    : <span className="muted">{famous.source}</span>}
+                </b>
+              </div>
+            )}
           </section>
 
           <div className="explorer-grid">

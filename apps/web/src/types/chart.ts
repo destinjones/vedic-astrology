@@ -31,6 +31,11 @@ export interface BirthInput {
   /** IANA zone, e.g. "Asia/Kolkata". Used for historical DST. */
   timezone: string;
   ayanamsa: Ayanamsa;
+  /**
+   * Optional fixed UTC offset in minutes (e.g. -360 for CST) that overrides the
+   * zone's historical rules, for places whose clocks did not follow their zone.
+   */
+  utcOffsetMinutes?: number;
 }
 
 export interface PlanetPosition {

@@ -26,6 +26,7 @@ export async function computeChart(input: BirthInput): Promise<Chart> {
         time: input.time,
         name: input.name,
         place: { name: input.place, latitude: input.latitude, longitude: input.longitude, timezone: input.timezone || undefined },
+        utcOffsetMinutes: input.utcOffsetMinutes,
       },
       { ayanamsa: input.ayanamsa, dashaLevels: 3 },
     );

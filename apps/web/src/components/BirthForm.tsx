@@ -17,7 +17,13 @@ const ZONES: string[] = (() => {
 export function BirthForm({ initial, busy, onSubmit, onSample }: Props) {
   const [f, setF] = useState<BirthInput>(initial);
   const [error, setError] = useState<string | null>(null);
-  const set = <K extends keyof BirthInput>(k: K, v: BirthInput[K]) => setF((s) => ({ ...s, [k]: v }));
+  // A fixed UTC offset (from the famous charts library) only fits the birth it came with,
+  // so editing the date, time or place drops it and the zone's own rules apply again.
+  const set = <K extends keyof BirthInput>(k: K, v: BirthInput[K]) => setF((s) => {
+    const next = { ...s, [k]: v };
+    if (k !== 'name' && k !== 'ayanamsa') delete next.utcOffsetMinutes;
+    return next;
+  });
 
   const [showMatches, setShowMatches] = useState(false);
   const [remote, setRemote] = useState<City[]>([]);
@@ -82,7 +88,7 @@ export function BirthForm({ initial, busy, onSubmit, onSample }: Props) {
             {matches.map((c) => (
               <li key={c.name}>
                 <button type="button" onMouseDown={() => {
-                  setF((s) => ({ ...s, place: c.name, latitude: c.latitude, longitude: c.longitude, timezone: c.timezone }));
+                  setF((s) => ({ ...s, place: c.name, latitude: c.latitude, longitude: c.longitude, timezone: c.timezone, utcOffsetMinutes: undefined }));
                   setShowMatches(false);
                 }}>
                   {c.name} <small className="muted">{c.timezone}</small>
