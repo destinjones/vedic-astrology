@@ -44,6 +44,7 @@ const EventChecker = lazy(() => import('./components/EventChecker'));
 const JaiminiSection = lazy(() => import('./components/JaiminiSection'));
 const RectificationSection = lazy(() => import('./components/RectificationSection'));
 const VarshaphalSection = lazy(() => import('./components/VarshaphalSection'));
+const Personal = lazy(() => import('./personal/Personal'));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
 function WhenVisible({ children, minHeight }: { children: React.ReactNode; minHeight: number }) {
@@ -524,6 +525,12 @@ export default function App() {
             )}
           </section>
 
+          {chart.engineContext && (
+            <Suspense fallback={null}>
+              <Personal part="today" chart={chart} report={knowledge?.report} />
+            </Suspense>
+          )}
+
           <div className="explorer-grid">
             <section className="card chart-card" id="chart">
               <div className="card-head">
@@ -550,9 +557,31 @@ export default function App() {
             </aside>
           </div>
 
+          {chart.engineContext && (
+            <WhenVisible minHeight={560}>
+              <Suspense fallback={null}>
+                <Personal part="slider" chart={chart} style={style} onApplyTime={(date, time) => { void run({ ...chart.input, date, time }); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
+              </Suspense>
+            </WhenVisible>
+          )}
+
           {knowledge && <YogaDoshaCard report={knowledge.report} />}
 
+          {knowledge && chart.engineContext && (
+            <Suspense fallback={null}>
+              <Personal part="story" chart={chart} report={knowledge.report} onSelect={setSelection} />
+            </Suspense>
+          )}
+
           {chart.engineContext?.chart.strength && <StrengthSection strength={chart.engineContext.chart.strength} />}
+
+          {chart.engineContext && (
+            <WhenVisible minHeight={480}>
+              <Suspense fallback={null}>
+                <Personal part="ayanamsa" chart={chart} />
+              </Suspense>
+            </WhenVisible>
+          )}
 
           <section className="card sky-card" id="sky">
             <div className="card-head">
@@ -647,6 +676,14 @@ export default function App() {
                 </Suspense>
               </WhenVisible>
             </section>
+          )}
+
+          {chart.engineContext && (
+            <WhenVisible minHeight={520}>
+              <Suspense fallback={null}>
+                <Personal part="keepsakes" chart={chart} />
+              </Suspense>
+            </WhenVisible>
           )}
 
           <ClientHistory

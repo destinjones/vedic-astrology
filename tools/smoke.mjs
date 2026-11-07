@@ -36,6 +36,35 @@ try {
   const lagna = await page.locator('.summary-item').first().innerText();
   if (!lagna.includes('Leo')) problems.push(`sample chart lagna should be Leo, got: ${lagna}`);
 
+  // personal features: today brief, Sade Sati countdown, rarity, the birth-time slider, story, ayanamsa diff, calendar feeds
+  await page.waitForSelector('#today .fy-tiles', { timeout: 60000 }).catch(() => problems.push('today brief did not appear'));
+  if (!/\d/.test(await page.locator('#sade-sati .fy-count b').innerText().catch(() => ''))) problems.push('Sade Sati countdown shows no number');
+  await page.waitForSelector('#rarity .fy-count b', { timeout: 60000 }).catch(() => problems.push('rarity percentile did not appear'));
+  const reach = async (sel) => {
+    for (let i = 0; i < 60 && !(await page.locator(sel).count()); i++) { await page.mouse.wheel(0, 600); await page.waitForTimeout(100); }
+    return page.locator(sel).first().scrollIntoViewIfNeeded().then(() => true, () => false);
+  };
+  if (await reach('#birth-time input[type=range]')) {
+    const lagnaBefore = await page.locator('#birth-time .bts-facts li').first().innerText();
+    await page.locator('#birth-time input[type=range]').focus();
+    await page.keyboard.press('End'); // three hours later: a new sign has risen
+    await page.waitForSelector('#birth-time .bts-facts li.is-moved', { timeout: 10000 }).catch(() => problems.push('birth-time slider: nothing moved three hours later'));
+    if ((await page.locator('#birth-time .bts-facts li').first().innerText()) === lagnaBefore) problems.push('birth-time slider: the lagna did not change');
+    await page.keyboard.press('Home');
+  } else problems.push('birth-time slider missing');
+  if (!(await reach('#story .story-ch'))) problems.push('chart story missing');
+  else if (!(await page.locator('#story h4').first().innerText()).includes('Leo')) problems.push('chart story: first chapter should be about Leo rising');
+  await page.locator('#yogas .yd-beginner input').check();
+  if (await page.locator('#yogas .yd-grid > div').count() > 5) problems.push('beginner view shows more than five findings');
+  await page.locator('#yogas .yd-beginner input').uncheck();
+  if (!(await reach('#ayanamsa-diff .ayd-table'))) problems.push('ayanamsa diff missing');
+  else if ((await page.locator('#ayanamsa-diff .ayd-table tbody tr').count()) !== 11) problems.push('ayanamsa diff: expected 10 bodies and the dasha row');
+  for (const f of ['feeds/index.json', 'feeds/panchanga-new-delhi.ics']) {
+    const r = await page.request.get(`${url}${BASE}${f}`);
+    if (!r.ok()) problems.push(`${f}: ${r.status()}`);
+    else if (f.endsWith('.ics') && !(await r.text()).startsWith('BEGIN:VCALENDAR')) problems.push(`${f} is not a calendar`);
+  }
+
   await page.locator('#jaimini').scrollIntoViewIfNeeded();
   await page.waitForSelector('#jaimini .jm-karakas', { timeout: 60000 });
   if ((await page.locator('#jaimini .jm-karakas tbody tr').count()) !== 8) problems.push('Jaimini: expected 8 chara karakas');
@@ -108,4 +137,4 @@ if (problems.length) {
   console.error(`Site check failed:\n- ${problems.join('\n- ')}`);
   process.exit(1);
 }
-console.log('Site check passed: landing page, engine, readings, Jaimini, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, saved charts and share links all work.');
+console.log('Site check passed: landing page, engine, readings, Jaimini, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, saved charts, share links and the personal features (today brief, Sade Sati, birth-time slider, story, beginner view, ayanamsa diff, calendar feeds) all work.');

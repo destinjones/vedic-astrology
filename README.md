@@ -67,6 +67,7 @@ Then open <http://localhost:5173/>. The chart itself is at `/app/`.
 | [`packages/timing`](packages/timing) | Dasha scoring, transits, Sade Sati, retrogrades, ashtakavarga, timeline UI |
 | [`packages/interpretations`](packages/interpretations) | The readings and the yoga and dosha detectors |
 | [`packages/tajika`](packages/tajika) | Varshaphal: the Tajika annual chart and its readings |
+| [`packages/personal`](packages/personal) | Today for you, Sade Sati countdown, ayanamsa diff, rarity, chart story, time capsules, posters and calendar feeds |
 | [`blender`](blender), [`assets/3d`](assets/3d) | The scripts that render the art, and the renders |
 | [`tools`](tools) | The site check that guards each deploy, and the recorder for these GIFs |
 
