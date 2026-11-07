@@ -104,8 +104,10 @@ export function getPlanetInNakshatra(planet: PlanetId, nakshatra: number, pada?:
     relation = L.ph.nakRelNeutral(lord.name, pr.name);
   }
   const ganaScore = n.gana === 'deva' ? 0.5 : n.gana === 'rakshasa' ? -0.5 : 0;
-  const written = L.locale === 'en' ? PLANET_IN_NAKSHATRA_TEXT[planet]?.[n.number] : undefined;
-  const score = written?.score ?? clamp(relScore + ganaScore);
+  // A hand-written reading's score holds in every language, so a chart's findings do not depend on the reading language.
+  const authored = PLANET_IN_NAKSHATRA_TEXT[planet]?.[n.number];
+  const written = L.locale === 'en' ? authored : undefined;
+  const score = authored?.score ?? clamp(relScore + ganaScore);
   const padaLine = pada && pada >= 1 && pada <= 4 ? [L.ph.nakPada(pada, n.padas[pada - 1])] : [];
   if (written) {
     return {
