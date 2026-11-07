@@ -9,7 +9,7 @@ const DIST = join(dirname(fileURLToPath(import.meta.url)), '../apps/web/dist');
 const MIME = {
   '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml',
   '.webp': 'image/webp', '.gif': 'image/gif', '.jpg': 'image/jpeg', '.png': 'image/png', '.glb': 'model/gltf-binary',
-  '.wasm': 'application/wasm', '.woff2': 'font/woff2', '.woff': 'font/woff', '.webmanifest': 'application/manifest+json',
+  '.wasm': 'application/wasm', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.woff': 'font/woff', '.webmanifest': 'application/manifest+json',
   '.xml': 'application/xml', '.txt': 'text/plain',
 };
 

@@ -1,4 +1,4 @@
-import { signInfo } from '../data/constants';
+import { useI18n } from '../i18n';
 import { addSigns, occupantsByHouse } from '../lib/astro';
 import { aspectTargets, focusPlanet, PlanetGlyphs, type ChartViewProps } from './chartShared';
 
@@ -44,6 +44,7 @@ function planetPoint(i: number, pts: Pt[]): Pt {
 
 export function NorthChart(props: ChartViewProps) {
   const { varga, selection, hoverPlanet, onSelect } = props;
+  const { t, v } = useI18n();
   const occ = occupantsByHouse(varga);
   const targets = aspectTargets(varga, focusPlanet(selection, hoverPlanet));
 
@@ -69,10 +70,10 @@ export function NorthChart(props: ChartViewProps) {
               className={`house-poly${selected ? ' is-selected' : ''}${targets.has(house) ? ' is-aspected' : ''}${house === 1 ? ' is-lagna' : ''}`}
             />
             <text x={lx} y={ly} textAnchor="middle" className="chart-signnum">
-              <title>{`${signInfo(sign).name} · House ${house}`}</title>
+              <title>{t('wheel.signHouse', { sign: v.signs[sign - 1], house })}</title>
               {sign}
             </text>
-            <PlanetGlyphs {...props} ids={occ[house]} cx={px} cy={py} perCol={pts.length === 4 ? 4 : 3} showAsc={house === 1} />
+            <PlanetGlyphs {...props} ids={occ[house]} cx={px} cy={py} perCol={pts.length === 4 ? 4 : 3} showAsc={house === 1} extra={props.overlay?.houses[house]} />
           </g>
         );
       })}

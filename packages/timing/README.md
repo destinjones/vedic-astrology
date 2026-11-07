@@ -8,7 +8,8 @@ The "when" layer on top of `@vedic/engine`: which periods of life are supportive
 - **Retrogrades**: stations, pre-shadow and post-shadow for Mercury to Saturn, the natal houses each loop covers, natal points it stations on or opposite, and whether the planet was retrograde at birth.
 - **Ashtakavarga**: all seven BAV tables (Parashara), SAV (always 337), prastara contributors per sign.
 - **Life weather**: a combined dasha + transit series and automatically detected favourable and challenging windows with their drivers.
-- **UI**: `TimingDashboard` (React, plain SVG): life weather chart with dasha / Sade Sati / retrograde lanes and hover inspection, drill-down dasha map, transit table for any date, ashtakavarga heatmap, and a detail panel explaining every score.
+- **Transit search**: "When does Saturn next hit my Moon?", "next Jupiter return", "Jupiter into my 10th house", "next Mercury retrograde". `parseTransitQuestion` understands a fixed set of question patterns (English and Sanskrit planet and sign names, year limits such as "after 2030"), with no AI involved. `searchTransits` finds every exact pass (retrograde loops are grouped, up to three passes), the window within 1°, sign ingresses and stations, decades ahead. Vedic aspects are degree-exact: the 7th for every graha, plus Mars 4th/8th, Jupiter and the nodes 5th/9th, Saturn 3rd/10th.
+- **UI**: `TimingDashboard` (React, plain SVG): life weather chart with dasha / Sade Sati / retrograde lanes and hover inspection, a transit search box (type a question or use the dropdowns; results are listed and marked on the timeline), drill-down dasha map, transit table for any date, ashtakavarga heatmap, and a detail panel explaining every score.
 
 ## Use
 
@@ -44,4 +45,4 @@ npm run demo:build -w @vedic/timing  # static build in packages/timing/demo/dist
 
 `npm test -w @vedic/timing` checks published events (Mercury stations of April 2024, sidereal Saturn into Pisces 29 Mar 2025, Jupiter into Gemini 14 May 2025, Sade Sati for an Aquarius Moon 2020–2028), BAV/SAV totals, dignities, dasha continuity, and engine/fallback agreement.
 
-Scoring weights are a reasoned synthesis of Parashari rules, not a single canonical formula; everything is in `src/astro.ts`, `src/dasha.ts` and `src/transits.ts` for tuning.
+Every rule and weight, with its classical source, is documented in [docs/SCORING.md](docs/SCORING.md). `test/scoring.test.ts` checks textbook cases so tuning can't drift away from the texts.

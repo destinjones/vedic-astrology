@@ -1,4 +1,4 @@
-import type { BirthInput, Chart, DashaPeriod, PlanetId, PlanetPosition, VargaChart, VargaId } from '../types/chart';
+import type { BirthInput, Chart, DashaPeriod, SignNum, PlanetId, PlanetPosition, VargaChart, VargaId } from '../types/chart';
 import { ALL_VARGAS, buildVarga } from '../lib/vargas';
 
 /**
@@ -12,7 +12,15 @@ interface EnginePlanet extends EnginePoint {
   speed: number; house: number; retrograde: boolean; combust: boolean;
 }
 interface EngineDashaNode {
-  lord: PlanetId; start: string; end: string; children?: EngineDashaNode[];
+  lord: PlanetId; name?: string; sign?: SignNum; start: string; end: string; children?: EngineDashaNode[];
+}
+interface EngineDashas {
+  yogini: { periods: EngineDashaNode[]; startYogini: number };
+  ashtottari: { periods: EngineDashaNode[]; applicable?: boolean };
+  kalachakra: {
+    periods: EngineDashaNode[]; direction: 'savya' | 'apasavya'; pada: number;
+    paramayus: number; deha: SignNum; jeeva: SignNum;
+  };
 }
 export interface EngineChart {
   meta: { ayanamsaValue: number };
@@ -20,12 +28,36 @@ export interface EngineChart {
   planets: Partial<Record<string, EnginePlanet>>;
   vargas?: Partial<Record<VargaId, { ascendant: { sign: number }; planets: Partial<Record<string, { sign: number; house: number }>> }>>;
   dasha?: { periods: EngineDashaNode[] };
+  dashas?: EngineDashas;
+}
+
+const SIGN_NAME = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
+
+function otherDashas(d: EngineDashas | undefined): Chart['dashaSystems'] {
+  if (!d) return undefined;
+  const k = d.kalachakra;
+  return {
+    yogini: {
+      periods: d.yogini.periods.map(toDasha),
+      note: `Eight yoginis in a 36-year cycle. Your Moon's nakshatra starts you in ${d.yogini.periods[0]?.name ?? 'the first'} yogini.`,
+    },
+    ashtottari: {
+      periods: d.ashtottari.periods.map(toDasha),
+      note: `Eight planets over 108 years, without Ketu. Tradition uses it when Rahu sits in a kendra or trikona from the lagna lord and not in the lagna, ${
+        d.ashtottari.applicable ? 'which is true in your chart' : 'which is not the case in your chart, so read it alongside Vimshottari'}.`,
+    },
+    kalachakra: {
+      periods: d.kalachakra.periods.map(toDasha),
+      note: `Signs instead of planets. Your Moon is in pada ${k.pada} of ${k.direction === 'savya' ? 'a savya (direct)' : 'an apasavya (reverse)'} nakshatra, which gives a cycle of ${k.paramayus} years with ${SIGN_NAME[k.deha - 1]} as deha (body) and ${SIGN_NAME[k.jeeva - 1]} as jeeva (life). Very sensitive to birth time.`,
+    },
+  };
 }
 
 const IDS: PlanetId[] = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn', 'rahu', 'ketu'];
 
 const toDasha = (n: EngineDashaNode): DashaPeriod => ({
   lord: n.lord, start: n.start, end: n.end, sub: n.children?.map(toDasha),
+  ...(n.name ? { name: n.name } : {}), ...(n.sign ? { sign: n.sign } : {}),
 });
 
 export function fromEngine(input: BirthInput, c: EngineChart): Chart {
@@ -57,6 +89,7 @@ export function fromEngine(input: BirthInput, c: EngineChart): Chart {
     planets,
     vargas,
     dasha: c.dasha?.periods.map(toDasha),
+    dashaSystems: otherDashas(c.dashas),
     meta: { ayanamsaValue: c.meta.ayanamsaValue, source: 'engine' },
   };
 }

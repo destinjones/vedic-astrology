@@ -3,6 +3,7 @@ import type { Selection } from '../types/ui';
 import { NAK_SPAN, NAKSHATRAS, PLANET_BY_ID, SIGNS } from '../data/constants';
 import { ART, grahaArt } from '../data/art';
 import { houseOf } from '../lib/astro';
+import { useI18n } from '../i18n';
 
 export type WheelMode = 'art' | 'diagram';
 
@@ -43,6 +44,7 @@ function rings(mode: WheelMode) {
 }
 
 export function NakshatraWheel({ chart, selection, mode, onSelect, onHoverPlanet }: Props) {
+  const { t, v } = useI18n();
   const R = rings(mode);
   const art = mode === 'art';
 
@@ -59,7 +61,7 @@ export function NakshatraWheel({ chart, selection, mode, onSelect, onHoverPlanet
   const plate = (20.4 / 20) * R.rim * 2;
 
   return (
-    <svg viewBox="0 0 400 400" className={`wheel-svg wheel-${mode}`} role="img" aria-label="Nakshatra wheel">
+    <svg viewBox="0 0 400 400" className={`wheel-svg wheel-${mode}`} role="img" aria-label={t('wheel.label')}>
       <defs>
         <radialGradient id="wheelGlow">
           <stop offset="0" stopColor="var(--accent)" stopOpacity="0.18" />
@@ -85,7 +87,7 @@ export function NakshatraWheel({ chart, selection, mode, onSelect, onHoverPlanet
             <path d={arc(i * 30, i * 30 + 30, R.signIn, R.signOut)}
               className={art ? `wheel-hit${sel ? ' is-selected' : ''}` : `wheel-sign el-${s.element.toLowerCase()}${sel ? ' is-selected' : ''}`} />
             {!art && <text x={tx} y={ty + 6} textAnchor="middle" className="wheel-glyph">{s.glyph}</text>}
-            <title>{`${s.name} · house ${house}`}</title>
+            <title>{t('wheel.signHouse', { sign: v.signs[s.num - 1], house })}</title>
           </g>
         );
       })}
@@ -100,7 +102,7 @@ export function NakshatraWheel({ chart, selection, mode, onSelect, onHoverPlanet
             <path d={arc(d0, d0 + NAK_SPAN, art ? R.nakIn : R.nakIn, art ? R.nakOut : R.signIn)}
               className={art ? `wheel-hit${sel ? ' is-selected' : ''}${hasPlanet ? ' is-occupied' : ''}` : `wheel-nak${sel ? ' is-selected' : ''}${hasPlanet ? ' is-occupied' : ''}`} />
             {!art && <text x={tx} y={ty + 4} textAnchor="middle" className="wheel-naknum">{n.num}</text>}
-            <title>{n.name}</title>
+            <title>{v.nakshatras[n.num - 1]}</title>
           </g>
         );
       })}
@@ -113,8 +115,8 @@ export function NakshatraWheel({ chart, selection, mode, onSelect, onHoverPlanet
           <g className="wheel-asc" onClick={() => onSelect({ kind: 'asc' })}>
             <line x1={x} y1={y} x2={x2} y2={y2} />
             <circle cx={lx} cy={ly} r={11} />
-            <text x={lx} y={ly} dy={3.5} textAnchor="middle">Asc</text>
-            <title>Ascendant (Lagna)</title>
+            <text x={lx} y={ly} dy={3.5} textAnchor="middle">{t('chart.asc')}</text>
+            <title>{t('wheel.ascendant')}</title>
           </g>
         );
       })()}
@@ -142,7 +144,7 @@ export function NakshatraWheel({ chart, selection, mode, onSelect, onHoverPlanet
                 <text x={x} y={y + 4.5} textAnchor="middle" fill={info.color} className="wheel-planet-glyph">{info.glyph}</text>
               </>
             )}
-            <title>{`${info.name}${p.retrograde && p.id !== 'rahu' && p.id !== 'ketu' ? ' (retrograde)' : ''}`}</title>
+            <title>{`${v.planets[p.id].name}${p.retrograde && p.id !== 'rahu' && p.id !== 'ketu' ? t('chart.retrogradeSuffix') : ''}`}</title>
           </g>
         );
       })}

@@ -1,4 +1,5 @@
 import type { Chart, PlanetId, PlanetPosition, VargaChart, VargaId } from '../types/chart';
+import type { DignityKey } from '@vedic/i18n';
 import { NAK_SPAN, PLANET_BY_ID, signInfo } from '../data/constants';
 
 /** ((s - 1 + k) mod 12) + 1 */
@@ -63,6 +64,11 @@ export function dignityOf(id: PlanetId, sign: number): Dignity {
   if (ENEMIES[id].includes(lord)) return 'Enemy';
   return 'Neutral';
 }
+
+/** Maps the UI's dignity labels to the shared vocabulary keys (for translated names). */
+export const DIGNITY_KEY: Record<Dignity, DignityKey> = {
+  Exalted: 'exalted', Moolatrikona: 'moolatrikona', 'Own sign': 'own', Debilitated: 'debilitated', Friendly: 'friend', Neutral: 'neutral', Enemy: 'enemy',
+};
 
 export const dignityTone = (d: Dignity): 'good' | 'mid' | 'bad' =>
   d === 'Exalted' || d === 'Moolatrikona' || d === 'Own sign' || d === 'Friendly'

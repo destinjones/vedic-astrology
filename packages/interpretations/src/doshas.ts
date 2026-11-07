@@ -2,9 +2,9 @@
  * Dosha definitions (original text) and detection rules, including cancellations.
  */
 import { aspectsPlanet, houseFromPlanet, houseOf, isStrong, sameSign } from './chart-utils';
-import { PLANET_PROFILES } from './data/planets';
 import type { ChartInput, DoshaDefinition, DoshaResult, HouseNumber, PlanetId, Reading } from './types';
 import { SEVEN_PLANETS } from './types';
+import { localizer, type LocaleOptions, type Localizer } from './i18n/context';
 
 const r = (id: string, title: string, summary: string, detail: string[], strengths: string[], challenges: string[], remedies: string[], score: number): Reading => ({
   id: `dosha:${id}`, title, summary, detail, strengths, challenges, keywords: ['dosha'], tone: 'challenging', score, remedies,
@@ -80,79 +80,112 @@ export const DOSHA_DEFINITIONS: Record<string, DoshaDefinition> = {
   },
 };
 
-const nameOf = (p: PlanetId) => PLANET_PROFILES[p].name;
+/** A dosha definition with its name, rule and reading in the given language (English where untranslated). */
+export function localizedDosha(id: string, loc: Localizer = localizer('en')): DoshaDefinition {
+  const d = DOSHA_DEFINITIONS[id];
+  const t = loc.doshaText(id);
+  if (!t) return d;
+  const name = t.name ?? d.name;
+  return {
+    ...d,
+    name,
+    rule: t.rule ?? d.rule,
+    reading: { ...d.reading, title: name, summary: t.summary ?? d.reading.summary, detail: t.detail ?? d.reading.detail, strengths: t.strengths ?? d.reading.strengths, challenges: t.challenges ?? d.reading.challenges, remedies: t.remedies ?? d.reading.remedies },
+  };
+}
 
-const KAAL_SARP_NAMES = ['Anant', 'Kulik', 'Vasuki', 'Shankhpal', 'Padma', 'Mahapadma', 'Takshak', 'Karkotak', 'Shankhachood', 'Ghatak', 'Vishdhar', 'Sheshnag'];
+// Detection runs synchronously, so the active language is held here for the duration of one call.
+let L: Localizer = localizer('en');
+const nameOf = (p: PlanetId) => L.planetName(p);
+const withLocale = <T>(opts: LocaleOptions | undefined, fn: () => T): T => {
+  const prev = L;
+  L = localizer(opts?.locale);
+  try { return fn(); } finally { L = prev; }
+};
 
-const res = (id: string, present: boolean, severity: DoshaResult['severity'], involved: PlanetId[], houses: HouseNumber[], reason: string, cancellations: string[] = [], name?: string): DoshaResult => ({
-  id, name: name ?? DOSHA_DEFINITIONS[id].name, present, severity, involved, houses, reason, cancellations, reading: DOSHA_DEFINITIONS[id].reading,
-});
+const res = (id: string, present: boolean, severity: DoshaResult['severity'], involved: PlanetId[], houses: HouseNumber[], reason: string, cancellations: string[] = [], name?: string): DoshaResult => {
+  const d = localizedDosha(id, L);
+  return { id, name: name ?? d.name, present, severity, involved, houses, reason, cancellations, reading: d.reading };
+};
 
-export function detectManglik(chart: ChartInput): DoshaResult {
+export function detectManglik(chart: ChartInput, opts?: LocaleOptions): DoshaResult {
+  return withLocale(opts, () => manglik(chart));
+}
+
+function manglik(chart: ChartInput): DoshaResult {
   const MH = [1, 2, 4, 7, 8, 12];
   const h = houseOf(chart, 'mars');
   const fromMoon = houseFromPlanet(chart, 'moon', 'mars');
   const fromVenus = houseFromPlanet(chart, 'venus', 'mars');
-  const refs = [MH.includes(h) && 'ascendant', MH.includes(fromMoon) && 'Moon', MH.includes(fromVenus) && 'Venus'].filter(Boolean) as string[];
-  if (!refs.length) return res('manglik', false, 'low', ['mars'], [h], 'Mars is not in a Manglik house from the ascendant, Moon or Venus.');
+  const refs = [MH.includes(h) && 'ascendant', MH.includes(fromMoon) && 'moon', MH.includes(fromVenus) && 'venus'].filter(Boolean) as ('ascendant' | 'moon' | 'venus')[];
+  if (!refs.length) return res('manglik', false, 'low', ['mars'], [h], L.ph.manglikNone);
   const sign = chart.planets.mars.sign;
   const c: string[] = [];
-  if ([1, 8, 10].includes(sign)) c.push('Mars is in its own sign or exaltation (Aries, Scorpio or Capricorn)');
-  if (sameSign(chart, 'mars', 'jupiter') || aspectsPlanet(chart, 'jupiter', 'mars')) c.push('Jupiter joins or aspects Mars');
-  if (sameSign(chart, 'mars', 'moon')) c.push('Mars is with the Moon (Chandra-Mangala)');
-  if (h === 2 && [3, 6].includes(sign)) c.push('Mars in the 2nd in Gemini or Virgo');
-  if (h === 4 && [1, 8].includes(sign)) c.push('Mars in the 4th in Aries or Scorpio');
-  if (h === 7 && [4, 10].includes(sign)) c.push('Mars in the 7th in Cancer or Capricorn');
-  if (h === 8 && [9, 12].includes(sign)) c.push('Mars in the 8th in Sagittarius or Pisces');
-  if (h === 12 && [2, 7].includes(sign)) c.push('Mars in the 12th in Taurus or Libra');
-  if ([5, 11].includes(sign)) c.push('Mars in Leo or Aquarius');
+  if ([1, 8, 10].includes(sign)) c.push(L.ph.mcOwnSign);
+  if (sameSign(chart, 'mars', 'jupiter') || aspectsPlanet(chart, 'jupiter', 'mars')) c.push(L.ph.mcJupiter);
+  if (sameSign(chart, 'mars', 'moon')) c.push(L.ph.mcMoon);
+  if (h === 2 && [3, 6].includes(sign)) c.push(L.ph.mc2nd);
+  if (h === 4 && [1, 8].includes(sign)) c.push(L.ph.mc4th);
+  if (h === 7 && [4, 10].includes(sign)) c.push(L.ph.mc7th);
+  if (h === 8 && [9, 12].includes(sign)) c.push(L.ph.mc8th);
+  if (h === 12 && [2, 7].includes(sign)) c.push(L.ph.mc12th);
+  if ([5, 11].includes(sign)) c.push(L.ph.mcLeoAquarius);
   const fromLagna = refs.includes('ascendant');
   const severity: DoshaResult['severity'] = c.length ? 'cancelled' : fromLagna && refs.length >= 2 ? 'high' : fromLagna ? 'moderate' : 'low';
-  return res('manglik', severity !== 'cancelled', severity, ['mars'], [h], `Mars is in a Manglik house from the ${refs.join(', ')}.`, c);
+  return res('manglik', severity !== 'cancelled', severity, ['mars'], [h], L.ph.manglikIn(refs.map((r) => L.ph.manglikRef[r]).join(', ')), c);
 }
 
-export function detectKaalSarp(chart: ChartInput): DoshaResult {
+export function detectKaalSarp(chart: ChartInput, opts?: LocaleOptions): DoshaResult {
+  return withLocale(opts, () => kaalSarp(chart));
+}
+
+function kaalSarp(chart: ChartInput): DoshaResult {
   const rahu = chart.planets.rahu.longitude;
   const arc = (lon: number) => (((lon - rahu) % 360) + 360) % 360; // 0..360 measured from Rahu
   const ps = SEVEN_PLANETS.map((p) => arc(chart.planets[p].longitude));
   const allOneSide = ps.every((x) => x <= 180) || ps.every((x) => x >= 180);
   const hr = houseOf(chart, 'rahu');
   if (allOneSide) {
-    const kind = ps.every((x) => x <= 180) ? 'Kaal Sarp' : 'Kaal Amrit (reverse Kaal Sarp)';
-    return res('kaal-sarp', true, 'moderate', ['rahu', 'ketu'], [hr, houseOf(chart, 'ketu')], `All seven planets lie on one side of the Rahu–Ketu axis (${kind}). Type: ${KAAL_SARP_NAMES[hr - 1]} (Rahu in the ${hr}).`, [], `${KAAL_SARP_NAMES[hr - 1]} Kaal Sarp Dosha`);
+    const kind = ps.every((x) => x <= 180) ? L.ph.kaalSarpKind.forward : L.ph.kaalSarpKind.reverse;
+    const type = L.ph.kaalSarpNames[hr - 1];
+    return res('kaal-sarp', true, 'moderate', ['rahu', 'ketu'], [hr, houseOf(chart, 'ketu')], L.ph.kaalSarp({ kind, type, ord: L.locale === 'en' ? String(hr) : L.ord(hr) }), [], L.ph.kaalSarpName(type));
   }
   const outside = SEVEN_PLANETS.filter((_, i) => ps[i] > 180);
   const inside = SEVEN_PLANETS.filter((_, i) => ps[i] <= 180);
   const minority = outside.length <= inside.length ? outside : inside;
   if (minority.length === 1) {
-    return res('kaal-sarp', true, 'low', ['rahu', 'ketu', ...minority], [hr], `Partial Kaal Sarp: all planets but ${nameOf(minority[0])} are hemmed between the nodes.`, [`${nameOf(minority[0])} breaks the pattern`], 'Partial Kaal Sarp Dosha');
+    return res('kaal-sarp', true, 'low', ['rahu', 'ketu', ...minority], [hr], L.ph.kaalSarpPartial(nameOf(minority[0])), [L.ph.kaalSarpBreaks(nameOf(minority[0]))], L.ph.kaalSarpPartialName);
   }
-  return res('kaal-sarp', false, 'low', ['rahu', 'ketu'], [hr], 'Planets are distributed on both sides of the nodal axis.');
+  return res('kaal-sarp', false, 'low', ['rahu', 'ketu'], [hr], L.ph.kaalSarpNone);
 }
 
-export function detectSimpleDoshas(chart: ChartInput): DoshaResult[] {
+export function detectSimpleDoshas(chart: ChartInput, opts?: LocaleOptions): DoshaResult[] {
+  return withLocale(opts, () => simpleDoshas(chart));
+}
+
+function simpleDoshas(chart: ChartInput): DoshaResult[] {
   const out: DoshaResult[] = [];
   // Pitra
   const pitraReasons: string[] = [];
-  for (const m of ['rahu', 'ketu', 'saturn'] as PlanetId[]) if (sameSign(chart, 'sun', m)) pitraReasons.push(`the Sun is with ${nameOf(m)}`);
-  for (const m of ['rahu', 'saturn'] as PlanetId[]) if (houseOf(chart, m) === 9) pitraReasons.push(`${nameOf(m)} is in the 9th house`);
-  if (pitraReasons.length) out.push(res('pitra', true, pitraReasons.length > 1 ? 'high' : 'moderate', ['sun'], [9], `Pitra indicators: ${pitraReasons.join('; ')}.`, isStrong(chart, 'sun') ? ['The Sun is strong by sign'] : []));
+  for (const m of ['rahu', 'ketu', 'saturn'] as PlanetId[]) if (sameSign(chart, 'sun', m)) pitraReasons.push(L.ph.pitraSunWith(nameOf(m)));
+  for (const m of ['rahu', 'saturn'] as PlanetId[]) if (houseOf(chart, m) === 9) pitraReasons.push(L.ph.pitraIn9th(nameOf(m)));
+  if (pitraReasons.length) out.push(res('pitra', true, pitraReasons.length > 1 ? 'high' : 'moderate', ['sun'], [9], L.ph.pitra(pitraReasons), isStrong(chart, 'sun') ? [L.ph.sunStrong] : []));
   // Grahan
   const gr: string[] = [];
   const grP: PlanetId[] = [];
-  for (const l of ['sun', 'moon'] as PlanetId[]) for (const n of ['rahu', 'ketu'] as PlanetId[]) if (sameSign(chart, l, n)) { gr.push(`${nameOf(l)} with ${nameOf(n)}`); grP.push(l, n); }
-  if (gr.length) out.push(res('grahan', true, gr.length > 1 ? 'high' : 'moderate', [...new Set(grP)], [houseOf(chart, grP[0])], `${gr.join('; ')}.`));
-  if (sameSign(chart, 'jupiter', 'rahu')) out.push(res('guru-chandala', true, isStrong(chart, 'jupiter') ? 'low' : 'moderate', ['jupiter', 'rahu'], [houseOf(chart, 'jupiter')], 'Jupiter shares a sign with Rahu.', isStrong(chart, 'jupiter') ? ['Jupiter is strong by sign'] : []));
-  if (sameSign(chart, 'saturn', 'rahu')) out.push(res('shrapit', true, 'moderate', ['saturn', 'rahu'], [houseOf(chart, 'saturn')], 'Saturn shares a sign with Rahu.'));
-  if (sameSign(chart, 'mars', 'rahu')) out.push(res('angarak', true, 'moderate', ['mars', 'rahu'], [houseOf(chart, 'mars')], 'Mars shares a sign with Rahu.'));
+  for (const l of ['sun', 'moon'] as PlanetId[]) for (const n of ['rahu', 'ketu'] as PlanetId[]) if (sameSign(chart, l, n)) { gr.push(L.ph.grahanWith(nameOf(l), nameOf(n))); grP.push(l, n); }
+  if (gr.length) out.push(res('grahan', true, gr.length > 1 ? 'high' : 'moderate', [...new Set(grP)], [houseOf(chart, grP[0])], L.ph.grahan(gr)));
+  if (sameSign(chart, 'jupiter', 'rahu')) out.push(res('guru-chandala', true, isStrong(chart, 'jupiter') ? 'low' : 'moderate', ['jupiter', 'rahu'], [houseOf(chart, 'jupiter')], L.ph.jupiterRahu, isStrong(chart, 'jupiter') ? [L.ph.jupiterStrong] : []));
+  if (sameSign(chart, 'saturn', 'rahu')) out.push(res('shrapit', true, 'moderate', ['saturn', 'rahu'], [houseOf(chart, 'saturn')], L.ph.saturnRahu));
+  if (sameSign(chart, 'mars', 'rahu')) out.push(res('angarak', true, 'moderate', ['mars', 'rahu'], [houseOf(chart, 'mars')], L.ph.marsRahu));
   // Kemadruma (dosha form)
   const others = SEVEN_PLANETS.filter((p) => p !== 'sun' && p !== 'moon') as PlanetId[];
   const flank = others.some((p) => [2, 12].includes(houseFromPlanet(chart, 'moon', p)));
   if (!flank) {
     const cancel: string[] = [];
-    if (others.some((p) => [1, 4, 7, 10].includes(houseFromPlanet(chart, 'moon', p)))) cancel.push('a planet is in a kendra from the Moon');
-    if (others.some((p) => [1, 4, 7, 10].includes(houseOf(chart, p)))) cancel.push('a planet is in a kendra from the ascendant');
-    out.push(res('kemadruma', cancel.length === 0, cancel.length ? 'cancelled' : 'high', ['moon'], [houseOf(chart, 'moon')], 'No planets flank the Moon in the 2nd or 12th.', cancel));
+    if (others.some((p) => [1, 4, 7, 10].includes(houseFromPlanet(chart, 'moon', p)))) cancel.push(L.ph.kemaKendraMoon);
+    if (others.some((p) => [1, 4, 7, 10].includes(houseOf(chart, p)))) cancel.push(L.ph.kemaKendraLagna);
+    out.push(res('kemadruma', cancel.length === 0, cancel.length ? 'cancelled' : 'high', ['moon'], [houseOf(chart, 'moon')], L.ph.kemadrumaDosha, cancel));
   }
   // Gandanta
   const span = 360 / 27;
@@ -166,13 +199,14 @@ export function detectSimpleDoshas(chart: ChartInput): DoshaResult[] {
     return false;
   };
   const g: string[] = [];
-  if (gandantaOf(chart.planets.moon.longitude)) g.push('the Moon');
-  if (chart.ascendantLongitude !== undefined && gandantaOf(chart.ascendantLongitude)) g.push('the ascendant');
-  if (g.length) out.push(res('gandanta', true, g.length > 1 ? 'high' : 'moderate', g.includes('the Moon') ? ['moon'] : [], [houseOf(chart, 'moon')], `${g.join(' and ')} ${g.length > 1 ? 'fall' : 'falls'} in a water–fire junction.`));
+  const moonG = gandantaOf(chart.planets.moon.longitude);
+  if (moonG) g.push(L.ph.gandantaMoon);
+  if (chart.ascendantLongitude !== undefined && gandantaOf(chart.ascendantLongitude)) g.push(L.ph.gandantaAsc);
+  if (g.length) out.push(res('gandanta', true, g.length > 1 ? 'high' : 'moderate', moonG ? ['moon'] : [], [houseOf(chart, 'moon')], L.ph.gandanta(g)));
   return out;
 }
 
 /** Detect all supported doshas. Manglik and Kaal Sarp are always returned (present or not). */
-export function detectDoshas(chart: ChartInput): DoshaResult[] {
-  return [detectManglik(chart), detectKaalSarp(chart), ...detectSimpleDoshas(chart)];
+export function detectDoshas(chart: ChartInput, opts?: LocaleOptions): DoshaResult[] {
+  return [detectManglik(chart, opts), detectKaalSarp(chart, opts), ...detectSimpleDoshas(chart, opts)];
 }

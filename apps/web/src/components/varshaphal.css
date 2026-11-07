@@ -1,0 +1,75 @@
+/* Varshaphal (Tajika annual chart). Uses the explorer's tokens from index.css. */
+.vp { display: grid; gap: 16px; }
+.vp .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.vp-controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; justify-content: space-between; }
+.vp-year { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.vp-year select { background: rgba(11, 10, 26, 0.7); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px; font: inherit; }
+.vp-year .btn-ghost.sm { min-width: 34px; }
+.vp-place { position: relative; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+.vp-place input { background: rgba(11, 10, 26, 0.7); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px; font: inherit; min-width: min(280px, 70vw); }
+
+.vp-hero { display: flex; gap: 16px; justify-content: space-between; align-items: flex-start; padding: 16px 18px; border-radius: 14px;
+  border: 1px solid var(--line-soft); border-left: 4px solid var(--mid); background: rgba(23, 20, 47, 0.6); }
+.vp-hero.tone-good { border-left-color: var(--good); }
+.vp-hero.tone-hard { border-left-color: var(--bad); }
+.vp-hero small { color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; }
+.vp-hero h4 { margin: 4px 0 6px; font: 600 26px/1.15 var(--serif); }
+.vp-hero p { margin: 0 0 4px; color: #d6d0e8; }
+.vp-score { text-align: center; flex: none; padding: 8px 14px; border-radius: 12px; border: 1px solid var(--line); background: rgba(11, 10, 26, 0.6); }
+.vp-score b { display: block; font: 600 30px/1 var(--serif); color: var(--accent); }
+
+.vp-moment { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin: 0; }
+.vp-moment > div { background: rgba(23, 20, 47, 0.7); border: 1px solid var(--line-soft); border-radius: 12px; padding: 10px 14px; min-width: 0; }
+.vp-moment dt { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+.vp-moment dd { margin: 2px 0 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+
+.vp-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.vp-panel { border: 1px solid var(--line-soft); border-radius: 14px; padding: 14px 16px; background: rgba(255, 255, 255, 0.02); min-width: 0; }
+.vp-head { display: flex; gap: 10px; align-items: baseline; justify-content: space-between; flex-wrap: wrap; margin-bottom: 8px; }
+.vp-head h4 { margin: 0; font: 600 20px/1.2 var(--serif); }
+.vp-head .muted { font-size: 13px; }
+.vp-legend { text-align: center; font-size: 13px; margin: 8px 0 0; }
+.vp-planet-note { margin: 10px 0 0; font-size: 14px; }
+.vp-readings .reading-block:first-child { margin-top: 0; }
+.vp-now { margin: 12px 0 0; font-size: 14px; }
+.vp-chip { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: var(--accent); color: #1a1206; font-size: 11px; font-weight: 700; letter-spacing: 0.03em; vertical-align: 1px; }
+.vp-now .vp-chip { margin: 0 4px 0 0; }
+
+.vp-table-wrap { overflow-x: auto; }
+.vp-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.vp-table th { text-align: left; font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 8px; border-bottom: 1px solid var(--line-soft); white-space: nowrap; }
+.vp-table td { padding: 7px 8px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+.vp-table.num td { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.vp-table tr.is-lord td { background: rgba(232, 182, 90, 0.08); }
+.vp-sub { color: var(--muted); font-size: 12.5px; }
+.vp-bar { position: relative; display: inline-flex; align-items: center; width: 140px; max-width: 100%; height: 18px; border-radius: 6px; background: rgba(255, 255, 255, 0.06); overflow: hidden; }
+.vp-bar > span { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, rgba(232, 182, 90, 0.35), rgba(232, 182, 90, 0.75)); }
+.vp-bar > b { position: relative; padding-left: 6px; font-size: 12px; font-variant-numeric: tabular-nums; }
+
+.vp-verdict { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; text-transform: capitalize; border: 1px solid currentColor; }
+.v-promising, .v-supported { color: var(--good); }
+.v-workable, .v-mixed { color: var(--mid); }
+.v-slow, .v-strained { color: var(--bad); }
+
+.vp-areas { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.vp-areas li { border-bottom: 1px solid var(--line-soft); padding-bottom: 10px; }
+.vp-areas li:last-child { border-bottom: 0; padding-bottom: 0; }
+.vp-area-top { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.vp-area-top .vp-verdict { margin-left: auto; }
+.vp-areas p { margin: 4px 0 0; font-size: 14px; color: #d6d0e8; }
+.vp-yoga-planets { font-weight: 400; font-size: 12.5px; }
+.reading-block.tone-mixed .tone-dot { background: var(--mid); }
+.vp-mudda-text { margin: 0 0 10px; color: #d6d0e8; }
+
+.vp-more > summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+.vp-more[open] > summary { margin-bottom: 8px; }
+.vp-note { font-size: 13px; margin: 8px 0 0; }
+
+@media (max-width: 1000px) {
+  .vp-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .vp-hero { flex-direction: column; }
+  .vp-hero h4 { font-size: 22px; }
+  .vp-table th, .vp-table td { padding: 6px 5px; }
+}

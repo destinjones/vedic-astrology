@@ -6,8 +6,10 @@
   --gold: #e8b65a;
   --gold-2: #f6d999;
   --line: rgba(232, 182, 90, 0.28);
-  --serif: 'Cormorant Garamond', Georgia, serif;
-  --sans: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Indian scripts fall through to Noto (loaded per language) or the system's own font. */
+  --indic: 'Noto Sans Devanagari', 'Noto Sans Tamil', 'Noto Sans Telugu', 'Noto Sans Bengali', 'Noto Sans Gujarati', 'Noto Sans Kannada', 'Nirmala UI', 'Kohinoor Devanagari';
+  --serif: 'Cormorant Garamond', Georgia, var(--indic), serif;
+  --sans: Inter, system-ui, -apple-system, 'Segoe UI', var(--indic), sans-serif;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -29,6 +31,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.04; mar
 .nav { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 22px clamp(16px, 5vw, 64px); font-size: 15px; }
 .nav a { color: var(--text); text-decoration: none; opacity: .85; }
 .nav a:hover { opacity: 1; text-decoration: underline; }
+.nav-links { display: flex; gap: 20px; flex-wrap: wrap; justify-content: flex-end; }
 .wordmark { font: 600 22px var(--serif); }
 .wordmark span { color: var(--gold); }
 .hero-copy { margin-block: auto; padding: 24px clamp(16px, 5vw, 64px) 72px; max-width: 920px; }

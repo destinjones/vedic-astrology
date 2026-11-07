@@ -144,6 +144,8 @@ export interface ChartOptions {
   dashaLevels?: 1 | 2 | 3 | 4 | 5;
   /** Days per dasha year. Default 365.2425 */
   dashaYearDays?: number;
+  /** Compute Shadbala and Bhava Bala into `chart.strength`. Default true */
+  strength?: boolean;
 }
 
 // ---------------------------------------------------------------- output
@@ -232,9 +234,15 @@ export interface VargaChart {
   vargottama: PlanetId[];
 }
 
+export type DashaSystem = 'vimshottari' | 'yogini' | 'ashtottari' | 'kalachakra';
+
 export interface DashaPeriod {
-  /** Lord of this period */
+  /** Lord of this period (for Kalachakra, the lord of the period's sign) */
   lord: GrahaId;
+  /** Kalachakra only: the sign that rules this period */
+  sign?: SignNumber;
+  /** Display name when the period is not simply named after its lord: the yogini (e.g. 'Mangala') or the sign (e.g. 'Aries') */
+  name?: string;
   /** 1 = mahadasha, 2 = antardasha, 3 = pratyantardasha, 4 = sookshma, 5 = prana */
   level: number;
   /** ISO UTC */
@@ -261,6 +269,55 @@ export interface VimshottariDasha {
   yearDays: number;
   /** 9 mahadashas from birth (the first one starts before birth) + 1 extra cycle start, 120y */
   periods: DashaPeriod[];
+}
+
+/** Common shape of every dasha system's result */
+export interface DashaTree {
+  system: DashaSystem;
+  yearDays: number;
+  /** Fraction (0–1) of the first mahadasha already elapsed at birth */
+  elapsedFraction: number;
+  /** Remaining balance of the first mahadasha at birth, in years */
+  balanceYears: number;
+  /** Mahadashas in order; the first starts at or before birth, the last ends at least 120 years after birth */
+  periods: DashaPeriod[];
+}
+
+export interface YoginiDasha extends DashaTree {
+  system: 'yogini';
+  /** 1 = Mangala ... 8 = Sankata */
+  startYogini: number;
+  startLord: GrahaId;
+}
+
+export interface AshtottariDasha extends DashaTree {
+  system: 'ashtottari';
+  startLord: GrahaId;
+  /**
+   * Classical condition for using Ashtottari: Rahu in a kendra or trikona from the
+   * lagna lord, but not in the lagna. Set by the chart; undefined from the bare function.
+   */
+  applicable?: boolean;
+}
+
+export interface KalachakraDasha extends DashaTree {
+  system: 'kalachakra';
+  /** 'savya' (direct) or 'apasavya' (reverse) chakra of the Moon's nakshatra */
+  direction: 'savya' | 'apasavya';
+  /** Moon's nakshatra pada at birth, 1–4 */
+  pada: Pada;
+  /** Paramayus of the birth pada: 83, 85, 86 or 100 years */
+  paramayus: number;
+  /** First sign of the birth pada's cycle (body) */
+  deha: SignNumber;
+  /** Last sign of the birth pada's cycle (life) */
+  jeeva: SignNumber;
+}
+
+export interface OtherDashas {
+  yogini: YoginiDasha;
+  ashtottari: AshtottariDasha;
+  kalachakra: KalachakraDasha;
 }
 
 export interface Panchanga {
@@ -322,7 +379,11 @@ export interface Chart {
   houses: House[];
   vargas: Partial<Record<VargaId, VargaChart>>;
   dasha: VimshottariDasha;
+  /** Yogini, Ashtottari and Kalachakra dashas, same depth and year length as `dasha` */
+  dashas: OtherDashas;
   panchanga: Panchanga;
+  /** Shadbala for the seven grahas and Bhava Bala for the twelve houses (absent when options.strength is false) */
+  strength?: import('./strength').ChartStrength;
 }
 
 /** Light-weight snapshot for transits / timelines */
@@ -354,4 +415,6 @@ export interface GeoResult {
   admin1?: string;
   population?: number;
   elevation?: number;
+  /** The former or alternate name the user typed, when this match came from it (e.g. "Pondicherry") */
+  formerly?: string;
 }

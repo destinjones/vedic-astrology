@@ -35,3 +35,17 @@ describe('engine adapter', () => {
     expect(t.retrogrades.some((r) => r.planet === 'Mercury')).toBe(true);
   });
 });
+
+describe('transit search on the engine', () => {
+  it('answers a long Saturn question quickly', async () => {
+    const { answerTransitQuestion } = await import('../src');
+    const eph = engineEphemeris(engine, { ayanamsa: chart.meta.ayanamsa, nodeType: chart.meta.nodeType });
+    const t0 = performance.now();
+    const a = answerTransitQuestion(eph, natalFromChart(chart), 'When does Saturn aspect my Moon?', { from: new Date('2026-01-01') });
+    const ms = performance.now() - t0;
+    expect(a.ok && a.result.hits.length).toBeGreaterThan(3);
+    expect(ms).toBeLessThan(3000);
+    const moon = answerTransitQuestion(eph, natalFromChart(chart), 'Moon over my Sun', { from: new Date('2026-01-01') });
+    expect(moon.ok && moon.result.hits.length).toBe(12);
+  });
+});

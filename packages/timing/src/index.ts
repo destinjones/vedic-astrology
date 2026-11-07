@@ -1,5 +1,6 @@
 export * from './types';
 export * from './astro';
+export * from './classical';
 export * from './dasha';
 export * from './ashtakavarga';
 export * from './events';
@@ -7,3 +8,5 @@ export * from './transits';
 export * from './retrograde';
 export * from './timeline';
 export { createAstronomyEphemeris, lahiriAyanamsa, siderealLongitude, ascendantSidereal } from './adapters/astronomyEphemeris';
+export * from './lifeEvents';
+export * from './search';

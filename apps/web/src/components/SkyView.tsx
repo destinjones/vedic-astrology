@@ -25,9 +25,19 @@ const onWheel = (lonDeg: number, r: number, h: number) => {
   return new THREE.Vector3(r * Math.cos(a), h, -r * Math.sin(a));
 };
 
+import { useI18n } from '../i18n';
+import type { Vocab } from '@vedic/i18n';
+import type { PlanetPosition } from '../types/chart';
+
+const skyName = (v: Vocab, p: PlanetPosition) => `${v.planets[p.id].name}${p.retrograde && p.id !== 'rahu' && p.id !== 'ketu' ? ' ℞' : ''}`;
+
 interface PlanetNode { id: PlanetId; group: THREE.Group; halo: THREE.Mesh; label: HTMLDivElement }
 
 export default function SkyView({ chart, selection, onSelect }: Props) {
+  const { t, v } = useI18n();
+  const namesRef = useRef({ v, lagna: t('sky.lagna') });
+  namesRef.current = { v, lagna: t('sky.lagna') };
+  const ascLabelRef = useRef<HTMLDivElement | null>(null);
   const hostRef = useRef<HTMLDivElement>(null);
   const nodesRef = useRef<PlanetNode[]>([]);
   const onSelectRef = useRef(onSelect);
@@ -160,7 +170,7 @@ export default function SkyView({ chart, selection, onSelect }: Props) {
           const label = document.createElement('div');
           label.className = 'sky-label';
           label.style.setProperty('--c', info.color);
-          label.textContent = `${info.name}${p.retrograde && p.id !== 'rahu' && p.id !== 'ketu' ? ' ℞' : ''}`;
+          label.textContent = skyName(namesRef.current.v, p);
           label.addEventListener('pointerdown', (e) => e.stopPropagation());
           label.addEventListener('click', (e) => { e.stopPropagation(); onSelectRef.current({ kind: 'planet', id: p.id }); });
           const lab = new CSS2DObject(label);
@@ -181,7 +191,8 @@ export default function SkyView({ chart, selection, onSelect }: Props) {
         scene.add(beam);
         const ascLabel = document.createElement('div');
         ascLabel.className = 'sky-label sky-label-asc';
-        ascLabel.textContent = 'Lagna';
+        ascLabel.textContent = namesRef.current.lagna;
+        ascLabelRef.current = ascLabel;
         ascLabel.addEventListener('pointerdown', (e) => e.stopPropagation());
         ascLabel.addEventListener('click', (e) => { e.stopPropagation(); onSelectRef.current({ kind: 'asc' }); });
         const ascObj = new CSS2DObject(ascLabel);
@@ -253,15 +264,21 @@ export default function SkyView({ chart, selection, onSelect }: Props) {
 
   useEffect(() => { if (controlsRef.current) controlsRef.current.autoRotate = spin; }, [spin, status]);
 
+  // relabel in place when the language changes
+  useEffect(() => {
+    for (const n of nodesRef.current) n.label.textContent = skyName(v, chart.planets.find((p) => p.id === n.id)!);
+    if (ascLabelRef.current) ascLabelRef.current.textContent = t('sky.lagna');
+  }, [v, t, chart, status]);
+
   return (
     <div className="sky-wrap">
       <div ref={hostRef} className="sky-host" />
-      {status === 'loading' && <div className="sky-overlay"><div className="sky-spinner" />Loading the grahas…</div>}
-      {status === 'error' && <div className="sky-overlay">The 3D view needs WebGL, which this browser didn't provide.</div>}
+      {status === 'loading' && <div className="sky-overlay"><div className="sky-spinner" />{t('sky.loading')}</div>}
+      {status === 'error' && <div className="sky-overlay">{t('sky.noWebgl')}</div>}
       <div className="sky-controls">
-        <button className="btn-ghost sm" onClick={() => setSpin((s) => !s)}>{spin ? 'Pause rotation' : 'Rotate'}</button>
+        <button className="btn-ghost sm" onClick={() => setSpin((s) => !s)}>{spin ? t('sky.pause') : t('sky.rotate')}</button>
       </div>
-      <p className="sky-note">Drag to orbit, scroll to zoom, click a graha. Each graha's line touches the wheel at its exact sidereal longitude. The starry backdrop is artwork, not real star positions.</p>
+      <p className="sky-note">{t('sky.note')}</p>
     </div>
   );
 }
