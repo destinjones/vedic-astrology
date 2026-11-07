@@ -7,6 +7,8 @@ import { type RetrogradePeriod, retroStatusAt, RETRO_MEANING, RETRO_PLANETS } fr
 import { type SadeSatiSpell, type SaturnPhase, SATURN_PHASE_TEXT, transitSnapshot } from '../src/transits';
 import { BAV_TOTALS } from '../src/ashtakavarga';
 import { addDays, ordinal, signName, signOf } from '../src/astro';
+import type { TransitHit, TransitSearchResult } from '../src/search';
+import { TransitSearch } from './TransitSearch';
 import { fmtDate, fmtMonth, fmtRange, GLYPH, PLANET_COLOR, scoreColor, seqColor, seqInk, signed, TONE_LABEL } from './scale';
 import './timing.css';
 
@@ -41,6 +43,18 @@ export function TimingDashboard({ chart, ephemeris, name, dashas }: TimingDashbo
   const [rangeId, setRangeId] = useState<(typeof RANGES)[number]['id']>('3y');
   const [selection, setSelection] = useState<Selection>(null);
   const [inspect, setInspect] = useState<Date>(() => new Date());
+  const [search, setSearch] = useState<TransitSearchResult | null>(null);
+  const [picked, setPicked] = useState<TransitHit | null>(null);
+
+  // Show a search result on the timeline: inspect that day, widening the range if it falls outside.
+  const pick = (hit: TransitHit) => {
+    setPicked(hit);
+    setInspect(hit.date);
+    const now = Date.now(), t = hit.date.getTime(), yr = 365.25 * 864e5;
+    const order = RANGES.map((r) => r.id);
+    const fits = RANGES.find((r) => r.back < 0 || (t >= now - r.back * yr && t <= now + r.fwd * yr));
+    if (fits && order.indexOf(fits.id) > order.indexOf(rangeId)) setRangeId(fits.id);
+  };
 
   const timeline = useMemo<Timeline>(() => {
     const r = RANGES.find((x) => x.id === rangeId)!;
@@ -56,6 +70,11 @@ export function TimingDashboard({ chart, ephemeris, name, dashas }: TimingDashbo
       <div className="vt-grid">
         <div className="vt-stack">
           <NowHero timeline={timeline} name={name} onSelect={setSelection} />
+          <section className="vt-card" id="vt-transit-search">
+            <h2>Transit search</h2>
+            <p className="vt-sub">Ask when a planet reaches a point in your chart, returns to its birth degree, changes sign or stations. Dates are computed exactly from the ephemeris.</p>
+            <TransitSearch chart={chart} ephemeris={ephemeris} result={search} onResult={(r) => { setSearch(r); setPicked(null); }} onPick={pick} picked={picked} />
+          </section>
           <section className="vt-card">
             <div className="vt-spread">
               <div>
@@ -68,7 +87,7 @@ export function TimingDashboard({ chart, ephemeris, name, dashas }: TimingDashbo
                 ))}
               </div>
             </div>
-            <WeatherChart timeline={timeline} inspect={inspect} onInspect={setInspect} onSelect={setSelection} selection={selection} />
+            <WeatherChart timeline={timeline} inspect={inspect} onInspect={setInspect} onSelect={setSelection} selection={selection} search={search} picked={picked} onPick={pick} />
           </section>
           <section className="vt-card">
             <h2>Dasha map</h2>
@@ -166,8 +185,9 @@ function useWidth<T extends HTMLElement>() {
 }
 
 // ---------------------------------------------------------------------------
-function WeatherChart({ timeline, inspect, onInspect, onSelect, selection }: {
+function WeatherChart({ timeline, inspect, onInspect, onSelect, selection, search, picked, onPick }: {
   timeline: Timeline; inspect: Date; onInspect: (d: Date) => void; onSelect: (s: Selection) => void; selection: Selection;
+  search?: TransitSearchResult | null; picked?: TransitHit | null; onPick?: (h: TransitHit) => void;
 }) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<{ x: number; pt: CombinedPoint } | null>(null);
@@ -176,7 +196,9 @@ function WeatherChart({ timeline, inspect, onInspect, onSelect, selection }: {
   const left = 78, right = 8, top = 10, plotH = 180;
   const laneH = 16, laneGap = 6;
   const retroPlanets = RETRO_PLANETS.filter((p) => timeline.retrogrades.some((r) => r.planet === p));
-  const lanes = ['Dasha', 'SaturnPhase', ...retroPlanets] as const;
+  const hasSearch = !!search?.hits.length;
+  const lanes = [...(hasSearch ? ['Search'] : []), 'Dasha', 'SaturnPhase', ...retroPlanets] as const;
+  const L0 = hasSearch ? 1 : 0;
   const lanesTop = top + plotH + 26;
   const height = lanesTop + lanes.length * (laneH + laneGap) + 22;
   const W = Math.max(320, width);
@@ -265,16 +287,16 @@ function WeatherChart({ timeline, inspect, onInspect, onSelect, selection }: {
 
         {/* lanes */}
         {lanes.map((name, i) => (
-          <text key={name} className="vt-lane-label" x={left - 8} y={laneY(i) + laneH - 4} textAnchor="end">{name === 'Dasha' ? (spanYears > 25 ? 'Mahadasha' : 'Antardasha') : name === 'SaturnPhase' ? 'Sade Sati' : `${GLYPH[name as Planet]} ${name} ℞`}</text>
+          <text key={name} className="vt-lane-label" x={left - 8} y={laneY(i) + laneH - 4} textAnchor="end">{name === 'Search' ? 'Search' : name === 'Dasha' ? (spanYears > 25 ? 'Mahadasha' : 'Antardasha') : name === 'SaturnPhase' ? 'Sade Sati' : `${GLYPH[name as Planet]} ${name} ℞`}</text>
         ))}
         {antars.map((p, i) => {
           const a = clampX(p.start, left), b = clampX(p.end, W - right);
           return (
             <g key={i} style={{ cursor: 'pointer' }} onClick={() => onSelect({ kind: 'dasha', period: p })}>
-              <rect x={a + 1} width={Math.max(1, b - a - 2)} y={laneY(0)} height={laneH} rx={4} fill={scoreColor(p.score)} stroke={isSel(p) ? 'var(--text-primary)' : 'none'} strokeWidth={2}>
+              <rect x={a + 1} width={Math.max(1, b - a - 2)} y={laneY(L0)} height={laneH} rx={4} fill={scoreColor(p.score)} stroke={isSel(p) ? 'var(--text-primary)' : 'none'} strokeWidth={2}>
                 <title>{`${p.path.join(' – ')}: ${fmtRange(p.start, p.end)} (${signed(p.score)})`}</title>
               </rect>
-              {b - a > 46 && <text x={a + 5} y={laneY(0) + 12} fontSize={10.5} fill="var(--text-primary)" pointerEvents="none">{p.path.map((q) => q.slice(0, 2)).join('/')}</text>}
+              {b - a > 46 && <text x={a + 5} y={laneY(L0) + 12} fontSize={10.5} fill="var(--text-primary)" pointerEvents="none">{p.path.map((q) => q.slice(0, 2)).join('/')}</text>}
             </g>
           );
         })}
@@ -283,15 +305,15 @@ function WeatherChart({ timeline, inspect, onInspect, onSelect, selection }: {
           const sade = p.kind.startsWith('sade');
           return (
             <g key={i} style={{ cursor: 'pointer', color: 'var(--bad)' }} onClick={() => onSelect({ kind: 'saturn', phase: p })}>
-              <rect x={a + 1} width={Math.max(1, b - a - 2)} y={laneY(1)} height={laneH} rx={4} fill={sade ? 'var(--bad)' : 'url(#vt-hatch)'} opacity={p.kind === 'sade-sati-peak' ? 1 : 0.7} stroke={isSel(p) ? 'var(--text-primary)' : 'none'} strokeWidth={2}>
+              <rect x={a + 1} width={Math.max(1, b - a - 2)} y={laneY(L0 + 1)} height={laneH} rx={4} fill={sade ? 'var(--bad)' : 'url(#vt-hatch)'} opacity={p.kind === 'sade-sati-peak' ? 1 : 0.7} stroke={isSel(p) ? 'var(--text-primary)' : 'none'} strokeWidth={2}>
                 <title>{`${satLabel(p.kind)}: ${fmtRange(p.start, p.end)}`}</title>
               </rect>
-              {b - a > 70 && <text x={a + 5} y={laneY(1) + 12} fontSize={10.5} fill={sade ? '#fff' : 'var(--text-primary)'} pointerEvents="none">{satLabel(p.kind)}</text>}
+              {b - a > 70 && <text x={a + 5} y={laneY(L0 + 1) + 12} fontSize={10.5} fill={sade ? '#fff' : 'var(--text-primary)'} pointerEvents="none">{satLabel(p.kind)}</text>}
             </g>
           );
         })}
         {retroPlanets.map((planet, li) => timeline.retrogrades.filter((r) => r.planet === planet).map((r, i) => {
-          const y = laneY(2 + li);
+          const y = laneY(L0 + 2 + li);
           const pre = [clampX(r.preShadowStart, sx(r.stationRetrograde)), clampX(r.stationRetrograde, left)];
           const ret = [clampX(r.stationRetrograde, left), clampX(r.stationDirect, W - right)];
           const post = [clampX(r.stationDirect, W - right), clampX(r.postShadowEnd, W - right)];
@@ -305,6 +327,25 @@ function WeatherChart({ timeline, inspect, onInspect, onSelect, selection }: {
             </g>
           );
         }))}
+
+        {/* transit search results: in-orb span plus a diamond on every exact pass */}
+        {hasSearch && search!.hits.filter((h) => (h.end ?? h.date).getTime() >= x0 && (h.start ?? h.date).getTime() <= x1).map((h) => {
+          const y = laneY(0), on = picked?.id === h.id;
+          const a = h.start ? clampX(h.start, left) : null, b = h.end ? clampX(h.end, W - right) : null;
+          return (
+            <g key={h.id} style={{ cursor: 'pointer' }} onClick={() => onPick?.(h)}>
+              <title>{`${h.title}: ${h.passes.map((p) => fmtDate(p.date)).join(', ')}`}</title>
+              {a !== null && b !== null && <rect x={a} width={Math.max(2, b - a)} y={y + 5} height={laneH - 10} rx={3} fill="var(--accent)" opacity={0.3} />}
+              {h.passes.filter((p) => +p.date >= x0 && +p.date <= x1).map((p, i) => {
+                const cx = sx(p.date), cy = y + laneH / 2, r = on ? 7 : 5.5;
+                return <path key={i} d={`M${cx},${cy - r}L${cx + r},${cy}L${cx},${cy + r}L${cx - r},${cy}Z`} fill={p.retrograde ? 'var(--surface-1)' : 'var(--accent)'} stroke={on ? 'var(--text-primary)' : 'var(--accent)'} strokeWidth={on ? 2 : 1.5} />;
+              })}
+            </g>
+          );
+        })}
+        {picked && +picked.date >= x0 && +picked.date <= x1 && (
+          <line x1={sx(picked.date)} x2={sx(picked.date)} y1={top} y2={laneY(0)} stroke="var(--accent)" strokeWidth={1} opacity={0.5} pointerEvents="none" />
+        )}
 
         {/* hover layer over the plot */}
         <rect x={left} y={top} width={W - left - right} height={plotH} fill="transparent" onMouseMove={onMove} onMouseLeave={() => setHover(null)}
@@ -323,6 +364,7 @@ function WeatherChart({ timeline, inspect, onInspect, onSelect, selection }: {
           <span><i style={{ background: 'var(--bad)' }} />Challenging</span>
           {showParts && <><span><i style={{ background: 'var(--accent)', height: 2 }} />Dasha part</span><span><i style={{ background: 'var(--gold)', height: 2 }} />Transit part</span></>}
           <span><i style={{ background: 'var(--text-muted)', opacity: 0.4, height: 4 }} />Shadow phase</span>
+          {hasSearch && <span><i style={{ background: 'var(--accent)', width: 9, height: 9, transform: 'rotate(45deg)' }} />Search hit (hollow = retrograde pass)</span>}
         </div>
         <label className="vt-check"><input type="checkbox" checked={showParts} onChange={(e) => setShowParts(e.target.checked)} /> Show dasha and transit parts</label>
       </div>
