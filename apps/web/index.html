@@ -2,15 +2,169 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <title>Jyotisha Explorer</title>
+    <title>Jyotisha Explorer: your entire Vedic chart, free</title>
+    <meta name="description" content="Your full Vedic birth chart with 16 divisional charts, 44 yogas, 9 doshas, a 3D sky and a lifetime timeline of good times, hard times and retrogrades. Free, open source, no account." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="canonical" href="https://destinjones.github.io/vedic-astrology/" />
+    <meta name="theme-color" content="#0b0a1a" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Your entire sky. Nothing held back." />
+    <meta property="og:description" content="16 divisional charts, 44 yogas, a 3D sky and a lifetime timeline of good and hard times. Free, open source, no account." />
+    <meta property="og:url" content="https://destinjones.github.io/vedic-astrology/" />
+    <meta property="og:image" content="https://destinjones.github.io/vedic-astrology/og.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="module" src="/src/landing/landing.ts"></script>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <header class="hero">
+      <picture class="hero-art">
+        <source media="(max-width: 700px)" srcset="%BASE_URL%cosmos/backgrounds/navagraha-hero-mobile.webp" />
+        <img src="%BASE_URL%cosmos/backgrounds/navagraha-hero.webp" alt="" />
+      </picture>
+      <nav class="nav">
+        <span class="wordmark"><span aria-hidden="true">✦</span> Jyotisha Explorer</span>
+        <a href="https://github.com/destinjones/vedic-astrology">Source on GitHub</a>
+      </nav>
+      <div class="hero-copy">
+        <p class="eyebrow">Free Vedic astrology, all of it</p>
+        <h1>Your entire sky.<br /><em>Nothing held back.</em></h1>
+        <p class="lede">
+          Type your birth date, time and place. In seconds you get the whole chart: every divisional chart,
+          every nakshatra, 44 yogas checked, and a timeline of your good years, your hard years and every retrograde
+          between them. Then click anything and go deeper.
+        </p>
+        <div class="cta-row">
+          <a class="cta" href="app/">Reveal my chart</a>
+          <a class="cta ghost" href="app/#sample">See a sample chart</a>
+        </div>
+        <ul class="promises">
+          <li>No account</li>
+          <li>No ads</li>
+          <li>No paywall</li>
+          <li>No tracking</li>
+          <li>Open source</li>
+        </ul>
+      </div>
+    </header>
+
+    <main>
+      <section class="stats" aria-label="What is inside">
+        <div><b data-count="16">16</b><span>divisional charts, D1 to D60</span></div>
+        <div><b data-count="27">27</b><span>nakshatras, 108 padas</span></div>
+        <div><b data-count="44">44</b><span>yogas it hunts for</span></div>
+        <div><b data-count="9">9</b><span>doshas, with cancellations</span></div>
+        <div><b data-count="603" data-suffix="+">603+</b><span>written placement readings</span></div>
+      </section>
+
+      <section class="show" id="explorer">
+        <div class="show-copy">
+          <p class="eyebrow">The explorer</p>
+          <h2>Every part of your chart is a door.</h2>
+          <p>
+            North or South Indian style, across all 16 vargas. Click a planet and see its dignity, its lords, its aspects
+            and where it lands in every divisional chart. Click a house, a nakshatra or the lagna and the reading follows
+            you. You never hit a wall that asks for your card.
+          </p>
+          <ul class="ticks">
+            <li>Retrograde, combust and vargottama flagged on the chart</li>
+            <li>Lahiri, True Chitra, Raman and KP ayanamsas</li>
+            <li>Yogas and doshas listed with the exact reason each one forms</li>
+          </ul>
+        </div>
+        <figure class="show-media">
+          <img loading="lazy" src="%BASE_URL%media/explorer.gif" width="1120" height="700" alt="Clicking through a Vedic chart: the chart switches between divisional charts, and selecting a planet opens its full reading in the side panel." />
+        </figure>
+      </section>
+
+      <section class="show flip" id="sky">
+        <div class="show-copy">
+          <p class="eyebrow">The 3D sky</p>
+          <h2>Hold your birth sky in your hands.</h2>
+          <p>
+            Nine planets rendered in Blender, each tethered to its exact sidereal degree on a golden nakshatra wheel. Spin it,
+            zoom it, click a planet to open its reading. Rahu is an eclipse. Ketu is a smoking comet. Nothing else in your
+            bookmarks looks like this.
+          </p>
+          <p class="fine">Planet longitudes are calculated from your birth data. The starry backdrop is artwork, not a map of real stars.</p>
+        </div>
+        <figure class="show-media">
+          <img loading="lazy" src="%BASE_URL%media/sky.gif" width="1120" height="700" alt="A 3D sky view rotating: nine rendered planets stand on a gold wheel of signs and nakshatras, each tethered to its longitude." />
+        </figure>
+      </section>
+
+      <section class="show" id="timeline">
+        <div class="show-copy">
+          <p class="eyebrow">The timeline</p>
+          <h2>See your whole life as weather.</h2>
+          <p>
+            One line, from now to a lifetime, that blends your dashas with the transits over your Moon. Good stretches and
+            hard stretches are found for you, and each one tells you why it is there. Sade Sati, every retrograde station,
+            all the ashtakavarga tables: one screen, one click apart.
+          </p>
+          <ul class="ticks">
+            <li>Maha, antar and pratyantar dashas, each scored with reasons</li>
+            <li>Mercury to Saturn retrogrades, with the houses they cross</li>
+            <li>Sade Sati phases, including retrograde re-entries</li>
+          </ul>
+        </div>
+        <figure class="show-media">
+          <img loading="lazy" src="%BASE_URL%media/timeline.gif" width="1120" height="700" alt="The timing dashboard: a life weather chart over several years, with favourable and challenging windows and a click into one period's reasons." />
+        </figure>
+      </section>
+
+      <section class="grahas" aria-label="The nine grahas">
+        <h2>Nine grahas. Rendered like they matter.</h2>
+        <div class="graha-row">
+          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/surya.webp" alt="" /><figcaption>Surya</figcaption></figure>
+          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/chandra.webp" alt="" /><figcaption>Chandra</figcaption></figure>
+          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/mangala.webp" alt="" /><figcaption>Mangala</figcaption></figure>
+          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/budha.webp" alt="" /><figcaption>Budha</figcaption></figure>
+          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/guru.webp" alt="" /><figcaption>Guru</figcaption></figure>
+          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/shukra.webp" alt="" /><figcaption>Shukra</figcaption></figure>
+          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/shani.webp" alt="" /><figcaption>Shani</figcaption></figure>
+          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/rahu.webp" alt="" /><figcaption>Rahu</figcaption></figure>
+          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/ketu.webp" alt="" /><figcaption>Ketu</figcaption></figure>
+        </div>
+      </section>
+
+      <section class="proof">
+        <h2>Big claims. Here is the receipt.</h2>
+        <div class="proof-grid">
+          <article>
+            <h3>Real ephemeris</h3>
+            <p>Positions come from the Swiss Ephemeris, compiled to WebAssembly and running on your own device.</p>
+          </article>
+          <article>
+            <h3>Tested against the sky</h3>
+            <p>The test suite checks real events: the Mercury stations of April 2024, Saturn entering sidereal Pisces in March 2025, Jupiter entering Gemini in May 2025.</p>
+          </article>
+          <article>
+            <h3>Your birth data stays home</h3>
+            <p>The chart is worked out in your browser and saved only there. The one thing that leaves is the text you type in the place box, sent to a city lookup. You can skip it and enter coordinates by hand.</p>
+          </article>
+          <article>
+            <h3>Read every line</h3>
+            <p>All the code, every rule and every reading is public under the AGPL. Disagree with a yoga rule? Open the file and show us.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="final">
+        <h2>Your chart is one click away.</h2>
+        <a class="cta" href="app/">Reveal my chart</a>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <p><b>Keep your feet on the ground.</b> Astrology is a traditional practice, not a science, and no chart can promise what will happen to you. Readings and scores show what the tradition says, for reflection. They are not medical, legal or financial advice, so please don't make big decisions on them alone. Planet positions are calculated. The starry artwork is decorative and does not show real star positions.</p>
+      <p>
+        <a href="https://github.com/destinjones/vedic-astrology">Source</a> ·
+        <a href="https://github.com/destinjones/vedic-astrology/blob/main/LICENSE">AGPL-3.0</a> ·
+        Positions by <a href="https://www.astro.com/swisseph/">Swiss Ephemeris</a> ·
+        Place search by <a href="https://open-meteo.com/en/docs/geocoding-api">Open-Meteo</a>, data <a href="https://www.geonames.org/">GeoNames</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>
+      </p>
+    </footer>
   </body>
 </html>

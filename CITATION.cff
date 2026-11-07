@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you cite this software, please cite it as below."
+title: "Jyotisha Explorer"
+type: software
+authors:
+  - name: "Destin Jones"
+license: AGPL-3.0-or-later
+repository-code: "https://github.com/destinjones/vedic-astrology"
+url: "https://destinjones.github.io/vedic-astrology/"
+version: "1.0.0"

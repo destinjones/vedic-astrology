@@ -81,6 +81,11 @@ export interface Chart {
   planets: PlanetPosition[];
   vargas: Partial<Record<VargaId, VargaChart>>;
   dasha?: DashaPeriod[];
+  /** The live engine and its full chart, for the timing and reading layers. Absent on the preview calculator. */
+  engineContext?: {
+    engine: import('@vedic/engine').Engine;
+    chart: import('@vedic/engine').Chart;
+  };
   meta: {
     ayanamsaValue: number;
     /** 'mock' while the real engine is not wired in */

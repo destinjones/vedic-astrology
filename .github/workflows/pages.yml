@@ -1,0 +1,56 @@
+# Deploys https://destinjones.github.io/vedic-astrology/ on every push to main.
+# Settings > Pages > Source must be "GitHub Actions" (free on a public repository).
+name: Website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# The build job runs npm packages and a downloaded Chromium, so it gets read access only.
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build:pages
+      - run: npx playwright install --with-deps chromium
+      - name: Check the site before publishing it
+        run: npm run smoke
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: apps/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v5

@@ -27,9 +27,9 @@ export async function computeChart(input: BirthInput): Promise<Chart> {
         name: input.name,
         place: { name: input.place, latitude: input.latitude, longitude: input.longitude, timezone: input.timezone || undefined },
       },
-      { ayanamsa: input.ayanamsa, dashaLevels: 2 },
+      { ayanamsa: input.ayanamsa, dashaLevels: 3 },
     );
-    return fromEngine(input, c);
+    return { ...fromEngine(input, c), engineContext: { engine, chart: c } };
   } catch (err) {
     console.error('Engine unavailable, using preview calculator', err);
     return mockChart(input);

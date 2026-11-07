@@ -321,3 +321,38 @@ section > h4 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; lett
 .sky-controls { position: absolute; top: 10px; right: 10px; }
 .btn-ghost.sm { padding: 5px 10px; font-size: 12.5px; background: rgba(11,10,26,.7); }
 .sky-note { font-size: 12px; color: var(--muted); margin: 8px 0 0; text-align: center; }
+
+/* Footer, form note, timing and reading additions */
+.brand { text-decoration: none; color: inherit; }
+.foot { max-width: 880px; margin-inline: auto; text-align: center; font-size: 13px; }
+.foot p { margin: 0 0 8px; }
+.foot a { color: var(--accent); }
+.form-note { font-size: 12.5px; margin: 0; }
+.btn-ghost:disabled { opacity: .5; }
+
+.reading-block { border: 1px solid var(--line-soft); border-radius: 12px; margin-top: 10px; background: rgba(255,255,255,.02); }
+.reading-block > summary { cursor: pointer; padding: 10px 12px; display: flex; gap: 10px; align-items: baseline; list-style: none; font-weight: 600; }
+.reading-block > summary::-webkit-details-marker { display: none; }
+.reading-block > summary::after { content: '+'; margin-left: auto; color: var(--muted); }
+.reading-block[open] > summary::after { content: '\2212'; }
+.reading-block .reading-body { padding: 0 12px 12px; }
+.reading-block .reading-body p { margin: 0 0 8px; }
+.reading-block .reading-body h4 { margin: 10px 0 4px; }
+.reading-block .reading-body ul { margin: 0; padding-left: 18px; }
+.tone-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; transform: translateY(-1px); background: var(--mid); }
+.tone-benefic .tone-dot { background: var(--good); }
+.tone-challenging .tone-dot { background: var(--bad); }
+.remedies { color: var(--muted); font-size: 13.5px; }
+
+.yd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0 14px; align-items: start; }
+.yd-title { margin: 14px 0 0; font: 600 19px var(--serif); color: var(--accent); }
+.yd-reason { color: var(--muted); font-size: 13.5px; margin: 6px 2px 0; }
+
+html .app .timing-host .vt-root {
+  color-scheme: dark;
+  --surface-0: transparent; --surface-1: rgba(255,255,255,.03); --surface-2: rgba(255,255,255,.06); --border: var(--line-soft);
+  --text-primary: var(--text); --text-secondary: #c9c3dc; --text-muted: var(--muted); --grid: rgba(255,255,255,.08);
+  --accent: #b48cff; --good: #3987e5; --bad: #e66767; --gold: var(--accent);
+  --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500; --series-5: #d55181;
+  background: transparent; min-width: 0;
+}

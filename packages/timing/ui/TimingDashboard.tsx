@@ -33,9 +33,11 @@ export interface TimingDashboardProps {
   ephemeris: Ephemeris;
   /** Optional name for headings. */
   name?: string;
+  /** Scored periods from the chart engine, so boundaries match the chart exactly. */
+  dashas?: DashaPeriod[];
 }
 
-export function TimingDashboard({ chart, ephemeris, name }: TimingDashboardProps) {
+export function TimingDashboard({ chart, ephemeris, name, dashas }: TimingDashboardProps) {
   const [rangeId, setRangeId] = useState<(typeof RANGES)[number]['id']>('3y');
   const [selection, setSelection] = useState<Selection>(null);
   const [inspect, setInspect] = useState<Date>(() => new Date());
@@ -46,8 +48,8 @@ export function TimingDashboard({ chart, ephemeris, name }: TimingDashboardProps
     const from = r.back < 0 ? chart.birth : addDays(now, -365.25 * r.back);
     const to = r.fwd < 0 ? addDays(chart.birth, 365.25 * 95) : addDays(now, 365.25 * r.fwd);
     const span = (to.getTime() - from.getTime()) / 864e5;
-    return buildTimeline(ephemeris, chart, { from, to, stepDays: Math.max(3, Math.round(span / 420)) });
-  }, [chart, ephemeris, rangeId]);
+    return buildTimeline(ephemeris, chart, { from, to, stepDays: Math.max(3, Math.round(span / 420)), dashas });
+  }, [chart, ephemeris, rangeId, dashas]);
 
   return (
     <div className="vt-root">

@@ -14,7 +14,11 @@ import { NAKSHATRAS, PLANET_BY_ID, signInfo } from './data/constants';
 import { getVarga } from './lib/astro';
 import { ART } from './data/art';
 
+import { YogaDoshaCard } from './components/YogaDoshaCard';
+import { loadKnowledge, type Knowledge } from './lib/readings';
+
 const SkyView = lazy(() => import('./components/SkyView'));
+const TimingSection = lazy(() => import('./components/TimingSection'));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
 function WhenVisible({ children, minHeight }: { children: React.ReactNode; minHeight: number }) {
@@ -56,6 +60,7 @@ export default function App() {
   const [selection, setSelection] = useState<Selection | null>(null);
   const [hoverPlanet, setHoverPlanet] = useState<PlanetId | null>(null);
   const [wheelMode, setWheelMode] = useState<WheelMode>('art');
+  const [knowledge, setKnowledge] = useState<Knowledge | null>(null);
 
   const run = async (i: BirthInput) => {
     setBusy(true);
@@ -70,6 +75,21 @@ export default function App() {
       setBusy(false);
     }
   };
+
+  // Readings are a separate chunk, so the first chart appears before the text arrives.
+  useEffect(() => {
+    setKnowledge(null);
+    if (!chart?.engineContext) return;
+    let live = true;
+    loadKnowledge(chart.engineContext.chart).then((k) => { if (live) setKnowledge(k); }).catch((e) => console.error('Readings unavailable', e));
+    return () => { live = false; };
+  }, [chart]);
+
+  // /app/#sample opens the sample chart straight away (the landing page links here).
+  useEffect(() => {
+    if (location.hash === '#sample') void run(DEFAULT_INPUT);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSelection(null); };
@@ -93,13 +113,13 @@ export default function App() {
       />
       <div className="starfield" aria-hidden />
       <header className="topbar">
-        <div className="brand">
+        <a className="brand" href={import.meta.env.BASE_URL}>
           <span className="brand-mark">✦</span>
           <div>
             <h1>Jyotisha Explorer</h1>
             <p>Vedic birth chart, every placement, every varga</p>
           </div>
-        </div>
+        </a>
         {chart && !editing && (
           <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>
         )}
@@ -120,7 +140,7 @@ export default function App() {
             </div>
           )}
           <div className="card form-card">
-            <BirthForm initial={input} busy={busy} onSubmit={run} />
+            <BirthForm initial={input} busy={busy} onSubmit={run} onSample={() => run(DEFAULT_INPUT)} />
           </div>
         </section>
       )}
@@ -175,9 +195,11 @@ export default function App() {
             </section>
 
             <aside className="card detail-card" aria-live="polite">
-              <DetailPanel chart={chart} varga={varga} selection={selection} onSelect={setSelection} />
+              <DetailPanel chart={chart} varga={varga} selection={selection} onSelect={setSelection} knowledge={knowledge} />
             </aside>
           </div>
+
+          {knowledge && <YogaDoshaCard report={knowledge.report} />}
 
           <section className="card sky-card">
             <div className="card-head">
@@ -214,10 +236,25 @@ export default function App() {
               <DashaTimeline dasha={chart.dasha} />
             </section>
           )}
+
+          {chart.engineContext && (
+            <section className="card timing-host" id="timing">
+              <div className="card-head"><h3>Good times, hard times, retrogrades</h3><span className="muted">the tradition's timing, scored and explained</span></div>
+              <WhenVisible minHeight={600}>
+                <Suspense fallback={<div className="sky-overlay static">Working out your timeline…</div>}>
+                  <TimingSection key={chart.engineContext.chart.meta.utc} context={chart.engineContext} name={chart.input.name} />
+                </Suspense>
+              </WhenVisible>
+            </section>
+          )}
         </main>
       )}
 
-      <footer className="foot muted">Sidereal zodiac · whole-sign houses · {input.ayanamsa} ayanamsa</footer>
+      <footer className="foot muted">
+        <p>Sidereal zodiac · whole-sign houses · {input.ayanamsa} ayanamsa</p>
+        <p>Astrology is a traditional practice, not a science. Readings are for reflection, and nothing here is medical, legal or financial advice. Planet positions are calculated. The starry artwork is decorative and does not show real star positions.</p>
+        <p>Your birth details stay in this browser. Only the text you type in the place box is sent, to <a href="https://open-meteo.com/en/docs/geocoding-api">Open-Meteo</a> (data <a href="https://www.geonames.org/">GeoNames</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>). Positions by <a href="https://www.astro.com/swisseph/">Swiss Ephemeris</a>. Free software under <a href="https://github.com/destinjones/vedic-astrology/blob/main/LICENSE">AGPL-3.0</a>: <a href="https://github.com/destinjones/vedic-astrology">get the source</a>.</p>
+      </footer>
     </div>
   );
 }

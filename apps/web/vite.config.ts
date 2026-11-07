@@ -66,8 +66,17 @@ function cosmosAssets(): Plugin {
   }
 }
 
+const here = dirname(fileURLToPath(import.meta.url))
+
 export default defineConfig({
+  // GitHub Pages serves the site from /vedic-astrology/; the workflow sets VITE_BASE.
+  base: process.env.VITE_BASE ?? '/',
   plugins: [react(), swissEphAssets(), cosmosAssets()],
+  build: {
+    rollupOptions: {
+      input: { landing: join(here, 'index.html'), app: join(here, 'app/index.html') },
+    },
+  },
   server: { fs: { allow: ['../..'] } },
   // swisseph-wasm loads its .wasm/.data relative to its own module URL
   optimizeDeps: { exclude: ['swisseph-wasm'] },

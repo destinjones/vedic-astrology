@@ -23,7 +23,8 @@ npm run build -w @vedic/web
 | --- | --- |
 | `src/engine/index.ts` | The only seam to `@vedic/engine`. Loads the Swiss Ephemeris WASM lazily; falls back to `mock.ts` (approximate, shows a banner) if it fails. |
 | `src/engine/adapter.ts` | Maps the engine `Chart` to the UI's `src/types/chart.ts`. |
-| `src/lib/insights.ts` | Local readings until `packages/interpretations` lands (same `Reading` shape). |
+| `src/lib/readings.ts` | Loads `@vedic/interpretations` as its own chunk. `src/lib/insights.ts` is the fallback for the preview calculator. |
+| `src/components/TimingSection.tsx` | Runs the `@vedic/timing` dashboard on the same engine and chart. |
 | `src/components/` | Charts, wheel, detail panel, table, dasha timeline, form. |
 
 `vite.config.ts` copies `swisseph.wasm` / `swisseph.data` to `dist/wasm/` because the library resolves them at runtime. It also serves `<repo>/assets/3d` at `/cosmos/` in dev and copies it to `dist/cosmos/` on build; `src/data/art.ts` maps ids to those files via `assets/3d/manifest.json`.

@@ -4,12 +4,15 @@ import { HOUSES, NAKSHATRAS, PLANET_BY_ID, PLANETS, signInfo, VARGAS } from '../
 import { addSigns, aspectedHouses, dignityOf, dignityTone, formatDeg, housesRuledBy, ordinal } from '../lib/astro';
 import { planetReading } from '../lib/insights';
 import { grahaArt, nakshatraArt, rashiArt } from '../data/art';
+import type { Knowledge } from '../lib/readings';
+import { ReadingBlock } from './ReadingBlock';
 
 interface Props {
   chart: Chart;
   varga: VargaChart;
   selection: Selection | null;
   onSelect: (s: Selection) => void;
+  knowledge?: Knowledge | null;
 }
 
 const Chip = ({ children, tone }: { children: React.ReactNode; tone?: 'good' | 'mid' | 'bad' }) => (
@@ -31,7 +34,7 @@ function Fact({ k, v }: { k: string; v: React.ReactNode }) {
   );
 }
 
-function PlanetDetail({ chart, varga, id, onSelect }: { chart: Chart; varga: VargaChart; id: PlanetId; onSelect: Props['onSelect'] }) {
+function PlanetDetail({ chart, varga, id, onSelect, knowledge }: { chart: Chart; varga: VargaChart; id: PlanetId; onSelect: Props['onSelect']; knowledge?: Knowledge | null }) {
   const p = chart.planets.find((x) => x.id === id)!;
   const info = PLANET_BY_ID[id];
   const vp = varga.planets[id];
@@ -39,6 +42,7 @@ function PlanetDetail({ chart, varga, id, onSelect }: { chart: Chart; varga: Var
   const nak = NAKSHATRAS[p.nakshatra - 1];
   const dig = dignityOf(id, vp.sign);
   const reading = planetReading(chart, id);
+  const report = knowledge?.report.planets[id];
   const rules = housesRuledBy(id, chart.ascendant.sign);
   const d9 = chart.vargas.D9?.planets[id];
   const vargottama = d9 && d9.sign === p.sign;
@@ -71,6 +75,19 @@ function PlanetDetail({ chart, varga, id, onSelect }: { chart: Chart; varga: Var
         <Fact k="Speed" v={`${p.speed.toFixed(3)}°/day`} />
       </dl>
 
+      {report ? (
+        <>
+          {varga.id !== 'D1' && <p className="reading-note">Readings are for the birth chart (D1). The facts above show the {varga.id} placement.</p>}
+          <ReadingBlock reading={report.sign} open />
+          <ReadingBlock reading={report.house} open />
+          <ReadingBlock reading={report.nakshatra} />
+          {report.retrograde && <ReadingBlock reading={report.retrograde} />}
+          {report.combust && <p className="reading-note">{report.combust}</p>}
+          {report.lordships.map((r) => <ReadingBlock key={r.id} reading={r} />)}
+          {report.conjunctions.map((r) => <ReadingBlock key={r.id} reading={r} />)}
+          {report.aspects.map((r) => <ReadingBlock key={r.id} reading={r} />)}
+        </>
+      ) : (
       <section className={`reading tone-${reading.tone}`}>
         <div className="reading-score" aria-label={`score ${reading.score}`}>
           {[-3, -2, -1, 0, 1, 2, 3].map((n) => <span key={n} className={n === reading.score ? 'on' : ''} />)}
@@ -86,6 +103,7 @@ function PlanetDetail({ chart, varga, id, onSelect }: { chart: Chart; varga: Var
           <><h4 className="bad">Challenges</h4><ul>{reading.challenges.map((s, i) => <li key={i}>{s}</li>)}</ul></>
         )}
       </section>
+      )}
 
       <section>
         <h4>Across divisional charts</h4>
@@ -106,7 +124,7 @@ function PlanetDetail({ chart, varga, id, onSelect }: { chart: Chart; varga: Var
   );
 }
 
-function HouseDetail({ varga, num, onSelect }: { varga: VargaChart; num: number; onSelect: Props['onSelect'] }) {
+function HouseDetail({ varga, num, onSelect, knowledge }: { varga: VargaChart; num: number; onSelect: Props['onSelect']; knowledge?: Knowledge | null }) {
   const h = HOUSES[num - 1];
   const sign = signInfo(addSigns(varga.ascSign, num - 1));
   const occupants = PLANETS.filter((p) => varga.planets[p.id].house === num);
@@ -154,17 +172,19 @@ function HouseDetail({ varga, num, onSelect }: { varga: VargaChart; num: number;
           {occupants.length === 0 ? ' An empty house is judged mainly through its lord.' : ''}
         </p>
       </section>
+      {varga.id === 'D1' && knowledge && <ReadingBlock reading={knowledge.report.houseLords[num - 1]} open />}
     </>
   );
 }
 
-function NakshatraDetail({ chart, num, onSelect }: { chart: Chart; num: number; onSelect: Props['onSelect'] }) {
+function NakshatraDetail({ chart, num, onSelect, knowledge }: { chart: Chart; num: number; onSelect: Props['onSelect']; knowledge?: Knowledge | null }) {
   const n = NAKSHATRAS[num - 1];
   const start = (num - 1) * (360 / 27);
   const s0 = signInfo(Math.floor(start / 30) + 1);
   const occupants = chart.planets.filter((p) => p.nakshatra === num);
   const isMoon = chart.planets.find((p) => p.id === 'moon')!.nakshatra === num;
   const isAsc = chart.ascendant.nakshatra === num;
+  const profile = knowledge?.getNakshatra(num);
   return (
     <>
       <header className="detail-head" style={{ '--c': PLANET_BY_ID[n.lord].color } as React.CSSProperties}>
@@ -190,6 +210,15 @@ function NakshatraDetail({ chart, num, onSelect }: { chart: Chart; num: number; 
         <h3>About {n.name}</h3>
         <p className="lead">{n.name} is ruled by {PLANET_BY_ID[n.lord].name} and presided over by {n.deity}, symbolised by {n.symbol.toLowerCase()}.</p>
         <p>Planets here take on the theme of {n.theme.toLowerCase()}, and their dasha results are coloured by {PLANET_BY_ID[n.lord].name}.</p>
+        {profile && (
+          <>
+            <p>{profile.description}</p>
+            <p><b>Shakti:</b> {profile.shakti}</p>
+            <h4 className="good">Gifts</h4><ul>{profile.gifts.map((s) => <li key={s}>{s}</li>)}</ul>
+            <h4 className="bad">Shadows</h4><ul>{profile.shadows.map((s) => <li key={s}>{s}</li>)}</ul>
+            <h4>The four padas</h4><ol>{profile.padas.map((s) => <li key={s}>{s}</li>)}</ol>
+          </>
+        )}
       </section>
     </>
   );
@@ -224,7 +253,7 @@ function AscDetail({ chart, onSelect }: { chart: Chart; onSelect: Props['onSelec
   );
 }
 
-export function DetailPanel({ chart, varga, selection, onSelect }: Props) {
+export function DetailPanel({ chart, varga, selection, onSelect, knowledge }: Props) {
   if (!selection) {
     return (
       <div className="detail-empty">
@@ -235,9 +264,9 @@ export function DetailPanel({ chart, varga, selection, onSelect }: Props) {
     );
   }
   switch (selection.kind) {
-    case 'planet': return <PlanetDetail chart={chart} varga={varga} id={selection.id} onSelect={onSelect} />;
-    case 'house': return <HouseDetail varga={varga} num={selection.num} onSelect={onSelect} />;
-    case 'nakshatra': return <NakshatraDetail chart={chart} num={selection.num} onSelect={onSelect} />;
+    case 'planet': return <PlanetDetail chart={chart} varga={varga} id={selection.id} onSelect={onSelect} knowledge={knowledge} />;
+    case 'house': return <HouseDetail varga={varga} num={selection.num} onSelect={onSelect} knowledge={knowledge} />;
+    case 'nakshatra': return <NakshatraDetail chart={chart} num={selection.num} onSelect={onSelect} knowledge={knowledge} />;
     case 'asc': return <AscDetail chart={chart} onSelect={onSelect} />;
   }
 }

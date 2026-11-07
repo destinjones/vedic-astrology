@@ -7,13 +7,14 @@ interface Props {
   initial: BirthInput;
   busy: boolean;
   onSubmit: (input: BirthInput) => void;
+  onSample?: () => void;
 }
 
 const ZONES: string[] = (() => {
   try { return (Intl as unknown as { supportedValuesOf(k: string): string[] }).supportedValuesOf('timeZone'); } catch { return []; }
 })();
 
-export function BirthForm({ initial, busy, onSubmit }: Props) {
+export function BirthForm({ initial, busy, onSubmit, onSample }: Props) {
   const [f, setF] = useState<BirthInput>(initial);
   const [error, setError] = useState<string | null>(null);
   const set = <K extends keyof BirthInput>(k: K, v: BirthInput[K]) => setF((s) => ({ ...s, [k]: v }));
@@ -26,7 +27,7 @@ export function BirthForm({ initial, busy, onSubmit }: Props) {
     return CITIES.filter((c) => c.name.toLowerCase().includes(q)).slice(0, 4);
   }, [f.place]);
 
-  // online place search (Open-Meteo / Nominatim via the engine), debounced
+  // online place search (Open-Meteo via the engine), debounced to stay well inside its limits
   useEffect(() => {
     const q = f.place.trim();
     if (!showMatches || q.length < 3) { setRemote([]); return; }
@@ -35,7 +36,7 @@ export function BirthForm({ initial, busy, onSubmit }: Props) {
       searchPlaces(q, ctl.signal)
         .then((r) => setRemote(r.map((g) => ({ name: g.name, latitude: g.latitude, longitude: g.longitude, timezone: g.timezone }))))
         .catch(() => {});
-    }, 300);
+    }, 400);
     return () => { clearTimeout(t); ctl.abort(); };
   }, [f.place, showMatches]);
 
@@ -115,6 +116,8 @@ export function BirthForm({ initial, busy, onSubmit }: Props) {
       </label>
       {error && <p className="form-error span-2" role="alert">{error}</p>}
       <button className="btn-primary span-2" disabled={busy}>{busy ? 'Calculating…' : 'Reveal my chart'}</button>
+      {onSample && <button type="button" className="btn-ghost span-2" disabled={busy} onClick={onSample}>Or try a sample chart</button>}
+      <p className="muted span-2 form-note">Can't find your town? Try its current official name, or type the coordinates and time zone by hand. Birth details stay in this browser.</p>
     </form>
   );
 }
