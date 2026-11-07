@@ -30,6 +30,11 @@ try {
   const lagna = await page.locator('.summary-item').first().innerText();
   if (!lagna.includes('Leo')) problems.push(`sample chart lagna should be Leo, got: ${lagna}`);
 
+  await page.locator('#jaimini').scrollIntoViewIfNeeded();
+  await page.waitForSelector('#jaimini .jm-karakas', { timeout: 60000 });
+  if ((await page.locator('#jaimini .jm-karakas tbody tr').count()) !== 8) problems.push('Jaimini: expected 8 chara karakas');
+  if (!(await page.locator('#jaimini .dasha-seg').count())) problems.push('Jaimini: chara dasha timeline is empty');
+
   await page.locator('#timing').scrollIntoViewIfNeeded();
   await page.waitForSelector('#timing .vt-card', { timeout: 60000 });
   await page.locator('.sky-card').scrollIntoViewIfNeeded();
