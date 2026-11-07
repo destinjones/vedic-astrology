@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jyotisha Explorer: your entire Vedic chart, free</title>
-    <meta name="description" content="Your full Vedic birth chart with 16 divisional charts, 44 yogas, 9 doshas, a 3D sky and a lifetime timeline of good times, hard times and retrogrades. Free, open source, no account." />
+    <title>Free Vedic birth chart and kundali reading · Jyotisha Explorer</title>
+    <meta name="description" content="Your Vedic birth chart, read in plain English: who you are, what it says about love and marriage, work and money, and which years ahead look easy or hard. Free, no sign-up." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="canonical" href="https://destinjones.github.io/vedic-astrology/" />
     <meta name="theme-color" content="#0b0a1a" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Your entire sky. Nothing held back." />
-    <meta property="og:description" content="16 divisional charts, 44 yogas, a 3D sky and a lifetime timeline of good and hard times. Free, open source, no account." />
+    <meta property="og:title" content="Your birth chart, read for your life" />
+    <meta property="og:description" content="What your Vedic chart says about love, work and the years ahead, in plain English. Free, no sign-up, and your birth details stay on your device." />
     <meta property="og:url" content="https://destinjones.github.io/vedic-astrology/" />
     <meta property="og:image" content="https://destinjones.github.io/vedic-astrology/og.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -21,150 +21,176 @@
     <header class="hero">
       <picture class="hero-art">
         <source media="(max-width: 700px)" srcset="%BASE_URL%cosmos/backgrounds/navagraha-hero-mobile.webp" />
-        <img src="%BASE_URL%cosmos/backgrounds/navagraha-hero.webp" alt="" />
+        <img src="%BASE_URL%cosmos/backgrounds/navagraha-hero.webp" alt="The nine Vedic planets as glowing spheres, the Sun blazing at the centre, floating above a golden wheel of the signs and nakshatras in a starry sky." />
       </picture>
       <nav class="nav">
         <span class="wordmark"><span aria-hidden="true">✦</span> Jyotisha Explorer</span>
         <span class="nav-links">
+          <a href="learn/">Learn</a>
+          <a href="match/">Kundali matching</a>
           <a href="app/#famous">Famous charts</a>
-          <a href="https://github.com/destinjones/vedic-astrology">Source on GitHub</a>
         </span>
       </nav>
       <div class="hero-copy">
-        <p class="eyebrow">Free Vedic astrology, all of it</p>
-        <h1>Your entire sky.<br /><em>Nothing held back.</em></h1>
+        <p class="eyebrow">Free Vedic astrology</p>
+        <h1>Your birth chart,<br /><em>read for your life.</em></h1>
         <p class="lede">
-          Type your birth date, time and place. In seconds you get the whole chart: every divisional chart,
-          every nakshatra, 44 yogas checked, and a timeline of your good years, your hard years and every retrograde
-          between them. Then click anything and go deeper.
+          Tell it when and where you were born. It shows you who you are in the Vedic tradition, what your chart says about
+          love and marriage, work and money, and which years ahead look easy and which ask for patience. Every line says
+          why, in plain words.
         </p>
         <div class="cta-row">
-          <a class="cta" href="app/">Reveal my chart</a>
-          <a class="cta ghost" href="app/#sample">See a sample chart</a>
+          <a class="cta" href="app/">Read my chart</a>
+          <a class="cta ghost" href="app/#sample">See an example first</a>
         </div>
         <ul class="promises">
-          <li>No account</li>
+          <li>Free, all of it</li>
+          <li>No sign-up</li>
+          <li>Your birth details stay on your device</li>
           <li>No ads</li>
-          <li>No paywall</li>
-          <li>No tracking</li>
-          <li>Open source</li>
         </ul>
       </div>
     </header>
 
     <main>
-      <section class="stats" aria-label="What is inside">
-        <div><b data-count="16">16</b><span>divisional charts, D1 to D60</span></div>
-        <div><b data-count="27">27</b><span>nakshatras, 108 padas</span></div>
-        <div><b data-count="44">44</b><span>yogas it hunts for</span></div>
-        <div><b data-count="9">9</b><span>doshas, with cancellations</span></div>
-        <div><b data-count="603" data-suffix="+">603+</b><span>written placement readings</span></div>
+      <section class="asks" aria-labelledby="asks-h">
+        <h2 id="asks-h">Bring the question you actually have.</h2>
+        <div class="ask-grid">
+          <a class="ask" href="match/">
+            <b>Will we be good together?</b>
+            <span>Kundali matching on all eight kootas out of 36, with Manglik dosha and its cancellations checked for both of you.</span>
+          </a>
+          <a class="ask" href="app/">
+            <b>What does my chart say about marriage?</b>
+            <span>Read your 7th house, Venus and the navamsha (D9) chart: the three places the tradition looks for marriage.</span>
+          </a>
+          <a class="ask" href="app/">
+            <b>When does my Sade Sati end?</b>
+            <span>Exact dates for all three phases from your Moon sign, including the times Saturn turns back.</span>
+          </a>
+          <a class="ask" href="app/">
+            <b>Is this a good year for a change?</b>
+            <span>Your dasha periods and the planets moving over your Moon, scored and explained, year by year.</span>
+          </a>
+          <a class="ask" href="learn/doshas/manglik/">
+            <b>Am I Manglik?</b>
+            <span>Most charts have some Mars emphasis, and most of it is cancelled. See exactly which rules apply to you.</span>
+          </a>
+          <a class="ask" href="app/">
+            <b>What kind of work suits me?</b>
+            <span>Read your 10th house, its lord and the D10 career chart, plus any yogas for status and wealth.</span>
+          </a>
+        </div>
       </section>
 
       <section class="show" id="explorer">
         <div class="show-copy">
-          <p class="eyebrow">The explorer</p>
-          <h2>Every part of your chart is a door.</h2>
+          <p class="eyebrow">Your chart</p>
+          <h2>Ask about any part of it.</h2>
           <p>
-            North or South Indian style, across all 16 vargas. Click a planet and see its dignity, its lords, its aspects
-            and where it lands in every divisional chart. Click a house, a nakshatra or the lagna and the reading follows
-            you. You never hit a wall that asks for your card.
+            Tap a planet and it tells you what it means for you: how strong it is, which parts of life it runs and how it
+            shapes the rest of your chart. Tap a house and read about that area of your life. You never hit a wall that asks
+            for your card.
           </p>
           <ul class="ticks">
-            <li>Retrograde, combust and vargottama flagged on the chart</li>
-            <li>Lahiri, True Chitra, Raman and KP ayanamsas</li>
-            <li>Yogas and doshas listed with the exact reason each one forms</li>
+            <li>Your rising sign, Moon sign and birth star, explained</li>
+            <li>Lucky combinations (yogas) and difficult ones (doshas), each with the reason it forms</li>
+            <li>North or South Indian chart style, with the app in nine languages including Hindi, Tamil and Telugu</li>
           </ul>
         </div>
         <figure class="show-media">
-          <img loading="lazy" src="%BASE_URL%media/explorer.gif" width="1120" height="700" alt="Clicking through a Vedic chart: the chart switches between divisional charts, and selecting a planet opens its full reading in the side panel." />
+          <img loading="lazy" src="%BASE_URL%media/explorer.gif" width="1120" height="700" alt="Clicking through a Vedic chart: selecting a planet opens a full reading of what it means in the side panel." />
         </figure>
       </section>
 
-      <section class="show flip" id="sky">
+      <section class="show flip" id="timeline">
         <div class="show-copy">
-          <p class="eyebrow">The 3D sky</p>
+          <p class="eyebrow">The years ahead</p>
+          <h2>See your life like a weather forecast.</h2>
+          <p>
+            One line that shows the stretches of your life that look bright and the ones that ask for patience, and tells
+            you why each one is there. It blends your dasha periods with the planets moving over your Moon, so you can see
+            what is coming and plan around it.
+          </p>
+          <ul class="ticks">
+            <li>Good windows and hard windows, each with its reasons</li>
+            <li>Sade Sati phases with start and end dates</li>
+            <li>Every retrograde, and which part of your life it passes through</li>
+          </ul>
+        </div>
+        <figure class="show-media">
+          <img loading="lazy" src="%BASE_URL%media/timeline.gif" width="1120" height="700" alt="The timing view: a life weather chart across several years with favourable and challenging stretches, and a click into one period to read why." />
+        </figure>
+      </section>
+
+      <section class="show" id="sky">
+        <div class="show-copy">
+          <p class="eyebrow">The sky you were born under</p>
           <h2>Hold your birth sky in your hands.</h2>
           <p>
-            Nine planets rendered in Blender, each tethered to its exact sidereal degree on a golden nakshatra wheel. Spin it,
-            zoom it, click a planet to open its reading. Rahu is an eclipse. Ketu is a smoking comet. Nothing else in your
-            bookmarks looks like this.
+            All nine planets, each placed at its exact position on a golden wheel of the signs and stars, the way the sky
+            stood when you were born. Spin it, zoom in, and tap a planet to read about it.
           </p>
-          <p class="fine">Planet longitudes are calculated from your birth data. The starry backdrop is artwork, not a map of real stars.</p>
+          <p class="fine">Planet positions are calculated from your birth details. The starry backdrop is artwork, not a map of real stars.</p>
         </div>
         <figure class="show-media">
-          <img loading="lazy" src="%BASE_URL%media/sky.gif" width="1120" height="700" alt="A 3D sky view rotating: nine rendered planets stand on a gold wheel of signs and nakshatras, each tethered to its longitude." />
+          <img loading="lazy" src="%BASE_URL%media/sky.gif" width="1120" height="700" alt="A 3D sky turning slowly: nine rendered planets stand on a gold wheel of signs and nakshatras, each tethered to its position." />
         </figure>
       </section>
 
-      <section class="show" id="timeline">
-        <div class="show-copy">
-          <p class="eyebrow">The timeline</p>
-          <h2>See your whole life as weather.</h2>
-          <p>
-            One line, from now to a lifetime, that blends your dashas with the transits over your Moon. Good stretches and
-            hard stretches are found for you, and each one tells you why it is there. Sade Sati, every retrograde station,
-            all the ashtakavarga tables: one screen, one click apart.
-          </p>
-          <ul class="ticks">
-            <li>Maha, antar and pratyantar dashas, each scored with reasons</li>
-            <li>Mercury to Saturn retrogrades, with the houses they cross</li>
-            <li>Sade Sati phases, including retrograde re-entries</li>
-          </ul>
-        </div>
-        <figure class="show-media">
-          <img loading="lazy" src="%BASE_URL%media/timeline.gif" width="1120" height="700" alt="The timing dashboard: a life weather chart over several years, with favourable and challenging windows and a click into one period's reasons." />
-        </figure>
-      </section>
-
-      <section class="grahas" aria-label="The nine grahas">
-        <h2>Nine grahas. Rendered like they matter.</h2>
+      <section class="grahas" aria-labelledby="grahas-h">
+        <h2 id="grahas-h">Nine grahas, and the part of life each one rules.</h2>
         <div class="graha-row">
-          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/surya.webp" alt="" /><figcaption>Surya</figcaption></figure>
-          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/chandra.webp" alt="" /><figcaption>Chandra</figcaption></figure>
-          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/mangala.webp" alt="" /><figcaption>Mangala</figcaption></figure>
-          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/budha.webp" alt="" /><figcaption>Budha</figcaption></figure>
-          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/guru.webp" alt="" /><figcaption>Guru</figcaption></figure>
-          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/shukra.webp" alt="" /><figcaption>Shukra</figcaption></figure>
-          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/shani.webp" alt="" /><figcaption>Shani</figcaption></figure>
-          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/rahu.webp" alt="" /><figcaption>Rahu</figcaption></figure>
-          <figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/ketu.webp" alt="" /><figcaption>Ketu</figcaption></figure>
+          <a href="learn/planets/sun/"><figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/surya.webp" alt="Surya, the Sun, as a blazing orange sphere" /><figcaption>Surya<small>self and father</small></figcaption></figure></a>
+          <a href="learn/planets/moon/"><figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/chandra.webp" alt="Chandra, the Moon, as a pale grey cratered sphere" /><figcaption>Chandra<small>mind and mother</small></figcaption></figure></a>
+          <a href="learn/planets/mars/"><figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/mangala.webp" alt="Mangala, Mars, as a rust-red sphere with a white polar cap" /><figcaption>Mangala<small>drive and courage</small></figcaption></figure></a>
+          <a href="learn/planets/mercury/"><figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/budha.webp" alt="Budha, Mercury, as a marbled green sphere" /><figcaption>Budha<small>speech and skill</small></figcaption></figure></a>
+          <a href="learn/planets/jupiter/"><figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/guru.webp" alt="Guru, Jupiter, as a sphere banded in cream and brown" /><figcaption>Guru<small>wisdom and children</small></figcaption></figure></a>
+          <a href="learn/planets/venus/"><figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/shukra.webp" alt="Shukra, Venus, as a pearly cream sphere with swirling cloud" /><figcaption>Shukra<small>love and comfort</small></figcaption></figure></a>
+          <a href="learn/planets/saturn/"><figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/shani.webp" alt="Shani, Saturn, as a deep blue sphere circled by rings" /><figcaption>Shani<small>work and patience</small></figcaption></figure></a>
+          <a href="learn/planets/rahu/"><figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/rahu.webp" alt="Rahu as an eclipse: a black disc ringed with orange fire" /><figcaption>Rahu<small>ambition and appetite</small></figcaption></figure></a>
+          <a href="learn/planets/ketu/"><figure><img loading="lazy" src="%BASE_URL%cosmos/grahas/ketu.webp" alt="Ketu as a small dark comet with a pale trailing tail" /><figcaption>Ketu<small>letting go</small></figcaption></figure></a>
         </div>
       </section>
 
-      <section class="proof">
-        <h2>Big claims. Here is the receipt.</h2>
-        <div class="proof-grid">
-          <article>
-            <h3>Real ephemeris</h3>
-            <p>Positions come from the Swiss Ephemeris, compiled to WebAssembly and running on your own device.</p>
-          </article>
-          <article>
-            <h3>Tested against the sky</h3>
-            <p>The test suite checks real events: the Mercury stations of April 2024, Saturn entering sidereal Pisces in March 2025, Jupiter entering Gemini in May 2025.</p>
-          </article>
-          <article>
-            <h3>Your birth data stays home</h3>
-            <p>The chart is worked out in your browser and saved only there. The one thing that leaves is the text you type in the place box, sent to a city lookup. You can skip it and enter coordinates by hand.</p>
-          </article>
-          <article>
-            <h3>Read every line</h3>
-            <p>All the code, every rule and every reading is public under the AGPL. Disagree with a yoga rule? Open the file and show us.</p>
-          </article>
+      <section class="trust" aria-labelledby="trust-h">
+        <h2 id="trust-h">Can you trust it?</h2>
+        <div class="trust-grid">
+          <p><b>The positions are exact.</b> Planets are worked out with the Swiss Ephemeris, the same astronomical engine many professional astrologers' programs use.</p>
+          <p><b>Your birth details stay with you.</b> Your chart is worked out on your own phone or computer and saved only there. No account, nothing to sign up for.</p>
+          <p><b>Nothing is hidden.</b> Every reading says which rule it comes from, and every rule is written out in the open for anyone to check.</p>
         </div>
+        <p class="trust-links"><a href="how-it-works/">How it works</a> · <a href="privacy/">Privacy</a></p>
+      </section>
+
+      <section class="learn-more" aria-labelledby="learn-h">
+        <h2 id="learn-h">Learn the language of your chart.</h2>
+        <p>Every term the app uses, written out in plain English.</p>
+        <ul class="learn-links">
+          <li><a href="learn/nakshatras/">The 27 nakshatras</a></li>
+          <li><a href="learn/signs/">The 12 signs</a></li>
+          <li><a href="learn/planets/">The nine grahas</a></li>
+          <li><a href="learn/houses/">The 12 houses</a></li>
+          <li><a href="learn/yogas/">The 44 yogas</a></li>
+          <li><a href="learn/doshas/">Doshas</a></li>
+          <li><a href="learn/glossary/">Glossary</a></li>
+        </ul>
       </section>
 
       <section class="final">
-        <h2>Your chart is one click away.</h2>
-        <a class="cta" href="app/">Reveal my chart</a>
+        <h2>Your chart is a minute away.</h2>
+        <a class="cta" href="app/">Read my chart</a>
       </section>
     </main>
 
     <footer class="foot">
       <p><b>Keep your feet on the ground.</b> Astrology is a traditional practice, not a science, and no chart can promise what will happen to you. Readings and scores show what the tradition says, for reflection. They are not medical, legal or financial advice, so please don't make big decisions on them alone. Planet positions are calculated. The starry artwork is decorative and does not show real star positions.</p>
       <p>
-        <a href="https://github.com/destinjones/vedic-astrology">Source</a> ·
+        <a href="learn/">Learn</a> ·
+        <a href="how-it-works/">How it works</a> ·
+        <a href="privacy/">Privacy</a> ·
         <a href="credits/">Credits</a> ·
+        <a href="https://github.com/destinjones/vedic-astrology">Free and open source</a> ·
         <a href="https://github.com/destinjones/vedic-astrology/blob/main/LICENSE">AGPL-3.0</a> ·
         Positions by <a href="https://www.astro.com/swisseph/">Swiss Ephemeris</a> ·
         Place search by <a href="https://open-meteo.com/en/docs/geocoding-api">Open-Meteo</a>, data <a href="https://www.geonames.org/">GeoNames</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>

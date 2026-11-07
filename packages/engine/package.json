@@ -9,10 +9,13 @@
   "exports": {
     ".": "./src/index.ts",
     "./types": "./src/types.ts",
-    "./places": "./src/placeAliases.ts"
+    "./places": "./src/placeAliases.ts",
+    "./request": "./src/request.ts",
+    "./precision": "./src/precision.ts"
   },
   "scripts": {
-    "test": "vitest run",
+    "test": "vitest run --coverage",
+    "test:fast": "vitest run",
     "typecheck": "tsc -p tsconfig.json",
     "pack": "node scripts/pack.mjs",
     "docs": "typedoc"
@@ -25,8 +28,10 @@
   "devDependencies": {
     "@types/luxon": "^3.7.6",
     "@types/node": "^22.10.0",
+    "@vitest/coverage-v8": "^3.2.7",
     "astronomy-engine": "^2.1.19",
     "esbuild": "^0.28.2",
+    "fast-check": "^4.10.2",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   },

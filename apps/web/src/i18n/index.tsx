@@ -1,10 +1,11 @@
 import { createContext, Fragment, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
-  DEFAULT_LOCALE, formatDate, getVocab, interpolate, isLocale, list, LOCALE_BY_CODE, matchLocale, plural,
+  DEFAULT_LOCALE, formatDate, getVocab, interpolate, isLocale, list, LOCALE_BY_CODE, matchLocale, plural, withSanskritTerms,
   type LocaleCode, type Params, type PluralForms, type Vocab,
 } from '@vedic/i18n';
 import en, { type Messages, type Translation } from './messages/en';
 import { loadFont } from './fonts';
+import { useDisplay, type TermsPref } from '../lib/display';
 
 export type { LocaleCode };
 
@@ -79,8 +80,10 @@ export interface I18n {
   tl: <T = string>(key: string) => T;
   /** Like t, but placeholders can be React nodes (links, bold text). */
   rich: (key: MessageKey, nodes: Record<string, ReactNode>, params?: Params) => ReactNode;
-  /** Planet, sign, nakshatra and other astrological names in this language. */
+  /** Planet, sign, nakshatra and other astrological names in this language (or in Sanskrit, if the reader chose that). */
   v: Vocab;
+  /** How the reader asked for Sanskrit terms to be written: in this language, IAST or Devanagari. */
+  terms: TermsPref;
   list: (items: string[]) => string;
   date: (d: Date | string | number, opts?: Intl.DateTimeFormatOptions) => string;
   /** False when the locale has no translated readings yet. */
@@ -89,7 +92,7 @@ export interface I18n {
 
 const Ctx = createContext<I18n | null>(null);
 
-function makeI18n(locale: LocaleCode, msgs: Translation, setLocale: (l: LocaleCode) => void): I18n {
+function makeI18n(locale: LocaleCode, msgs: Translation, setLocale: (l: LocaleCode) => void, terms: TermsPref = 'local'): I18n {
   const raw = (key: string) => get(msgs, key) ?? get(en, key);
   return {
     locale,
@@ -118,7 +121,8 @@ function makeI18n(locale: LocaleCode, msgs: Translation, setLocale: (l: LocaleCo
         return <Fragment key={i}>{m && m[1] in nodes ? nodes[m[1]] : part}</Fragment>;
       });
     },
-    v: getVocab(locale),
+    v: withSanskritTerms(getVocab(locale), terms),
+    terms,
     list: (items) => list(locale, items),
     date: (d, opts) => formatDate(locale, d, opts),
     hasLocale: (l) => l === 'en' || `./messages/${l}.ts` in loaders,
@@ -146,8 +150,12 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     } catch { /* ignore */ }
   }, []);
 
+  // Sanskrit terms in Devanagari need the Devanagari font whatever the page language is.
+  const { terms } = useDisplay();
+  useEffect(() => { if (terms === 'devanagari') loadFont('devanagari'); }, [terms]);
+
   // Until the chosen language arrives, keep showing the previous one rather than flashing keys.
-  const value = useMemo(() => makeI18n(msgs.locale, msgs.m, setLocale), [msgs, setLocale]);
+  const value = useMemo(() => makeI18n(msgs.locale, msgs.m, setLocale, terms), [msgs, setLocale, terms]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

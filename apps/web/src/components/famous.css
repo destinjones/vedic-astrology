@@ -26,3 +26,4 @@
 .topbar-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .summary-item b a { font-weight: 400; font-size: .85em; }
 .topbar-actions .btn-ghost { white-space: nowrap; }
+.famous-asof { opacity: .8; }

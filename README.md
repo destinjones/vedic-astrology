@@ -21,12 +21,16 @@ There is no second page and no price. Click any planet, house or nakshatra and t
 | **44 yogas, 9 doshas** | Each one found with the exact reason it forms and any cancellations |
 | **Shadbala and Bhava Bala** | All six planetary strengths and the twelve house strengths, in rupas against the classical minimums, checked against B. V. Raman's worked example |
 | **27 nakshatras, 108 padas** | Deity, symbol, shakti, gifts and shadows, on a wheel you can click |
-| **Dashas to three levels** | Maha, antar and pratyantar, each scored with reasons |
+| **Bhava chalit** | Sripati or equal-house bhava chart beside the rashi chart; readings follow whichever you show |
+| **Panchanga** | Tithi, vara, nakshatra, yoga and karana for your birth and any date, with end times |
+| **Planet condition** | Baladi, Jagradadi and Deeptadi avasthas, gandanta, planetary war, mrityu bhaga and pushkara degrees |
+| **Dashas to three levels** | Maha, antar and pratyantar, each scored with reasons, with sandhi and chidra junctions flagged |
 | **Life weather** | Dashas plus transits over your Moon as one line, from one year to a lifetime, with good and hard stretches found for you |
 | **Retrogrades and Saturn** | Mercury to Saturn stations and shadows, Sade Sati with re-entries, Kantaka and Ashtama Shani |
 | **Ashtakavarga** | All seven tables, the SAV and who gave each point |
 | **Varshaphal** | The Tajika annual chart for any year, cast for the second the Sun returns: Muntha, year lord, Tajika yogas, 20 Sahams and the Mudda dasha |
 | **Four ayanamsas** | Lahiri, True Chitra, Raman and Krishnamurti |
+| **Export and share** | PNG and SVG of any chart with your pinned notes, share cards sized for WhatsApp and Telegram, an embed code for blogs, link previews for every famous chart, an A2 poster or lock screen of the 3D sky, a graha sticker pack, and the chart read aloud |
 
 ## Hold your birth sky in your hands
 
@@ -42,7 +46,7 @@ Nine planets rendered in Blender, each tethered to its exact sidereal degree. Sp
 
 - **Real ephemeris.** Positions come from the [Swiss Ephemeris](https://www.astro.com/swisseph/), compiled to WebAssembly.
 - **Tested against real events.** The suite checks the Mercury stations of April 2024, Saturn entering sidereal Pisces on 2025-03-29, Jupiter entering Gemini on 2025-05-14, published Sade Sati dates and ashtakavarga totals (SAV = 337). `npm test` runs all 75 tests.
-- **Your birth data stays home.** The chart is worked out and saved in your browser. The only thing sent anywhere is the text you type in the place box, to a city lookup, and you can skip that by entering coordinates by hand. Fonts and art are served from this site. There is no analytics.
+- **Your birth data stays home.** The chart is worked out and saved in your browser. The only thing sent anywhere is the text you type in the place box, to a city lookup, and you can skip that by entering coordinates by hand. Fonts and art are served from this site. There is no analytics unless the site owner turns on the optional cookieless visit counter, which sends page paths and event names only, never birth details (see `apps/web/README.md`).
 - **Every rule is public.** Read how a yoga is detected in [`packages/interpretations`](packages/interpretations/src/yogas.ts). Disagree with one? Open an issue.
 
 ## Keep your feet on the ground
@@ -68,9 +72,9 @@ Then open <http://localhost:5173/>. The chart itself is at `/app/`.
 | [`packages/interpretations`](packages/interpretations) | The readings and the yoga and dosha detectors |
 | [`packages/tajika`](packages/tajika) | Varshaphal: the Tajika annual chart and its readings |
 | [`blender`](blender), [`assets/3d`](assets/3d) | The scripts that render the art, and the renders |
-| [`tools`](tools) | The site check that guards each deploy, and the recorder for these GIFs |
+| [`tools`](tools) | The site check that guards each deploy, the recorder for these GIFs, and the link-preview renderer |
 
-`npm run build:pages && npm run smoke` builds the site as GitHub Pages serves it and checks it in a real browser. `npm run demos` records the GIFs again from that build.
+`npm run build:pages && npm run smoke` builds the site as GitHub Pages serves it and checks it in a real browser. `npm run demos` records the GIFs again from that build, and `npm run og` renders the famous charts' link-preview cards into `apps/web/public/og/` (build again afterwards so their `/c/<id>/` pages are made).
 
 ## Help build it
 

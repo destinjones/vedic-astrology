@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy · Jyotisha Explorer</title>
+    <meta name="description" content="What Jyotisha Explorer stores, what it sends and to whom: every network request the site can make, listed, with how to check it yourself." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href="https://destinjones.github.io/vedic-astrology/privacy/" />
+    <meta name="theme-color" content="#0b0a1a" />
+    <script type="module" src="/src/trust/page.ts"></script>
+  </head>
+  <body>
+    <header class="doc-nav">
+      <a class="wordmark" href="%BASE_URL%">✦ Jyotisha Explorer</a>
+      <nav>
+        <a href="%BASE_URL%app/">Birth chart</a>
+        <a href="%BASE_URL%how-it-works/">How it works</a>
+        <a href="%BASE_URL%check/">Check our numbers</a>
+      </nav>
+    </header>
+
+    <main class="doc">
+      <h1>Privacy</h1>
+      <p class="lede">
+        Your birth details are worked out on your own device and saved only in your own browser. There is no account, no
+        database and no server of ours. This page lists every request the site can make, what each one carries, and how to
+        check that for yourself.
+      </p>
+      <p class="updated">Last updated 7 November 2026. Changes to this page are tracked in the <a href="https://github.com/destinjones/vedic-astrology/commits/main/apps/web/privacy/index.html">project history</a>.</p>
+
+      <div class="box good">
+        <p><b>The short version.</b> Your name, birth date and birth time never leave your browser. The only things that do are
+        the words you type into a place box (to find the town) and, once you pick a town, a request for the map pictures around it.
+        You can avoid both by typing the latitude, longitude and time zone yourself.</p>
+      </div>
+
+      <h2>Every request the site can make</h2>
+      <p>
+        "Request" here means anything your browser fetches while you use the site. Links you click to other websites, such as
+        GitHub or Astrotheme, are not listed: clicking one simply takes you there, under that site's own policy.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Who</th><th>When</th><th>What it receives</th><th>What it never receives</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><b>GitHub Pages</b><br /><code>destinjones.github.io</code><br />(this site's host)</td>
+              <td>Every time a page loads. Also the Swiss Ephemeris data (about 2.7 MB, once), the artwork and 3D models as you scroll, and the fonts for a PDF when you make one.</td>
+              <td>What every web host gets: your IP address, your browser's name and the address of the file. GitHub's handling is in the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub Privacy Statement</a>.</td>
+              <td>Anything you type. Share links keep the birth details after the <code>#</code>, and browsers never send that part to any server.</td>
+            </tr>
+            <tr>
+              <td><b>Open-Meteo</b> place search<br /><code>geocoding-api.open-meteo.com</code></td>
+              <td>When you type three or more letters into a place box: in the birth form, on the compare, matching and tools pages, and on the check page. One request per pause in your typing.</td>
+              <td>The town name you typed (the part before the first comma), and its modern name if you typed a former one such as Bombay. The language of the results. Your IP address and browser name, as with any request. See <a href="https://open-meteo.com/en/terms">Open-Meteo's terms and privacy</a>.</td>
+              <td>Your name, date or time of birth, or which chart you are looking at.</td>
+            </tr>
+            <tr>
+              <td><b>OpenStreetMap</b> map preview<br /><code>tile.openstreetmap.org</code></td>
+              <td>After you choose a place in the birth form, the small map loads about fifteen map tiles around it, and more if you zoom.</td>
+              <td>Which tiles you asked for. At the starting zoom one tile is roughly 40 km across, so the tile requests show roughly which area you looked at. Your IP address and browser name, and the address of this site (not the page path or the <code>#</code>). See the <a href="https://osmfoundation.org/wiki/Privacy_Policy">OpenStreetMap Foundation privacy policy</a>.</td>
+              <td>The place name, your name, date or time of birth.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>That is the whole list for the site as it ships. Everything else, from the planet positions to the PDF reports, is calculated in your browser.</p>
+
+      <h3>Code that exists but is switched off</h3>
+      <p>
+        The engine can fall back to OpenStreetMap's Nominatim search when Open-Meteo finds nothing. The website never turns
+        this on, because Nominatim's rules do not allow search-as-you-type from public sites. It is there for people who run
+        the engine themselves.
+      </p>
+
+      <h3>Optional features that only send when you turn them on</h3>
+      <ul>
+        <li>
+          <b>"Also search online" for places.</b> Where this switch is offered, turning it off stops the Open-Meteo search and
+          the map preview entirely; place search then uses only the list of towns built into the site.
+        </li>
+        <li>
+          <b>Encrypted sync.</b> If you set it up, your saved charts are encrypted in your browser and sent only to the address
+          you type in yourself. That server receives the encrypted file, which it cannot read, and your IP address. There is no
+          default address.
+        </li>
+        <li>
+          <b>Visit counter.</b> If a copy of this site is built with the GoatCounter counter turned on, it sends the page path
+          (never the part after <code>#</code>), the site you came from, your screen width and three event names (a chart was
+          made, a planet was first clicked, a return visit within a week) to <code>goatcounter.com</code>. It uses no cookies and
+          does nothing at all if your browser sends Do Not Track or Global Privacy Control. If it is on, the network log at
+          the bottom of every page will show it.
+        </li>
+      </ul>
+
+      <h2>What is saved in your browser</h2>
+      <p>
+        The site saves your work in your browser's local storage, so it is still there next visit. It lives only on this
+        device, in this browser, and nobody else can read it. Clearing the site's data in your browser settings removes it, as
+        does the button below.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Saved as</th><th>What it holds</th></tr></thead>
+          <tbody>
+            <tr><td><code>vedic.lastInput</code></td><td>The birth details you last opened, so the chart reopens.</td></tr>
+            <tr><td><code>vedic.tabs.v1</code></td><td>Your open chart tabs, with any consultation notes and log you wrote.</td></tr>
+            <tr><td><code>vedic.profiles.v1</code></td><td>Saved profiles (name and birth details).</td></tr>
+            <tr><td><code>vedic.lifeEvents.v1</code></td><td>Life events you entered to check against the timeline.</td></tr>
+            <tr><td><code>vedic.rectify.v2</code></td><td>Your birth time finder events and settings.</td></tr>
+            <tr><td><code>vedic.compare.v1</code>, <code>vedic.match</code></td><td>The charts on the compare and matching pages.</td></tr>
+            <tr><td><code>vedic.tools.place</code></td><td>The place last used on the KP, Prashna and Muhurta page.</td></tr>
+            <tr><td><code>vedic.lang</code>, <code>vedic.karakaScheme</code>, <code>vedic.consultBrand</code>, <code>vedic.consultSections</code></td><td>Settings: language, Jaimini karaka scheme, and your report heading and sections.</td></tr>
+            <tr><td><code>vedic.*</code> and <code>va.*</code></td><td>Any newer setting uses one of these two prefixes, so the button below finds it too.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><button class="wipe" type="button" data-wipe>Delete everything this site saved in this browser</button> <span class="updated" data-wipe-note></span></p>
+
+      <h2>Share links and PDFs</h2>
+      <p>
+        A share link carries the birth details after the <code>#</code>. That part stays in the browser and is never sent to
+        GitHub or anyone else when the link opens. But anyone you give the link to can read those details, and so can the app
+        you paste it into, so share it the way you would share the birth details themselves. A chat app that shows a link
+        preview fetches the page without the <code>#</code> part.
+      </p>
+      <p>PDF reports are drawn in your browser and saved straight to your device. They are not uploaded anywhere.</p>
+
+      <h2>What the site does not do</h2>
+      <ul>
+        <li>No cookies, of any kind.</li>
+        <li>No advertising and no ad networks.</li>
+        <li>No scripts, fonts or styles loaded from other sites: everything is bundled with the site itself.</li>
+        <li>No account, no sign-in, no email collection.</li>
+        <li>No selling or sharing of anything, because nothing reaches us to sell.</li>
+      </ul>
+
+      <h2>Check it yourself</h2>
+      <p>
+        Every page has a <b>Network log</b> at the bottom that lists each request the page has made, as your browser records
+        it, with anything that went to another site highlighted. For the full picture, open your browser's developer tools
+        (F12, or Cmd+Option+I on a Mac), choose the Network tab, and use the site. You should see only the hosts in the table above.
+      </p>
+      <p class="box" data-reqcount>This page's own requests are counted here once it has loaded.</p>
+      <p>
+        The code is public under the AGPL. The place search is in
+        <a href="https://github.com/destinjones/vedic-astrology/blob/main/packages/engine/src/geocode.ts"><code>geocode.ts</code></a>
+        and the map in
+        <a href="https://github.com/destinjones/vedic-astrology/blob/main/apps/web/src/components/PlaceMap.tsx"><code>PlaceMap.tsx</code></a>.
+        The threat model, what could leak and under what conditions, is in
+        <a href="https://github.com/destinjones/vedic-astrology/blob/main/SECURITY.md"><code>SECURITY.md</code></a>.
+      </p>
+
+      <h2>Problems and questions</h2>
+      <p>
+        If you see the site send something this page doesn't mention, please tell us privately through
+        <a href="https://github.com/destinjones/vedic-astrology/security/advisories/new">GitHub's vulnerability reporting</a>
+        instead of a public issue. Anything else can go in a normal
+        <a href="https://github.com/destinjones/vedic-astrology/issues">issue</a>.
+      </p>
+    </main>
+
+    <footer class="doc-foot">
+      <p>Astrology is a traditional practice, not a science. Readings are for reflection, and nothing on this site is medical, legal or financial advice.</p>
+      <p><a href="%BASE_URL%">Home</a> · <a href="%BASE_URL%how-it-works/">How it works</a> · <a href="%BASE_URL%check/">Check our numbers</a> · <a href="https://github.com/destinjones/vedic-astrology">Source</a> · <a href="https://github.com/destinjones/vedic-astrology/blob/main/LICENSE">AGPL-3.0</a></p>
+      <p class="mono" data-build></p>
+    </footer>
+  </body>
+</html>
