@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import type { BirthInput, Chart, PlanetId, VargaId } from './types/chart';
 import type { ChartStyle, Selection } from './types/ui';
 import { computeChart } from './engine';
@@ -6,12 +6,28 @@ import { BirthForm } from './components/BirthForm';
 import { NorthChart } from './components/NorthChart';
 import { SouthChart } from './components/SouthChart';
 import { DetailPanel } from './components/DetailPanel';
-import { NakshatraWheel } from './components/NakshatraWheel';
+import { NakshatraWheel, type WheelMode } from './components/NakshatraWheel';
 import { PlanetTable } from './components/PlanetTable';
 import { DashaTimeline } from './components/DashaTimeline';
 import { VargaSwitcher } from './components/VargaSwitcher';
 import { NAKSHATRAS, PLANET_BY_ID, signInfo } from './data/constants';
 import { getVarga } from './lib/astro';
+import { ART } from './data/art';
+
+const SkyView = lazy(() => import('./components/SkyView'));
+
+/** Mounts children once the placeholder scrolls near the viewport. */
+function WhenVisible({ children, minHeight }: { children: React.ReactNode; minHeight: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    if (seen || !ref.current) return;
+    const io = new IntersectionObserver((e) => { if (e.some((x) => x.isIntersecting)) setSeen(true); }, { rootMargin: '200px' });
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, [seen]);
+  return <div ref={ref} style={{ minHeight }}>{seen ? children : null}</div>;
+}
 
 const DEFAULT_INPUT: BirthInput = {
   name: '',
@@ -39,6 +55,7 @@ export default function App() {
   const [vargaId, setVargaId] = useState<VargaId>('D1');
   const [selection, setSelection] = useState<Selection | null>(null);
   const [hoverPlanet, setHoverPlanet] = useState<PlanetId | null>(null);
+  const [wheelMode, setWheelMode] = useState<WheelMode>('art');
 
   const run = async (i: BirthInput) => {
     setBusy(true);
@@ -66,6 +83,14 @@ export default function App() {
 
   return (
     <div className="app">
+      <div
+        className={`backdrop ${chart ? 'backdrop-cosmos' : 'backdrop-hero'}`}
+        aria-hidden
+        style={{
+          '--bg-desktop': `url("${chart ? ART.cosmosDesktop : ART.heroDesktop}")`,
+          '--bg-mobile': `url("${chart ? ART.cosmosMobile : ART.heroMobile}")`,
+        } as React.CSSProperties}
+      />
       <div className="starfield" aria-hidden />
       <header className="topbar">
         <div className="brand">
@@ -154,10 +179,28 @@ export default function App() {
             </aside>
           </div>
 
+          <section className="card sky-card">
+            <div className="card-head">
+              <h3>Sky view</h3>
+              <span className="muted">your grahas in 3D, placed by sidereal longitude</span>
+            </div>
+            <WhenVisible minHeight={520}>
+              <Suspense fallback={<div className="sky-overlay static">Loading 3D view…</div>}>
+                <SkyView chart={chart} selection={selection} onSelect={setSelection} />
+              </Suspense>
+            </WhenVisible>
+          </section>
+
           <div className="explorer-grid lower">
             <section className="card wheel-card">
-              <div className="card-head"><h3>Nakshatra wheel</h3></div>
-              <NakshatraWheel chart={chart} selection={selection} onSelect={setSelection} onHoverPlanet={setHoverPlanet} />
+              <div className="card-head">
+                <h3>Nakshatra wheel</h3>
+                <div className="seg" role="radiogroup" aria-label="Wheel style">
+                  <button role="radio" aria-checked={wheelMode === 'art'} className={wheelMode === 'art' ? 'is-active' : ''} onClick={() => setWheelMode('art')}>Artwork</button>
+                  <button role="radio" aria-checked={wheelMode === 'diagram'} className={wheelMode === 'diagram' ? 'is-active' : ''} onClick={() => setWheelMode('diagram')}>Diagram</button>
+                </div>
+              </div>
+              <NakshatraWheel mode={wheelMode} chart={chart} selection={selection} onSelect={setSelection} onHoverPlanet={setHoverPlanet} />
             </section>
             <section className="card">
               <div className="card-head"><h3>Planetary positions</h3></div>

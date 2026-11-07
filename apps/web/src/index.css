@@ -35,7 +35,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .mono { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
 
 .starfield {
-  position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.55;
+  position: fixed; inset: 0; pointer-events: none; z-index: -1; opacity: 0.55;
   background-image:
     radial-gradient(1px 1px at 10% 20%, #fff 50%, transparent 51%),
     radial-gradient(1px 1px at 30% 70%, #fff 50%, transparent 51%),
@@ -220,7 +220,6 @@ section > h4 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; lett
 .wheel-nak.is-selected { fill: rgba(232, 182, 90, .35); stroke: var(--accent); }
 .wheel-naknum { fill: var(--muted); font-size: 9.5px; pointer-events: none; }
 .wheel-asc line { stroke: var(--accent-2); stroke-width: 1.5; stroke-dasharray: 3 3; }
-.wheel-asc text { fill: var(--accent-2); font-size: 10px; font-weight: 600; }
 .wheel-asc { cursor: pointer; }
 .wheel-planet { cursor: pointer; }
 .wheel-planet-glyph { font-size: 13px; pointer-events: none; }
@@ -271,3 +270,54 @@ section > h4 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; lett
 
 .reading-note { font-size: 12px; color: var(--muted); margin: -4px 0 8px; }
 .planet-table td:last-child { white-space: normal; min-width: 120px; }
+
+/* Blender artwork */
+.detail-art { flex: 0 0 76px; width: 76px; height: 76px; object-fit: contain; margin: -6px -4px -6px -6px;
+  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--glow) 55%, transparent)); animation: float 6s ease-in-out infinite; }
+@keyframes float { 50% { transform: translateY(-3px) rotate(3deg); } }
+@media (prefers-reduced-motion: reduce) { .detail-art { animation: none; } }
+.detail-medal { position: relative; flex: 0 0 68px; width: 68px; height: 68px; }
+.detail-medal img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 14px rgba(232, 182, 90, .3)); }
+.medal-badge { position: absolute; right: -4px; bottom: -2px; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 12px;
+  display: grid; place-items: center; font: 700 13px var(--sans); color: #1a1206; background: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+
+.backdrop { position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: var(--bg-desktop);
+  background-size: cover; background-position: center; transition: opacity .6s; }
+.backdrop::after { content: ''; position: absolute; inset: 0; }
+.backdrop-hero { opacity: .9; background-position: 70% center; }
+.backdrop-hero::after { background: linear-gradient(90deg, rgba(11,10,26,.92) 0%, rgba(11,10,26,.55) 45%, rgba(11,10,26,.25) 70%, rgba(11,10,26,.75) 100%),
+  linear-gradient(180deg, transparent 60%, var(--bg) 100%); }
+.backdrop-cosmos { opacity: .35; }
+.backdrop-cosmos::after { background: linear-gradient(180deg, rgba(11,10,26,.3), rgba(11,10,26,.8)); }
+@media (max-width: 700px) {
+  .backdrop { background-image: var(--bg-mobile); }
+  .backdrop-hero::after { background: linear-gradient(180deg, rgba(11,10,26,.35) 0%, rgba(11,10,26,.85) 45%, var(--bg) 100%); }
+}
+
+.wheel-hit { fill: transparent; cursor: pointer; transition: fill .15s; }
+.wheel-sign-g:hover .wheel-hit, .wheel-nak-g:hover .wheel-hit { fill: rgba(255, 230, 170, .14); }
+.wheel-hit.is-selected { fill: rgba(232, 182, 90, .32); stroke: var(--accent); stroke-width: 1.5; }
+.wheel-sign.is-selected { fill: rgba(232, 182, 90, .3); }
+.wheel-sign-g { cursor: pointer; }
+.wheel-asc circle { fill: var(--accent-2); stroke: #fff; stroke-opacity: .5; }
+.wheel-asc text { fill: #140c26; font-size: 8px; font-weight: 700; }
+.wheel-art .wheel-planet image { filter: drop-shadow(0 0 3px rgba(0,0,0,.8)); }
+
+/* 3D sky */
+.sky-card { margin-bottom: 16px; }
+.sky-wrap { position: relative; }
+.sky-host { position: relative; height: min(64vh, 600px); min-height: 380px; border-radius: 12px; overflow: hidden; background: #05050f; }
+.sky-host canvas { display: block; }
+.sky-labels { position: absolute !important; inset: 0; }
+.sky-label { font: 600 12px var(--sans); color: var(--c); padding: 2px 8px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+  background: rgba(11, 10, 26, .72); border: 1px solid color-mix(in srgb, var(--c) 55%, transparent); transition: transform .15s, background .15s; }
+.sky-label:hover { background: rgba(11, 10, 26, .92); transform: scale(1.06); }
+.sky-label.is-selected { background: var(--c); color: #120f2a; }
+.sky-label-asc { --c: var(--accent-2); }
+.sky-overlay { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 12px; color: var(--muted); pointer-events: none; }
+.sky-overlay.static { position: relative; min-height: 380px; }
+.sky-spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgba(232,182,90,.2); border-top-color: var(--accent); animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.sky-controls { position: absolute; top: 10px; right: 10px; }
+.btn-ghost.sm { padding: 5px 10px; font-size: 12.5px; background: rgba(11,10,26,.7); }
+.sky-note { font-size: 12px; color: var(--muted); margin: 8px 0 0; text-align: center; }
