@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../schema/planet-in-house.schema.json
+planet: mars
+readings:
+  "1":
+    summary: "Mars in the 1st: energetic, bold and competitive."
+    detail: You are physically strong, courageous and direct, often athletic. Mars here forms Manglik dosha. Impatience and accidents to the head are risks.
+    strengths: [courage, energy, leadership, physical strength]
+    challenges: [aggression, accidents, relationship conflict]
+    score: 1
+
+  "2":
+    summary: "Mars in the 2nd: forceful speech and drive to earn."
+    detail: You speak bluntly and work hard for money. Family life may involve arguments. Mars here forms Manglik dosha in some traditions.
+    strengths: [earning drive, honest speech, determination, protecting family]
+    challenges: [harsh speech, family quarrels, impulsive spending]
+    score: -1
+
+  "3":
+    summary: "Mars in the 3rd: excellent courage and initiative."
+    detail: Mars is strong in this upachaya house. You are brave, competitive and skilled with hands, sports or technology. Siblings may be energetic or competitive.
+    strengths: [courage, initiative, skill, success through effort]
+    challenges: [sibling rivalry, recklessness, aggressive speech]
+    score: 3
+
+  "4":
+    summary: "Mars in the 4th: drive at home and with property."
+    detail: Mars in the 4th forms Manglik dosha. There can be conflict at home or with the mother, but also gains through land and property. Inner peace may be disturbed.
+    strengths: [property gains, protecting home, engineering skill, determination]
+    challenges: [domestic conflict, restlessness, heart or chest strain]
+    score: -1
+
+  "5":
+    summary: "Mars in the 5th: a sharp, competitive intelligence."
+    detail: You are intelligent and competitive, drawn to sports, strategy or technical fields. Romance is passionate. Children may be few or energetic.
+    strengths: [sharp intellect, strategy, passion, competitive spirit]
+    challenges: [impulsive speculation, romantic conflict, difficulty with children]
+    score: 0
+
+  "6":
+    summary: "Mars in the 6th: victory over enemies and illness."
+    detail: Mars is excellent in the 6th. You defeat competitors, handle conflict and recover quickly. Careers in medicine, law, the military or police suit you.
+    strengths: [victory, courage in conflict, good health, competitive edge]
+    challenges: [aggression at work, inflammations, injury]
+    score: 3
+
+  "7":
+    summary: "Mars in the 7th: passionate but challenging partnerships."
+    detail: Mars in the 7th forms Manglik dosha. Relationships are passionate but may involve conflict. Business partnerships require care.
+    strengths: [passion, energetic partner, business drive, courage in dealings]
+    challenges: [marital conflict, impulsive partnerships, dominance]
+    score: -2
+
+  "8":
+    summary: "Mars in the 8th: intense transformation."
+    detail: Mars in the 8th forms Manglik dosha. There may be sudden events, surgery or accidents, but also interest in research, the occult and hidden resources.
+    strengths: [research ability, resilience, occult interest, surgical skill]
+    challenges: [accidents, conflict over shared money, health crises]
+    score: -2
+
+  "9":
+    summary: "Mars in the 9th: fighting for beliefs."
+    detail: You are passionate about principles and may challenge teachers or traditions. Travel and adventure appeal. The father may be strong-willed.
+    strengths: [moral courage, adventurousness, leadership, principled action]
+    challenges: [dogmatism, conflict with father or teachers, recklessness]
+    score: 0
+
+  "10":
+    summary: "Mars in the 10th: dynamic career and authority."
+    detail: Mars has directional strength in the 10th. You are ambitious and effective, suited to engineering, the military, management, sports or surgery. Recognition comes through action.
+    strengths: [career drive, leadership, achievement, decisiveness]
+    challenges: [ruthlessness, conflict with authority, workaholism]
+    score: 3
+
+  "11":
+    summary: "Mars in the 11th: gains through effort and competition."
+    detail: Mars in the 11th gives strong earning power and fulfilled ambitions. Friends are energetic. Elder siblings may be competitive.
+    strengths: [gains, ambition, energetic friends, success]
+    challenges: [conflict with friends or elder siblings, impulsive spending]
+    score: 3
+
+  "12":
+    summary: "Mars in the 12th: hidden energy and expenses."
+    detail: Mars in the 12th forms Manglik dosha. Energy may be spent on hidden activities, foreign lands or spiritual practice. Expenses and sleep problems may arise.
+    strengths: [spiritual discipline, foreign success, behind-the-scenes action, charity]
+    challenges: [hidden enemies, expenses, sleep disturbances]
+    score: -2

@@ -11,6 +11,8 @@ export type { NakshatraProfile } from './data/nakshatras';
 export { PLANET_IN_SIGN } from './data/planetInSign';
 export { PLANET_IN_HOUSE } from './data/planetInHouse';
 export { HOUSE_LORD_IN } from './data/houseLords';
+export { PLANET_IN_NAKSHATRA_TEXT, YOGA_META, CONTENT_CREDITS } from './data/generated/content';
+export type { WrittenNakshatraReading, YogaMeta, YogaCitation } from './data/contentTypes';
 export { DIGNITY_TEXT, RETROGRADE_TEXT, COMBUST_TEXT, CONJUNCTIONS, ASPECT_FLAVOR, SPECIAL_ASPECT_NOTES, conjunctionKey } from './data/conditions';
 export { YOGA_DEFINITIONS, detectYogas } from './yogas';
 export { DOSHA_DEFINITIONS, detectDoshas, detectManglik, detectKaalSarp } from './doshas';

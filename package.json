@@ -14,7 +14,8 @@
     "build": "npm run build -w @vedic/web",
     "build:pages": "node tools/build-pages.mjs",
     "smoke": "node tools/smoke.mjs",
-    "demos": "node tools/record-demos.mjs"
+    "demos": "node tools/record-demos.mjs",
+    "content:check": "npm run content:check -w @vedic/interpretations"
   },
   "engines": {
     "node": ">=20"

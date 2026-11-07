@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../schema/planet-in-house.schema.json
+planet: sun
+readings:
+  "1":
+    summary: "Sun in the 1st: a strong, visible personality."
+    detail: The Sun on the ascendant gives presence, vitality and a strong sense of self. You are noticed, you like to lead and you value independence. Health is generally robust, though heat, headaches or pride may need managing. Partners may find you dominant.
+    strengths: [vitality, confidence, leadership, recognition]
+    challenges: [ego, dominance in relationships, heat or blood pressure issues]
+    score: 2
+
+  "2":
+    summary: "Sun in the 2nd: pride in family and wealth."
+    detail: Self-worth is tied to resources, family name and speech. Income may come through government, authority or inherited status. Speech is commanding but can be harsh. Family relationships can involve power dynamics.
+    strengths: [earning through authority, commanding speech, family pride, values-driven]
+    challenges: [harsh speech, conflict over money, eye problems]
+    score: 0
+
+  "3":
+    summary: "Sun in the 3rd: courage and self-made success."
+    detail: The Sun thrives in this upachaya house. You are brave, enterprising and determined, and you succeed through your own effort. Communication, media and short travel suit you. Relations with younger siblings may be competitive.
+    strengths: [courage, initiative, communication, self-reliance]
+    challenges: [sibling rivalry, arrogance, restlessness]
+    score: 2
+
+  "4":
+    summary: "Sun in the 4th: authority at home."
+    detail: The Sun in the 4th can bring a strong home life or a home dominated by one person. Property through government or the father is possible. Inner peace may be disturbed by ego conflicts in the family.
+    strengths: [property, pride in home, leadership in family, patriotism]
+    challenges: [domestic tension, restlessness at home, heart strain]
+    score: 0
+
+  "5":
+    summary: "Sun in the 5th: creative intelligence and pride in children."
+    detail: You are intelligent, creative and drawn to leadership, politics or the arts. Romance is dramatic. Children may be few but promising. Speculation should be careful.
+    strengths: [intelligence, creativity, leadership, good judgment]
+    challenges: [pride, fewer children or delays, gambling losses]
+    score: 1
+
+  "6":
+    summary: "Sun in the 6th: victory over obstacles."
+    detail: The Sun is strong in this upachaya house. You defeat competitors, recover well from illness and succeed in service, health or government work. You are disciplined and dutiful.
+    strengths: [victory over enemies, good health, service, discipline]
+    challenges: [workaholism, conflict at work, digestive heat]
+    score: 2
+
+  "7":
+    summary: "Sun in the 7th: partnerships with strong personalities."
+    detail: You attract powerful partners or may be dominant in partnerships. Marriage can involve ego clashes or late commitment. Business partnerships and public dealings can bring status.
+    strengths: [public recognition, strong partners, business status, leadership in dealings]
+    challenges: [ego clashes in marriage, delayed marriage, dominance]
+    score: -1
+
+  "8":
+    summary: "Sun in the 8th: hidden power and transformation."
+    detail: The Sun in the 8th turns attention to research, the occult and life’s deeper mysteries. Inheritance or joint resources may come with complications. Health and the father’s well-being may need care.
+    strengths: [research ability, resilience, occult interest, inheritance]
+    challenges: [health issues, secrecy, conflict over shared money]
+    score: -2
+
+  "9":
+    summary: "Sun in the 9th: fortune through principles and father."
+    detail: The Sun in the house of dharma gives strong ethics, respect for teachers and luck through authority. The father is influential. Higher education, law, religion and travel are favoured.
+    strengths: [fortune, ethics, guidance, higher learning]
+    challenges: [dogmatism, tension with father, pride in beliefs]
+    score: 2
+
+  "10":
+    summary: "Sun in the 10th: career success and public authority."
+    detail: The Sun has directional strength (dig bala) in the 10th. Career is prominent, often in leadership, government or management. Recognition comes naturally. This is one of the best placements for the Sun.
+    strengths: [career success, authority, fame, leadership]
+    challenges: [workaholism, ego in career, neglect of home]
+    score: 3
+
+  "11":
+    summary: "Sun in the 11th: gains through influence."
+    detail: Gains come through authority, government and powerful friends. Ambitions are achieved. Elder siblings may be prominent. Social circles are influential.
+    strengths: [gains, influential friends, fulfilled ambitions, leadership in groups]
+    challenges: [pride in status, selective friendships, tension with elder siblings]
+    score: 3
+
+  "12":
+    summary: "Sun in the 12th: a private or spiritual self."
+    detail: The Sun in the 12th turns the self inward. You may live abroad, work behind the scenes or be drawn to spiritual practice. Recognition can be limited and expenses may be high.
+    strengths: [spirituality, foreign connections, charity, introspection]
+    challenges: [low recognition, expenses, eye or sleep issues]
+    score: -2

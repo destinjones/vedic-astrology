@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "reading.schema.json",
+  "title": "One written reading",
+  "description": "The text of one reading. See content/STYLE.md.",
+  "type": "object",
+  "required": ["summary", "detail", "strengths", "challenges"],
+  "additionalProperties": false,
+  "properties": {
+    "summary": { "type": "string", "minLength": 10, "maxLength": 120, "description": "One sentence, ending in a full stop. Shown as the headline." },
+    "detail": {
+      "description": "One paragraph, or a list of paragraphs. Plain language, second person.",
+      "oneOf": [
+        { "type": "string", "minLength": 40 },
+        { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 40 } }
+      ]
+    },
+    "strengths": { "type": "array", "minItems": 1, "maxItems": 6, "items": { "type": "string", "minLength": 2, "maxLength": 40 } },
+    "challenges": { "type": "array", "maxItems": 6, "items": { "type": "string", "minLength": 2, "maxLength": 40 } },
+    "score": { "type": "number", "minimum": -3, "maximum": 3, "description": "Classical weighting from -3 to +3 before dignity and aspects." },
+    "credit": { "type": "array", "items": { "type": "string", "minLength": 2 }, "description": "Names to credit for this reading, as they want to appear on the credits page." }
+  }
+}

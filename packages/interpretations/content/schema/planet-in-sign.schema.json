@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "planet-in-sign.schema.json",
+  "title": "Planet in sign readings for one graha",
+  "type": "object",
+  "required": [
+    "planet",
+    "readings"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "planet": {
+      "enum": [
+        "sun",
+        "moon",
+        "mars",
+        "mercury",
+        "jupiter",
+        "venus",
+        "saturn",
+        "rahu",
+        "ketu"
+      ]
+    },
+    "readings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "aries": {
+          "$ref": "#/definitions/r"
+        },
+        "taurus": {
+          "$ref": "#/definitions/r"
+        },
+        "gemini": {
+          "$ref": "#/definitions/r"
+        },
+        "cancer": {
+          "$ref": "#/definitions/r"
+        },
+        "leo": {
+          "$ref": "#/definitions/r"
+        },
+        "virgo": {
+          "$ref": "#/definitions/r"
+        },
+        "libra": {
+          "$ref": "#/definitions/r"
+        },
+        "scorpio": {
+          "$ref": "#/definitions/r"
+        },
+        "sagittarius": {
+          "$ref": "#/definitions/r"
+        },
+        "capricorn": {
+          "$ref": "#/definitions/r"
+        },
+        "aquarius": {
+          "$ref": "#/definitions/r"
+        },
+        "pisces": {
+          "$ref": "#/definitions/r"
+        }
+      },
+      "required": [
+        "aries",
+        "taurus",
+        "gemini",
+        "cancer",
+        "leo",
+        "virgo",
+        "libra",
+        "scorpio",
+        "sagittarius",
+        "capricorn",
+        "aquarius",
+        "pisces"
+      ]
+    }
+  },
+  "definitions": {
+    "r": {
+      "allOf": [
+        {
+          "$ref": "reading.schema.json"
+        },
+        {
+          "not": {
+            "required": [
+              "score"
+            ]
+          }
+        },
+        {
+          "properties": {
+            "detail": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "description": "Score is not used here: it comes from dignity."
+    }
+  }
+}

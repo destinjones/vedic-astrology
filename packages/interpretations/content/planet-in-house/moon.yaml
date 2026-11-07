@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../schema/planet-in-house.schema.json
+planet: moon
+readings:
+  "1":
+    summary: "Moon in the 1st: a sensitive, visible personality."
+    detail: Emotions are on the surface and others feel your mood. You are charming, popular and adaptable. A strong Moon here gives beauty and public appeal; a weak one gives restlessness.
+    strengths: [charm, popularity, empathy, adaptability]
+    challenges: [moodiness, over-sensitivity, fluctuating health]
+    score: 1
+
+  "2":
+    summary: "Moon in the 2nd: emotional ties to family and wealth."
+    detail: Income can fluctuate but tends to grow. Speech is soft and pleasant. Family and food bring comfort. Wealth may come through public dealings, liquids or women.
+    strengths: [pleasant speech, family comfort, financial growth, good memory]
+    challenges: [emotional spending, fluctuating income, overeating]
+    score: 2
+
+  "3":
+    summary: "Moon in the 3rd: an emotionally courageous communicator."
+    detail: The mind is active and expressive. You enjoy travel, writing and connecting with siblings. Courage may fluctuate with mood.
+    strengths: [communication, travel, creativity, sibling bonds]
+    challenges: [restlessness, fluctuating courage, nervousness]
+    score: 1
+
+  "4":
+    summary: "Moon in the 4th: emotional peace and a happy home."
+    detail: The Moon has directional strength in the 4th. You are deeply connected to home, mother and roots, and emotional happiness is a priority. Property and vehicles are favoured.
+    strengths: [emotional peace, happy home, close bond with mother, property]
+    challenges: [attachment to home, resistance to change, over-dependence]
+    score: 3
+
+  "5":
+    summary: "Moon in the 5th: emotional creativity and love of children."
+    detail: The mind is creative, romantic and intelligent. Children bring emotional fulfilment. You may be drawn to the arts, teaching or devotional practice.
+    strengths: [creativity, intelligence, love of children, devotion]
+    challenges: [emotional speculation, romantic drama, over-attachment]
+    score: 2
+
+  "6":
+    summary: "Moon in the 6th: emotional sensitivity to work and health."
+    detail: The mind may worry about health, work or conflict. You are caring in service roles, nursing or health care. Emotional stress may affect digestion.
+    strengths: [service, caregiving, hard work, resilience]
+    challenges: [anxiety, digestive issues, conflict with women]
+    score: -1
+
+  "7":
+    summary: "Moon in the 7th: emotional fulfilment through partnership."
+    detail: You seek emotional security in relationships and attract nurturing or popular partners. Public dealings are successful. Moods can affect relationships.
+    strengths: [nurturing partner, public success, charm, diplomacy]
+    challenges: [emotional dependence, fluctuating relationships, jealousy]
+    score: 1
+
+  "8":
+    summary: "Moon in the 8th: deep and sometimes turbulent emotions."
+    detail: The mind is drawn to the hidden and the occult. Emotions can be intense or hidden. Inheritance or the spouse’s wealth may play a role. Emotional health needs attention.
+    strengths: [intuition, psychological depth, occult interest, resilience]
+    challenges: [emotional turbulence, anxiety, health fluctuations]
+    score: -2
+
+  "9":
+    summary: "Moon in the 9th: emotional faith and fortune."
+    detail: The mind is drawn to philosophy, religion and travel. Luck comes through mother, women or public. You are generous and devotional.
+    strengths: [faith, fortune, love of travel, generosity]
+    challenges: [fluctuating beliefs, restlessness, idealism]
+    score: 2
+
+  "10":
+    summary: "Moon in the 10th: public visibility and career fluctuations."
+    detail: Career involves the public, caring professions or changing roles. You are popular and well known. Reputation may fluctuate.
+    strengths: [popularity, public career, adaptability, care in leadership]
+    challenges: [career instability, emotional exposure, restlessness]
+    score: 2
+
+  "11":
+    summary: "Moon in the 11th: emotional fulfilment through friends and gains."
+    detail: Gains come through women, the public and networks. Desires are fulfilled. Friendships are emotionally rich.
+    strengths: [gains, friendships, fulfilled desires, popularity]
+    challenges: [emotional dependence on friends, fluctuating income]
+    score: 3
+
+  "12":
+    summary: "Moon in the 12th: a private, intuitive mind."
+    detail: The mind seeks solitude, sleep, dreams and spiritual practice. Expenses may be emotional. Foreign residence is possible.
+    strengths: [intuition, spirituality, compassion, imagination]
+    challenges: [isolation, insomnia, emotional drain]
+    score: -2

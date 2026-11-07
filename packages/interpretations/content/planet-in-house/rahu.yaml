@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../schema/planet-in-house.schema.json
+planet: rahu
+readings:
+  "1":
+    summary: "Rahu in the 1st: an unconventional, magnetic personality."
+    detail: You are ambitious, unusual and hard to categorise. You may reinvent yourself many times. Confusion about identity is possible.
+    strengths: [magnetism, ambition, innovation, boldness]
+    challenges: [identity confusion, restlessness, health anxiety]
+    score: 0
+
+  "2":
+    summary: "Rahu in the 2nd: unconventional wealth and speech."
+    detail: Wealth may come through foreign or unconventional sources. Speech can be persuasive or deceptive. Diet may be unusual.
+    strengths: [earning through innovation, persuasive speech, foreign wealth]
+    challenges: [deceptive speech, family disruption, irregular diet]
+    score: -1
+
+  "3":
+    summary: "Rahu in the 3rd: fearless courage and media skill."
+    detail: Rahu is excellent in the 3rd. You are bold, enterprising and skilled in media, technology or communication.
+    strengths: [courage, media success, enterprise, technical skill]
+    challenges: [recklessness, sibling issues]
+    score: 3
+
+  "4":
+    summary: "Rahu in the 4th: restlessness at home."
+    detail: Rahu in the 4th can bring an unusual home life, foreign residence or dissatisfaction with comfort. Property may come through unconventional means.
+    strengths: [foreign property, unconventional home, adaptability]
+    challenges: [domestic unrest, emotional insecurity, issues with mother]
+    score: -1
+
+  "5":
+    summary: "Rahu in the 5th: unconventional intelligence."
+    detail: Rahu in the 5th gives a sharp, unusual mind, interest in speculation and possible complications with children or romance.
+    strengths: [original thinking, speculation skill, technology]
+    challenges: [complications with children, romantic confusion, speculation losses]
+    score: -1
+
+  "6":
+    summary: "Rahu in the 6th: victory over enemies."
+    detail: Rahu is excellent in the 6th. You defeat competitors, handle disease and succeed in service, technology or law.
+    strengths: [victory, resilience, competitive edge, service success]
+    challenges: [hidden health issues, workplace intrigue]
+    score: 3
+
+  "7":
+    summary: "Rahu in the 7th: unconventional partnerships."
+    detail: Rahu in the 7th may bring foreign, unusual or cross-cultural partners. Relationships can be intense or unstable.
+    strengths: [foreign partner, business innovation, charisma in dealings]
+    challenges: [relationship instability, deception in partnership]
+    score: -1
+
+  "8":
+    summary: "Rahu in the 8th: sudden events and occult power."
+    detail: Rahu in the 8th brings sudden changes, interest in the occult and possible unexpected gains or losses.
+    strengths: [occult interest, research, sudden gains]
+    challenges: [sudden losses, health crises, fear]
+    score: -2
+
+  "9":
+    summary: "Rahu in the 9th: unconventional beliefs."
+    detail: Rahu in the 9th questions tradition and may follow foreign philosophies. Relationship with father or teachers may be complicated.
+    strengths: [open-mindedness, foreign travel, innovative beliefs]
+    challenges: [conflict with father, false teachers, loss of faith]
+    score: -1
+
+  "10":
+    summary: "Rahu in the 10th: ambitious career rise."
+    detail: Rahu in the 10th gives strong ambition and sudden rise in career, often in technology, politics or foreign work.
+    strengths: [career rise, ambition, fame, innovation]
+    challenges: [instability, scandal risk, workaholism]
+    score: 2
+
+  "11":
+    summary: "Rahu in the 11th: great gains and networks."
+    detail: Rahu in the 11th is one of its best placements, giving large gains, fulfilled desires and influential networks.
+    strengths: [gains, networking, fulfilled ambitions, influence]
+    challenges: [insatiable desire, unreliable friends]
+    score: 3
+
+  "12":
+    summary: "Rahu in the 12th: foreign lands and hidden expenses."
+    detail: Rahu in the 12th brings foreign travel or residence, spiritual interests and possible hidden expenses or sleep issues.
+    strengths: [foreign success, spiritual seeking, imagination]
+    challenges: [hidden expenses, insomnia, confusion]
+    score: -1

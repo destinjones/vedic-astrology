@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../schema/planet-in-sign.schema.json
+planet: venus
+readings:
+  aries:
+    summary: "Venus in Aries: passionate, impulsive love."
+    detail: Venus in Mars’ sign is bold and passionate in love. You pursue what you want quickly and value independence. Relationships can start and end fast.
+    strengths: [passion, courage in love, enthusiasm, independence]
+    challenges: [impulsiveness, impatience, selfishness in love]
+
+  taurus:
+    summary: "Venus in Taurus: sensual, loyal and comfort-loving."
+    detail: Venus rules Taurus and expresses its earthy, sensual side. You love beauty, good food, music and stable relationships. Loyalty is strong and wealth often comes easily.
+    strengths: [loyalty, sensuality, artistic taste, financial sense]
+    challenges: [possessiveness, over-indulgence, stubbornness]
+
+  gemini:
+    summary: "Venus in Gemini: playful, witty and sociable love."
+    detail: Love is expressed through conversation and fun. You enjoy variety, flirting and intellectual connection. Commitment may take time.
+    strengths: [charm, wit, versatility, social ease]
+    challenges: [fickleness, superficiality, restlessness]
+
+  cancer:
+    summary: "Venus in Cancer: tender, nurturing love."
+    detail: Venus in the Moon’s sign seeks emotional security. You are caring, sentimental and devoted to home and family. Moodiness and clinginess can arise.
+    strengths: [tenderness, devotion, nurturing, loyalty]
+    challenges: [moodiness, clinginess, over-sensitivity]
+
+  leo:
+    summary: "Venus in Leo: dramatic, generous love."
+    detail: Venus in the Sun’s sign is warm, proud and romantic. You love grand gestures, art and being admired. Pride and jealousy can cause friction.
+    strengths: [warmth, generosity, creativity, loyalty]
+    challenges: [pride, need for admiration, extravagance]
+
+  virgo:
+    summary: "Debilitated Venus: love expressed through service and detail."
+    detail: Venus is weakest in Virgo, where its romantic nature meets criticism and analysis. You may be overly critical of partners or of yourself, and finding satisfaction in love can take time. Yet you are devoted, practical and refined. Neecha-bhanga can give exceptional artistic skill.
+    strengths: [devotion, practical care, refinement, service]
+    challenges: [criticism, insecurity in love, perfectionism]
+
+  libra:
+    summary: "Venus in Libra: graceful, harmonious and refined."
+    detail: Venus rules Libra and is in its moolatrikona here. You are charming, artistic and partnership-oriented, with a strong sense of fairness and beauty. Relationships and the arts are blessed.
+    strengths: [grace, diplomacy, artistic talent, partnership]
+    challenges: [indecision, people-pleasing, vanity]
+
+  scorpio:
+    summary: "Venus in Scorpio: intense, passionate love."
+    detail: Venus in Mars’ water sign is deep, magnetic and private. You love intensely and loyally, but jealousy and possessiveness can arise. Shared finances are a key theme.
+    strengths: [passion, loyalty, depth, magnetism]
+    challenges: [jealousy, possessiveness, secrecy]
+
+  sagittarius:
+    summary: "Venus in Sagittarius: adventurous, idealistic love."
+    detail: Love is a journey. You seek a partner who shares your beliefs and love of freedom. You are generous and optimistic but may resist commitment.
+    strengths: [optimism, generosity, adventurousness, honesty]
+    challenges: [restlessness, commitment issues, tactlessness]
+
+  capricorn:
+    summary: "Venus in Capricorn: loyal, practical love."
+    detail: Venus is friendly with Saturn and expresses steady, responsible love. You value commitment and status in relationships and may marry later or to someone older. Warmth can be reserved.
+    strengths: [loyalty, commitment, practicality, patience]
+    challenges: [reserve, materialism, emotional coldness]
+
+  aquarius:
+    summary: "Venus in Aquarius: unconventional, friendly love."
+    detail: Venus in Saturn’s air sign values friendship and freedom in love. You are drawn to unusual partners and relationships. Emotional detachment can be a challenge.
+    strengths: [friendship, originality, open-mindedness, loyalty]
+    challenges: [detachment, unpredictability, aloofness]
+
+  pisces:
+    summary: "Exalted Venus: devotional, compassionate love."
+    detail: Venus is exalted in Pisces. Love becomes unconditional, spiritual and artistic. You are romantic, generous and sensitive to beauty in all forms. Boundaries are needed so you are not taken advantage of.
+    strengths: [compassion, artistic genius, devotion, generosity]
+    challenges: [naivety, self-sacrifice, escapism]
