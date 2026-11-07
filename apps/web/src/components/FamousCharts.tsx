@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
-  COUNTRY_NAMES, FAMOUS_CHARTS, RODDEN_MEANING,
+  COUNTRY_NAMES, FAMOUS_CHARTS, RODDEN_MEANING, famousErrorReportUrl,
   type FamousChart, type FamousCountry, type RoddenRating,
 } from '../data/famousCharts';
 import './famous.css';
@@ -83,7 +83,7 @@ export function FamousCharts({ busy, onOpen, onClose }: Props) {
               <div className="famous-top">
                 <div>
                   <b className="famous-name">{c.label}</b>
-                  <small className="muted">{c.field}</small>
+                  <small className="muted">{c.field} <span className="famous-asof">(as of {fmtDate(c.asOf)})</span></small>
                 </div>
                 <span className={`chip famous-rating ${RATING_CLASS[c.rodden]}`} title={`Rodden rating ${c.rodden}: ${RODDEN_MEANING[c.rodden]}`}>
                   {c.rodden}
@@ -96,6 +96,8 @@ export function FamousCharts({ busy, onOpen, onClose }: Props) {
               <p className="famous-source muted">
                 Source: {c.source}{c.collector ? `, collected by ${c.collector}` : ''}.{' '}
                 {c.sourceUrl && <a href={c.sourceUrl} target="_blank" rel="noopener noreferrer">See the record</a>}
+                {' · '}
+                <a href={famousErrorReportUrl(c)} target="_blank" rel="noopener noreferrer">Report an error</a>
               </p>
               {c.note && <p className="famous-note muted">{c.note}</p>}
               <button className="btn-ghost sm famous-open" disabled={busy} onClick={() => onOpen(c)} aria-label={`Open the chart of ${c.label}`}>
@@ -108,7 +110,8 @@ export function FamousCharts({ busy, onOpen, onClose }: Props) {
       <p className="muted famous-foot">
         Birth data as published by <a href="https://www.astrotheme.com/" target="_blank" rel="noopener noreferrer">Astrotheme</a>,
         whose records and ratings follow Lois Rodden's <a href="https://www.astro.com/astro-databank/" target="_blank" rel="noopener noreferrer">Astro-Databank</a>.
-        Grouped by {COUNTRIES.map((k) => COUNTRY_NAMES[k]).join(', ')}.
+        Grouped by {COUNTRIES.map((k) => COUNTRY_NAMES[k]).join(', ')}. Each record and role is shown as of the date
+        beside it. If a birth time, a source or a title is wrong or out of date, use "Report an error" on that card.
       </p>
     </section>
   );

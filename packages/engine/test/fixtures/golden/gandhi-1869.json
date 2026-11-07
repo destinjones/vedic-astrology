@@ -1,0 +1,184 @@
+{
+  "id": "gandhi-1869",
+  "about": "Pre-standard-time LMT birth, Lahiri, the project reference chart",
+  "input": {
+    "date": "1869-10-02",
+    "time": "07:11",
+    "place": {
+      "name": "Porbandar",
+      "latitude": 21.6417,
+      "longitude": 69.6293
+    }
+  },
+  "options": {},
+  "sha256": "8304cd70d4a9eb7347fb5375a8ebafa9a644e7c3a3afcec9312f23272aa75ebb",
+  "digest": {
+    "meta": {
+      "utc": "1869-10-02T02:32:28.968Z",
+      "timezone": "Asia/Kolkata",
+      "utcOffsetMinutes": 278.5172,
+      "localMeanTime": true,
+      "ayanamsa": "lahiri",
+      "ayanamsaValue": 22.0382,
+      "houseSystem": "whole_sign",
+      "nodeType": "mean",
+      "timeWarnings": [
+        "lmt_applied"
+      ]
+    },
+    "ascendant": {
+      "lon": 184.3909,
+      "sign": 7,
+      "nak": 14,
+      "pada": 4
+    },
+    "midheaven": 94.5412,
+    "cusps": [
+      180,
+      210,
+      240,
+      270,
+      300,
+      330,
+      0,
+      30,
+      60,
+      90,
+      120,
+      150
+    ],
+    "planets": {
+      "sun": {
+        "lon": 166.8928,
+        "sign": 6,
+        "house": 12,
+        "nak": 13,
+        "pada": 3,
+        "retro": false,
+        "combust": false
+      },
+      "moon": {
+        "lon": 117.9281,
+        "sign": 4,
+        "house": 10,
+        "nak": 9,
+        "pada": 4,
+        "retro": false,
+        "combust": false
+      },
+      "mars": {
+        "lon": 206.3654,
+        "sign": 7,
+        "house": 1,
+        "nak": 16,
+        "pada": 2,
+        "retro": false,
+        "combust": false
+      },
+      "mercury": {
+        "lon": 191.7351,
+        "sign": 7,
+        "house": 1,
+        "nak": 15,
+        "pada": 2,
+        "retro": false,
+        "combust": false
+      },
+      "jupiter": {
+        "lon": 28.1388,
+        "sign": 1,
+        "house": 7,
+        "nak": 3,
+        "pada": 1,
+        "retro": true,
+        "combust": false
+      },
+      "venus": {
+        "lon": 204.3987,
+        "sign": 7,
+        "house": 1,
+        "nak": 16,
+        "pada": 2,
+        "retro": false,
+        "combust": false
+      },
+      "saturn": {
+        "lon": 230.3279,
+        "sign": 8,
+        "house": 2,
+        "nak": 18,
+        "pada": 2,
+        "retro": false,
+        "combust": false
+      },
+      "rahu": {
+        "lon": 102.1473,
+        "sign": 4,
+        "house": 10,
+        "nak": 8,
+        "pada": 3,
+        "retro": true,
+        "combust": false
+      },
+      "ketu": {
+        "lon": 282.1473,
+        "sign": 10,
+        "house": 4,
+        "nak": 22,
+        "pada": 1,
+        "retro": true,
+        "combust": false
+      }
+    },
+    "vargas": {
+      "D1": "7 6 4 7 7 1 7 8 4 10",
+      "D2": "5 5 5 4 5 4 4 5 4 4",
+      "D3": "7 10 12 3 11 9 3 4 8 2",
+      "D4": "7 12 1 4 10 10 4 2 7 1",
+      "D5": "1 12 8 7 11 7 7 10 12 12",
+      "D6": "1 10 12 6 3 6 5 11 9 9",
+      "D7": "8 3 4 1 9 7 12 6 12 6",
+      "D8": "2 9 8 8 4 8 7 2 4 4",
+      "D9": "8 3 12 2 10 9 2 10 7 1",
+      "D10": "8 7 9 3 10 10 3 10 4 10",
+      "D11": "8 2 8 4 11 11 3 1 2 8",
+      "D12": "8 12 3 5 11 12 4 4 8 2",
+      "D16": "3 6 3 3 7 4 2 3 7 7",
+      "D20": "3 4 7 6 8 7 5 10 9 9",
+      "D24": "8 5 2 2 2 3 12 8 1 1",
+      "D27": "10 7 11 6 5 2 4 4 8 2",
+      "D30": "1 12 8 7 9 7 3 10 12 12",
+      "D40": "6 5 8 12 4 2 9 10 11 11",
+      "D45": "7 10 6 4 6 7 1 11 7 7",
+      "D60": "3 3 11 11 6 9 7 12 4 10"
+    },
+    "dasha": [
+      "mercury 1855-05-24T20:24",
+      "ketu 1872-05-23T23:21",
+      "venus 1879-05-24T16:05",
+      "sun 1899-05-24T12:29",
+      "moon 1905-05-24T23:24",
+      "mars 1915-05-25T09:36",
+      "rahu 1922-05-25T02:21",
+      "jupiter 1940-05-24T11:06",
+      "saturn 1956-05-24T08:13"
+    ],
+    "panchanga": {
+      "tithi": 26,
+      "vara": 6,
+      "nakshatra": 9,
+      "yoga": 22,
+      "karana": 52,
+      "sunrise": "1869-10-02T01:12"
+    },
+    "shadbala": {
+      "sun": 358.98,
+      "moon": 419.35,
+      "mars": 327.15,
+      "mercury": 524.14,
+      "jupiter": 561.77,
+      "venus": 361.57,
+      "saturn": 441.99
+    }
+  }
+}

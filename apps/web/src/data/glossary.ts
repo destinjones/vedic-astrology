@@ -1,6 +1,6 @@
 /**
  * The Sanskrit vocabulary the readings use, explained the way an astrologer uses it.
- * One list feeds the hover glossary in the readings and the glossary page in /learn.
+ * One list feeds the hover glossary in the readings and the glossary on the /study page.
  * (The PDF report keeps its own glossary chapter, worded for print.)
  *
  * `match` lists the spellings to find in running English text (case-insensitive, whole words).

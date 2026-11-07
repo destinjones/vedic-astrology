@@ -4,7 +4,7 @@ import '../fonts'
 import '../index.css'
 import '../a11y.css'
 import '../lib/display'
-import './learn.css'
+import './study.css'
 import LearnApp from './LearnApp'
 import { I18nProvider } from '../i18n'
 
