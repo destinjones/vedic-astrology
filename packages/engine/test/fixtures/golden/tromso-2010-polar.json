@@ -1,0 +1,183 @@
+{
+  "id": "tromso-2010-polar",
+  "about": "Above the Arctic Circle in midsummer: no sunrise, and the ascendant still resolves",
+  "input": {
+    "date": "2010-06-21",
+    "time": "00:30",
+    "place": {
+      "name": "Tromsø",
+      "latitude": 69.6492,
+      "longitude": 18.9553,
+      "timezone": "Europe/Oslo"
+    }
+  },
+  "options": {},
+  "sha256": "ed8b5a2f9c461519dbd98831cd815dcab9d303d757cf6ee03d62570f3a9fcba7",
+  "digest": {
+    "meta": {
+      "utc": "2010-06-20T22:30:00.000Z",
+      "timezone": "Europe/Oslo",
+      "utcOffsetMinutes": 120,
+      "localMeanTime": false,
+      "ayanamsa": "lahiri",
+      "ayanamsaValue": 24.0033,
+      "houseSystem": "whole_sign",
+      "nodeType": "mean",
+      "timeWarnings": []
+    },
+    "ascendant": {
+      "lon": 2.5338,
+      "sign": 1,
+      "nak": 1,
+      "pada": 1
+    },
+    "midheaven": 241.8448,
+    "cusps": [
+      0,
+      30,
+      60,
+      90,
+      120,
+      150,
+      180,
+      210,
+      240,
+      270,
+      300,
+      330
+    ],
+    "planets": {
+      "sun": {
+        "lon": 65.4763,
+        "sign": 3,
+        "house": 3,
+        "nak": 5,
+        "pada": 4,
+        "retro": false,
+        "combust": false
+      },
+      "moon": {
+        "lon": 178.1729,
+        "sign": 6,
+        "house": 6,
+        "nak": 14,
+        "pada": 2,
+        "retro": false,
+        "combust": false
+      },
+      "mars": {
+        "lon": 133.317,
+        "sign": 5,
+        "house": 5,
+        "nak": 10,
+        "pada": 4,
+        "retro": false,
+        "combust": false
+      },
+      "mercury": {
+        "lon": 56.3375,
+        "sign": 2,
+        "house": 2,
+        "nak": 5,
+        "pada": 1,
+        "retro": false,
+        "combust": true
+      },
+      "jupiter": {
+        "lon": 337.7237,
+        "sign": 12,
+        "house": 12,
+        "nak": 26,
+        "pada": 2,
+        "retro": false,
+        "combust": false
+      },
+      "venus": {
+        "lon": 103.649,
+        "sign": 4,
+        "house": 4,
+        "nak": 8,
+        "pada": 4,
+        "retro": false,
+        "combust": false
+      },
+      "saturn": {
+        "lon": 154.2035,
+        "sign": 6,
+        "house": 6,
+        "nak": 12,
+        "pada": 3,
+        "retro": false,
+        "combust": false
+      },
+      "rahu": {
+        "lon": 258.5758,
+        "sign": 9,
+        "house": 9,
+        "nak": 20,
+        "pada": 2,
+        "retro": true,
+        "combust": false
+      },
+      "ketu": {
+        "lon": 78.5758,
+        "sign": 3,
+        "house": 3,
+        "nak": 6,
+        "pada": 4,
+        "retro": true,
+        "combust": false
+      }
+    },
+    "vargas": {
+      "D1": "1 3 6 5 2 12 4 6 9 3",
+      "D2": "5 5 5 5 5 4 4 4 4 4",
+      "D3": "1 3 2 9 10 12 8 6 1 7",
+      "D4": "1 3 3 8 11 3 7 6 3 9",
+      "D5": "1 1 8 9 8 6 12 2 3 3",
+      "D6": "1 2 12 3 12 8 9 7 4 4",
+      "D7": "1 4 6 8 2 7 1 12 1 7",
+      "D8": "1 6 12 12 4 7 4 6 9 9",
+      "D9": "1 8 6 4 5 6 8 11 6 12",
+      "D10": "1 4 11 9 6 10 4 3 3 9",
+      "D11": "1 1 6 1 9 4 3 9 11 5",
+      "D12": "2 5 5 10 12 3 9 7 4 10",
+      "D16": "2 11 12 12 7 1 8 11 6 6",
+      "D20": "2 8 11 5 2 10 10 7 5 5",
+      "D24": "7 9 2 3 1 10 2 7 7 7",
+      "D27": "3 11 5 12 3 4 10 7 5 11",
+      "D30": "1 11 8 9 8 6 12 2 3 3",
+      "D40": "4 8 8 6 6 5 1 12 1 1",
+      "D45": "4 5 3 12 8 8 9 3 12 12",
+      "D60": "6 1 2 7 6 3 7 2 10 4"
+    },
+    "dasha": [
+      "mars 2007-12-05T22:23",
+      "rahu 2014-12-05T15:08",
+      "jupiter 2032-12-04T23:53",
+      "saturn 2048-12-04T21:00",
+      "mercury 2067-12-05T11:35",
+      "ketu 2084-12-04T14:32",
+      "venus 2091-12-05T07:16",
+      "sun 2111-12-06T03:40",
+      "moon 2117-12-05T14:35"
+    ],
+    "panchanga": {
+      "tithi": 10,
+      "vara": 1,
+      "nakshatra": 14,
+      "yoga": 19,
+      "karana": 19,
+      "sunrise": null
+    },
+    "shadbala": {
+      "sun": 479.02,
+      "moon": 492.97,
+      "mars": 374.27,
+      "mercury": 437.84,
+      "jupiter": 405.12,
+      "venus": 480.81,
+      "saturn": 385.45
+    }
+  }
+}

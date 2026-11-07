@@ -112,6 +112,16 @@ describe('real chart from the engine (Gandhi)', () => {
     const engine = await createEngine();
     chart = engine.computeChart({ date: '1869-10-02', time: '07:11', place: { name: 'Porbandar', latitude: 21.6417, longitude: 69.6293 } });
   });
+  it('house readings follow the bhava chalit when asked, yogas stay sign-based', () => {
+    const input = fromEngineChart(chart);
+    const rashi = interpretChart(input);
+    const bhava = interpretChart(input, { bhavaHouses: { sun: 1 } });
+    // Sun in Virgo is the 12th by sign from Libra; a bhava chalit 1st moves its reading
+    expect(rashi.planets.sun.house.id).toBe('house:sun:12');
+    expect(bhava.planets.sun.house.id).toBe('house:sun:1');
+    expect(bhava.houseLords[10].id).toBe('lord:11:1'); // Sun rules the 11th from Libra
+    expect(bhava.yogas.map((y) => y.id)).toEqual(rashi.yogas.map((y) => y.id));
+  });
   it('interprets the full chart', () => {
     const input = fromEngineChart(chart);
     expect(input.ascendantSign).toBe(7);

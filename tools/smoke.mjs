@@ -44,6 +44,16 @@ try {
   const lagna = await page.locator('.summary-item').first().innerText();
   if (!lagna.includes('Leo')) problems.push(`sample chart lagna should be Leo, got: ${lagna}`);
 
+  // panchanga, planet condition and the bhava chalit switch
+  const panch = await page.locator('#panchanga').innerText();
+  if (!/tithi/i.test(panch) || !/nakshatra/i.test(panch)) problems.push('panchanga card missing its limbs');
+  if (!(await page.locator('#condition .planet-table tbody tr').count())) problems.push('planet condition table is empty');
+  await page.locator('.chalit button', { hasText: 'Sripati' }).click();
+  await page.waitForSelector('.chalit-note', { timeout: 10000 });
+  await page.locator('.chalit button', { hasText: 'Rashi' }).click();
+  await page.locator('#junctions').scrollIntoViewIfNeeded();
+  await page.waitForSelector('#junctions .dt-table', { timeout: 60000 });
+
   await page.locator('#jaimini').scrollIntoViewIfNeeded();
   await page.waitForSelector('#jaimini .jm-karakas', { timeout: 60000 });
   if ((await page.locator('#jaimini .jm-karakas tbody tr').count()) !== 8) problems.push('Jaimini: expected 8 chara karakas');
@@ -116,4 +126,4 @@ if (problems.length) {
   console.error(`Site check failed:\n- ${problems.join('\n- ')}`);
   process.exit(1);
 }
-console.log('Site check passed: landing page, engine, readings, Jaimini, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, saved charts and share links all work.');
+console.log('Site check passed: landing page, engine, readings, panchanga, bhava chalit, planet condition, dasha junctions, Jaimini, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, saved charts and share links all work.');
