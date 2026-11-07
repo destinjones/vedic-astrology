@@ -26,6 +26,7 @@
     "@vedic/interpretations": "*",
     "@vedic/jaimini": "*",
     "@vedic/rectification": "*",
+    "@vedic/remedies": "*",
     "@vedic/tajika": "*",
     "@vedic/timing": "*",
     "harfbuzzjs": "^1.6.4",

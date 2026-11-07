@@ -87,6 +87,10 @@ try {
   if ((await page.locator('#jaimini .jm-karakas tbody tr').count()) !== 8) problems.push('Jaimini: expected 8 chara karakas');
   if (!(await page.locator('#jaimini .dasha-seg').count())) problems.push('Jaimini: chara dasha timeline is empty');
 
+  await page.locator('#remedies').scrollIntoViewIfNeeded();
+  await page.waitForSelector('#remedies .rm-ishta h4', { timeout: 60000 });
+  if (!(await page.locator('#remedies .rm-sources li').count())) problems.push('Remedies: source list is empty');
+
   await page.locator('#timing').scrollIntoViewIfNeeded();
   await page.waitForSelector('#timing .vt-card', { timeout: 60000 });
   await page.fill('#vt-transit-search input[type=search]', 'Next Jupiter return');
@@ -183,4 +187,4 @@ if (problems.length) {
   console.error(`Site check failed:\n- ${problems.join('\n- ')}`);
   process.exit(1);
 }
-console.log('Site check passed: landing page, engine, readings, panchanga, bhava chalit, planet condition, dasha junctions, Jaimini, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, chart notes and export, sticker pack, saved charts, share links, embed widget, link previews, study and learn pages all work.');
+console.log('Site check passed: landing page, engine, readings, panchanga, bhava chalit, planet condition, dasha junctions, Jaimini, remedies, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, chart notes and export, sticker pack, saved charts, share links, embed widget, link previews, study and learn pages all work.');
