@@ -17,6 +17,7 @@
     "@vedic/interpretations": "*",
     "@vedic/jaimini": "*",
     "@vedic/rectification": "*",
+    "@vedic/tajika": "*",
     "@vedic/timing": "*",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

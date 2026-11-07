@@ -52,6 +52,10 @@ try {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   if (!(await page.locator('.varga-caption').innerText()).includes('Dashamsha')) problems.push('quick switch: "dashamsha" + Enter did not open the D10');
+  await page.locator('#varshaphal').scrollIntoViewIfNeeded();
+  await page.waitForSelector('#varshaphal .vp-moment', { timeout: 60000 });
+  const yearStart = await page.locator('#varshaphal .vp-moment').innerText();
+  if (!/\d{2}:\d{2}:\d{2}/.test(yearStart)) problems.push(`annual chart: no return time to the second, got: ${yearStart}`);
 
   const away = [...offsite];
   if (away.length) problems.push(`opening a chart called other sites: ${away.join(', ')}`);

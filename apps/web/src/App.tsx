@@ -35,6 +35,7 @@ const TimingSection = lazy(() => import('./components/TimingSection'));
 const EventChecker = lazy(() => import('./components/EventChecker'));
 const JaiminiSection = lazy(() => import('./components/JaiminiSection'));
 const RectificationSection = lazy(() => import('./components/RectificationSection'));
+const VarshaphalSection = lazy(() => import('./components/VarshaphalSection'));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
 function WhenVisible({ children, minHeight }: { children: React.ReactNode; minHeight: number }) {
@@ -545,6 +546,17 @@ export default function App() {
                     context={chart.engineContext}
                     onApply={(date, time) => { void run({ ...chart.input, date, time }); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   />
+                </Suspense>
+              </WhenVisible>
+            </section>
+          )}
+
+          {chart.engineContext && (
+            <section className="card" id="varshaphal">
+              <div className="card-head"><h3>Varshaphal, your year ahead</h3><span className="muted">the Tajika annual chart, cast for the second the Sun returns</span></div>
+              <WhenVisible minHeight={600}>
+                <Suspense fallback={<div className="sky-overlay static">Casting your annual chart…</div>}>
+                  <VarshaphalSection key={chart.engineContext.chart.meta.utc} context={chart.engineContext} chart={chart} style={style} />
                 </Suspense>
               </WhenVisible>
             </section>

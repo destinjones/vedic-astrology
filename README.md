@@ -25,6 +25,7 @@ There is no second page and no price. Click any planet, house or nakshatra and t
 | **Life weather** | Dashas plus transits over your Moon as one line, from one year to a lifetime, with good and hard stretches found for you |
 | **Retrogrades and Saturn** | Mercury to Saturn stations and shadows, Sade Sati with re-entries, Kantaka and Ashtama Shani |
 | **Ashtakavarga** | All seven tables, the SAV and who gave each point |
+| **Varshaphal** | The Tajika annual chart for any year, cast for the second the Sun returns: Muntha, year lord, Tajika yogas, 20 Sahams and the Mudda dasha |
 | **Four ayanamsas** | Lahiri, True Chitra, Raman and Krishnamurti |
 
 ## Hold your birth sky in your hands
@@ -40,7 +41,7 @@ Nine planets rendered in Blender, each tethered to its exact sidereal degree. Sp
 ## Why you can check all of it
 
 - **Real ephemeris.** Positions come from the [Swiss Ephemeris](https://www.astro.com/swisseph/), compiled to WebAssembly.
-- **Tested against real events.** The suite checks the Mercury stations of April 2024, Saturn entering sidereal Pisces on 2025-03-29, Jupiter entering Gemini on 2025-05-14, published Sade Sati dates and ashtakavarga totals (SAV = 337). `npm test` runs all 50 tests.
+- **Tested against real events.** The suite checks the Mercury stations of April 2024, Saturn entering sidereal Pisces on 2025-03-29, Jupiter entering Gemini on 2025-05-14, published Sade Sati dates and ashtakavarga totals (SAV = 337). `npm test` runs all 75 tests.
 - **Your birth data stays home.** The chart is worked out and saved in your browser. The only thing sent anywhere is the text you type in the place box, to a city lookup, and you can skip that by entering coordinates by hand. Fonts and art are served from this site. There is no analytics.
 - **Every rule is public.** Read how a yoga is detected in [`packages/interpretations`](packages/interpretations/src/yogas.ts). Disagree with one? Open an issue.
 
@@ -65,6 +66,7 @@ Then open <http://localhost:5173/>. The chart itself is at `/app/`.
 | [`packages/engine`](packages/engine) | Sidereal chart engine on the Swiss Ephemeris |
 | [`packages/timing`](packages/timing) | Dasha scoring, transits, Sade Sati, retrogrades, ashtakavarga, timeline UI |
 | [`packages/interpretations`](packages/interpretations) | The readings and the yoga and dosha detectors |
+| [`packages/tajika`](packages/tajika) | Varshaphal: the Tajika annual chart and its readings |
 | [`blender`](blender), [`assets/3d`](assets/3d) | The scripts that render the art, and the renders |
 | [`tools`](tools) | The site check that guards each deploy, and the recorder for these GIFs |
 
