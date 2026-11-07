@@ -15,6 +15,14 @@ const problems = [];
 
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, acceptDownloads: true });
+  // Scroll a section into view. Jump there first without waiting for frames: while the 3D view is on screen a
+  // software GPU can drop to a couple of frames a second, too slow for Playwright's stable-element wait alone.
+  const goTo = async (sel) => {
+    const el = page.locator(sel).first();
+    await el.waitFor({ state: 'attached', timeout: 60000 });
+    await el.evaluate((n) => window.scrollTo(0, n.getBoundingClientRect().top + window.scrollY - 20));
+    await el.scrollIntoViewIfNeeded({ timeout: 60000 });
+  };
   // The optional visit counter (built in when VITE_GOATCOUNTER is set) is answered here, so the check never counts itself.
   const COUNTER = /^https:\/\/[a-z0-9-]+\.goatcounter\.com\//;
   await page.route(COUNTER, (r) => r.fulfill({ status: 204 }));
@@ -86,7 +94,7 @@ try {
   await page.locator('.chalit button', { hasText: 'Sripati' }).click();
   await page.waitForSelector('.chalit-note', { timeout: 10000 });
   await page.locator('.chalit button', { hasText: 'Rashi' }).click();
-  await page.locator('#junctions').scrollIntoViewIfNeeded();
+  await goTo('#junctions');
   await page.waitForSelector('#junctions .dt-table', { timeout: 60000 });
 
   // personal features: today brief, Sade Sati countdown, rarity, the birth-time slider, story, ayanamsa diff, calendar feeds
@@ -118,32 +126,29 @@ try {
     else if (f.endsWith('.ics') && !(await r.text()).startsWith('BEGIN:VCALENDAR')) problems.push(`${f} is not a calendar`);
   }
 
-  await page.locator('#jaimini').scrollIntoViewIfNeeded();
+  await goTo('#jaimini');
   await page.waitForSelector('#jaimini .jm-karakas', { timeout: 60000 });
   if ((await page.locator('#jaimini .jm-karakas tbody tr').count()) !== 8) problems.push('Jaimini: expected 8 chara karakas');
   if (!(await page.locator('#jaimini .dasha-seg').count())) problems.push('Jaimini: chara dasha timeline is empty');
 
-  await page.locator('#remedies').scrollIntoViewIfNeeded();
+  await goTo('#remedies');
   await page.waitForSelector('#remedies .rm-ishta h4', { timeout: 60000 });
   if (!(await page.locator('#remedies .rm-sources li').count())) problems.push('Remedies: source list is empty');
 
-  await page.locator('#timing').scrollIntoViewIfNeeded();
+  await goTo('#timing');
   await page.waitForSelector('#timing .vt-card', { timeout: 60000 });
   await page.fill('#vt-transit-search input[type=search]', 'Next Jupiter return');
   await page.click('#vt-transit-search .vt-ask button');
   await page.waitForSelector('#vt-transit-search .vt-results .vt-item', { timeout: 30000 }).catch(() => problems.push('transit search returned no results'));
-  await page.locator('#events').scrollIntoViewIfNeeded();
+  await goTo('#events');
   await page.waitForSelector('#events .ev-form', { timeout: 60000 });
-  await page.locator('.sky-card').scrollIntoViewIfNeeded();
+  await goTo('.sky-card');
   await page.waitForSelector('.sky-card canvas', { timeout: 60000 });
   await page.waitForTimeout(1500);
 
   // keyboard: a number key switches the divisional chart, and the quick switcher finds and opens one
   // back at the chart, so the 3D view pauses (it only animates on screen, and without a GPU it is slow)
-  // jump there without waiting for frames: with the 3D view on screen a software GPU can drop to a couple of
-  // frames a second, too slow for Playwright's stable-element wait
-  await page.evaluate(() => window.scrollTo(0, document.getElementById('chart').getBoundingClientRect().top + window.scrollY - 20));
-  await page.locator('#chart').scrollIntoViewIfNeeded();
+  await goTo('#chart');
   await page.locator('body').click({ position: { x: 2, y: 2 } });
   // the chart re-renders after each switch, which can take a while on a slow machine, so wait for the caption
   const captionShows = (name) => page.locator('.varga-caption', { hasText: name }).waitFor({ timeout: 15000 }).then(() => true, () => false);
@@ -155,7 +160,7 @@ try {
   await page.locator('.qs-list [role=option]').first().filter({ hasText: 'Dashamsha' }).waitFor({ timeout: 10000 }).catch(() => {});
   await page.keyboard.press('Enter');
   if (!(await captionShows('Dashamsha'))) problems.push('quick switch: "dashamsha" + Enter did not open the D10');
-  await page.locator('#varshaphal').scrollIntoViewIfNeeded();
+  await goTo('#varshaphal');
   await page.waitForSelector('#varshaphal .vp-moment', { timeout: 60000 });
   const yearStart = await page.locator('#varshaphal .vp-moment').innerText();
   if (!/\d{2}:\d{2}:\d{2}/.test(yearStart)) problems.push(`annual chart: no return time to the second, got: ${yearStart}`);
@@ -170,7 +175,7 @@ try {
   else if (pdf.length < 300_000) problems.push(`PDF report: suspiciously small (${pdf.length} bytes)`);
 
   // chart export: a note pinned to the chart goes into the PNG and SVG
-  await page.locator('#chart').scrollIntoViewIfNeeded();
+  await goTo('#chart');
   await page.getByRole('button', { name: /Notes/ }).click();
   await page.locator('.annot-form textarea').fill('Smoke test note');
   await page.getByRole('button', { name: 'Add note' }).click();
