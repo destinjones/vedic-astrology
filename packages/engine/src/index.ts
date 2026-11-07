@@ -123,6 +123,8 @@ export type {
   MuhurtaDay,
   MuhurtaResult,
 } from './muhurta';
+export { parseLongitude, parsePositionTable, deltaArcminutes } from './interop';
+export type { InteropBody, PastedPosition } from './interop';
 export { bhavaChalit, sripatiMadhya, equalMadhya, sandhisFrom, bhavaOfLongitude } from './bhava';
 export type { BhavaSystem, BhavaPlacement, BhavaChalit } from './bhava';
 export { panchangaAt, tithiName, karanaName } from './panchanga';

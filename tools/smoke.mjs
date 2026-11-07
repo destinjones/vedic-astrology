@@ -24,9 +24,17 @@ try {
   if (offsite.size) problems.push(`landing page called other sites: ${[...offsite].join(', ')}`);
 
   // the other pages render (a page error is recorded by the handler above)
-  for (const p of ['compare/', 'match/', 'tools/']) {
+  for (const p of ['compare/', 'match/', 'tools/', 'check/']) {
     await page.goto(`${url}${BASE}${p}`, { waitUntil: 'networkidle' });
     if (!(await page.locator('#root').innerText()).trim()) problems.push(`${p}: page is blank`);
+  }
+  // the trust pages are static HTML and must not call any other site
+  for (const [p, h] of [['privacy/', 'Privacy'], ['how-it-works/', 'How it works']]) {
+    offsite.clear();
+    await page.goto(`${url}${BASE}${p}`, { waitUntil: 'networkidle' });
+    if (!(await page.locator('h1').innerText()).includes(h)) problems.push(`${p}: headline missing`);
+    if (!(await page.locator('[data-build]').innerText()).includes('Swiss Ephemeris')) problems.push(`${p}: build line missing`);
+    if (offsite.size) problems.push(`${p} called other sites: ${[...offsite].join(', ')}`);
   }
 
   await page.goto(`${url}${BASE}app/#sample`);
