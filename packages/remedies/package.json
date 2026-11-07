@@ -1,0 +1,26 @@
+{
+  "name": "@vedic/remedies",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Traditional remedies per afflicted graha (gemstone, mantra with count, yantra, charity, fasting day) and Ishta devata from the Karakamsa, each with its source.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@vedic/engine": "*",
+    "@vedic/interpretations": "*",
+    "@vedic/jaimini": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

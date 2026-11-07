@@ -23,3 +23,7 @@ export {
 export type { JaiminiInput, SignQuality } from './core';
 export { jaimini, charaDashaReading } from './analyze';
 export type { JaiminiChart } from './analyze';
+export { jaiminiMarriage, jaiminiMatch } from './marriage';
+export type { JaiminiMarriage, JaiminiMatch, JaiminiLink, MarriageTone } from './marriage';
+export { argalaOn, ARGALA_PAIRS } from './argala';
+export type { ArgalaEntry, ArgalaOnSign } from './argala';

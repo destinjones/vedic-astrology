@@ -31,6 +31,28 @@ export {
 } from './zodiac';
 export { dateToJd, jdToDate, jdToIso, timezoneAt, localToUtc } from './time';
 export type { ResolvedTime } from './time';
+export { TZ_HISTORY, historyFor, lmtOffsetMinutes } from './timezoneHistory';
+export type { TimeWarning, TimeWarningCode, TzHistoryEntry } from './timezoneHistory';
+export {
+  Ayanamsa,
+  AYANAMSA_IDS,
+  DEFAULT_AYANAMSA,
+  isAyanamsaId,
+  parseAyanamsa,
+  toAyanamsa,
+  UnknownAyanamsaError,
+} from './ayanamsa';
+export type { AyanamsaName } from './ayanamsa';
+export {
+  DEGREE_DECIMALS,
+  DEGREE_EPSILON,
+  roundDegree,
+  normDegree,
+  degreeDelta,
+  sameDegree,
+  arcminutesBetween,
+} from './precision';
+export * from './request';
 export {
   computeStrength,
   drishtiValue,
@@ -93,7 +115,7 @@ export { castEventChart, contactsBetween } from './eventChart';
 export type { EventChartReading, EventContact, ContactKind } from './eventChart';
 export type { PrashnaTiming, PrashnaTimingWindow, LordVerdict } from './prashnaTiming';
 export type { PrashnaTopic, PrashnaTopicDef, PrashnaInput, PrashnaFactor, PrashnaVerdict, PrashnaResult } from './prashna';
-export { findMuhurtas, MUHURTA_ACTIVITIES, MUHURTA_WEIGHTS, NAKSHATRA_GROUPS } from './muhurta';
+export { findMuhurtas, MUHURTA_ACTIVITIES, MUHURTA_WEIGHTS, NAKSHATRA_GROUPS, NAKSHATRA_MUKHA, NAKSHATRA_SHOOLA, VARA_SHOOLA, mukhaOf, bhadraLoka } from './muhurta';
 export type {
   MuhurtaActivity,
   MuhurtaActivityDef,
@@ -104,4 +126,34 @@ export type {
   MuhurtaWindow,
   MuhurtaDay,
   MuhurtaResult,
+  NakshatraMukha,
+  Direction,
 } from './muhurta';
+export { panchangaDay, panchangaMonth, horaAt, HORA_ORDER } from './dayPeriods';
+export type { TimeSpan, Hora, PanchangaLimb, LimbChange, Limbs, PanchangaDay, PanchangaDayNatal, PanchangaDayPersonal, PanchangaDayOptions } from './dayPeriods';
+export { sarvatobhadra, sbcLines, sbcNakshatra, nakshatraLabel, SBC_BOARD } from './sarvatobhadra';
+export type { Sarvatobhadra, SbcCell, SbcCellKind, SbcHit, SbcInput, SbcLine, SbcNatalPoint, SbcPlanet, SbcVedha, TithiGroup } from './sarvatobhadra';
+export { parseLongitude, parsePositionTable, deltaArcminutes } from './interop';
+export type { InteropBody, PastedPosition } from './interop';
+export { bhavaChalit, sripatiMadhya, equalMadhya, sandhisFrom, bhavaOfLongitude } from './bhava';
+export type { BhavaSystem, BhavaPlacement, BhavaChalit } from './bhava';
+export { panchangaAt, tithiName, karanaName } from './panchanga';
+export type { PanchangaAt, PanchangaSpan, PanchangaPlace } from './panchanga';
+export { computeAvasthas, baladiAvastha, jagradadiAvastha, deeptadiFromDignity, BALADI_FACTOR, JAGRADADI_FACTOR } from './avasthas';
+export type { PlanetAvasthas, BaladiAvastha, JagradadiAvastha, DeeptadiAvastha } from './avasthas';
+export {
+  chartFlags,
+  gandantaOf,
+  isAbhuktaMula,
+  grahaYuddhas,
+  pushkaraNavamsa,
+  inNthDegree,
+  dashaJunctions,
+  MRITYU_BHAGA,
+  PUSHKARA_BHAGA,
+  PUSHKARA_NAVAMSA,
+  ABHUKTA_ARC,
+} from './flags';
+export type { ChartFlag, FlagKind, GandantaInfo, GrahaYuddha, DashaJunction } from './flags';
+export { computeAyurdaya, PINDAYU_YEARS, NISARGAYU_YEARS, AYURDAYA_CAVEAT } from './ayurdaya';
+export type { Ayurdaya, AyurdayaMethod, AyurdayaEntry } from './ayurdaya';

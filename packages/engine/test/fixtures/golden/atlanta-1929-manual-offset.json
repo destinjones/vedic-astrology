@@ -1,0 +1,186 @@
+{
+  "id": "atlanta-1929-manual-offset",
+  "about": "Manual UTC offset overriding the zone",
+  "input": {
+    "date": "1929-01-15",
+    "time": "12:00",
+    "place": {
+      "name": "Atlanta",
+      "latitude": 33.749,
+      "longitude": -84.388,
+      "timezone": "America/New_York"
+    },
+    "utcOffsetMinutes": -360
+  },
+  "options": {},
+  "sha256": "a07bc8b72cc98e80de679cf0908831b3c5734e7f13def04dbe6062bafbeda6b2",
+  "digest": {
+    "meta": {
+      "utc": "1929-01-15T18:00:00.000Z",
+      "timezone": "America/New_York",
+      "utcOffsetMinutes": -360,
+      "localMeanTime": false,
+      "ayanamsa": "lahiri",
+      "ayanamsaValue": 22.866,
+      "houseSystem": "whole_sign",
+      "nodeType": "mean",
+      "timeWarnings": [
+        "manual_offset"
+      ]
+    },
+    "ascendant": {
+      "lon": 20.9429,
+      "sign": 1,
+      "nak": 2,
+      "pada": 3
+    },
+    "midheaven": 275.3401,
+    "cusps": [
+      0,
+      30,
+      60,
+      90,
+      120,
+      150,
+      180,
+      210,
+      240,
+      270,
+      300,
+      330
+    ],
+    "planets": {
+      "sun": {
+        "lon": 272.2721,
+        "sign": 10,
+        "house": 10,
+        "nak": 21,
+        "pada": 2,
+        "retro": false,
+        "combust": false
+      },
+      "moon": {
+        "lon": 326.7243,
+        "sign": 11,
+        "house": 11,
+        "nak": 25,
+        "pada": 3,
+        "retro": false,
+        "combust": false
+      },
+      "mars": {
+        "lon": 59.0349,
+        "sign": 2,
+        "house": 2,
+        "nak": 5,
+        "pada": 2,
+        "retro": true,
+        "combust": false
+      },
+      "mercury": {
+        "lon": 288.893,
+        "sign": 10,
+        "house": 10,
+        "nak": 22,
+        "pada": 3,
+        "retro": false,
+        "combust": false
+      },
+      "jupiter": {
+        "lon": 8.3111,
+        "sign": 1,
+        "house": 1,
+        "nak": 1,
+        "pada": 3,
+        "retro": false,
+        "combust": false
+      },
+      "venus": {
+        "lon": 317.6901,
+        "sign": 11,
+        "house": 11,
+        "nak": 24,
+        "pada": 4,
+        "retro": false,
+        "combust": false
+      },
+      "saturn": {
+        "lon": 242.4898,
+        "sign": 9,
+        "house": 9,
+        "nak": 19,
+        "pada": 1,
+        "retro": false,
+        "combust": false
+      },
+      "rahu": {
+        "lon": 34.622,
+        "sign": 2,
+        "house": 2,
+        "nak": 3,
+        "pada": 3,
+        "retro": true,
+        "combust": false
+      },
+      "ketu": {
+        "lon": 214.622,
+        "sign": 8,
+        "house": 8,
+        "nak": 17,
+        "pada": 1,
+        "retro": true,
+        "combust": false
+      }
+    },
+    "vargas": {
+      "D1": "1 10 11 2 10 1 11 9 2 8",
+      "D2": "4 4 4 5 5 5 4 5 4 4",
+      "D3": "9 10 7 10 2 1 3 9 2 8",
+      "D4": "7 10 8 11 4 4 5 9 2 8",
+      "D5": "3 2 7 8 10 11 9 1 2 2",
+      "D6": "5 7 6 12 10 2 4 1 7 7",
+      "D7": "5 4 5 2 8 2 3 9 9 3",
+      "D8": "6 1 4 4 6 3 1 5 10 10",
+      "D9": "7 10 3 6 3 3 12 1 11 5",
+      "D10": "7 6 7 7 12 3 4 9 11 5",
+      "D11": "8 4 12 10 10 4 9 5 1 7",
+      "D12": "9 10 9 1 5 4 6 9 3 9",
+      "D16": "12 2 7 8 11 5 2 10 7 7",
+      "D20": "2 2 2 4 1 6 8 6 12 12",
+      "D24": "9 5 2 3 7 11 7 6 7 7",
+      "D27": "7 6 7 6 9 8 10 3 8 2",
+      "D30": "3 2 7 8 12 11 9 1 2 2",
+      "D40": "4 10 12 9 8 12 12 4 1 1",
+      "D45": "8 4 9 12 5 1 7 12 11 11",
+      "D60": "6 2 4 12 11 5 10 1 11 5"
+    },
+    "dasha": [
+      "jupiter 1920-12-21T13:38",
+      "saturn 1936-12-21T10:45",
+      "mercury 1955-12-22T01:20",
+      "ketu 1972-12-21T04:16",
+      "venus 1979-12-21T21:00",
+      "sun 1999-12-21T17:24",
+      "moon 2005-12-21T04:20",
+      "mars 2015-12-21T14:32",
+      "rahu 2022-12-21T07:16"
+    ],
+    "panchanga": {
+      "tithi": 5,
+      "vara": 2,
+      "nakshatra": 25,
+      "yoga": 18,
+      "karana": 10,
+      "sunrise": "1929-01-15T12:42"
+    },
+    "shadbala": {
+      "sun": 469.32,
+      "moon": 337.36,
+      "mars": 385.48,
+      "mercury": 427.22,
+      "jupiter": 544.64,
+      "venus": 375.35,
+      "saturn": 342.91
+    }
+  }
+}

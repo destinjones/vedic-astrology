@@ -16,3 +16,5 @@ export type { Vocab, PlanetKey, DignityKey, VargaKey } from './types';
 export const VOCAB: Record<LocaleCode, Vocab> = { en, hi, ta, te, bn, mr, gu, kn, es };
 
 export const getVocab = (locale: LocaleCode | string | undefined): Vocab => VOCAB[locale as LocaleCode] ?? en;
+export { SANSKRIT, withSanskritTerms } from './sanskrit';
+export type { TermScript } from './sanskrit';

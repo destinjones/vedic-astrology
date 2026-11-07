@@ -13,3 +13,4 @@ export * from './search';
 export * from './subperiods';
 export * from './ics';
 export * from './predictions';
+export * from './doubleTransit';

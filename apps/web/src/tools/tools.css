@@ -119,3 +119,66 @@
 .event-mid { grid-column: 2 / span 2; grid-row: 2 / span 2; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px; }
 .event-mid small { color: var(--muted); }
 .event-dasha { display: inline-flex; gap: 4px; align-items: baseline; margin-right: 12px; }
+.muhurta-caveat { border: 1px solid rgba(242,193,78,.45); background: rgba(242,193,78,.08); border-radius: 10px; padding: 10px 14px; font-size: 14px; margin: 0; }
+
+/* panchanga calendar */
+.cal-card .card-head { justify-content: space-between; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-wd { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); text-align: center; padding-bottom: 4px; }
+.cal-day { display: grid; gap: 1px; align-content: start; text-align: left; min-height: 82px; padding: 6px; border: 1px solid var(--line-soft); border-radius: 8px; background: rgba(11,10,26,.45); color: inherit; font: inherit; cursor: pointer; }
+.cal-day.krishna { background: rgba(6,5,16,.6); }
+.cal-day.is-active { border-color: var(--accent); }
+.cal-day.is-today .cal-num { color: var(--accent); }
+.cal-num { font: 600 18px var(--serif); }
+.cal-tithi, .cal-nak { font-size: 11px; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-nak { color: var(--muted); }
+.cal-flags { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 2px; }
+.flag { font-style: normal; font-size: 10px; line-height: 15px; min-width: 15px; text-align: center; border-radius: 4px; padding: 0 3px; background: rgba(255,255,255,.08); }
+.flag-bhadra, .flag-c8, .flag-tara { background: rgba(255,107,107,.18); color: var(--bad); }
+.flag-panchaka { background: rgba(242,193,78,.18); color: var(--mid); }
+.flag-moon { background: rgba(232,182,90,.18); color: var(--accent); }
+.cal-key { margin: 8px 0 0; }
+.cal-detail { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+.cal-detail h4 { margin: 0 0 8px; }
+.cal-table th { text-align: left; white-space: nowrap; font-weight: 500; color: var(--muted); }
+.cal-table tr.bad td { color: var(--bad); }
+.cal-table tr.mid td { color: var(--mid); }
+.cal-table tr.good td { color: var(--good); }
+.hora-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; font-size: 13px; }
+.hora-list li { display: flex; gap: 8px; padding: 2px 4px; border-radius: 4px; }
+.hora-list li.night { opacity: .75; }
+.hora-list li.is-now { background: rgba(232,182,90,.15); opacity: 1; }
+@media (max-width: 640px) {
+  .cal-day { min-height: 64px; padding: 4px; }
+  .cal-nak { display: none; }
+}
+
+/* sarvatobhadra */
+.sbc-card { overflow-x: auto; }
+.sbc-grid { display: grid; grid-template-columns: repeat(9, minmax(52px, 1fr)); gap: 2px; min-width: 470px; }
+.sbc-cell { position: relative; aspect-ratio: 1; display: grid; align-content: center; justify-items: center; text-align: center; padding: 2px; border-radius: 4px; background: rgba(11,10,26,.5); border: 1px solid var(--line-soft); font-size: 11px; line-height: 1.15; }
+.sbc-cell.k-nakshatra { background: rgba(23,20,47,.8); }
+.sbc-cell.k-sign { background: rgba(40,30,70,.6); }
+.sbc-cell.k-tithi { background: rgba(60,45,20,.45); }
+.sbc-cell.k-letter .sbc-label, .sbc-cell.k-vowel .sbc-label { font-size: 15px; }
+.sbc-cell.k-vowel { color: var(--muted); }
+.sbc-cell.vedha-other { background: rgba(232,182,90,.14); }
+.sbc-cell.vedha-primary { background: rgba(232,182,90,.34); }
+.sbc-cell.is-natal { outline: 2px solid var(--accent-2, #9b8cff); outline-offset: -2px; }
+.sbc-wd { font-size: 9px; color: var(--muted); }
+.sbc-pl { display: flex; gap: 2px; font-size: 14px; flex-wrap: wrap; justify-content: center; }
+.sbc-planets button { font-size: 18px; min-width: 36px; }
+.sbc-hits { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.sbc-hits .good b { color: var(--good); }
+.sbc-hits .bad b { color: var(--bad); }
+.cal-table td { white-space: normal; }
+.cal-sub { margin-top: 14px !important; }
+.cal-tithi-short { display: none; font-size: 11px; }
+@media (max-width: 640px) {
+  .cal-tithi { display: none; }
+  .cal-tithi-short { display: block; }
+  .cal-grid { gap: 3px; }
+}
+.sbc-grid .sbc-cell.vedha-other { background: rgba(232,182,90,.26); border-color: rgba(232,182,90,.55); }
+.sbc-grid .sbc-cell.vedha-primary { background: rgba(232,182,90,.5); border-color: rgba(246,212,143,.95); color: #fff; }
+.sbc-cell.k-nakshatra .sbc-label { font-size: 10.5px; word-break: break-word; }

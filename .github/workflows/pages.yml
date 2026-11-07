@@ -33,6 +33,9 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build:pages
+        env:
+          # Optional cookieless visit counter. Leave the repository variable unset to build without it.
+          VITE_GOATCOUNTER: ${{ vars.GOATCOUNTER_CODE }}
       - run: npx playwright install --with-deps chromium
       - name: Check the site before publishing it
         run: npm run smoke
