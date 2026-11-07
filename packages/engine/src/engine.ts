@@ -16,6 +16,7 @@ import {
   naturalRelationship,
 } from './constants';
 import { DEFAULT_DASHA_YEAR_DAYS, vimshottari } from './dasha';
+import { ashtottari, ashtottariApplies, kalachakra, yogini } from './dashas';
 import { dateToJd, jdToDate, jdToIso, localToUtc, timezoneAt } from './time';
 import type {
   AyanamsaId,
@@ -353,6 +354,18 @@ function makeEngine(swe: SwissEph): Engine {
       levels: opts.dashaLevels,
       yearDays: opts.dashaYearDays,
     });
+    const dashaOpts = { levels: opts.dashaLevels, yearDays: opts.dashaYearDays };
+    const ashtottariDasha = ashtottari(planets.moon.longitude, jd, dashaOpts);
+    ashtottariDasha.applicable = ashtottariApplies(
+      ascSign,
+      planets[signLord(ascSign)].sign,
+      planets.rahu.sign,
+    );
+    const dashas = {
+      yogini: yogini(planets.moon.longitude, jd, dashaOpts),
+      ashtottari: ashtottariDasha,
+      kalachakra: kalachakra(planets.moon.longitude, jd, dashaOpts),
+    };
 
     const panchanga = computePanchanga(jd, planets.sun.longitude, planets.moon.longitude, latitude, longitude, timezone, t.utcOffsetMinutes);
 
@@ -381,6 +394,7 @@ function makeEngine(swe: SwissEph): Engine {
       houses,
       vargas,
       dasha,
+      dashas,
       panchanga,
     };
   }

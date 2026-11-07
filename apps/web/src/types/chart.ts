@@ -67,8 +67,15 @@ export interface VargaChart {
   planets: Record<PlanetId, VargaPlacement>;
 }
 
+export type DashaSystemId = 'vimshottari' | 'yogini' | 'ashtottari' | 'kalachakra';
+
 export interface DashaPeriod {
+  /** Planet ruling the period (for Kalachakra, the lord of its sign) */
   lord: PlanetId;
+  /** Yogini name or sign name, when the period is not named after its planet */
+  name?: string;
+  /** Kalachakra: the sign ruling the period */
+  sign?: SignNum;
   /** ISO date-time */
   start: string;
   end: string;
@@ -81,6 +88,8 @@ export interface Chart {
   planets: PlanetPosition[];
   vargas: Partial<Record<VargaId, VargaChart>>;
   dasha?: DashaPeriod[];
+  /** Other dasha systems, with a one-line note on how this chart's sequence starts. Engine only. */
+  dashaSystems?: Partial<Record<Exclude<DashaSystemId, 'vimshottari'>, { periods: DashaPeriod[]; note: string }>>;
   /** The live engine and its full chart, for the timing and reading layers. Absent on the preview calculator. */
   engineContext?: {
     engine: import('@vedic/engine').Engine;

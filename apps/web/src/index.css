@@ -245,6 +245,8 @@ section > h4 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; lett
 .dasha-now { position: absolute; top: -18px; bottom: -4px; width: 2px; background: var(--accent); pointer-events: none; }
 .dasha-now span { position: absolute; top: -2px; left: 4px; font-size: 11px; color: var(--accent); font-weight: 600; }
 .dasha-detail h4 { margin: 0 0 10px; font: 600 19px var(--serif); }
+.dasha-note { margin: 0; font-size: 14px; max-width: 70ch; }
+.dasha-switch.seg { flex-wrap: wrap; }
 .antar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
 .antar { padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line-soft); border-left: 3px solid var(--c); background: rgba(11,10,26,.45); display: grid; }
 .antar small { color: var(--muted); font-size: 11.5px; }

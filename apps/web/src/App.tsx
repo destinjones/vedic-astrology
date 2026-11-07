@@ -8,7 +8,7 @@ import { SouthChart } from './components/SouthChart';
 import { DetailPanel } from './components/DetailPanel';
 import { NakshatraWheel, type WheelMode } from './components/NakshatraWheel';
 import { PlanetTable } from './components/PlanetTable';
-import { DashaTimeline } from './components/DashaTimeline';
+import { DashaCard } from './components/DashaCard';
 import { VargaSwitcher } from './components/VargaSwitcher';
 import { NAKSHATRAS, PLANET_BY_ID, signInfo } from './data/constants';
 import { getVarga } from './lib/astro';
@@ -230,12 +230,7 @@ export default function App() {
             </section>
           </div>
 
-          {chart.dasha && (
-            <section className="card">
-              <div className="card-head"><h3>Vimshottari dasha</h3><span className="muted">click a period to see its sub-periods</span></div>
-              <DashaTimeline dasha={chart.dasha} />
-            </section>
-          )}
+          {chart.dasha && <DashaCard chart={chart} />}
 
           {chart.engineContext && (
             <section className="card timing-host" id="timing">
