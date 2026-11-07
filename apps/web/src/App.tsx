@@ -120,9 +120,12 @@ export default function App() {
             <p>Vedic birth chart, every placement, every varga</p>
           </div>
         </a>
-        {chart && !editing && (
-          <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>
-        )}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <a className="btn-ghost" href={`${import.meta.env.BASE_URL}tools/`}>KP · Prashna · Muhurta</a>
+          {chart && !editing && (
+            <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>
+          )}
+        </div>
       </header>
 
       {chart?.meta.source === 'mock' && (

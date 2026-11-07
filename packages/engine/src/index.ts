@@ -22,3 +22,44 @@ export type { ResolvedTime } from './time';
 export { geocode } from './geocode';
 export type { GeocodeOptions } from './geocode';
 export * from './constants';
+export {
+  KP_SUBS,
+  kpLords,
+  bhavaOf,
+  buildKpChart,
+  kpCusps,
+  kpChartAt,
+  computeKpChart,
+  kpFromChart,
+  timeForAscendant,
+  sunriseBefore,
+  localWeekday,
+  vedicDayLord,
+} from './kp';
+export type {
+  KpLords,
+  KpPoint,
+  KpPlanet,
+  KpCusp,
+  KpSignification,
+  KpHouseSignificators,
+  KpRulingPlanets,
+  KpChart,
+  KpSubEntry,
+  KpInputs,
+  KpOptions,
+} from './kp';
+export { castPrashna, PRASHNA_TOPICS } from './prashna';
+export type { PrashnaTopic, PrashnaTopicDef, PrashnaInput, PrashnaFactor, PrashnaVerdict, PrashnaResult } from './prashna';
+export { findMuhurtas, MUHURTA_ACTIVITIES, MUHURTA_WEIGHTS, NAKSHATRA_GROUPS } from './muhurta';
+export type {
+  MuhurtaActivity,
+  MuhurtaActivityDef,
+  MuhurtaNatal,
+  MuhurtaSearch,
+  MuhurtaFactor,
+  MuhurtaState,
+  MuhurtaWindow,
+  MuhurtaDay,
+  MuhurtaResult,
+} from './muhurta';
