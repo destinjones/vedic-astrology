@@ -143,7 +143,6 @@ try {
   // jump there without waiting for frames: with the 3D view on screen a software GPU can drop to a couple of
   // frames a second, too slow for Playwright's stable-element wait
   await page.evaluate(() => window.scrollTo(0, document.getElementById('chart').getBoundingClientRect().top + window.scrollY - 20));
-  await page.locator('#chart').scrollIntoViewIfNeeded();
   await page.locator('body').click({ position: { x: 2, y: 2 } });
   // the chart re-renders after each switch, which can take a while on a slow machine, so wait for the caption
   const captionShows = (name) => page.locator('.varga-caption', { hasText: name }).waitFor({ timeout: 15000 }).then(() => true, () => false);
