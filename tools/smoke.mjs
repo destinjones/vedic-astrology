@@ -11,14 +11,19 @@ const problems = [];
 
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, acceptDownloads: true });
+  // The optional visit counter (built in when VITE_GOATCOUNTER is set) is answered here, so the check never counts itself.
+  const COUNTER = /^https:\/\/[a-z0-9-]+\.goatcounter\.com\//;
+  await page.route(COUNTER, (r) => r.fulfill({ status: 204 }));
   const offsite = new Set();
   page.on('pageerror', (e) => problems.push(`page error: ${e.message}`));
   page.on('console', (m) => { if (m.type() === 'error') problems.push(`console error: ${m.text()}`); });
   page.on('response', (r) => { if (r.status() >= 400) problems.push(`${r.status()} ${r.url()}`); });
-  page.on('request', (r) => { if (!r.url().startsWith(url) && !r.url().startsWith('data:') && !r.url().startsWith('blob:')) offsite.add(r.url()); });
+  page.on('request', (r) => { if (!r.url().startsWith(url) && !r.url().startsWith('data:') && !r.url().startsWith('blob:') && !COUNTER.test(r.url())) offsite.add(r.url()); });
 
   await page.goto(`${url}${BASE}`, { waitUntil: 'networkidle' });
-  if (!(await page.locator('h1').innerText()).includes('Your entire sky')) problems.push('landing page: headline missing');
+  if (!(await page.locator('h1').innerText()).includes('read for your life')) problems.push('landing page: headline missing');
+  const emptyAlt = await page.evaluate(() => [...document.querySelectorAll('.graha-row img, .hero-art img')].filter((i) => !i.alt.trim()).length);
+  if (emptyAlt) problems.push(`landing page: ${emptyAlt} graha images have no alt text`);
   const brokenImages = await page.evaluate(() => [...document.images].filter((i) => i.loading !== 'lazy' && !i.naturalWidth).map((i) => i.src));
   brokenImages.forEach((s) => problems.push(`broken image: ${s}`));
   if (offsite.size) problems.push(`landing page called other sites: ${[...offsite].join(', ')}`);
@@ -28,6 +33,19 @@ try {
     await page.goto(`${url}${BASE}${p}`, { waitUntil: 'networkidle' });
     if (!(await page.locator('#root').innerText()).trim()) problems.push(`${p}: page is blank`);
   }
+  if ((await page.goto(`${url}${BASE}match/`, { waitUntil: 'networkidle' }), await page.locator('h1').count()) !== 1) problems.push('match/: expected exactly one h1');
+
+  // the static learn pages: built, styled, listed in their sitemap, and linked to each other
+  const sitemap = await (await fetch(`${url}${BASE}learn/sitemap.xml`)).text();
+  const learnUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  if (learnUrls.length < 300) problems.push(`learn sitemap lists only ${learnUrls.length} pages`);
+  for (const p of ['learn/', 'learn/nakshatras/ashwini/', 'learn/planets/saturn/in-7th-house/', 'learn/yogas/gaja-kesari/', 'learn/glossary/']) {
+    await page.goto(`${url}${BASE}${p}`, { waitUntil: 'networkidle' });
+    if ((await page.locator('h1').count()) !== 1) problems.push(`${p}: expected exactly one h1`);
+    if ((await page.evaluate(() => getComputedStyle(document.body).backgroundColor)) === 'rgba(0, 0, 0, 0)') problems.push(`${p}: stylesheet did not load`);
+  }
+  const terms = await page.locator('.gloss > div').count();
+  if (terms < 200) problems.push(`glossary has only ${terms} terms`);
   // the trust pages are static HTML and must not call any other site
   for (const [p, h] of [['privacy/', 'Privacy'], ['how-it-works/', 'How it works']]) {
     offsite.clear();

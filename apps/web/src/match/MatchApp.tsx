@@ -88,7 +88,7 @@ export default function MatchApp() {
         <a className="brand" href={import.meta.env.BASE_URL}>
           <span className="brand-mark">✦</span>
           <div>
-            <h1>Jyotisha Explorer</h1>
+            <p className="brand-title">Jyotisha Explorer</p>
             <p>Kundali matching, the classical way</p>
           </div>
         </a>
@@ -97,7 +97,7 @@ export default function MatchApp() {
 
       <section className="match-intro">
         <p className="eyebrow">Ashtakoota guna milan</p>
-        <h2>Two Moons, eight kootas, thirty-six gunas.</h2>
+        <h1>Kundali matching: two Moons, eight kootas, thirty-six gunas.</h1>
         <p className="muted">
           Enter both birth details. The match reads each person’s natal Moon (its sign, nakshatra and degree) through the eight
           classical kootas, explains every score, and then compares Mars in both charts for Manglik dosha with its cancellations.
@@ -316,7 +316,7 @@ function ManglikPanel({ m, names }: { m: ManglikComparison; names: Record<Seat, 
         <span className={`chip chip-${tone}`}>{m.status === 'neither' ? 'no dosha' : m.status === 'both' ? 'matched' : m.status}</span>
       </div>
       <div className="manglik-head">
-        <img src={grahaArt('mars').image} alt="" className="manglik-art" loading="lazy" />
+        <img src={grahaArt('mars').image} alt="Mangala, Mars, as a rust-red sphere" className="manglik-art" loading="lazy" />
         <div>
           <h4>{m.headline}</h4>
           <p>{m.summary}</p>

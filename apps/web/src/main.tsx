@@ -4,6 +4,9 @@ import './fonts'
 import './index.css'
 import App from './App.tsx'
 import { I18nProvider } from './i18n'
+import { trackPageview } from './lib/analytics'
+
+trackPageview()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
