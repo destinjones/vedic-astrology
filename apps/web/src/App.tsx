@@ -37,6 +37,11 @@ import { useI18n } from './i18n';
 import { ayanamsaName } from './i18n/names';
 import { LOCALE_BY_CODE } from '@vedic/i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { ExportDialog, type ExportTab } from './components/ExportDialog';
+import { AnnotationPanel, AnnotationPins } from './components/Annotations';
+import { Narrator } from './components/Narrator';
+import { speechSupported } from './lib/narration';
+import type { Annotation } from './lib/annotations';
 
 const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
@@ -94,6 +99,10 @@ export default function App() {
   const [ws, setWs] = useState<Workspace>(loadWorkspace);
   const [presenting, setPresenting] = useState(false);
   const [showFamous, setShowFamous] = useState(false);
+  const [exportTab, setExportTab] = useState<ExportTab | null>(null);
+  const [annotating, setAnnotating] = useState(false);
+  const [focusNote, setFocusNote] = useState<string | null>(null);
+  const [narrating, setNarrating] = useState(false);
   // worked-out charts per tab, so switching tabs is instant
   const charts = useRef(new Map<string, Chart>());
   const wsRef = useRef(ws);
@@ -106,6 +115,9 @@ export default function App() {
   useEffect(() => { storeWorkspace(ws); }, [ws]);
   const patchTab = (id: string, patch: Partial<Tab>) =>
     setWs((w) => ({ ...w, tabs: w.tabs.map((t) => (t.id === id ? { ...t, ...patch } : t)) }));
+  // notes pinned to this tab's chart
+  const notes = activeTab.annotations ?? [];
+  const setNotes = (list: Annotation[]) => patchTab(activeTab.id, { annotations: list.length ? list : undefined });
 
   // the chart style and varga are remembered per tab
   useEffect(() => {
@@ -376,6 +388,14 @@ export default function App() {
     { id: 'famous', group: 'Tools', title: 'Famous charts library', keywords: 'celebrity public figures india america britain', run: () => { setShowFamous(true); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
     { id: 'compare', group: 'Tools', title: 'Compare charts side by side', keywords: 'side by side two charts compatibility', run: () => { location.href = `${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`; } },
     ...(chart ? [{ id: 'present', group: 'Tools', title: 'Present this chart', keywords: 'full screen walkthrough screen share recording', run: startPresent }] : []),
+    ...(chart ? [
+      { id: 'export.image', group: 'Tools', title: 'Export chart image (PNG or SVG)', keywords: 'download picture png svg print', run: () => setExportTab('image') },
+      { id: 'export.card', group: 'Tools', title: 'Share card for WhatsApp or Telegram', keywords: 'share image whatsapp telegram social', run: () => setExportTab('card') },
+      { id: 'export.embed', group: 'Tools', title: 'Embed this chart on a website', keywords: 'iframe blog widget', run: () => setExportTab('embed') },
+      { id: 'export.stickers', group: 'Tools', title: 'Graha sticker pack', keywords: 'stickers whatsapp telegram planets', run: () => setExportTab('stickers') },
+      { id: 'notes', group: 'Tools', title: 'Pin notes to the chart', keywords: 'annotate annotation note house planet', run: () => { setAnnotating(true); jumpTo('chart'); } },
+      ...(speechSupported() ? [{ id: 'listen', group: 'Tools', title: 'Listen to this chart read aloud', keywords: 'audio narration speak voice read', run: () => setNarrating(true) }] : []),
+    ] : []),
     { id: 'backup', group: 'Tools', title: 'Back up all tabs and charts', keywords: 'export download file save', run: backup },
   ];
   const commands: Command[] = [
@@ -419,8 +439,9 @@ export default function App() {
           {chart && (
             <>
               <button className="btn-ghost" onClick={startPresent} title="Full screen walkthrough for a client, a screen share or a recording">▶ Present</button>
+              {speechSupported() && <button className="btn-ghost" aria-pressed={narrating} onClick={() => setNarrating((x) => !x)} title="Read the chart aloud, moving through it as it goes">🔊 Listen</button>}
               <ReportActions chart={chart} />
-              <ChartActions input={chart.input} profiles={profiles} onSave={saveCurrent} onShowSaved={showSaved} />
+              <ChartActions input={chart.input} profiles={profiles} onSave={saveCurrent} onShowSaved={showSaved} famousId={famous?.id} onExport={() => setExportTab('card')} />
               {!editing && <button className="btn-ghost" onClick={() => setEditing(true)}>{t('app.editBirth')}</button>}
             </>
           )}
@@ -532,6 +553,10 @@ export default function App() {
                   <button role="radio" aria-checked={style === 'north'} className={style === 'north' ? 'is-active' : ''} onClick={() => setStyle('north')}>{t('chart.north')}</button>
                   <button role="radio" aria-checked={style === 'south'} className={style === 'south' ? 'is-active' : ''} onClick={() => setStyle('south')}>{t('chart.south')}</button>
                 </div>
+                <div className="chart-tools">
+                  <button className="btn-ghost sm" aria-pressed={annotating} onClick={() => setAnnotating((x) => !x)} title="Pin notes to houses and planets">✎ Notes{notes.length ? ` (${notes.length})` : ''}</button>
+                  <button className="btn-ghost sm" onClick={() => setExportTab('image')} title="PNG or SVG of this chart, a share card, embed code or stickers">⤓ Export</button>
+                </div>
               </div>
               <VargaSwitcher value={vargaId} onChange={setVargaId} />
               <div className="chart-stage" onMouseLeave={() => setHoverPlanet(null)}>
@@ -540,7 +565,9 @@ export default function App() {
                 ) : (
                   <SouthChart chart={chart} varga={varga} selection={selection} hoverPlanet={hoverPlanet} onSelect={setSelection} onHoverPlanet={setHoverPlanet} />
                 )}
+                <AnnotationPins chart={chart} varga={varga} style={style} notes={notes} onPick={(a) => { setAnnotating(true); setFocusNote(a.id); }} />
               </div>
+              {annotating && <AnnotationPanel notes={notes} selection={selection} onChange={setNotes} onClose={() => { setAnnotating(false); setFocusNote(null); }} focusId={focusNote} />}
               <p className="legend muted">{t('chart.legend')}</p>
             </section>
 
@@ -658,6 +685,13 @@ export default function App() {
       )}
 
       {presenting && chart && <Presenter key={activeTab.id} steps={steps} onStep={showStep} onExit={stopPresent} />}
+      {narrating && chart && !presenting && (
+        <Narrator key={activeTab.id} steps={steps} knowledge={knowledge} onStep={showStep}
+          onClose={() => { setNarrating(false); document.querySelectorAll('.present-focus').forEach((n) => n.classList.remove('present-focus')); }} />
+      )}
+      {exportTab && chart && varga && (
+        <ExportDialog chart={chart} varga={varga} style={style} notes={notes} knowledge={knowledge} initialTab={exportTab} onClose={() => setExportTab(null)} />
+      )}
 
       <footer className="foot muted">
         <p>{t('footer.system', { ayanamsa: ayanamsaName(t, input.ayanamsa) })}</p>

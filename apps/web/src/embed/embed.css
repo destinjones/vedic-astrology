@@ -1,0 +1,18 @@
+:root { --bg: #0b0a1a; --text: #ece8f6; --muted: #a39cbf; --accent: #e8b65a; --line: rgba(232, 182, 90, 0.35); color-scheme: dark; }
+:root[data-theme='light'] { --bg: #fffaf0; --text: #2a2338; --muted: #6b6280; --accent: #9a6a12; --line: rgba(154, 106, 18, 0.35); color-scheme: light; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.4 Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+#embed { max-width: 448px; margin: 0 auto; }
+#embed > svg { display: block; width: 100%; height: auto; }
+.em-bar { display: flex; gap: 6px; align-items: center; padding: 0 12px; }
+.em-bar button { border: 1px solid var(--line); background: none; color: var(--muted); border-radius: 8px; padding: 4px 10px; font: inherit; cursor: pointer; }
+.em-bar button[aria-pressed='true'] { background: var(--accent); border-color: var(--accent); color: #1a1206; font-weight: 600; }
+.em-bar a { margin-left: auto; color: var(--accent); text-decoration: none; font-weight: 600; }
+.em-foot { margin: 8px 12px 10px; color: var(--muted); font-size: 11px; }
+.em-foot a { color: inherit; }
+.em-wait { padding: 40px 16px; text-align: center; color: var(--muted); }
+.em-wait a { color: var(--accent); }
+/* share-card mode: the card fills the page exactly, for screenshots */
+html.em-card, html.em-card body { overflow: hidden; }
+html.em-card #embed { max-width: none; }
+html.em-card #embed > svg { width: auto; height: auto; }
