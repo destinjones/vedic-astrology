@@ -205,7 +205,8 @@ async function buildInfo() {
     wrapper: pkg('swisseph-wasm').version,
     engine: JSON.parse(readFileSync(join(here, '../../packages/engine/package.json'), 'utf8')).version as string,
     commit: commit.slice(0, 12),
-    builtAt: new Date().toISOString(),
+    // the commit time when SOURCE_DATE_EPOCH is set, so two builds of one commit are byte-for-byte identical
+    builtAt: new Date(process.env.SOURCE_DATE_EPOCH ? Number(process.env.SOURCE_DATE_EPOCH) * 1000 : Date.now()).toISOString(),
   }
 }
 

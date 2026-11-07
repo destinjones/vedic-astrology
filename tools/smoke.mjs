@@ -3,11 +3,13 @@
 import { readFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 import { serveDist, BASE } from './serve-dist.mjs';
+import { checkA11y } from './a11y.mjs';
 
 const { url, close } = await serveDist();
 const browser = await chromium.launch({
   executablePath: process.env.CHROMIUM_PATH || undefined,
   args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
+  ...(process.env.PW_CHROMIUM_PATH && { executablePath: process.env.PW_CHROMIUM_PATH }),
 });
 const problems = [];
 
@@ -183,6 +185,8 @@ try {
   if (!ogImage) problems.push('link preview page: /c/indira-gandhi/ has no og:image');
   const ogJpg = await fetch(`${url}${BASE}og/indira-gandhi.jpg`);
   if (!ogJpg.ok) problems.push('link preview image og/indira-gandhi.jpg is missing');
+  // axe-core on every page, with every section of the chart opened (see tools/a11y.mjs)
+  problems.push(...(await checkA11y(browser, url, BASE)).problems);
 } finally {
   await browser.close();
   await close();
@@ -192,4 +196,4 @@ if (problems.length) {
   console.error(`Site check failed:\n- ${problems.join('\n- ')}`);
   process.exit(1);
 }
-console.log('Site check passed: landing page, engine, readings, panchanga, bhava chalit, planet condition, dasha junctions, Jaimini, remedies, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, chart notes and export, sticker pack, saved charts, share links, embed widget, link previews, study and learn pages all work.');
+console.log('Site check passed: landing page, engine, readings, panchanga, bhava chalit, planet condition, dasha junctions, Jaimini, remedies, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, chart notes and export, sticker pack, saved charts, share links, embed widget, link previews, study and learn pages and accessibility all work.');
