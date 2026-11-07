@@ -3,6 +3,8 @@ import type { BirthInput, Chart, PlanetId, VargaId } from './types/chart';
 import type { ChartStyle, Selection } from './types/ui';
 import { computeChart } from './engine';
 import { BirthForm } from './components/BirthForm';
+import { ChartActions, SavedCharts } from './components/Profiles';
+import { loadProfiles, parseShareHash, sameBirth, storeProfiles, upsertProfile, type Profile } from './lib/profiles';
 import { NorthChart } from './components/NorthChart';
 import { SouthChart } from './components/SouthChart';
 import { DetailPanel } from './components/DetailPanel';
@@ -61,11 +63,33 @@ export default function App() {
   const [hoverPlanet, setHoverPlanet] = useState<PlanetId | null>(null);
   const [wheelMode, setWheelMode] = useState<WheelMode>('art');
   const [knowledge, setKnowledge] = useState<Knowledge | null>(null);
+  const [profiles, setProfiles] = useState<Profile[]>(loadProfiles);
+  // bumped to remount the form with new initial values (editing a saved chart)
+  const [formKey, setFormKey] = useState(0);
+  // the saved chart whose details are open in the form, so fixing its time updates it in place
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const saveProfiles = (list: Profile[]) => { setProfiles(list); return storeProfiles(list); };
+
+  // keep several open tabs in step
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => { if (e.key === null || e.key === 'vedic.profiles.v1') setProfiles(loadProfiles()); };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   const run = async (i: BirthInput) => {
     setBusy(true);
     try {
       const c = await computeChart(i);
+      // a share link in the address bar stays only while its own chart is open
+      const linked = parseShareHash(location.hash);
+      if (linked && !sameBirth(linked, i)) history.replaceState(null, '', location.pathname + location.search);
+      if (editingId) {
+        const now = new Date().toISOString();
+        saveProfiles(profiles.map((p) => (p.id === editingId ? { ...p, input: { ...i, name: i.name || p.label }, updatedAt: now } : p)));
+        setEditingId(null);
+      }
       setInput(i);
       setChart(c);
       setEditing(false);
@@ -85,11 +109,36 @@ export default function App() {
     return () => { live = false; };
   }, [chart]);
 
-  // /app/#sample opens the sample chart straight away (the landing page links here).
+  // /app/#sample opens the sample chart straight away (the landing page links here),
+  // and a share link (/app/#d=…&t=…) opens the chart it carries.
   useEffect(() => {
-    if (location.hash === '#sample') void run(DEFAULT_INPUT);
+    const open = () => {
+      if (location.hash === '#sample') return void run(DEFAULT_INPUT);
+      const linked = parseShareHash(location.hash);
+      if (linked) void run(linked);
+    };
+    open();
+    window.addEventListener('hashchange', open);
+    return () => window.removeEventListener('hashchange', open);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const showSaved = () => {
+    setEditing(true);
+    requestAnimationFrame(() => document.getElementById('saved-charts')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  };
+  const editProfile = (p: Profile) => {
+    setInput(p.input);
+    setEditingId(p.id);
+    setFormKey((k) => k + 1);
+    setEditing(true);
+    requestAnimationFrame(() => document.querySelector('.birth-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+  };
+  const saveCurrent = (label: string) => {
+    if (!chart) return false;
+    const list = upsertProfile(profiles, label, chart.input);
+    return saveProfiles(list);
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setSelection(null); };
@@ -120,8 +169,11 @@ export default function App() {
             <p>Vedic birth chart, every placement, every varga</p>
           </div>
         </a>
-        {chart && !editing && (
-          <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>
+        {chart && (
+          <div className="topbar-actions">
+            <ChartActions input={chart.input} profiles={profiles} onSave={saveCurrent} onShowSaved={showSaved} />
+            {!editing && <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>}
+          </div>
         )}
       </header>
 
@@ -140,7 +192,22 @@ export default function App() {
             </div>
           )}
           <div className="card form-card">
-            <BirthForm initial={input} busy={busy} onSubmit={run} onSample={() => run(DEFAULT_INPUT)} />
+            <SavedCharts
+              profiles={profiles}
+              current={chart?.input}
+              busy={busy}
+              onOpen={(p) => { setEditingId(null); void run(p.input); }}
+              onEdit={editProfile}
+              onDelete={(p) => { if (p.id === editingId) setEditingId(null); saveProfiles(profiles.filter((q) => q.id !== p.id)); }}
+              onReplace={saveProfiles}
+            />
+            {editingId && (
+              <p className="editing-note">
+                Editing <b>{profiles.find((p) => p.id === editingId)?.label}</b>. Your changes update this saved chart.{' '}
+                <button type="button" className="link-btn" onClick={() => setEditingId(null)}>Leave the saved chart as it is</button>
+              </p>
+            )}
+            <BirthForm key={formKey} initial={input} busy={busy} onSubmit={run} onSample={() => run(DEFAULT_INPUT)} />
           </div>
         </section>
       )}

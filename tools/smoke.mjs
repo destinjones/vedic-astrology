@@ -38,6 +38,22 @@ try {
 
   const away = [...offsite];
   if (away.length) problems.push(`opening a chart called other sites: ${away.join(', ')}`);
+
+  // Saved charts and share links: save the open chart, then reopen it from its link in a fresh browser.
+  await page.getByRole('button', { name: /Save$/ }).click();
+  await page.locator('.pop input').fill('Smoke test');
+  await page.locator('.pop').getByRole('button', { name: 'Save chart' }).click();
+  const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('vedic.profiles.v1') ?? '[]'));
+  if (stored.length !== 1 || stored[0].label !== 'Smoke test') problems.push('saving a chart did not store it in the browser');
+  await page.getByRole('button', { name: 'Share link' }).click();
+  const link = await page.locator('.pop input[readonly]').inputValue();
+  if (!link.includes(`${BASE}app/#`) || !link.includes('d=')) problems.push(`share link looks wrong: ${link}`);
+  const fresh = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  fresh.on('pageerror', (e) => problems.push(`share link page error: ${e.message}`));
+  await fresh.goto(link);
+  await fresh.waitForSelector('.summary-strip', { timeout: 60000 });
+  const sharedLagna = await fresh.locator('.summary-item').first().innerText();
+  if (!sharedLagna.includes('Leo')) problems.push(`share link should reopen the Leo lagna sample, got: ${sharedLagna}`);
 } finally {
   await browser.close();
   await close();
@@ -47,4 +63,4 @@ if (problems.length) {
   console.error(`Site check failed:\n- ${problems.join('\n- ')}`);
   process.exit(1);
 }
-console.log('Site check passed: landing page, engine, readings, timeline and sky view all load.');
+console.log('Site check passed: landing page, engine, readings, timeline, sky view, saved charts and share links all work.');
