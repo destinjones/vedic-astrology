@@ -4,13 +4,14 @@ import { placeAlias, normalizePlaceName } from '@vedic/engine/places';
 import { CITIES, type City } from '../data/cities';
 import { searchPlaces } from '../engine';
 import { PlaceMap } from './PlaceMap';
+import { useI18n } from '../i18n';
 
 interface Props {
   initial: BirthInput;
   busy: boolean;
   onSubmit: (input: BirthInput) => void;
   onSample?: () => void;
-  /** Text on the submit button. */
+  /** Text on the submit button. Defaults to the translated "Reveal my chart". */
   submitLabel?: string;
 }
 
@@ -18,7 +19,8 @@ const ZONES: string[] = (() => {
   try { return (Intl as unknown as { supportedValuesOf(k: string): string[] }).supportedValuesOf('timeZone'); } catch { return []; }
 })();
 
-export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel = 'Reveal my chart' }: Props) {
+export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel }: Props) {
+  const { t } = useI18n();
   const [f, setF] = useState<BirthInput>(initial);
   const [error, setError] = useState<string | null>(null);
   // A fixed UTC offset (from the famous charts library) only fits the birth it came with,
@@ -77,9 +79,9 @@ export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel = 'Re
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!f.date || !f.time) return setError('Date and time of birth are required.');
-    if (!Number.isFinite(f.latitude) || Math.abs(f.latitude) > 90) return setError('Latitude must be between -90 and 90.');
-    if (!Number.isFinite(f.longitude) || Math.abs(f.longitude) > 180) return setError('Longitude must be between -180 and 180.');
+    if (!f.date || !f.time) return setError(t('form.errRequired'));
+    if (!Number.isFinite(f.latitude) || Math.abs(f.latitude) > 90) return setError(t('form.errLatitude'));
+    if (!Number.isFinite(f.longitude) || Math.abs(f.longitude) > 180) return setError(t('form.errLongitude'));
     setError(null);
     onSubmit(f);
   };
@@ -87,25 +89,25 @@ export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel = 'Re
   return (
     <form className="birth-form" onSubmit={submit} autoComplete="off">
       <label className="field span-2">
-        <span>Name <small className="muted">(optional)</small></span>
-        <input value={f.name ?? ''} onChange={(e) => set('name', e.target.value)} placeholder="Your name" />
+        <span>{t('form.name')} <small className="muted">{t('form.optional')}</small></span>
+        <input value={f.name ?? ''} onChange={(e) => set('name', e.target.value)} placeholder={t('form.namePlaceholder')} />
       </label>
       <label className="field">
-        <span>Date of birth</span>
+        <span>{t('form.date')}</span>
         <input type="date" required value={f.date} onChange={(e) => set('date', e.target.value)} />
       </label>
       <label className="field">
-        <span>Time of birth</span>
+        <span>{t('form.time')}</span>
         <input type="time" step={1} required value={f.time} onChange={(e) => set('time', e.target.value)} />
       </label>
       <label className="field span-2 place-field">
-        <span>Place of birth</span>
+        <span>{t('form.place')}</span>
         <input
           value={f.place}
           onChange={(e) => { set('place', e.target.value); setPicked(null); setLocated(false); setShowMatches(true); }}
           onFocus={() => setShowMatches(true)}
           onBlur={() => setTimeout(() => setShowMatches(false), 150)}
-          placeholder="Start typing a city…"
+          placeholder={t('form.placePlaceholder')}
         />
         {showMatches && matches.length > 0 && (
           <ul className="suggest">
@@ -138,31 +140,31 @@ export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel = 'Re
         />
       )}
       <label className="field">
-        <span>Latitude</span>
+        <span>{t('form.latitude')}</span>
         <input type="number" step="0.0001" value={f.latitude} onChange={(e) => { set('latitude', parseFloat(e.target.value)); setLocated(true); }} />
       </label>
       <label className="field">
-        <span>Longitude</span>
+        <span>{t('form.longitude')}</span>
         <input type="number" step="0.0001" value={f.longitude} onChange={(e) => { set('longitude', parseFloat(e.target.value)); setLocated(true); }} />
       </label>
       <label className="field">
-        <span>Time zone</span>
+        <span>{t('form.timezone')}</span>
         <input list="zones" value={f.timezone} onChange={(e) => set('timezone', e.target.value)} />
         <datalist id="zones">{ZONES.map((z) => <option key={z} value={z} />)}</datalist>
       </label>
       <label className="field">
-        <span>Ayanamsa</span>
+        <span>{t('form.ayanamsa')}</span>
         <select value={f.ayanamsa} onChange={(e) => set('ayanamsa', e.target.value as Ayanamsa)}>
-          <option value="lahiri">Lahiri (Chitrapaksha)</option>
-          <option value="true_chitra">True Chitra</option>
-          <option value="raman">B.V. Raman</option>
-          <option value="krishnamurti">Krishnamurti (KP)</option>
+          <option value="lahiri">{t('form.ayanamsaLahiri')}</option>
+          <option value="true_chitra">{t('form.ayanamsaTrueChitra')}</option>
+          <option value="raman">{t('form.ayanamsaRaman')}</option>
+          <option value="krishnamurti">{t('form.ayanamsaKp')}</option>
         </select>
       </label>
       {error && <p className="form-error span-2" role="alert">{error}</p>}
-      <button className="btn-primary span-2" disabled={busy}>{busy ? 'Calculating…' : submitLabel}</button>
-      {onSample && <button type="button" className="btn-ghost span-2" disabled={busy} onClick={onSample}>Or try a sample chart</button>}
-      <p className="muted span-2 form-note">Old names like Bombay or Pondicherry work too. Check the map shows the right town; if it can't find yours, type the coordinates and time zone by hand. Birth details stay in this browser.</p>
+      <button className="btn-primary span-2" disabled={busy}>{busy ? t('form.calculating') : submitLabel ?? t('form.submit')}</button>
+      {onSample && <button type="button" className="btn-ghost span-2" disabled={busy} onClick={onSample}>{t('form.sample')}</button>}
+      <p className="muted span-2 form-note">{t('form.note')}</p>
     </form>
   );
 }

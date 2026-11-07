@@ -1,6 +1,6 @@
 import { signInfo } from '../data/constants';
 import { houseOf, occupantsByHouse } from '../lib/astro';
-import { VARGAS } from '../data/constants';
+import { useI18n } from '../i18n';
 import { aspectTargets, focusPlanet, PlanetGlyphs, type ChartViewProps } from './chartShared';
 
 const C = 100;
@@ -15,7 +15,8 @@ export function SouthChart(props: ChartViewProps) {
   const { varga, selection, hoverPlanet, onSelect, chart } = props;
   const occ = occupantsByHouse(varga);
   const targets = aspectTargets(varga, focusPlanet(selection, hoverPlanet));
-  const vinfo = VARGAS.find((v) => v.id === varga.id)!;
+  const { t, v, locale } = useI18n();
+  const short = (n: number) => (locale === 'en' ? signInfo(n).short : v.signs[n - 1].length > 5 ? v.signs[n - 1].slice(0, 3) : v.signs[n - 1]);
 
   return (
     <svg viewBox="-6 -6 412 412" className="chart-svg" role="img" aria-label="South Indian chart">
@@ -37,15 +38,15 @@ export function SouthChart(props: ChartViewProps) {
             <rect x={x} y={y} width={C} height={C}
               className={`house-poly${selected ? ' is-selected' : ''}${targets.has(house) ? ' is-aspected' : ''}${house === 1 ? ' is-lagna' : ''}`} />
             {house === 1 && <line x1={x} y1={y + 22} x2={x + 22} y2={y} className="lagna-mark" />}
-            <text x={x + C - 6} y={y + 14} textAnchor="end" className="chart-signname">{signInfo(sign).short}</text>
+            <text x={x + C - 6} y={y + 14} textAnchor="end" className="chart-signname">{short(sign)}</text>
             <text x={x + 6} y={y + C - 7} className="chart-housenum">{house}</text>
             <PlanetGlyphs {...props} ids={occ[house]} cx={x + C / 2} cy={y + C / 2 + 4} perCol={4} showAsc={house === 1} extra={props.overlay?.houses[house]} />
           </g>
         );
       })}
       <g pointerEvents="none">
-        <text x={200} y={186} textAnchor="middle" className="chart-center-title">{varga.id} · {vinfo.name}</text>
-        <text x={200} y={208} textAnchor="middle" className="chart-center-sub">{chart.input.name || 'Birth chart'}</text>
+        <text x={200} y={186} textAnchor="middle" className="chart-center-title">{varga.id} · {v.vargas[varga.id]}</text>
+        <text x={200} y={208} textAnchor="middle" className="chart-center-sub">{chart.input.name || t('chart.birthChart')}</text>
         <text x={200} y={226} textAnchor="middle" className="chart-center-sub">{chart.input.date} · {chart.input.time}</text>
       </g>
       <g className="chart-lines" pointerEvents="none">

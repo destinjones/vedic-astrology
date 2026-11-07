@@ -6,8 +6,10 @@
   --gold: #e8b65a;
   --gold-2: #f6d999;
   --line: rgba(232, 182, 90, 0.28);
-  --serif: 'Cormorant Garamond', Georgia, serif;
-  --sans: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Indian scripts fall through to Noto (loaded per language) or the system's own font. */
+  --indic: 'Noto Sans Devanagari', 'Noto Sans Tamil', 'Noto Sans Telugu', 'Noto Sans Bengali', 'Noto Sans Gujarati', 'Noto Sans Kannada', 'Nirmala UI', 'Kohinoor Devanagari';
+  --serif: 'Cormorant Garamond', Georgia, var(--indic), serif;
+  --sans: Inter, system-ui, -apple-system, 'Segoe UI', var(--indic), sans-serif;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }

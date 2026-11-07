@@ -18,7 +18,7 @@ import { NakshatraWheel, type WheelMode } from './components/NakshatraWheel';
 import { PlanetTable } from './components/PlanetTable';
 import { DashaCard } from './components/DashaCard';
 import { VargaSwitcher } from './components/VargaSwitcher';
-import { NAKSHATRAS, PLANET_BY_ID, signInfo } from './data/constants';
+import { signInfo } from './data/constants';
 import { getVarga } from './lib/astro';
 import { ART } from './data/art';
 import { QuickSwitch } from './components/QuickSwitch';
@@ -32,6 +32,10 @@ import { ReportActions } from './components/ReportActions';
 import { FamousCharts } from './components/FamousCharts';
 import { FAMOUS_CHARTS, famousChartById, RODDEN_MEANING } from './data/famousCharts';
 import { loadKnowledge, type Knowledge } from './lib/readings';
+import { useI18n } from './i18n';
+import { ayanamsaName } from './i18n/names';
+import { LOCALE_BY_CODE } from '@vedic/i18n';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
 
 const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
@@ -96,6 +100,7 @@ export default function App() {
   const activeTab = ws.tabs.find((t) => t.id === ws.activeId) ?? ws.tabs[0];
   // a chart from the famous charts library shows where its birth data comes from
   const famous = chart ? FAMOUS_CHARTS.find((f) => sameBirth(f.input, chart.input)) ?? null : null;
+  const { t, rich, v, locale } = useI18n();
 
   useEffect(() => { storeWorkspace(ws); }, [ws]);
   const patchTab = (id: string, patch: Partial<Tab>) =>
@@ -160,9 +165,9 @@ export default function App() {
     setKnowledge(null);
     if (!chart?.engineContext) return;
     let live = true;
-    loadKnowledge(chart.engineContext.chart).then((k) => { if (live) setKnowledge(k); }).catch((e) => console.error('Readings unavailable', e));
+    loadKnowledge(chart.engineContext.chart, locale).then((k) => { if (live) setKnowledge(k); }).catch((e) => console.error('Readings unavailable', e));
     return () => { live = false; };
-  }, [chart]);
+  }, [chart, locale]);
 
   // /app/#sample opens the sample chart straight away (the landing page links here),
   // and a share link (/app/#d=…&t=…) opens the chart it carries.
@@ -358,12 +363,13 @@ export default function App() {
         <a className="brand" href={import.meta.env.BASE_URL}>
           <span className="brand-mark">✦</span>
           <div>
-            <h1>Jyotisha Explorer</h1>
-            <p>Vedic birth chart, every placement, every varga</p>
+            <h1>{t('app.title')}</h1>
+            <p>{t('app.tagline')}</p>
           </div>
         </a>
         <div className="topbar-actions">
           <QuickSwitch commands={commands} />
+          <LanguageSwitcher />
           <button className="btn-ghost" aria-expanded={showFamous} onClick={() => setShowFamous((v) => !v)}>Famous charts</button>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`}>Compare charts</a>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}match/`}>Compatibility</a>
@@ -373,7 +379,7 @@ export default function App() {
               <button className="btn-ghost" onClick={startPresent} title="Full screen walkthrough for a client, a screen share or a recording">▶ Present</button>
               <ReportActions chart={chart} />
               <ChartActions input={chart.input} profiles={profiles} onSave={saveCurrent} onShowSaved={showSaved} />
-              {!editing && <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>}
+              {!editing && <button className="btn-ghost" onClick={() => setEditing(true)}>{t('app.editBirth')}</button>}
             </>
           )}
         </div>
@@ -391,7 +397,7 @@ export default function App() {
 
       {chart?.meta.source === 'mock' && (
         <div className="preview-banner" role="status">
-          Preview positions. The UI is running on an approximate calculator until the Swiss Ephemeris engine is connected, so degrees can be off.
+          {t('app.previewBanner')}
         </div>
       )}
 
@@ -407,8 +413,8 @@ export default function App() {
         <section id="intake" className={`intake ${chart ? 'intake-compact' : ''}`}>
           {!chart && (
             <div className="intake-copy">
-              <h2>Your sky at the moment you arrived</h2>
-              <p>Enter your birth date, exact time and place. You get the rashi chart in North or South Indian style, all sixteen divisional charts, nakshatras, dignities, retrogrades and your dasha timeline, and every part of it is clickable.</p>
+              <h2>{t('app.introTitle')}</h2>
+              <p>{t('app.introBody')}</p>
             </div>
           )}
           <div className="card form-card">
@@ -440,27 +446,27 @@ export default function App() {
         <main className="explorer">
           <section className="summary-strip">
             <div className="summary-item">
-              <small>Lagna</small>
-              <b>{signInfo(chart.ascendant.sign).glyph} {signInfo(chart.ascendant.sign).name}</b>
+              <small>{t('summary.lagna')}</small>
+              <b>{signInfo(chart.ascendant.sign).glyph} {v.signs[chart.ascendant.sign - 1]}</b>
             </div>
             <div className="summary-item">
-              <small>Moon sign</small>
-              <b>{signInfo(moon!.sign).glyph} {signInfo(moon!.sign).name}</b>
+              <small>{t('summary.moonSign')}</small>
+              <b>{signInfo(moon!.sign).glyph} {v.signs[moon!.sign - 1]}</b>
             </div>
             <div className="summary-item">
-              <small>Janma nakshatra</small>
-              <b>{NAKSHATRAS[moon!.nakshatra - 1].name} {moon!.pada}</b>
+              <small>{t('summary.janmaNakshatra')}</small>
+              <b>{v.nakshatras[moon!.nakshatra - 1]} {moon!.pada}</b>
             </div>
             <div className="summary-item">
-              <small>Sun sign</small>
-              <b>{signInfo(sun!.sign).glyph} {signInfo(sun!.sign).name}</b>
+              <small>{t('summary.sunSign')}</small>
+              <b>{signInfo(sun!.sign).glyph} {v.signs[sun!.sign - 1]}</b>
             </div>
             <div className="summary-item">
-              <small>Retrograde</small>
-              <b>{chart.planets.filter((p) => p.retrograde && p.id !== 'rahu' && p.id !== 'ketu').map((p) => PLANET_BY_ID[p.id].abbr).join(', ') || 'None'}</b>
+              <small>{t('summary.retrograde')}</small>
+              <b>{chart.planets.filter((p) => p.retrograde && p.id !== 'rahu' && p.id !== 'ketu').map((p) => v.planets[p.id].short).join(', ') || t('summary.none')}</b>
             </div>
             <div className="summary-item muted-item">
-              <small>{chart.input.name || 'Birth'}</small>
+              <small>{chart.input.name || t('summary.birth')}</small>
               <b>{chart.input.date} · {chart.input.time} · {chart.input.place}</b>
             </div>
             {famous && (
@@ -479,10 +485,10 @@ export default function App() {
           <div className="explorer-grid">
             <section className="card chart-card" id="chart">
               <div className="card-head">
-                <h3>Birth chart</h3>
-                <div className="seg" role="radiogroup" aria-label="Chart style">
-                  <button role="radio" aria-checked={style === 'north'} className={style === 'north' ? 'is-active' : ''} onClick={() => setStyle('north')}>North</button>
-                  <button role="radio" aria-checked={style === 'south'} className={style === 'south' ? 'is-active' : ''} onClick={() => setStyle('south')}>South</button>
+                <h3>{t('chart.birthChart')}</h3>
+                <div className="seg" role="radiogroup" aria-label={t('chart.style')}>
+                  <button role="radio" aria-checked={style === 'north'} className={style === 'north' ? 'is-active' : ''} onClick={() => setStyle('north')}>{t('chart.north')}</button>
+                  <button role="radio" aria-checked={style === 'south'} className={style === 'south' ? 'is-active' : ''} onClick={() => setStyle('south')}>{t('chart.south')}</button>
                 </div>
               </div>
               <VargaSwitcher value={vargaId} onChange={setVargaId} />
@@ -493,10 +499,11 @@ export default function App() {
                   <SouthChart chart={chart} varga={varga} selection={selection} hoverPlanet={hoverPlanet} onSelect={setSelection} onHoverPlanet={setHoverPlanet} />
                 )}
               </div>
-              <p className="legend muted">R retrograde · c combust · highlighted houses show the aspects of the planet under your cursor</p>
+              <p className="legend muted">{t('chart.legend')}</p>
             </section>
 
             <aside className="card detail-card" id="details" aria-live="polite">
+              {knowledge && knowledge.locale !== locale && <p className="reading-note">{t('app.readingsLanguageNote', { language: LOCALE_BY_CODE[locale].native })}</p>}
               <DetailPanel chart={chart} varga={varga} selection={selection} onSelect={setSelection} knowledge={knowledge} />
             </aside>
           </div>
@@ -507,11 +514,11 @@ export default function App() {
 
           <section className="card sky-card" id="sky">
             <div className="card-head">
-              <h3>Sky view</h3>
-              <span className="muted">your grahas in 3D, placed by sidereal longitude</span>
+              <h3>{t('sections.sky')}</h3>
+              <span className="muted">{t('sections.skySub')}</span>
             </div>
             <WhenVisible minHeight={520}>
-              <Suspense fallback={<div className="sky-overlay static">Loading 3D view…</div>}>
+              <Suspense fallback={<div className="sky-overlay static">{t('sections.skyLoading')}</div>}>
                 <SkyView chart={chart} selection={selection} onSelect={setSelection} />
               </Suspense>
             </WhenVisible>
@@ -520,16 +527,16 @@ export default function App() {
           <div className="explorer-grid lower">
             <section className="card wheel-card" id="wheel">
               <div className="card-head">
-                <h3>Nakshatra wheel</h3>
-                <div className="seg" role="radiogroup" aria-label="Wheel style">
-                  <button role="radio" aria-checked={wheelMode === 'art'} className={wheelMode === 'art' ? 'is-active' : ''} onClick={() => setWheelMode('art')}>Artwork</button>
-                  <button role="radio" aria-checked={wheelMode === 'diagram'} className={wheelMode === 'diagram' ? 'is-active' : ''} onClick={() => setWheelMode('diagram')}>Diagram</button>
+                <h3>{t('sections.wheel')}</h3>
+                <div className="seg" role="radiogroup" aria-label={t('sections.wheelStyle')}>
+                  <button role="radio" aria-checked={wheelMode === 'art'} className={wheelMode === 'art' ? 'is-active' : ''} onClick={() => setWheelMode('art')}>{t('sections.artwork')}</button>
+                  <button role="radio" aria-checked={wheelMode === 'diagram'} className={wheelMode === 'diagram' ? 'is-active' : ''} onClick={() => setWheelMode('diagram')}>{t('sections.diagram')}</button>
                 </div>
               </div>
               <NakshatraWheel mode={wheelMode} chart={chart} selection={selection} onSelect={setSelection} onHoverPlanet={setHoverPlanet} />
             </section>
             <section className="card" id="planets">
-              <div className="card-head"><h3>Planetary positions</h3></div>
+              <div className="card-head"><h3>{t('sections.positions')}</h3></div>
               <PlanetTable chart={chart} selection={selection} onSelect={setSelection} />
             </section>
           </div>
@@ -549,9 +556,9 @@ export default function App() {
 
           {chart.engineContext && (
             <section className="card timing-host" id="timing">
-              <div className="card-head"><h3>Good times, hard times, retrogrades</h3><span className="muted">the tradition's timing, scored and explained</span></div>
+              <div className="card-head"><h3>{t('sections.timing')}</h3><span className="muted">{t('sections.timingSub')}</span></div>
               <WhenVisible minHeight={600}>
-                <Suspense fallback={<div className="sky-overlay static">Working out your timeline…</div>}>
+                <Suspense fallback={<div className="sky-overlay static">{t('sections.timingLoading')}</div>}>
                   <TimingSection key={chart.engineContext.chart.meta.utc} context={chart.engineContext} name={chart.input.name} />
                 </Suspense>
               </WhenVisible>
@@ -605,9 +612,16 @@ export default function App() {
       {presenting && chart && <Presenter key={activeTab.id} steps={steps} onStep={showStep} onExit={stopPresent} />}
 
       <footer className="foot muted">
-        <p>Sidereal zodiac · whole-sign houses · {input.ayanamsa} ayanamsa</p>
-        <p>Astrology is a traditional practice, not a science. Readings are for reflection, and nothing here is medical, legal or financial advice. Planet positions are calculated. The starry artwork is decorative and does not show real star positions.</p>
-        <p>Your birth details stay in this browser. Only the text you type in the place box is sent, to <a href="https://open-meteo.com/en/docs/geocoding-api">Open-Meteo</a> (data <a href="https://www.geonames.org/">GeoNames</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>). Positions by <a href="https://www.astro.com/swisseph/">Swiss Ephemeris</a>. Free software under <a href="https://github.com/destinjones/vedic-astrology/blob/main/LICENSE">AGPL-3.0</a>: <a href="https://github.com/destinjones/vedic-astrology">get the source</a>.</p>
+        <p>{t('footer.system', { ayanamsa: ayanamsaName(t, input.ayanamsa) })}</p>
+        <p>{t('footer.disclaimer')}</p>
+        <p>{rich('footer.privacy', {
+          openMeteo: <a href="https://open-meteo.com/en/docs/geocoding-api">Open-Meteo</a>,
+          geonames: <a href="https://www.geonames.org/">GeoNames</a>,
+          ccby: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>,
+          swisseph: <a href="https://www.astro.com/swisseph/">Swiss Ephemeris</a>,
+          agpl: <a href="https://github.com/destinjones/vedic-astrology/blob/main/LICENSE">AGPL-3.0</a>,
+          source: <a href="https://github.com/destinjones/vedic-astrology">{t('footer.getSource')}</a>,
+        })}</p>
       </footer>
     </div>
   );
