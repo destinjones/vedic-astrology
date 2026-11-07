@@ -42,6 +42,7 @@ const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
 const EventChecker = lazy(() => import('./components/EventChecker'));
 const JaiminiSection = lazy(() => import('./components/JaiminiSection'));
+const RemediesSection = lazy(() => import('./components/RemediesSection'));
 const RectificationSection = lazy(() => import('./components/RectificationSection'));
 const VarshaphalSection = lazy(() => import('./components/VarshaphalSection'));
 
@@ -591,6 +592,17 @@ export default function App() {
               <WhenVisible minHeight={600}>
                 <Suspense fallback={<div className="sky-overlay static">Working out the Jaimini layer…</div>}>
                   <JaiminiSection key={chart.engineContext.chart.meta.utc} chart={chart.engineContext.chart} />
+                </Suspense>
+              </WhenVisible>
+            </section>
+          )}
+
+          {chart.engineContext && (
+            <section className="card" id="remedies">
+              <div className="card-head"><h3>Remedies</h3><span className="muted">what the tradition prescribes for each afflicted graha, with sources</span></div>
+              <WhenVisible minHeight={500}>
+                <Suspense fallback={<div className="sky-overlay static">Working out the remedies…</div>}>
+                  <RemediesSection key={chart.engineContext.chart.meta.utc} chart={chart.engineContext.chart} />
                 </Suspense>
               </WhenVisible>
             </section>
