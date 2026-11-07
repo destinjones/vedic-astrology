@@ -15,6 +15,7 @@ import { getVarga } from './lib/astro';
 import { ART } from './data/art';
 
 import { YogaDoshaCard } from './components/YogaDoshaCard';
+import { StrengthSection } from './components/StrengthSection';
 import { loadKnowledge, type Knowledge } from './lib/readings';
 
 const SkyView = lazy(() => import('./components/SkyView'));
@@ -200,6 +201,8 @@ export default function App() {
           </div>
 
           {knowledge && <YogaDoshaCard report={knowledge.report} />}
+
+          {chart.engineContext?.chart.strength && <StrengthSection strength={chart.engineContext.chart.strength} />}
 
           <section className="card sky-card">
             <div className="card-head">

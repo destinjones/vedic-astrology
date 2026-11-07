@@ -19,6 +19,7 @@ There is no second page and no price. Click any planet, house or nakshatra and t
 | **16 divisional charts** | D1 to D60, North or South Indian style, every one clickable |
 | **603 written placement readings** | Planet in sign (108), in house (108), in nakshatra (243), house lords (144), plus dignities, retrogrades, 35 conjunctions and aspects |
 | **44 yogas, 9 doshas** | Each one found with the exact reason it forms and any cancellations |
+| **Shadbala and Bhava Bala** | All six planetary strengths and the twelve house strengths, in rupas against the classical minimums, checked against B. V. Raman's worked example |
 | **27 nakshatras, 108 padas** | Deity, symbol, shakti, gifts and shadows, on a wheel you can click |
 | **Dashas to three levels** | Maha, antar and pratyantar, each scored with reasons |
 | **Life weather** | Dashas plus transits over your Moon as one line, from one year to a lifetime, with good and hard stretches found for you |
