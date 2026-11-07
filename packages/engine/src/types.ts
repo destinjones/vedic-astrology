@@ -387,6 +387,8 @@ export interface Chart {
   /** Yogini, Ashtottari and Kalachakra dashas, same depth and year length as `dasha` */
   dashas: OtherDashas;
   panchanga: Panchanga;
+  /** Bhava chalit (house) chart by the Sripati and equal-house methods, whatever houseSystem is */
+  bhavaChalit: { sripati: import('./bhava').BhavaChalit; equal: import('./bhava').BhavaChalit };
   /** Shadbala for the seven grahas and Bhava Bala for the twelve houses (absent when options.strength is false) */
   strength?: import('./strength').ChartStrength;
 }

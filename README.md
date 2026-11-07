@@ -21,7 +21,10 @@ There is no second page and no price. Click any planet, house or nakshatra and t
 | **44 yogas, 9 doshas** | Each one found with the exact reason it forms and any cancellations |
 | **Shadbala and Bhava Bala** | All six planetary strengths and the twelve house strengths, in rupas against the classical minimums, checked against B. V. Raman's worked example |
 | **27 nakshatras, 108 padas** | Deity, symbol, shakti, gifts and shadows, on a wheel you can click |
-| **Dashas to three levels** | Maha, antar and pratyantar, each scored with reasons |
+| **Bhava chalit** | Sripati or equal-house bhava chart beside the rashi chart; readings follow whichever you show |
+| **Panchanga** | Tithi, vara, nakshatra, yoga and karana for your birth and any date, with end times |
+| **Planet condition** | Baladi, Jagradadi and Deeptadi avasthas, gandanta, planetary war, mrityu bhaga and pushkara degrees |
+| **Dashas to three levels** | Maha, antar and pratyantar, each scored with reasons, with sandhi and chidra junctions flagged |
 | **Life weather** | Dashas plus transits over your Moon as one line, from one year to a lifetime, with good and hard stretches found for you |
 | **Retrogrades and Saturn** | Mercury to Saturn stations and shadows, Sade Sati with re-entries, Kantaka and Ashtama Shani |
 | **Ashtakavarga** | All seven tables, the SAV and who gave each point |

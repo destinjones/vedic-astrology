@@ -41,6 +41,7 @@ import type {
   VargaPlacement,
 } from './types';
 import { VARGAS, VARGA_IDS, vargaDegree } from './vargas';
+import { bhavaChalit } from './bhava';
 import { SHADBALA_PLANETS, computeStrength, type ShadbalaPlanet, type StrengthPlanetInput } from './strength';
 import {
   addSigns,
@@ -376,6 +377,8 @@ function makeEngine(swe: SwissEph): Engine {
 
     const panchanga = computePanchanga(jd, planets.sun.longitude, planets.moon.longitude, latitude, longitude, timezone, t.utcOffsetMinutes);
 
+    const wsPlanets = Object.fromEntries(ids.map((id) => [id, planets[id]])) as Partial<Record<PlanetId, PlanetPosition>>;
+
     let strength: Chart['strength'];
     if (opts.strength) {
       setSid(opts.ayanamsa);
@@ -441,6 +444,10 @@ function makeEngine(swe: SwissEph): Engine {
       dasha,
       dashas,
       panchanga,
+      bhavaChalit: {
+        sripati: bhavaChalit('sripati', hd.asc, hd.mc, wsPlanets, ascSign),
+        equal: bhavaChalit('equal', hd.asc, hd.mc, wsPlanets, ascSign),
+      },
       ...(strength ? { strength } : {}),
     };
   }

@@ -139,8 +139,43 @@ export default function JaiminiSection({ chart }: { chart: EngineChart }) {
         </div>
       </div>
 
+      <ArgalaView j={j} />
+
       <CharaDashaView j={j} />
     </div>
+  );
+}
+
+const ORD = (n: number) => `${n}${n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th'}`;
+const names = (gs: GrahaId[]) => gs.map((g) => PLANET_BY_ID[g].name).join(', ');
+
+/** Argala (intervention) on each house and what obstructs it. */
+function ArgalaView({ j }: { j: ReturnType<typeof jaimini> }) {
+  return (
+    <details className="jm-padlist">
+      <summary>Argala: which planets intervene in each house, and what blocks them</summary>
+      <p className="muted">
+        Planets in the 2nd, 4th and 11th from a house intervene in it (the 5th more weakly); planets in the 12th, 10th and 3rd (and the 9th) obstruct
+        them. An argala holds when its planets outnumber the obstructers. Malefics in the 3rd give an argala of their own. Ketu counts backwards.
+        Jaimini Upadesa Sutras 1.1.5–9; BPHS ch. 31.
+      </p>
+      <ul>
+        {j.argala.map((a, i) => (
+          <li key={a.sign}>
+            <b>{ORD(i + 1)} house</b> ({signInfo(a.sign).name}):{' '}
+            {a.entries.length === 0 ? <span className="muted">no argala</span> : a.entries.map((e, k) => (
+              <span key={k}>
+                {k > 0 && '; '}
+                {names(e.givers)} from the {ORD(e.from)}{e.kind === 'secondary' ? ' (secondary)' : e.kind === 'vipareeta' ? ' (malefic, 3rd)' : ''}{' '}
+                {e.status === 'holds'
+                  ? <span className="chip chip-good">holds{e.obstructers.length ? ` over ${names(e.obstructers)}` : ''}</span>
+                  : <span className="chip chip-bad">blocked by {names(e.obstructers)} in the {ORD(e.virodha)}</span>}
+              </span>
+            ))}
+          </li>
+        ))}
+      </ul>
+    </details>
   );
 }
 

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Bhava chalit chart beside the rashi chart (Sripati and equal-house methods). Switching to it moves planets into their bhava and the house readings follow; lordship and yogas stay sign-based.
+- Panchanga on the chart page for the birth moment and any date, with when each tithi, nakshatra, yoga and karana ends (`panchangaAt` in the engine).
+- Planet condition: Baladi, Jagradadi and Deeptadi avasthas; gandanta, abhukta mula, graha yuddha, mrityu bhaga, pushkara navamsa and pushkara bhaga flags with their sources; ayurdaya (Pindayu, Amsayu, Nisargayu) behind a caveat.
+- Dasha sandhi and chidra for every mahadasha change, and Saturn–Jupiter double transit windows for each house (`doubleTransitWindows` in timing).
+- Jaimini argala and virodha argala on every house.
 - Share links are versioned (`v=1`) through a new `ChartRequest` type in `@vedic/engine/request`. Every link made before versioning still opens, and frozen copies of old links are tested so they keep opening. Links now also carry a manual UTC offset (war time, LMT), which they used to drop, and saved charts keep it too.
 - A link made by a newer version of the app is refused with a clear message instead of being half read.
 - The engine checks the ayanamsa at its boundary (`parseAyanamsa`, `Ayanamsa.Lahiri`, …), so an unknown name is an error and not a silent Lahiri chart.
