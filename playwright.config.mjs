@@ -20,6 +20,8 @@ export default defineConfig({
   // one folder of pictures per platform, so a Mac run never compares against Linux pictures
   snapshotPathTemplate: '{testDir}/__screenshots__/{platform}/{testFilePath}/{arg}{ext}',
   fullyParallel: true,
+  // GitHub's Linux runners have 4 cores; the default of half of them leaves the chart pictures waiting
+  workers: process.env.CI ? 4 : undefined,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : [['list']],
