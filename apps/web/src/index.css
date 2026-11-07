@@ -683,3 +683,26 @@ kbd {
   .ev-chain { grid-column: 1 / -1; grid-row: 3; }
   .ev-two { grid-template-columns: 1fr; }
 }
+/* PDF report and consultation export */
+.topbar-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.report-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.report-error { color: var(--bad); font-size: 13px; }
+.consult-dialog { width: min(860px, calc(100vw - 32px)); max-height: calc(100vh - 32px); padding: 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--text); }
+.consult-dialog::backdrop { background: rgba(6, 5, 16, 0.72); }
+.consult-dialog form { display: flex; flex-direction: column; gap: 16px; padding: 22px; }
+.consult-dialog h3 { margin: 0; font: 600 26px/1.1 var(--serif); }
+.consult-dialog header p { margin: 4px 0 0; font-size: 14px; }
+.consult-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 720px) { .consult-grid { grid-template-columns: 1fr; } }
+.consult-dialog fieldset { border: 1px solid var(--line-soft); border-radius: 12px; padding: 12px 14px; margin: 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.consult-dialog legend { color: var(--accent); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; padding: 0 6px; }
+.consult-dialog label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.consult-dialog input:not([type]), .consult-dialog textarea { background: var(--bg-2); border: 1px solid var(--line-soft); border-radius: 8px; padding: 8px 10px; color: var(--text); font: inherit; font-size: 14px; }
+.consult-logo { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.consult-logo img { max-height: 44px; max-width: 140px; background: #0d1232; border-radius: 6px; padding: 4px; }
+.consult-logo label.btn-ghost { flex-direction: row; color: var(--accent); cursor: pointer; }
+.consult-dialog label.consult-section { flex-direction: row; align-items: flex-start; gap: 10px; color: var(--text); cursor: pointer; }
+.consult-section input { margin-top: 4px; accent-color: var(--accent); }
+.consult-section span { display: flex; flex-direction: column; }
+.consult-section small { font-size: 12px; }
+.consult-dialog footer { display: flex; justify-content: flex-end; align-items: center; gap: 10px; flex-wrap: wrap; }

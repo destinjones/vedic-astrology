@@ -28,6 +28,7 @@ import { compareHash } from './compare/sources';
 
 import { YogaDoshaCard } from './components/YogaDoshaCard';
 import { StrengthSection } from './components/StrengthSection';
+import { ReportActions } from './components/ReportActions';
 import { loadKnowledge, type Knowledge } from './lib/readings';
 
 const SkyView = lazy(() => import('./components/SkyView'));
@@ -356,6 +357,7 @@ export default function App() {
           {chart && (
             <>
               <button className="btn-ghost" onClick={startPresent} title="Full screen walkthrough for a client, a screen share or a recording">▶ Present</button>
+              <ReportActions chart={chart} />
               <ChartActions input={chart.input} profiles={profiles} onSave={saveCurrent} onShowSaved={showSaved} />
               {!editing && <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>}
             </>
