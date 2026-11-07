@@ -144,6 +144,8 @@ export interface ChartOptions {
   dashaLevels?: 1 | 2 | 3 | 4 | 5;
   /** Days per dasha year. Default 365.2425 */
   dashaYearDays?: number;
+  /** Compute Shadbala and Bhava Bala into `chart.strength`. Default true */
+  strength?: boolean;
 }
 
 // ---------------------------------------------------------------- output
@@ -380,6 +382,8 @@ export interface Chart {
   /** Yogini, Ashtottari and Kalachakra dashas, same depth and year length as `dasha` */
   dashas: OtherDashas;
   panchanga: Panchanga;
+  /** Shadbala for the seven grahas and Bhava Bala for the twelve houses (absent when options.strength is false) */
+  strength?: import('./strength').ChartStrength;
 }
 
 /** Light-weight snapshot for transits / timelines */
