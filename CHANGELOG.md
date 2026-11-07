@@ -1,5 +1,13 @@
 # Changelog
 
+From now on each package keeps its own changelog, written by [Changesets](.changeset/README.md) when a release is cut:
+
+- the website: [`apps/web/CHANGELOG.md`](apps/web/CHANGELOG.md)
+- the engine: [`packages/engine/CHANGELOG.md`](packages/engine/CHANGELOG.md)
+- the readings: [`packages/interpretations/CHANGELOG.md`](packages/interpretations/CHANGELOG.md)
+
+The entries below predate that.
+
 ## Unreleased
 
 - Timing: Vimshottari down to sookshma and prana (levels 4–5), built on demand, in the dasha card and the dashboard's dasha map.

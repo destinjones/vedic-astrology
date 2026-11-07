@@ -220,7 +220,7 @@ export default defineConfig(async () => ({
     rollupOptions: {
       input: { landing: join(here, 'index.html'), app: join(here, 'app/index.html'), compare: join(here, 'compare/index.html'), match: join(here, 'match/index.html'), tools: join(here, 'tools/index.html'),
         privacy: join(here, 'privacy/index.html'), howItWorks: join(here, 'how-it-works/index.html'), check: join(here, 'check/index.html'),
-        learn: join(here, 'src/learn/style.ts'), study: join(here, 'study/index.html'), embed: join(here, 'embed/index.html'),
+        learn: join(here, 'src/learn/style.ts'), study: join(here, 'study/index.html'), embed: join(here, 'embed/index.html'), credits: join(here, 'credits/index.html'),
       },
     },
   },

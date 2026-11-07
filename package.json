@@ -15,6 +15,10 @@
     "build:pages": "node tools/build-pages.mjs",
     "smoke": "node tools/smoke.mjs",
     "demos": "node tools/record-demos.mjs",
+    "content:check": "npm run content:check -w @vedic/interpretations",
+    "changeset": "changeset",
+    "version": "changeset version && npm install --package-lock-only --no-audit --no-fund",
+    "verify:ephemeris": "node tools/verify-ephemeris.mjs",
     "og": "node tools/render-og.mjs"
   },
   "engines": {
@@ -22,8 +26,10 @@
   },
   "license": "AGPL-3.0-or-later",
   "devDependencies": {
+    "@changesets/cli": "^2.31.1",
     "gifenc": "^1.0.3",
     "playwright": "^1.65.0",
-    "pngjs": "^7.0.0"
+    "pngjs": "^7.0.0",
+    "typedoc": "^0.28.20"
   }
 }

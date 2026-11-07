@@ -57,6 +57,11 @@ try {
     if (offsite.size) problems.push(`${p} called other sites: ${[...offsite].join(', ')}`);
   }
 
+  await page.goto(`${url}${BASE}credits/`, { waitUntil: 'networkidle' });
+  if (!(await page.locator('#people li').count())) problems.push('credits: contributor list is empty');
+  await page.goto(`${url}${BASE}docs/engine/`, { waitUntil: 'networkidle' });
+  if (!(await page.title()).includes('@vedic/engine')) problems.push('engine API reference is missing from the build');
+
   await page.goto(`${url}${BASE}app/#sample`);
   await page.waitForSelector('.summary-strip', { timeout: 60000 });
   await page.waitForSelector('#yogas', { timeout: 60000 });

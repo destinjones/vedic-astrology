@@ -10,6 +10,7 @@ import {
 } from './chart-utils';
 import { conjunctionKey } from './data/conditions';
 import { PLANET_PROFILES } from './data/planets';
+import { PLANET_IN_NAKSHATRA_TEXT } from './data/generated/content';
 import { detectDoshas } from './doshas';
 import { localizer, type LocaleOptions } from './i18n/context';
 import { READING_SOURCES } from './sources';
@@ -103,13 +104,30 @@ export function getPlanetInNakshatra(planet: PlanetId, nakshatra: number, pada?:
     relation = L.ph.nakRelNeutral(lord.name, pr.name);
   }
   const ganaScore = n.gana === 'deva' ? 0.5 : n.gana === 'rakshasa' ? -0.5 : 0;
-  const score = clamp(relScore + ganaScore);
+  // A hand-written reading's score holds in every language, so a chart's findings do not depend on the reading language.
+  const authored = PLANET_IN_NAKSHATRA_TEXT[planet]?.[n.number];
+  const written = L.locale === 'en' ? authored : undefined;
+  const score = authored?.score ?? clamp(relScore + ganaScore);
+  const padaLine = pada && pada >= 1 && pada <= 4 ? [L.ph.nakPada(pada, n.padas[pada - 1])] : [];
+  if (written) {
+    return {
+      id: `nakshatra:${planet}:${n.id}${pada ? `:${pada}` : ''}`,
+      title: L.ph.nakTitle(pr.name, n.name, pada),
+      summary: written.summary,
+      detail: [...written.detail, ...padaLine],
+      strengths: written.strengths,
+      challenges: written.challenges,
+      keywords: [...n.keywords, n.gana, n.motivation],
+      tone: toneOf(score),
+      score,
+    };
+  }
   const detail = [
     L.ph.nakColours(n.name, L.lens(planet, PLANET_LENS[planet]), n.description),
     L.ph.nakRuled({ lord: lord.name, deity: n.deity, symbol: n.symbol, shakti: n.shakti, relation }),
     L.ph.nakWorks({ planet: pr.name, high: pr.highExpression, gifts: two(L, n.gifts), shadows: two(L, n.shadows), low: pr.lowExpression }),
   ];
-  if (pada && pada >= 1 && pada <= 4) detail.push(L.ph.nakPada(pada, n.padas[pada - 1]));
+  detail.push(...padaLine);
   return {
     id: `nakshatra:${planet}:${n.id}${pada ? `:${pada}` : ''}`,
     title: L.ph.nakTitle(pr.name, n.name, pada),

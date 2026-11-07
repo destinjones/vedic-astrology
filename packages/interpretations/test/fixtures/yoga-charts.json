@@ -1,0 +1,266 @@
+{
+  "ruchaka": {
+    "note": "Mars is in its own sign in the 10th house, a kendra.",
+    "asc": 4,
+    "signs": { "sun": 2, "moon": 1, "mars": 1, "mercury": 3, "jupiter": 1, "venus": 2, "saturn": 1, "rahu": 5 },
+    "degrees": { "sun": 16.67, "moon": 4.3, "mars": 0.06, "mercury": 15.58, "jupiter": 11.3, "venus": 4.77, "saturn": 3.34, "rahu": 27.5 }
+  },
+  "bhadra": {
+    "note": "Mercury is exalted in the 7th house, a kendra.",
+    "asc": 12,
+    "signs": { "sun": 6, "moon": 8, "mars": 6, "mercury": 6, "jupiter": 4, "venus": 5, "saturn": 6, "rahu": 7 },
+    "degrees": { "sun": 26.37, "moon": 0.11, "mars": 17.78, "mercury": 22.25, "jupiter": 2, "venus": 20.43, "saturn": 14.08, "rahu": 25.77 }
+  },
+  "hamsa": {
+    "note": "Jupiter is in its own sign in the 4th house, a kendra.",
+    "asc": 9,
+    "signs": { "sun": 10, "moon": 10, "mars": 12, "mercury": 1, "jupiter": 12, "venus": 12, "saturn": 12, "rahu": 11 },
+    "degrees": { "sun": 18.61, "moon": 4.89, "mars": 23.27, "mercury": 14.66, "jupiter": 2.31, "venus": 23.19, "saturn": 14.18, "rahu": 2.49 }
+  },
+  "malavya": {
+    "note": "Venus is exalted in the 4th house, a kendra.",
+    "asc": 9,
+    "signs": { "sun": 10, "moon": 10, "mars": 12, "mercury": 1, "jupiter": 12, "venus": 12, "saturn": 12, "rahu": 11 },
+    "degrees": { "sun": 18.61, "moon": 4.89, "mars": 23.27, "mercury": 14.66, "jupiter": 2.31, "venus": 23.19, "saturn": 14.18, "rahu": 2.49 }
+  },
+  "sasa": {
+    "note": "Saturn is exalted in the 1st house, a kendra.",
+    "asc": 7,
+    "signs": { "sun": 7, "moon": 8, "mars": 8, "mercury": 8, "jupiter": 8, "venus": 5, "saturn": 7, "rahu": 7 },
+    "degrees": { "sun": 7.63, "moon": 1.26, "mars": 22.5, "mercury": 5.09, "jupiter": 2.57, "venus": 16.56, "saturn": 9.15, "rahu": 26.66 }
+  },
+  "gaja-kesari": {
+    "note": "Jupiter is in the 1st from the Moon.",
+    "asc": 4,
+    "signs": { "sun": 2, "moon": 1, "mars": 1, "mercury": 3, "jupiter": 1, "venus": 2, "saturn": 1, "rahu": 5 },
+    "degrees": { "sun": 16.67, "moon": 4.3, "mars": 0.06, "mercury": 15.58, "jupiter": 11.3, "venus": 4.77, "saturn": 3.34, "rahu": 27.5 }
+  },
+  "budha-aditya": {
+    "note": "The Sun and Mercury share the 7th house (4.1° apart).",
+    "asc": 12,
+    "signs": { "sun": 6, "moon": 8, "mars": 6, "mercury": 6, "jupiter": 4, "venus": 5, "saturn": 6, "rahu": 7 },
+    "degrees": { "sun": 26.37, "moon": 0.11, "mars": 17.78, "mercury": 22.25, "jupiter": 2, "venus": 20.43, "saturn": 14.08, "rahu": 25.77 }
+  },
+  "chandra-mangala": {
+    "note": "The Moon and Mars are conjunct.",
+    "asc": 4,
+    "signs": { "sun": 2, "moon": 1, "mars": 1, "mercury": 3, "jupiter": 1, "venus": 2, "saturn": 1, "rahu": 5 },
+    "degrees": { "sun": 16.67, "moon": 4.3, "mars": 0.06, "mercury": 15.58, "jupiter": 11.3, "venus": 4.77, "saturn": 3.34, "rahu": 27.5 }
+  },
+  "raja": {
+    "note": "Moon (lord of 1st) and Mars (lord of 5th) are linked by conjunction.",
+    "asc": 4,
+    "signs": { "sun": 2, "moon": 1, "mars": 1, "mercury": 3, "jupiter": 1, "venus": 2, "saturn": 1, "rahu": 5 },
+    "degrees": { "sun": 16.67, "moon": 4.3, "mars": 0.06, "mercury": 15.58, "jupiter": 11.3, "venus": 4.77, "saturn": 3.34, "rahu": 27.5 }
+  },
+  "yogakaraka": {
+    "note": "Mars rules the 10th (kendra) and 5th (trikona) for this ascendant.",
+    "asc": 4,
+    "signs": { "sun": 2, "moon": 1, "mars": 1, "mercury": 3, "jupiter": 1, "venus": 2, "saturn": 1, "rahu": 5 },
+    "degrees": { "sun": 16.67, "moon": 4.3, "mars": 0.06, "mercury": 15.58, "jupiter": 11.3, "venus": 4.77, "saturn": 3.34, "rahu": 27.5 }
+  },
+  "dharma-karmadhipati": {
+    "note": "The 9th lord Jupiter and 10th lord Mars are linked by conjunction.",
+    "asc": 4,
+    "signs": { "sun": 2, "moon": 1, "mars": 1, "mercury": 3, "jupiter": 1, "venus": 2, "saturn": 1, "rahu": 5 },
+    "degrees": { "sun": 16.67, "moon": 4.3, "mars": 0.06, "mercury": 15.58, "jupiter": 11.3, "venus": 4.77, "saturn": 3.34, "rahu": 27.5 }
+  },
+  "dhana": {
+    "note": "Sun (lord of 2nd) and Venus (lord of 11th) are linked by conjunction.",
+    "asc": 4,
+    "signs": { "sun": 2, "moon": 1, "mars": 1, "mercury": 3, "jupiter": 1, "venus": 2, "saturn": 1, "rahu": 5 },
+    "degrees": { "sun": 16.67, "moon": 4.3, "mars": 0.06, "mercury": 15.58, "jupiter": 11.3, "venus": 4.77, "saturn": 3.34, "rahu": 27.5 }
+  },
+  "lakshmi": {
+    "note": "The 9th lord Jupiter is own in the 9th, and the ascendant lord Mars is well placed.",
+    "asc": 1,
+    "signs": { "sun": 8, "moon": 9, "mars": 8, "mercury": 8, "jupiter": 9, "venus": 8, "saturn": 8, "rahu": 9 },
+    "degrees": { "sun": 28.59, "moon": 5.12, "mars": 16.9, "mercury": 26.4, "jupiter": 22.57, "venus": 7.5, "saturn": 22.77, "rahu": 10.23 }
+  },
+  "harsha": {
+    "note": "Moon, lord of the 6th, sits in the 8th.",
+    "asc": 11,
+    "signs": { "sun": 10, "moon": 6, "mars": 6, "mercury": 10, "jupiter": 9, "venus": 10, "saturn": 4, "rahu": 3 },
+    "degrees": { "sun": 23.66, "moon": 27.21, "mars": 3.55, "mercury": 9.46, "jupiter": 23.32, "venus": 9.65, "saturn": 0.87, "rahu": 22.33 }
+  },
+  "sarala": {
+    "note": "Venus, lord of the 8th, sits in the 6th.",
+    "asc": 12,
+    "signs": { "sun": 6, "moon": 8, "mars": 6, "mercury": 6, "jupiter": 4, "venus": 5, "saturn": 6, "rahu": 7 },
+    "degrees": { "sun": 26.37, "moon": 0.11, "mars": 17.78, "mercury": 22.25, "jupiter": 2, "venus": 20.43, "saturn": 14.08, "rahu": 25.77 }
+  },
+  "vimala": {
+    "note": "Mercury, lord of the 12th, sits in the 12th.",
+    "asc": 4,
+    "signs": { "sun": 2, "moon": 1, "mars": 1, "mercury": 3, "jupiter": 1, "venus": 2, "saturn": 1, "rahu": 5 },
+    "degrees": { "sun": 16.67, "moon": 4.3, "mars": 0.06, "mercury": 15.58, "jupiter": 11.3, "venus": 4.77, "saturn": 3.34, "rahu": 27.5 }
+  },
+  "neecha-bhanga": {
+    "note": "Saturn is debilitated, but its dispositor Mars is in a kendra from the ascendant or Moon; its dispositor Mars aspects or joins it; it sits in a kendra from the ascendant.",
+    "asc": 4,
+    "signs": { "sun": 2, "moon": 1, "mars": 1, "mercury": 3, "jupiter": 1, "venus": 2, "saturn": 1, "rahu": 5 },
+    "degrees": { "sun": 16.67, "moon": 4.3, "mars": 0.06, "mercury": 15.58, "jupiter": 11.3, "venus": 4.77, "saturn": 3.34, "rahu": 27.5 }
+  },
+  "maha-parivartana": {
+    "note": "Moon (in the 4th) and Jupiter (in the 11th) occupy each other’s signs, linking the 4th and 11th houses.",
+    "asc": 6,
+    "signs": { "sun": 9, "moon": 9, "mars": 9, "mercury": 9, "jupiter": 4, "venus": 11, "saturn": 4, "rahu": 8 },
+    "degrees": { "sun": 23.52, "moon": 14.59, "mars": 17.53, "mercury": 0.31, "jupiter": 15.51, "venus": 11.09, "saturn": 10.86, "rahu": 9.53 }
+  },
+  "khala-parivartana": {
+    "note": "Mars (in the 1st) and Mercury (in the 3rd) occupy each other’s signs, linking the 1st and 3rd houses.",
+    "asc": 6,
+    "signs": { "sun": 7, "moon": 8, "mars": 6, "mercury": 8, "jupiter": 3, "venus": 6, "saturn": 6, "rahu": 7 },
+    "degrees": { "sun": 16.8, "moon": 23.19, "mars": 14.55, "mercury": 11.08, "jupiter": 12.07, "venus": 12.51, "saturn": 26.09, "rahu": 17.65 }
+  },
+  "dainya-parivartana": {
+    "note": "Sun (in the 4th) and Jupiter (in the 12th) occupy each other’s signs, linking the 4th and 12th houses.",
+    "asc": 6,
+    "signs": { "sun": 9, "moon": 9, "mars": 9, "mercury": 9, "jupiter": 5, "venus": 9, "saturn": 5, "rahu": 3 },
+    "degrees": { "sun": 17.01, "moon": 16.57, "mars": 25.83, "mercury": 6.23, "jupiter": 27.46, "venus": 7.86, "saturn": 12.44, "rahu": 20.32 }
+  },
+  "sunapha": {
+    "note": "Venus in the 2nd from the Moon.",
+    "asc": 4,
+    "signs": { "sun": 2, "moon": 1, "mars": 1, "mercury": 3, "jupiter": 1, "venus": 2, "saturn": 1, "rahu": 5 },
+    "degrees": { "sun": 16.67, "moon": 4.3, "mars": 0.06, "mercury": 15.58, "jupiter": 11.3, "venus": 4.77, "saturn": 3.34, "rahu": 27.5 }
+  },
+  "anapha": {
+    "note": "Mercury, Saturn in the 12th from the Moon.",
+    "asc": 2,
+    "signs": { "sun": 8, "moon": 9, "mars": 4, "mercury": 8, "jupiter": 3, "venus": 6, "saturn": 8, "rahu": 12 },
+    "degrees": { "sun": 26.44, "moon": 19.25, "mars": 27.51, "mercury": 2.34, "jupiter": 9.48, "venus": 18.8, "saturn": 19.44, "rahu": 12.96 }
+  },
+  "durudhara": {
+    "note": "Jupiter in the 2nd and Venus in the 12th from the Moon.",
+    "asc": 5,
+    "signs": { "sun": 8, "moon": 7, "mars": 7, "mercury": 7, "jupiter": 8, "venus": 6, "saturn": 3, "rahu": 2 },
+    "degrees": { "sun": 4.99, "moon": 1.65, "mars": 10.66, "mercury": 23.53, "jupiter": 11.29, "venus": 14.36, "saturn": 15.96, "rahu": 19.73 }
+  },
+  "kemadruma": {
+    "note": "No planets in the 2nd or 12th from the Moon, and no planets in kendras from the Moon or ascendant to cancel it.",
+    "asc": 10,
+    "signs": { "sun": 2, "moon": 7, "mars": 2, "mercury": 2, "jupiter": 11, "venus": 2, "saturn": 5, "rahu": 4 },
+    "degrees": { "sun": 14.44, "moon": 26.56, "mars": 3.53, "mercury": 20.71, "jupiter": 3.26, "venus": 28.38, "saturn": 7.22, "rahu": 17.45 }
+  },
+  "vesi": {
+    "note": "Mercury, Jupiter, Venus, Saturn in the 2nd from the Sun.",
+    "asc": 10,
+    "signs": { "sun": 12, "moon": 1, "mars": 12, "mercury": 1, "jupiter": 1, "venus": 1, "saturn": 1, "rahu": 10 },
+    "degrees": { "sun": 19.03, "moon": 1.82, "mars": 16.6, "mercury": 8.79, "jupiter": 6.86, "venus": 27.75, "saturn": 5.27, "rahu": 12.99 }
+  },
+  "vasi": {
+    "note": "Venus in the 12th from the Sun.",
+    "asc": 12,
+    "signs": { "sun": 6, "moon": 8, "mars": 6, "mercury": 6, "jupiter": 4, "venus": 5, "saturn": 6, "rahu": 7 },
+    "degrees": { "sun": 26.37, "moon": 0.11, "mars": 17.78, "mercury": 22.25, "jupiter": 2, "venus": 20.43, "saturn": 14.08, "rahu": 25.77 }
+  },
+  "ubhayachari": {
+    "note": "Mercury in the 2nd and Mars, Jupiter, Saturn in the 12th from the Sun.",
+    "asc": 4,
+    "signs": { "sun": 2, "moon": 1, "mars": 1, "mercury": 3, "jupiter": 1, "venus": 2, "saturn": 1, "rahu": 5 },
+    "degrees": { "sun": 16.67, "moon": 4.3, "mars": 0.06, "mercury": 15.58, "jupiter": 11.3, "venus": 4.77, "saturn": 3.34, "rahu": 27.5 }
+  },
+  "adhi": {
+    "note": "Jupiter, Venus in the 6th–8th from the Moon.",
+    "asc": 8,
+    "signs": { "sun": 6, "moon": 3, "mars": 5, "mercury": 6, "jupiter": 8, "venus": 9, "saturn": 8, "rahu": 1 },
+    "degrees": { "sun": 26.58, "moon": 2.98, "mars": 28.65, "mercury": 0.47, "jupiter": 16.14, "venus": 18.29, "saturn": 26.79, "rahu": 7.42 }
+  },
+  "amala": {
+    "note": "Jupiter in the 10th from the ascendant.",
+    "asc": 4,
+    "signs": { "sun": 2, "moon": 1, "mars": 1, "mercury": 3, "jupiter": 1, "venus": 2, "saturn": 1, "rahu": 5 },
+    "degrees": { "sun": 16.67, "moon": 4.3, "mars": 0.06, "mercury": 15.58, "jupiter": 11.3, "venus": 4.77, "saturn": 3.34, "rahu": 27.5 }
+  },
+  "saraswati": {
+    "note": "Jupiter, Venus and Mercury all occupy kendras, trikonas or the 2nd, with Jupiter in reasonable dignity.",
+    "asc": 10,
+    "signs": { "sun": 12, "moon": 1, "mars": 12, "mercury": 1, "jupiter": 1, "venus": 1, "saturn": 1, "rahu": 10 },
+    "degrees": { "sun": 19.03, "moon": 1.82, "mars": 16.6, "mercury": 8.79, "jupiter": 6.86, "venus": 27.75, "saturn": 5.27, "rahu": 12.99 }
+  },
+  "vasumati": {
+    "note": "Mercury, Jupiter and Venus all occupy upachaya houses (3, 6, 10, 11).",
+    "asc": 4,
+    "signs": { "sun": 6, "moon": 6, "mars": 6, "mercury": 6, "jupiter": 6, "venus": 6, "saturn": 6, "rahu": 2 },
+    "degrees": { "sun": 8.81, "moon": 4.99, "mars": 15.49, "mercury": 28.19, "jupiter": 25.1, "venus": 19.4, "saturn": 26.91, "rahu": 7.33 }
+  },
+  "shubha-kartari": {
+    "note": "Only benefics occupy the houses on either side of the ascendant.",
+    "asc": 11,
+    "signs": { "sun": 9, "moon": 10, "mars": 9, "mercury": 8, "jupiter": 12, "venus": 9, "saturn": 11, "rahu": 1 },
+    "degrees": { "sun": 3.76, "moon": 13.01, "mars": 12.56, "mercury": 26.48, "jupiter": 9.76, "venus": 16.15, "saturn": 11.65, "rahu": 4.7 }
+  },
+  "papa-kartari": {
+    "note": "Only malefics occupy the houses on either side of the ascendant.",
+    "asc": 8,
+    "signs": { "sun": 8, "moon": 7, "mars": 7, "mercury": 8, "jupiter": 8, "venus": 6, "saturn": 8, "rahu": 9 },
+    "degrees": { "sun": 17.88, "moon": 27.98, "mars": 7.36, "mercury": 4.49, "jupiter": 7.25, "venus": 12.32, "saturn": 19.72, "rahu": 8.13 }
+  },
+  "shakata": {
+    "note": "The Moon is in the 6th from Jupiter and not in a kendra from the ascendant.",
+    "asc": 6,
+    "signs": { "sun": 7, "moon": 8, "mars": 6, "mercury": 8, "jupiter": 3, "venus": 6, "saturn": 6, "rahu": 7 },
+    "degrees": { "sun": 16.8, "moon": 23.19, "mars": 14.55, "mercury": 11.08, "jupiter": 12.07, "venus": 12.51, "saturn": 26.09, "rahu": 17.65 }
+  },
+  "pravrajya": {
+    "note": "Moon, Mars, Jupiter, Saturn share one sign.",
+    "asc": 4,
+    "signs": { "sun": 2, "moon": 1, "mars": 1, "mercury": 3, "jupiter": 1, "venus": 2, "saturn": 1, "rahu": 5 },
+    "degrees": { "sun": 16.67, "moon": 4.3, "mars": 0.06, "mercury": 15.58, "jupiter": 11.3, "venus": 4.77, "saturn": 3.34, "rahu": 27.5 }
+  },
+  "sankhya-gola": {
+    "note": "The seven planets occupy 1 sign.",
+    "asc": 4,
+    "signs": { "sun": 6, "moon": 6, "mars": 6, "mercury": 6, "jupiter": 6, "venus": 6, "saturn": 6, "rahu": 2 },
+    "degrees": { "sun": 8.81, "moon": 4.99, "mars": 15.49, "mercury": 28.19, "jupiter": 25.1, "venus": 19.4, "saturn": 26.91, "rahu": 7.33 }
+  },
+  "sankhya-yuga": {
+    "note": "The seven planets occupy 2 signs.",
+    "asc": 10,
+    "signs": { "sun": 12, "moon": 1, "mars": 12, "mercury": 1, "jupiter": 1, "venus": 1, "saturn": 1, "rahu": 10 },
+    "degrees": { "sun": 19.03, "moon": 1.82, "mars": 16.6, "mercury": 8.79, "jupiter": 6.86, "venus": 27.75, "saturn": 5.27, "rahu": 12.99 }
+  },
+  "sankhya-shoola": {
+    "note": "The seven planets occupy 3 signs.",
+    "asc": 4,
+    "signs": { "sun": 2, "moon": 1, "mars": 1, "mercury": 3, "jupiter": 1, "venus": 2, "saturn": 1, "rahu": 5 },
+    "degrees": { "sun": 16.67, "moon": 4.3, "mars": 0.06, "mercury": 15.58, "jupiter": 11.3, "venus": 4.77, "saturn": 3.34, "rahu": 27.5 }
+  },
+  "sankhya-kedara": {
+    "note": "The seven planets occupy 4 signs.",
+    "asc": 12,
+    "signs": { "sun": 6, "moon": 8, "mars": 6, "mercury": 6, "jupiter": 4, "venus": 5, "saturn": 6, "rahu": 7 },
+    "degrees": { "sun": 26.37, "moon": 0.11, "mars": 17.78, "mercury": 22.25, "jupiter": 2, "venus": 20.43, "saturn": 14.08, "rahu": 25.77 }
+  },
+  "sankhya-pasha": {
+    "note": "The seven planets occupy 5 signs.",
+    "asc": 8,
+    "signs": { "sun": 6, "moon": 3, "mars": 5, "mercury": 6, "jupiter": 8, "venus": 9, "saturn": 8, "rahu": 1 },
+    "degrees": { "sun": 26.58, "moon": 2.98, "mars": 28.65, "mercury": 0.47, "jupiter": 16.14, "venus": 18.29, "saturn": 26.79, "rahu": 7.42 }
+  },
+  "sankhya-dama": {
+    "note": "The seven planets occupy 6 signs.",
+    "asc": 2,
+    "signs": { "sun": 3, "moon": 6, "mars": 6, "mercury": 2, "jupiter": 10, "venus": 4, "saturn": 5, "rahu": 4 },
+    "degrees": { "sun": 13.78, "moon": 26.13, "mars": 28.68, "mercury": 15.84, "jupiter": 3.37, "venus": 7.69, "saturn": 27.76, "rahu": 22.12 }
+  },
+  "sankhya-veena": {
+    "note": "The seven planets occupy 7 signs.",
+    "asc": 3,
+    "signs": { "sun": 7, "moon": 3, "mars": 4, "mercury": 6, "jupiter": 2, "venus": 8, "saturn": 5, "rahu": 8 },
+    "degrees": { "sun": 2.89, "moon": 5.72, "mars": 7.04, "mercury": 17.33, "jupiter": 2.67, "venus": 28.05, "saturn": 1.48, "rahu": 11.38 }
+  },
+  "guru-chandala": {
+    "note": "Jupiter shares a sign with Rahu.",
+    "asc": 1,
+    "signs": { "sun": 8, "moon": 9, "mars": 8, "mercury": 8, "jupiter": 9, "venus": 8, "saturn": 8, "rahu": 9 },
+    "degrees": { "sun": 28.59, "moon": 5.12, "mars": 16.9, "mercury": 26.4, "jupiter": 22.57, "venus": 7.5, "saturn": 22.77, "rahu": 10.23 }
+  },
+  "angaraka": {
+    "note": "Mars shares a sign with Rahu.",
+    "asc": 6,
+    "signs": { "sun": 9, "moon": 9, "mars": 9, "mercury": 9, "jupiter": 8, "venus": 10, "saturn": 10, "rahu": 9 },
+    "degrees": { "sun": 18.11, "moon": 8.64, "mars": 11.12, "mercury": 26.54, "jupiter": 11.95, "venus": 17.74, "saturn": 8.32, "rahu": 3.85 }
+  }
+}

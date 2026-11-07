@@ -22,7 +22,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
+      - run: npm run content:check
+      - run: npm run verify:ephemeris
       - run: npm test
       - run: npm run build:pages
+      - name: Check that @vedic/engine packs and imports (does not publish)
+        run: npm run pack -w @vedic/engine
       - run: npx playwright install --with-deps chromium
       - run: npm run smoke

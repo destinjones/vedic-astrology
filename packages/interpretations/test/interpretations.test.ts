@@ -7,6 +7,7 @@ import {
   PLANETS,
   PLANET_IN_HOUSE,
   PLANET_IN_SIGN,
+  PLANET_IN_NAKSHATRA_TEXT,
   detectDoshas,
   detectYogas,
   fromEngineChart,
@@ -58,11 +59,19 @@ describe('knowledge base completeness', () => {
     expect(count).toBe(35);
     expect(Object.keys(CONJUNCTIONS)).toHaveLength(35);
   });
-  it('composes all 243 planet-in-nakshatra readings', () => {
+  it('has a reading for all 243 planet-in-nakshatra cells, written or composed', () => {
     for (const p of PLANETS) for (let n = 1; n <= 27; n++) {
       const r = getPlanetInNakshatra(p, n, 2);
-      expect(r.detail.length).toBe(4);
+      const written = PLANET_IN_NAKSHATRA_TEXT[p]?.[n];
+      // composed: three paragraphs plus the pada; written: the contributor's paragraphs plus the pada
+      expect(r.detail.length).toBe(written ? written.detail.length + 1 : 4);
+      if (written) expect(r.summary).toBe(written.summary);
     }
+  });
+  it('uses a hand-written nakshatra reading only in English', () => {
+    const written = PLANET_IN_NAKSHATRA_TEXT.moon![4];
+    expect(getPlanetInNakshatra('moon', 4).summary).toBe(written.summary);
+    expect(getPlanetInNakshatra('moon', 4, undefined, { locale: 'hi' }).summary).not.toBe(written.summary);
   });
 });
 

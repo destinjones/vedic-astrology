@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../schema/planet-in-house.schema.json
+planet: saturn
+readings:
+  "1":
+    summary: "Saturn in the 1st: a serious, disciplined personality."
+    detail: You are responsible and mature, but early life may be hard. Health and confidence improve with age. In its own or exalted sign this placement is powerful.
+    strengths: [discipline, maturity, endurance, responsibility]
+    challenges: [delays, low vitality early, pessimism]
+    score: -1
+
+  "2":
+    summary: "Saturn in the 2nd: slow wealth and serious speech."
+    detail: Wealth comes slowly but steadily. Speech is reserved. Family life may involve duty or hardship.
+    strengths: [financial discipline, reserved speech, long-term wealth]
+    challenges: [delayed wealth, family burdens, dental issues]
+    score: -1
+
+  "3":
+    summary: "Saturn in the 3rd: persistent effort and courage."
+    detail: Saturn is strong in the 3rd. You work hard and succeed through persistence. Siblings may be few or distant.
+    strengths: [persistence, courage, discipline, success through effort]
+    challenges: [sibling issues, pessimistic communication]
+    score: 2
+
+  "4":
+    summary: "Saturn in the 4th: duty at home and late happiness."
+    detail: Saturn in the 4th can bring a disciplined home, property later in life and emotional reserve. The mother may face hardship.
+    strengths: [property later in life, discipline at home, responsibility]
+    challenges: [emotional coldness, domestic burdens, delayed happiness]
+    score: -1
+
+  "5":
+    summary: "Saturn in the 5th: serious intelligence and delayed children."
+    detail: Saturn in the 5th gives a serious, focused intelligence but may delay children or romance.
+    strengths: [focused intelligence, discipline in study, responsible parenting]
+    challenges: [delayed children, lack of joy, romantic difficulties]
+    score: -1
+
+  "6":
+    summary: "Saturn in the 6th: victory through persistence."
+    detail: Saturn is excellent in the 6th. You defeat enemies, handle debt and succeed in service through hard work.
+    strengths: [victory over enemies, hard work, service, endurance]
+    challenges: [chronic health issues, overwork]
+    score: 3
+
+  "7":
+    summary: "Saturn in the 7th: delayed or serious partnerships."
+    detail: Saturn in the 7th can delay marriage or bring a mature, older or serious spouse. Partnerships are lasting but require work. Saturn has directional strength here.
+    strengths: [lasting marriage, mature partner, serious business partnerships]
+    challenges: [delayed marriage, coldness in relationships]
+    score: 0
+
+  "8":
+    summary: "Saturn in the 8th: long life and deep endurance."
+    detail: Saturn is the significator of longevity, so the 8th often gives a long life but with hardships. Research and occult interests are possible.
+    strengths: [longevity, endurance, research, occult interest]
+    challenges: [chronic illness, delays, fear]
+    score: -1
+
+  "9":
+    summary: "Saturn in the 9th: disciplined faith."
+    detail: Saturn in the 9th gives a serious approach to religion, philosophy and law. Fortune comes late. The father may be strict.
+    strengths: [disciplined faith, ethics, long-term fortune]
+    challenges: [delayed fortune, strict father, doubt]
+    score: 0
+
+  "10":
+    summary: "Saturn in the 10th: hard-won career success."
+    detail: Saturn in the 10th gives a slow but powerful rise in career, often in government, management, law or service. Reputation is built on hard work.
+    strengths: [career success, authority, discipline, lasting reputation]
+    challenges: [delays, heavy responsibility, fear of failure]
+    score: 2
+
+  "11":
+    summary: "Saturn in the 11th: steady gains and loyal friends."
+    detail: Saturn in the 11th gives steady income, fulfilled ambitions later in life and loyal, often older friends.
+    strengths: [steady gains, loyal friends, long-term success]
+    challenges: [delayed gains, few friends]
+    score: 3
+
+  "12":
+    summary: "Saturn in the 12th: spiritual discipline and isolation."
+    detail: Saturn in the 12th favours spiritual practice, foreign residence and service in hospitals or charities. Expenses and loneliness may arise.
+    strengths: [spiritual discipline, service, foreign residence]
+    challenges: [isolation, expenses, sleep issues]
+    score: -1

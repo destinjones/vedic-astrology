@@ -1,0 +1,11 @@
+body:
+  - type: markdown
+    attributes:
+      value: Ask anything about a chart, a reading or how something is calculated. Please do not post someone else's birth details without their permission.
+  - type: textarea
+    id: question
+    attributes: { label: Your question }
+    validations: { required: true }
+  - type: input
+    id: link
+    attributes: { label: Share link (optional), description: "The link from Share in the app, if it helps." }

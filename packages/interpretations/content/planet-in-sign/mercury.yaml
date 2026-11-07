@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../schema/planet-in-sign.schema.json
+planet: mercury
+readings:
+  aries:
+    summary: "Mercury in Aries: a quick, decisive mind."
+    detail: Thinking is fast and direct. You speak your mind, make decisions quickly and enjoy debate. Mars and Mercury are not friends, so speech can be sharp and impatient.
+    strengths: [quick thinking, decisiveness, directness, originality]
+    challenges: [impatience, sharp speech, hasty decisions]
+
+  taurus:
+    summary: "Mercury in Taurus: a practical, steady mind."
+    detail: Thinking is slow but thorough, and you remember what you learn. You have good business sense and a pleasant voice. Changing your mind is not easy.
+    strengths: [common sense, business acumen, good memory, pleasant speech]
+    challenges: [stubbornness, slow learning, materialistic thinking]
+
+  gemini:
+    summary: "Mercury in Gemini: brilliant, versatile and communicative."
+    detail: Mercury rules Gemini and is very comfortable here. You are curious, witty and skilled with language, and you can juggle many tasks at once. Writing, media, trade and teaching suit you. Depth and focus are the lessons.
+    strengths: [eloquence, versatility, quick learning, wit]
+    challenges: [restlessness, superficiality, nervousness]
+
+  cancer:
+    summary: "Mercury in Cancer: an emotional, intuitive mind."
+    detail: Thinking is coloured by feelings and memory. You understand people well and have a good memory, but objectivity can suffer. Mercury and the Moon are uneasy together.
+    strengths: [emotional intelligence, memory, intuition, imagination]
+    challenges: [subjectivity, moodiness, indecision]
+
+  leo:
+    summary: "Mercury in Leo: a confident, creative communicator."
+    detail: You speak with authority and flair. You are good at presenting, persuading and creative writing. Pride in your opinions can make it hard to listen.
+    strengths: [confidence, creative expression, leadership in ideas, persuasion]
+    challenges: [arrogance, dogmatism, showing off]
+
+  virgo:
+    summary: "Exalted Mercury: an analytical, precise intellect."
+    detail: Mercury is exalted and in its own sign in Virgo. The mind is sharp, organised and discerning, with a talent for analysis, language, accounting and science. Over-thinking and worry are the main risks.
+    strengths: [analysis, precision, problem-solving, communication]
+    challenges: [over-criticism, anxiety, perfectionism]
+
+  libra:
+    summary: "Mercury in Libra: a balanced, diplomatic mind."
+    detail: You weigh both sides and speak with tact and charm. You are good at negotiation, law, design and partnership work. Indecision is the shadow.
+    strengths: [diplomacy, fairness, aesthetic sense, tact]
+    challenges: [indecision, people-pleasing, superficial agreement]
+
+  scorpio:
+    summary: "Mercury in Scorpio: a probing, secretive mind."
+    detail: Thinking is deep and investigative. You are drawn to research, psychology and hidden knowledge. Speech can be cutting and you may keep thoughts to yourself.
+    strengths: [research skill, insight, strategic thinking, perception]
+    challenges: [secrecy, sarcasm, suspicion]
+
+  sagittarius:
+    summary: "Mercury in Sagittarius: a broad, philosophical mind."
+    detail: You think in big ideas and enjoy teaching and debating beliefs. Details may be overlooked. Mercury is opposite its own sign here, so communication can be blunt or careless.
+    strengths: [broad vision, teaching ability, honesty, philosophical thinking]
+    challenges: [carelessness, tactlessness, overgeneralising]
+
+  capricorn:
+    summary: "Mercury in Capricorn: a practical, structured mind."
+    detail: You think strategically and communicate concisely. Business, management, administration and engineering suit you. Thinking can become rigid or pessimistic.
+    strengths: [strategy, practicality, organisation, patience]
+    challenges: [rigidity, pessimism, dry communication]
+
+  aquarius:
+    summary: "Mercury in Aquarius: an inventive, scientific mind."
+    detail: You think in systems and are drawn to technology, science and social ideas. You are original and objective. You may seem detached or eccentric.
+    strengths: [originality, scientific thinking, objectivity, networking]
+    challenges: [detachment, stubborn opinions, eccentricity]
+
+  pisces:
+    summary: "Debilitated Mercury: an intuitive rather than logical mind."
+    detail: Mercury is weakest in Pisces, where logic gives way to imagination. You may struggle with detail, numbers or clear expression, but you have strong intuition, creativity and empathy. Poetry, music and spiritual study suit you. Neecha-bhanga is common and can give real brilliance.
+    strengths: [imagination, intuition, empathy, creative thinking]
+    challenges: [confusion, indecision, poor attention to detail]

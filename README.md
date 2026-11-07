@@ -76,6 +76,16 @@ Then open <http://localhost:5173/>. The chart itself is at `/app/`.
 
 `npm run build:pages && npm run smoke` builds the site as GitHub Pages serves it and checks it in a real browser. `npm run demos` records the GIFs again from that build, and `npm run og` renders the famous charts' link-preview cards into `apps/web/public/og/` (build again afterwards so their `/c/<id>/` pages are made).
 
+## Help build it
+
+You do not need to code. Most of the open work is writing: 242 nakshatra readings are waiting for a human hand, every yoga citation needs checking against a printed text, and seven languages have no readings yet. Start with [CONTRIBUTING.md](CONTRIBUTING.md), pick a [good first issue](https://github.com/destinjones/vedic-astrology/labels/good%20first%20issue), or ask in [Discussions](https://github.com/destinjones/vedic-astrology/discussions). Everyone who helps is named on the [credits page](https://destinjones.github.io/vedic-astrology/credits/).
+
+For developers: the engine's [API reference](https://destinjones.github.io/vedic-astrology/docs/engine/), the [decision records](docs/adr/), [how the ephemeris is built and verified](docs/ephemeris.md), and [who maintains what](MAINTAINERS.md).
+
+## Support the project
+
+Jyotisha Explorer is free, has no ads and will never sell your data, so it runs on goodwill. If it has been useful to you, you can sponsor it through **GitHub Sponsors** or **Open Collective** (links coming soon). Sponsorship pays for the time to review contributions and keep the ephemeris current.
+
 ## License
 
 [AGPL-3.0-or-later](LICENSE), because the Swiss Ephemeris is AGPL or paid. If you run a changed copy as a website, you must offer your visitors its source. See [NOTICE](NOTICE) for everyone this is built on, including place search by [Open-Meteo](https://open-meteo.com/) and [GeoNames](https://www.geonames.org/) (CC BY 4.0).
