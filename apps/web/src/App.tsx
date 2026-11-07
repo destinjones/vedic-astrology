@@ -120,9 +120,12 @@ export default function App() {
             <p>Vedic birth chart, every placement, every varga</p>
           </div>
         </a>
-        {chart && !editing && (
-          <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>
-        )}
+        <div className="topbar-actions">
+          <a className="btn-ghost" href={`${import.meta.env.BASE_URL}match/`}>Compatibility</a>
+          {chart && !editing && (
+            <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>
+          )}
+        </div>
       </header>
 
       {chart?.meta.source === 'mock' && (

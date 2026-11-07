@@ -16,3 +16,4 @@ export { YOGA_DEFINITIONS, detectYogas } from './yogas';
 export { DOSHA_DEFINITIONS, detectDoshas, detectManglik, detectKaalSarp } from './doshas';
 export * from './interpret';
 export { fromEngineChart } from './adapter';
+export * from './matching';
