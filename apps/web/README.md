@@ -17,6 +17,18 @@ npm run build -w @vedic/web
 - 3D sky view (three.js, lazy-loaded when scrolled into view): the Blender wheel and graha models, each graha tethered to its exact sidereal longitude, Lagna beam, click-to-select.
 - Blender art from `assets/3d` (graha renders, rashi and nakshatra medallions, hero and cosmos backgrounds) in the landing page and detail panels.
 
+## Browser storage
+
+Everything a person enters stays in `localStorage`; there are no accounts and no server.
+
+| Key | Holds |
+| --- | --- |
+| `vedic.tabs.v1` | `Workspace` from `src/lib/tabs.ts`: `{ tabs, activeId, archived }`. Each `Tab` carries its `input`, `notes`, `log`, and view settings. Read and write through `loadWorkspace` / `storeWorkspace` and add new per-person fields to `Tab` with a parser branch in `parseTab`. |
+| `vedic.profiles.v1` | Saved charts, `Profile[]`. |
+| `vedic.lastInput` | The last birth details entered, to prefill the form. |
+
+Share links look like `app/#n=Asha&d=1985-03-02&t=14:20&p=Pondicherry&lat=11.9416&lon=79.8083&tz=Asia/Kolkata` (`ay=` only when not Lahiri). Opening one opens or switches to its tab, then clears the fragment.
+
 ## Layout
 
 | Path | Role |
@@ -26,5 +38,9 @@ npm run build -w @vedic/web
 | `src/lib/readings.ts` | Loads `@vedic/interpretations` as its own chunk. `src/lib/insights.ts` is the fallback for the preview calculator. |
 | `src/components/TimingSection.tsx` | Runs the `@vedic/timing` dashboard on the same engine and chart. |
 | `src/components/` | Charts, wheel, detail panel, table, dasha timeline, form. |
+| `src/lib/tabs.ts` | Workspace tabs (one per person or client): open tabs, closed tabs, per-tab notes and client history (`LogEntry`: question, prediction with outcome, note). |
+| `src/lib/profiles.ts` | Saved charts and share links (birth details in the URL fragment, never sent to the server). |
+| `src/lib/backup.ts` | One-file backup and merge-restore of tabs, history and saved charts. |
+| `src/lib/walkthrough.ts` | Steps for present mode's guided walkthrough (`src/components/Presenter.tsx`). |
 
 `vite.config.ts` copies `swisseph.wasm` / `swisseph.data` to `dist/wasm/` because the library resolves them at runtime. It also serves `<repo>/assets/3d` at `/cosmos/` in dev and copies it to `dist/cosmos/` on build; `src/data/art.ts` maps ids to those files via `assets/3d/manifest.json`.

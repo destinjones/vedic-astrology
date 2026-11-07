@@ -1,9 +1,15 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { BirthInput, Chart, PlanetId, VargaId } from './types/chart';
 import type { ChartStyle, Selection } from './types/ui';
 import { computeChart } from './engine';
 import { BirthForm } from './components/BirthForm';
 import { ChartActions, SavedCharts } from './components/Profiles';
+import { TabBar } from './components/TabBar';
+import { Presenter } from './components/Presenter';
+import { buildSteps, type Step } from './lib/walkthrough';
+import { blankTab, hasContent, labelFor, loadWorkspace, MAX_ARCHIVED, MAX_TABS, storeWorkspace, type Tab, type Workspace } from './lib/tabs';
+import { backupFileName, downloadText, exportAll, restoreAll } from './lib/backup';
+import { ClientHistory } from './components/ClientHistory';
 import { loadProfiles, parseShareHash, sameBirth, storeProfiles, upsertProfile, type Profile } from './lib/profiles';
 import { NorthChart } from './components/NorthChart';
 import { SouthChart } from './components/SouthChart';
@@ -68,20 +74,50 @@ export default function App() {
   const [formKey, setFormKey] = useState(0);
   // the saved chart whose details are open in the form, so fixing its time updates it in place
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [ws, setWs] = useState<Workspace>(loadWorkspace);
+  const [presenting, setPresenting] = useState(false);
+  // worked-out charts per tab, so switching tabs is instant
+  const charts = useRef(new Map<string, Chart>());
+  const wsRef = useRef(ws);
+  wsRef.current = ws;
+  const activeTab = ws.tabs.find((t) => t.id === ws.activeId) ?? ws.tabs[0];
+
+  useEffect(() => { storeWorkspace(ws); }, [ws]);
+  const patchTab = (id: string, patch: Partial<Tab>) =>
+    setWs((w) => ({ ...w, tabs: w.tabs.map((t) => (t.id === id ? { ...t, ...patch } : t)) }));
+
+  // the chart style and varga are remembered per tab
+  useEffect(() => {
+    if (activeTab.style !== style || activeTab.varga !== vargaId) patchTab(activeTab.id, { style, varga: vargaId });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [style, vargaId]);
 
   const saveProfiles = (list: Profile[]) => { setProfiles(list); return storeProfiles(list); };
 
   // keep several open tabs in step
   useEffect(() => {
-    const onStorage = (e: StorageEvent) => { if (e.key === null || e.key === 'vedic.profiles.v1') setProfiles(loadProfiles()); };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === null || e.key === 'vedic.profiles.v1') setProfiles(loadProfiles());
+      // another window changed the tabs: take its tabs, notes and history, but stay on this window's tab
+      if (e.key === 'vedic.tabs.v1') {
+        const other = loadWorkspace();
+        const keepActive = other.tabs.some((t) => t.id === wsRef.current.activeId);
+        wsRef.current = { ...other, activeId: keepActive ? wsRef.current.activeId : other.activeId };
+        setWs(wsRef.current);
+      }
+    };
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  const run = async (i: BirthInput) => {
+  const run = async (i: BirthInput, tabId: string = wsRef.current.activeId) => {
     setBusy(true);
     try {
       const c = await computeChart(i);
+      charts.current.set(tabId, c);
+      setWs((w) => ({ ...w, tabs: w.tabs.map((t) => (t.id === tabId ? { ...t, input: i, label: t.named ? t.label : labelFor(i) } : t)) }));
+      // the person moved to another tab while this one was working
+      if (tabId !== wsRef.current.activeId) return;
       // a share link in the address bar stays only while its own chart is open
       const linked = parseShareHash(location.hash);
       if (linked && !sameBirth(linked, i)) history.replaceState(null, '', location.pathname + location.search);
@@ -113,14 +149,138 @@ export default function App() {
   // and a share link (/app/#d=…&t=…) opens the chart it carries.
   useEffect(() => {
     const open = () => {
-      if (location.hash === '#sample') return void run(DEFAULT_INPUT);
-      const linked = parseShareHash(location.hash);
-      if (linked) void run(linked);
+      const linked = location.hash === '#sample' ? DEFAULT_INPUT : parseShareHash(location.hash);
+      if (linked) {
+        openInTab(linked);
+        // the tab remembers it now; a reload should show the tabs as they were left
+        history.replaceState(null, '', location.pathname + location.search);
+      }
+      return !!linked;
     };
-    open();
+    // a link wins; otherwise reopen the chart in the tab that was open last time
+    if (!open() && activeTab.input) void run(activeTab.input, activeTab.id);
     window.addEventListener('hashchange', open);
     return () => window.removeEventListener('hashchange', open);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /** Shows a tab, working out its chart if this visit has not done so yet. */
+  const switchTab = (id: string) => {
+    const tab = wsRef.current.tabs.find((t) => t.id === id);
+    if (!tab) return;
+    wsRef.current = { ...wsRef.current, activeId: id };
+    setWs((w) => ({ ...w, activeId: id }));
+    setEditingId(null);
+    setInput(tab.input ?? loadInput());
+    setFormKey((k) => k + 1);
+    setStyle(tab.style ?? 'north');
+    setVargaId(tab.varga ?? 'D1');
+    setSelection({ kind: 'asc' });
+    const cached = charts.current.get(id);
+    setChart(cached ?? null);
+    setEditing(!cached && !tab.input);
+    if (!cached && tab.input) void run(tab.input, id);
+    window.scrollTo({ top: 0 });
+  };
+  const newTab = (then?: (id: string) => void) => {
+    const w = wsRef.current;
+    if (w.tabs.length >= MAX_TABS) return null;
+    const tab = blankTab(w.tabs.length + 1);
+    // wsRef is read again before React re-renders, so update it now too
+    wsRef.current = { ...w, tabs: [...w.tabs, tab] };
+    setWs(wsRef.current);
+    switchTab(tab.id);
+    then?.(tab.id);
+    return tab.id;
+  };
+  const closeTab = (id: string) => {
+    const w = wsRef.current;
+    const tab = w.tabs.find((t) => t.id === id);
+    if (!tab) return;
+    charts.current.delete(id);
+    let rest = w.tabs.filter((t) => t.id !== id);
+    if (!rest.length) rest = [blankTab(1)];
+    const idx = w.tabs.findIndex((t) => t.id === id);
+    const nextActive = id === w.activeId ? rest[Math.min(idx, rest.length - 1)].id : w.activeId;
+    // closing keeps the chart, notes and history under Closed tabs
+    const archived = hasContent(tab) ? [tab, ...w.archived].slice(0, MAX_ARCHIVED) : w.archived;
+    wsRef.current = { tabs: rest, activeId: w.activeId, archived };
+    setWs(wsRef.current);
+    if (nextActive !== w.activeId) switchTab(nextActive);
+  };
+  const reopenTab = (tab: Tab) => {
+    const w = wsRef.current;
+    const archived = w.archived.filter((t) => t.id !== tab.id);
+    // an empty tab in front makes way for the reopened one
+    const active = w.tabs.find((t) => t.id === w.activeId);
+    const base = active && !hasContent(active) ? w.tabs.filter((t) => t.id !== active.id) : w.tabs;
+    if (base.length >= MAX_TABS) return;
+    wsRef.current = { tabs: [...base, tab], activeId: w.activeId, archived };
+    setWs(wsRef.current);
+    switchTab(tab.id);
+  };
+  const forgetTab = (tab: Tab) => setWs((w) => ({ ...w, archived: w.archived.filter((t) => t.id !== tab.id) }));
+  const backup = () => downloadText(exportAll(wsRef.current, profiles), backupFileName());
+  const restore = (text: string) => {
+    try {
+      const r = restoreAll(wsRef.current, profiles, text);
+      wsRef.current = r.ws;
+      setWs(r.ws);
+      saveProfiles(r.profiles);
+      if (!r.tabsAdded && !r.chartsAdded) return 'Everything in that backup is already here.';
+      return `Restored ${r.tabsAdded} tab${r.tabsAdded === 1 ? '' : 's'} and ${r.chartsAdded} saved chart${r.chartsAdded === 1 ? '' : 's'}.`;
+    } catch {
+      return 'That file is not a Jyotisha Explorer backup.';
+    }
+  };
+
+  /** Opens a chart: its tab if one is open, this tab if empty, otherwise a new tab. */
+  function openInTab(i: BirthInput) {
+    const w = wsRef.current;
+    const open = w.tabs.find((t) => t.input && sameBirth(t.input, i));
+    if (open) {
+      if (open.id !== w.activeId) switchTab(open.id);
+      else if (!charts.current.get(open.id)) void run(i, open.id);
+      return;
+    }
+    const active = w.tabs.find((t) => t.id === w.activeId);
+    if (active && !active.input) return void run(i, active.id);
+    if (!newTab((id) => void run(i, id))) void run(i, w.activeId);
+  }
+
+  /* ---------- present mode: full screen and a guided walkthrough ---------- */
+  const enteredFullscreen = useRef(false);
+  const vargaBeforePresent = useRef<VargaId>('D1');
+  const startPresent = () => {
+    vargaBeforePresent.current = vargaId;
+    setEditing(false);
+    setPresenting(true);
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().then(() => { enteredFullscreen.current = true; }).catch(() => {});
+  };
+  const stopPresent = useCallback(() => {
+    setPresenting(false);
+    setVargaId(vargaBeforePresent.current);
+    document.querySelectorAll('.present-focus').forEach((n) => n.classList.remove('present-focus'));
+    if (enteredFullscreen.current && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    enteredFullscreen.current = false;
+  }, []);
+  // leaving full screen with the browser's own Esc ends the presentation too
+  useEffect(() => {
+    const onFs = () => { if (!document.fullscreenElement && enteredFullscreen.current) stopPresent(); };
+    document.addEventListener('fullscreenchange', onFs);
+    return () => document.removeEventListener('fullscreenchange', onFs);
+  }, [stopPresent]);
+  const steps = useMemo(() => (chart ? buildSteps(chart, knowledge, !!chart.engineContext) : []), [chart, knowledge]);
+  const showStep = useCallback((st: Step) => {
+    if (st.select) setSelection(st.select);
+    setVargaId(st.varga ?? 'D1');
+    document.querySelectorAll('.present-focus').forEach((n) => n.classList.remove('present-focus'));
+    const el = document.querySelector(st.target);
+    if (el) {
+      el.classList.add('present-focus');
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }, []);
 
   const showSaved = () => {
@@ -151,7 +311,7 @@ export default function App() {
   const sun = chart?.planets.find((p) => p.id === 'sun');
 
   return (
-    <div className="app">
+    <div className={`app ${presenting ? 'is-presenting' : ''}`}>
       <div
         className={`backdrop ${chart ? 'backdrop-cosmos' : 'backdrop-hero'}`}
         aria-hidden
@@ -171,11 +331,22 @@ export default function App() {
         </a>
         {chart && (
           <div className="topbar-actions">
+            <button className="btn-ghost" onClick={startPresent} title="Full screen walkthrough for a client, a screen share or a recording">▶ Present</button>
             <ChartActions input={chart.input} profiles={profiles} onSave={saveCurrent} onShowSaved={showSaved} />
             {!editing && <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>}
           </div>
         )}
       </header>
+
+      <TabBar
+        tabs={ws.tabs}
+        activeId={ws.activeId}
+        busy={busy}
+        onSelect={switchTab}
+        onNew={() => newTab()}
+        onClose={closeTab}
+        onRename={(id, label) => patchTab(id, { label, named: true })}
+      />
 
       {chart?.meta.source === 'mock' && (
         <div className="preview-banner" role="status">
@@ -183,7 +354,11 @@ export default function App() {
         </div>
       )}
 
-      {(editing || !chart) && (
+      {!chart && busy && activeTab.input && (
+        <div className="card tab-loading" role="status">Opening {activeTab.label}'s chart…</div>
+      )}
+
+      {(editing || !chart) && !(busy && !chart && activeTab.input) && (
         <section className={`intake ${chart ? 'intake-compact' : ''}`}>
           {!chart && (
             <div className="intake-copy">
@@ -196,10 +371,14 @@ export default function App() {
               profiles={profiles}
               current={chart?.input}
               busy={busy}
-              onOpen={(p) => { setEditingId(null); void run(p.input); }}
+              onOpen={(p) => { setEditingId(null); openInTab(p.input); }}
               onEdit={editProfile}
               onDelete={(p) => { if (p.id === editingId) setEditingId(null); saveProfiles(profiles.filter((q) => q.id !== p.id)); }}
-              onReplace={saveProfiles}
+              closed={ws.archived}
+              onReopen={reopenTab}
+              onForget={forgetTab}
+              onBackup={backup}
+              onRestore={restore}
             />
             {editingId && (
               <p className="editing-note">
@@ -207,7 +386,7 @@ export default function App() {
                 <button type="button" className="link-btn" onClick={() => setEditingId(null)}>Leave the saved chart as it is</button>
               </p>
             )}
-            <BirthForm key={formKey} initial={input} busy={busy} onSubmit={run} onSample={() => run(DEFAULT_INPUT)} />
+            <BirthForm key={formKey} initial={input} busy={busy} onSubmit={(i) => run(i)} onSample={() => openInTab(DEFAULT_INPUT)} />
           </div>
         </section>
       )}
@@ -298,7 +477,7 @@ export default function App() {
           </div>
 
           {chart.dasha && (
-            <section className="card">
+            <section className="card" id="dasha">
               <div className="card-head"><h3>Vimshottari dasha</h3><span className="muted">click a period to see its sub-periods</span></div>
               <DashaTimeline dasha={chart.dasha} />
             </section>
@@ -314,8 +493,16 @@ export default function App() {
               </WhenVisible>
             </section>
           )}
+
+          <ClientHistory
+            tab={activeTab}
+            onNotes={(notes) => patchTab(activeTab.id, { notes })}
+            onLog={(log) => patchTab(activeTab.id, { log })}
+          />
         </main>
       )}
+
+      {presenting && chart && <Presenter key={activeTab.id} steps={steps} onStep={showStep} onExit={stopPresent} />}
 
       <footer className="foot muted">
         <p>Sidereal zodiac · whole-sign houses · {input.ayanamsa} ayanamsa</p>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { BirthInput } from '../types/chart';
-import { exportProfiles, importProfiles, sameBirth, shareUrl, type Profile } from '../lib/profiles';
+import { sameBirth, shareUrl, type Profile } from '../lib/profiles';
+import type { Tab } from '../lib/tabs';
 
 const fmtDate = (d: string) => {
   const [y, m, day] = d.split('-').map(Number);
@@ -17,39 +18,28 @@ interface ListProps {
   onOpen: (p: Profile) => void;
   onEdit: (p: Profile) => void;
   onDelete: (p: Profile) => void;
-  onReplace: (list: Profile[]) => void;
+  /** Closed tabs, which keep their notes and history */
+  closed: Tab[];
+  onReopen: (t: Tab) => void;
+  onForget: (t: Tab) => void;
+  onBackup: () => void;
+  /** Restores a backup file's text and returns what happened, in words. */
+  onRestore: (text: string) => string;
 }
 
-export function SavedCharts({ profiles, current, busy, onOpen, onEdit, onDelete, onReplace }: ListProps) {
+export function SavedCharts({ profiles, current, busy, onOpen, onEdit, onDelete, closed, onReopen, onForget, onBackup, onRestore }: ListProps) {
   const [note, setNote] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const download = () => {
-    const blob = new Blob([exportProfiles(profiles)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `jyotisha-saved-charts-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  };
-
-  const upload = async (file: File) => {
-    try {
-      const { list, added } = importProfiles(profiles, await file.text());
-      onReplace(list);
-      setNote(added ? `Added ${added} chart${added === 1 ? '' : 's'}.` : 'Those charts are already saved here.');
-    } catch {
-      setNote('That file is not a saved-charts backup.');
-    }
-  };
+  const upload = async (file: File) => setNote(onRestore(await file.text()));
 
   return (
     <div className="saved-charts" id="saved-charts">
       <div className="saved-head">
         <h3>Saved charts</h3>
         <div className="saved-tools">
-          {profiles.length > 0 && <button type="button" className="btn-ghost sm" onClick={download}>Back up</button>}
+          <button type="button" className="btn-ghost sm" onClick={onBackup} title="Download one file with every tab, note, history entry and saved chart">Back up everything</button>
           <button type="button" className="btn-ghost sm" onClick={() => fileRef.current?.click()}>Restore</button>
           <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void upload(f); e.target.value = ''; }} />
         </div>
@@ -81,6 +71,35 @@ export function SavedCharts({ profiles, current, busy, onOpen, onEdit, onDelete,
             );
           })}
         </ul>
+      )}
+      {closed.length > 0 && (
+        <details className="closed-tabs">
+          <summary>Closed tabs ({closed.length}) <small className="muted">kept with their notes and history</small></summary>
+          <ul className="saved-list">
+            {closed.map((t) => (
+              <li key={t.id}>
+                <button type="button" className="saved-open" disabled={busy} onClick={() => onReopen(t)} title={`Reopen ${t.label}`}>
+                  <b>{t.label}</b>
+                  <small className="muted">
+                    {t.input ? `${fmtDate(t.input.date)} · ${t.input.place}` : 'No chart'}
+                    {t.log.length ? ` · ${t.log.length} history entr${t.log.length === 1 ? 'y' : 'ies'}` : ''}
+                    {t.notes.trim() ? ' · notes' : ''}
+                  </small>
+                </button>
+                {confirmId === t.id ? (
+                  <span className="saved-confirm">
+                    <button type="button" className="btn-ghost sm danger" onClick={() => { onForget(t); setConfirmId(null); }}>Delete</button>
+                    <button type="button" className="btn-ghost sm" onClick={() => setConfirmId(null)}>Keep</button>
+                  </span>
+                ) : (
+                  <span className="saved-row-tools">
+                    <button type="button" className="btn-ghost sm" onClick={() => setConfirmId(t.id)} aria-label={`Delete ${t.label} for good`}>✕</button>
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
       {note && <p className="muted saved-note" role="status">{note}</p>}
     </div>
