@@ -4,6 +4,8 @@ import { HOUSES, NAKSHATRAS, PLANET_BY_ID, PLANETS, signInfo, VARGAS } from '../
 import { addSigns, aspectedHouses, DIGNITY_KEY, dignityOf, dignityTone, formatDeg, housesRuledBy } from '../lib/astro';
 import { useI18n } from '../i18n';
 import type { VargaId } from '../types/chart';
+import { LOCALE_BY_CODE } from '@vedic/i18n';
+import { ayanamsaName } from '../i18n/names';
 import { planetReading } from '../lib/insights';
 import { grahaArt, nakshatraArt, rashiArt } from '../data/art';
 import type { Knowledge } from '../lib/readings';
@@ -50,6 +52,7 @@ function Fact({ k, v }: { k: string; v: React.ReactNode }) {
 function PlanetDetail({ chart, varga, id, onSelect, knowledge }: { chart: Chart; varga: VargaChart; id: PlanetId; onSelect: Props['onSelect']; knowledge?: Knowledge | null }) {
   const i18n = useI18n();
   const { t, v, tl } = i18n;
+  const latin = LOCALE_BY_CODE[i18n.locale].script === 'latin';
   const ord = v.ordinal;
   const karaka = tl<Record<PlanetId, string>>('data.karaka');
   const p = chart.planets.find((x) => x.id === id)!;
@@ -69,7 +72,7 @@ function PlanetDetail({ chart, varga, id, onSelect, knowledge }: { chart: Chart;
       <header className="detail-head" style={{ '--c': info.color } as React.CSSProperties}>
         <img className="detail-art" src={grahaArt(id).image} alt="" style={{ '--glow': grahaArt(id).glow } as React.CSSProperties} />
         <div>
-          <h2>{v.planets[id].name} <span className="muted">· {info.sanskrit}</span></h2>
+          <h2>{v.planets[id].name}{latin && <span className="muted"> · {info.sanskrit}</span>}</h2>
           <p className="muted">{karaka[id]}</p>
         </div>
       </header>
@@ -81,7 +84,7 @@ function PlanetDetail({ chart, varga, id, onSelect, knowledge }: { chart: Chart;
         <Chip>{v.nature[info.nature]}</Chip>
       </div>
       <dl className="facts">
-        <Fact k={t('detail.signIn', { varga: varga.id })} v={<>{sign.glyph} {v.signs[sign.num - 1]}{v.signs[sign.num - 1] !== sign.sanskrit && <span className="muted"> ({sign.sanskrit})</span>}</>} />
+        <Fact k={t('detail.signIn', { varga: varga.id })} v={<>{sign.glyph} {v.signs[sign.num - 1]}{latin && v.signs[sign.num - 1] !== sign.sanskrit && <span className="muted"> ({sign.sanskrit})</span>}</>} />
         <Fact k={t('detail.house')} v={<button className="text-link" onClick={() => onSelect({ kind: 'house', num: vp.house })}>{ord(vp.house)} · {v.houses[vp.house - 1]}</button>} />
         <Fact k={t('detail.longitude')} v={`${formatDeg(p.degreeInSign)} ${v.signs[p.sign - 1]}`} />
         <Fact k={t('detail.nakshatra')} v={<button className="text-link" onClick={() => onSelect({ kind: 'nakshatra', num: nak.num })}>{v.nakshatras[nak.num - 1]} · {t('detail.padaN', { pada: p.pada })}</button>} />
@@ -276,7 +279,7 @@ function AscDetail({ chart, onSelect }: { chart: Chart; onSelect: Props['onSelec
         <Fact k={t('detail.lagnaLord')} v={<PlanetLink id={sign.lord} onSelect={onSelect} />} />
         <Fact k={t('detail.nakshatra')} v={<button className="text-link" onClick={() => onSelect({ kind: 'nakshatra', num: a.nakshatra })}>{v.nakshatras[nak.num - 1]} · {t('detail.padaN', { pada: a.pada })}</button>} />
         <Fact k={t('detail.element')} v={`${element}, ${modality}`} />
-        <Fact k={t('detail.ayanamsa')} v={`${chart.input.ayanamsa} ${chart.meta.ayanamsaValue.toFixed(4)}°`} />
+        <Fact k={t('detail.ayanamsa')} v={`${ayanamsaName(t, chart.input.ayanamsa)} ${chart.meta.ayanamsaValue.toFixed(4)}°`} />
       </dl>
       <section className="reading tone-mixed">
         <h3>{t('detail.lagnaTitle', { sign: signName })}</h3>

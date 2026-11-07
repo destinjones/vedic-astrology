@@ -17,6 +17,7 @@ import { ART } from './data/art';
 import { YogaDoshaCard } from './components/YogaDoshaCard';
 import { loadKnowledge, type Knowledge } from './lib/readings';
 import { useI18n } from './i18n';
+import { ayanamsaName } from './i18n/names';
 import { LOCALE_BY_CODE } from '@vedic/i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 
@@ -259,7 +260,7 @@ export default function App() {
       )}
 
       <footer className="foot muted">
-        <p>{t('footer.system', { ayanamsa: input.ayanamsa })}</p>
+        <p>{t('footer.system', { ayanamsa: ayanamsaName(t, input.ayanamsa) })}</p>
         <p>{t('footer.disclaimer')}</p>
         <p>{rich('footer.privacy', {
           openMeteo: <a href="https://open-meteo.com/en/docs/geocoding-api">Open-Meteo</a>,
