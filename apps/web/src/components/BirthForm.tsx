@@ -25,9 +25,10 @@ export function BirthForm({ initial, busy, onSubmit, onSample }: Props) {
   const [remote, setRemote] = useState<City[]>([]);
   // the place picked from the list, so the map can say "formerly Pondicherry"
   const [picked, setPicked] = useState<City | null>(null);
-  // only show the map once the coordinates belong to the typed place: picked from the list,
-  // entered by hand, or loaded with the form. Mid-typing they still point at the old place.
-  const [located, setLocated] = useState(initial.place.trim().length > 0);
+  // only show the map once the person picks a place from the list or types coordinates:
+  // mid-typing the coordinates still point at the old place, and just opening a chart
+  // must not contact any other site (tools/smoke.mjs checks this).
+  const [located, setLocated] = useState(false);
   const offline = useMemo(() => {
     const first = f.place.split(',')[0];
     const q = normalizePlaceName(first);
