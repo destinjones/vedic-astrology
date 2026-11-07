@@ -28,6 +28,8 @@ import type { Command } from './lib/commands';
 import { compareHash } from './compare/sources';
 
 import { YogaDoshaCard } from './components/YogaDoshaCard';
+import { CaseStudyCard } from './components/CaseStudyCard';
+import { caseStudyFor } from './data/caseStudies';
 import { ChalitControl } from './components/ChalitControl';
 import { chalitHouses, withChalit, type HouseMode } from './lib/chalit';
 import { PanchangaCard } from './components/PanchangaCard';
@@ -618,6 +620,8 @@ export default function App() {
               <DetailPanel chart={chart} varga={varga} selection={selection} onSelect={pick} knowledge={knowledge} />
             </aside>
           </div>
+
+          {caseStudyFor(famous?.id) && <CaseStudyCard study={caseStudyFor(famous?.id)!} report={knowledge?.report} />}
 
           {knowledge && <YogaDoshaCard report={knowledge.report} />}
 

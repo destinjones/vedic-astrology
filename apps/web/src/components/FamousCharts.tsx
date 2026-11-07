@@ -3,6 +3,7 @@ import {
   COUNTRY_NAMES, FAMOUS_CHARTS, RODDEN_MEANING, famousErrorReportUrl,
   type FamousChart, type FamousCountry, type RoddenRating,
 } from '../data/famousCharts';
+import { caseStudyFor } from '../data/caseStudies';
 import './famous.css';
 
 interface Props {
@@ -82,7 +83,7 @@ export function FamousCharts({ busy, onOpen, onClose }: Props) {
             <li key={c.id} className="famous-item">
               <div className="famous-top">
                 <div>
-                  <b className="famous-name">{c.label}</b>
+                  <b className="famous-name">{c.label}{caseStudyFor(c.id) && <span className="case-badge" title="Opens with an annotated case study">Case study</span>}</b>
                   <small className="muted">{c.field} <span className="famous-asof">(as of {fmtDate(c.asOf)})</span></small>
                 </div>
                 <span className={`chip famous-rating ${RATING_CLASS[c.rodden]}`} title={`Rodden rating ${c.rodden}: ${RODDEN_MEANING[c.rodden]}`}>

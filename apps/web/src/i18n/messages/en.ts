@@ -115,6 +115,11 @@ const en = {
     combustShort: 'Comb.',
     combust: 'Combust',
   },
+  cite: {
+    sources: 'Classical sources',
+    disagreement: 'Where the texts differ:',
+    noClassical: 'not classical',
+  },
   dasha: {
     mahadasha: '{planet} mahadasha',
     now: 'Now',

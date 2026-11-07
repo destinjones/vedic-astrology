@@ -1,7 +1,7 @@
 import type { Chart as EngineChart } from '@vedic/engine';
-import type { ChartInterpretation, NakshatraProfile, Reading } from '@vedic/interpretations';
+import type { ChartInterpretation, Citation, NakshatraProfile, Reading, RuleSource } from '@vedic/interpretations';
 
-export type { Reading };
+export type { Citation, Reading, RuleSource };
 
 export interface Knowledge {
   report: ChartInterpretation;
