@@ -8,7 +8,6 @@
     "app/#sample · color-contrast · .vt-builder > .vt-btn[type=\"submit\"]",
     "app/#sample · color-contrast · .vt-row > .vt-btn:nth-child(2)",
     "app/#sample · color-contrast · div:nth-child(1) > .vt-dasha-row > .vt-dasha-seg:nth-child(8)",
-    "app/#sample · label · .vt-row > input[value=\"DATE\"][type=\"date\"]",
     "app/#sample · label-content-name-mismatch · #chart > .chart-stage > .chart-svg[viewBox=\"-6 -6 412 412\"] > .chart-house[data-house=\"12\"][role=\"button\"]",
     "app/#sample · label-content-name-mismatch · .jm-cell:nth-child(10)",
     "app/#sample · label-content-name-mismatch · .jm-cell:nth-child(8)",

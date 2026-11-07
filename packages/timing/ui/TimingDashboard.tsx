@@ -472,7 +472,7 @@ function TransitTable({ chart, ephemeris, date, timeline, onDate }: { chart: Nat
   return (
     <div>
       <div className="vt-row" style={{ marginBottom: 10 }}>
-        <input type="date" value={iso} onChange={(e) => e.target.value && onDate(new Date(`${e.target.value}T12:00:00Z`))} />
+        <input type="date" aria-label="Transit date" value={iso} onChange={(e) => e.target.value && onDate(new Date(`${e.target.value}T12:00:00Z`))} />
         <button className="vt-chip" style={{ border: 0, cursor: 'pointer' }} onClick={() => onDate(new Date())}>Today</button>
         <ToneBadge score={snap.score} tone={snap.tone} />
         <span className="vt-muted" style={{ fontSize: 12 }}>Dasha: {chain.map((c) => c.lord).join(' – ')}</span>
