@@ -22,6 +22,10 @@ r.candidates[0]; // { localTime, score, lagna, navamsa, d60, moon, events: [why 
 r.changePoints;  // lagna / navamsa / shashtiamsa / nakshatra changes with local times
 ```
 
+An event known to the exact day is also checked against the sookshma (fourth level), which runs for days to weeks.
+
+`diffCandidates(engine, jdA, jdB, place, { events })` lists what choosing one time over another changes: lagna degree and sign, the D9 / D10 / D7 / D12 / D60 lagnas, every planet's D1 and D9 house, the Moon's pada and dasha balance, the date the next mahadasha starts, and the dasha chain and fit score at each life event.
+
 A whole day runs in about a third of a second. Weights are in `src/score.ts` and are a reasoned synthesis of Parashari practice, not a single canonical formula.
 
 ## Tests

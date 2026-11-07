@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Timing: Vimshottari down to sookshma and prana (levels 4–5), built on demand, in the dasha card and the dashboard's dasha map.
+- Timing: "Did it happen?" record. Mark past favourable and challenging windows as happened or not and see hit rates per rule (dasha lords, dignity, placement, lordship, period pairs, transits), with a Wilson interval so thin samples read as unsure.
+- Timing: export upcoming windows as an `.ics` calendar, print a year's timeline as a PDF, and opt-in local notifications on the first day of a favourable window (service worker, nothing leaves the browser).
+- Rectification: exact-day events are also scored against the sookshma; saved life events can be pulled in from the event checker; a fit matrix shows every event against every candidate, and a diff view shows what changes between two candidate times.
+- Prashna: KP timing of the answer from the dasha of the question (first dasha–bhukti–antara whose lords fulfil the matter, narrowed to the sookshma).
+- Tools: event chart casting, read on its own or against a saved birth chart (natal houses, exact contacts, natal dashas to sookshma), with a button to save it as a life event.
 - Matching: the South Indian ten poruthams (Dashakoota) beside Ashtakoota, the Jaimini marriage reading (Upapada, the 2nd from it, Darakaraka and the 7th from Karakamsa, with cross-links between the two charts), a three-tradition summary, and wedding dates found from both partners' birth Moons.
 - Muhurta: nakshatra mukha (Urdhva, Adho, Tiryak), Dhanishta panchaka and the panchaka rahita check, Bhadra's dwelling, disha shoola for journeys, Guru and Shukra asta, Kharmas, and Tara and Chandra bala for several people at once. A caveat now sits on every muhurta result.
 - Panchanga calendar: a month view with tithi and nakshatra at sunrise, and for each day sunrise, sunset, Rahu kalam, Yamaganda, Gulika kalam, Abhijit, the 24 horas, Bhadra, Panchaka and every limb change (`panchangaDay`, `panchangaMonth`).

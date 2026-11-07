@@ -6,6 +6,7 @@ import {
   candidateChart,
   dashaChain,
   dashaMatch,
+  diffCandidates,
   eventSpan,
   rectify,
   shashtiamsaOf,
@@ -111,7 +112,7 @@ describe('recovers a planted birth time', () => {
         const djd = dateToJd(d);
         const p = engine.positionsAt(djd, settings).planets;
         const t = { jupiter: p.jupiter.longitude, saturn: p.saturn.longitude, rahu: p.rahu.longitude, ketu: p.ketu.longitude, mars: p.mars.longitude };
-        const v = WEIGHTS.dasha * dashaMatch(c, dashaChain(c, djd), def, 'day').value + WEIGHTS.transit * transitMatch(c, t, def).value;
+        const v = WEIGHTS.dasha * dashaMatch(c, dashaChain(c, djd, 4), def, 'day').value + WEIGHTS.transit * transitMatch(c, t, def).value;
         if (v > best.v) best = { v, d: d.toISOString().slice(0, 10) };
       }
       return { kind, date: best.d };
@@ -128,7 +129,7 @@ describe('recovers a planted birth time', () => {
       expect(Math.abs(top.jd - jdOf(trueLocal)) * 1440).toBeLessThan(10);
       if (trueLocal !== '06:47') expect(top.navamsa.sign).toBe(vargaSign(truth, 'D9'));
       expect(top.fits).toBeGreaterThanOrEqual(3);
-      expect(top.events.every((e) => e.summary.length > 20 && e.dasha.parts.length === 3)).toBe(true);
+      expect(top.events.every((e) => e.summary.length > 20 && e.dasha.parts.length === 4)).toBe(true); // exact days are checked to the sookshma
     });
   }
 
@@ -138,5 +139,33 @@ describe('recovers a planted birth time', () => {
     const res = rectify(engine, { date: '1990-08-15', from: '00:00', to: '23:59', place: DELHI, events });
     expect(performance.now() - t0).toBeLessThan(5000);
     expect(res.lagnaSegments.length).toBeGreaterThanOrEqual(12);
+  });
+});
+
+describe('candidate diff', () => {
+  const jdOf = (t: string) => dateToJd(localToUtc('1990-08-15', t, DELHI.timezone).utc);
+  it('shows what a few minutes change', () => {
+    const events: LifeEvent[] = [{ kind: 'marriage', date: '2016-02' }, { kind: 'childbirth', date: '2018-11-03' }];
+    const d = diffCandidates(engine, jdOf('06:00'), jdOf('06:20'), DELHI, { events });
+    expect(d.minutes).toBe(20);
+    const lagnaDeg = d.rows.find((r) => r.label === 'Lagna degree')!;
+    expect(lagnaDeg.changed).toBe(true);
+    // the planets do not change sign in twenty minutes, so D1 houses move only if the lagna does
+    const lagna = d.rows.find((r) => r.label === 'Lagna')!;
+    const houses = d.rows.filter((r) => r.group === 'Houses');
+    expect(houses).toHaveLength(9);
+    if (!lagna.changed) expect(houses.every((h) => h.a.split(' · ')[0] === h.b.split(' · ')[0])).toBe(true);
+    const next = d.rows.find((r) => r.label === 'Next mahadasha begins')!;
+    expect(next.changed).toBe(true); // the Moon moves ~0.17° in 20 min, a shift of days to weeks
+    const ev = d.rows.filter((r) => r.group === 'Life events');
+    expect(ev).toHaveLength(2);
+    expect(ev.every((r) => typeof r.scoreA === 'number' && typeof r.scoreB === 'number')).toBe(true);
+    expect(d.summary).toMatch(/20 minutes later/);
+    expect(d.changes).toBe(d.rows.filter((r) => r.changed).length);
+  });
+
+  it('finds no change between a time and itself', () => {
+    const d = diffCandidates(engine, jdOf('06:00'), jdOf('06:00'), DELHI);
+    expect(d.changes).toBe(0);
   });
 });

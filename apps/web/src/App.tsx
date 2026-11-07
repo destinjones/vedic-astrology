@@ -703,7 +703,7 @@ export default function App() {
               <div className="card-head"><h3>{t('sections.timing')}</h3><span className="muted">{t('sections.timingSub')}</span></div>
               <WhenVisible minHeight={600}>
                 <Suspense fallback={<div className="sky-overlay static">{t('sections.timingLoading')}</div>}>
-                  <TimingSection key={chart.engineContext.chart.meta.utc} context={chart.engineContext} name={chart.input.name} />
+                  <TimingSection key={chart.engineContext.chart.meta.utc} context={chart.engineContext} name={chart.input.name} input={chart.input} />
                 </Suspense>
               </WhenVisible>
             </section>
@@ -733,6 +733,7 @@ export default function App() {
                   <RectificationSection
                     key={`${chart.input.date}|${chart.input.latitude}|${chart.input.longitude}`}
                     context={chart.engineContext}
+                    savedEvents={activeTab.events}
                     onApply={(date, time) => { void run({ ...chart.input, date, time }); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   />
                 </Suspense>
