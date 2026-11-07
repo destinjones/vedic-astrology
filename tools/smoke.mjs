@@ -2,10 +2,12 @@
 // checks in a real browser that the engine, art, readings and timeline all load.
 import { chromium } from 'playwright';
 import { serveDist, BASE } from './serve-dist.mjs';
+import { checkA11y } from './a11y.mjs';
 
 const { url, close } = await serveDist();
 const browser = await chromium.launch({
   args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
+  ...(process.env.PW_CHROMIUM_PATH && { executablePath: process.env.PW_CHROMIUM_PATH }),
 });
 const problems = [];
 
@@ -99,6 +101,9 @@ try {
   await fresh.waitForSelector('.summary-strip', { timeout: 60000 });
   const sharedLagna = await fresh.locator('.summary-item').first().innerText();
   if (!sharedLagna.includes('Leo')) problems.push(`share link should reopen the Leo lagna sample, got: ${sharedLagna}`);
+
+  // axe-core on every page, with every section of the chart opened (see tools/a11y.mjs)
+  problems.push(...(await checkA11y(browser, url, BASE)).problems);
 } finally {
   await browser.close();
   await close();
@@ -108,4 +113,4 @@ if (problems.length) {
   console.error(`Site check failed:\n- ${problems.join('\n- ')}`);
   process.exit(1);
 }
-console.log('Site check passed: landing page, engine, readings, Jaimini, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, saved charts and share links all work.');
+console.log('Site check passed: landing page, engine, readings, Jaimini, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, saved charts, share links and accessibility all pass.');

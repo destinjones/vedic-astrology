@@ -1,0 +1,23 @@
+{
+  "$comment": "Critical and serious axe-core findings that predate the accessibility gate. Fix them and delete the line; never add to this list by hand.",
+  "known": [
+    "app/#sample · aria-required-children · .jm-grid",
+    "app/#sample · color-contrast · .vt-av > tbody > tr:nth-child(8) > td:nth-child(4)",
+    "app/#sample · color-contrast · .vt-av > tbody > tr:nth-child(8) > td:nth-child(8)",
+    "app/#sample · color-contrast · .vt-builder > .vt-btn[type=\"submit\"]",
+    "app/#sample · color-contrast · div:nth-child(1) > .vt-dasha-row > .vt-dasha-seg:nth-child(8)",
+    "app/#sample · label · input[value=\"DATE\"]",
+    "app/#sample · label-content-name-mismatch · .jm-cell:nth-child(10)",
+    "app/#sample · label-content-name-mismatch · .jm-cell:nth-child(8)",
+    "app/#sample · label-content-name-mismatch · button[aria-label=\"Aquarius, Mantra pada\"]",
+    "app/#sample · label-content-name-mismatch · button[aria-label=\"Aries\"]",
+    "app/#sample · label-content-name-mismatch · button[aria-label=\"Cancer, Dhana pada\"]",
+    "app/#sample · label-content-name-mismatch · button[aria-label=\"Gemini, Arudha Lagna\"]",
+    "app/#sample · label-content-name-mismatch · button[aria-label=\"Leo\"]",
+    "app/#sample · label-content-name-mismatch · button[aria-label=\"Libra, Labha pada\"]",
+    "app/#sample · label-content-name-mismatch · button[aria-label=\"Pisces, Sukha pada, Upapada\"]",
+    "app/#sample · label-content-name-mismatch · button[aria-label=\"Sagittarius, Dara pada\"]",
+    "app/#sample · label-content-name-mismatch · button[aria-label=\"Taurus\"]",
+    "app/#sample · label-content-name-mismatch · button[aria-label=\"Virgo, Rajya pada\"]"
+  ]
+}

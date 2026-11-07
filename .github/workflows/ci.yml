@@ -8,8 +8,143 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Dependency licences are compatible with AGPL-3.0-or-later
+        run: npm run licenses
+      - run: npm run typecheck
+      - run: npm test
+      - name: Build the site
+        run: |
+          export SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
+          npm run build:pages
+          npm run verify:build
+      - name: Bundle size budget
+        run: npm run size
+      - run: npx playwright install --with-deps chromium
+      - name: Site check and accessibility (axe-core)
+        run: npm run smoke
+      - uses: actions/upload-artifact@v7
+        with:
+          name: site
+          path: apps/web/dist
+          retention-days: 7
+
+  # Builds the same commit again on another machine, in another folder, and checks that every
+  # file is byte-for-byte identical. This is what lets anyone verify the deployed site.
+  reproducible:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          path: rebuild/elsewhere
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: rebuild/elsewhere/package-lock.json
+      - uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: first-build
+      - name: Rebuild and compare
+        working-directory: rebuild/elsewhere
+        run: |
+          npm ci
+          export SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
+          npm run build:pages
+          node tools/build-manifest.mjs --check "$GITHUB_WORKSPACE/first-build/SHA256SUMS"
+
+  # Pictures of every divisional chart, North and South style, at phone, tablet and desktop width.
+  visual:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: apps/web/dist
+      - run: npx playwright install --with-deps chromium
+      - name: Chart pictures match
+        run: npm run test:visual
+      - name: Keep the before/after/diff pictures
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: chart-picture-diffs
+          path: |
+            playwright-report
+            test-results
+          retention-days: 14
+
+  # WebAssembly and three.js break first outside Chromium.
+  browsers:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - browser: chromium
+            projects: --project=chromium
+          - browser: firefox
+            projects: --project=firefox
+          - browser: webkit
+            projects: --project=webkit --project=mobile-safari
+    name: browsers (${{ matrix.browser }})
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: apps/web/dist
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: npx playwright test ${{ matrix.projects }}
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-report-${{ matrix.browser }}
+          path: playwright-report
+          retention-days: 14
+
+  # Lighthouse: accessibility and best practices must stay at or above the floor in lighthouserc.json.
+  lighthouse:
+    needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -20,9 +155,14 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run build:pages
-      - run: npx playwright install --with-deps chromium
-      - run: npm run smoke
+      - uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: apps/web/dist
+      - run: npx --yes @lhci/cli@0.16.0 autorun
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci
+          retention-days: 14

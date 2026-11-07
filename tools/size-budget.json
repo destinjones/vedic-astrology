@@ -1,0 +1,11 @@
+{
+  "$comment": "Bytes. Set about 10% above the size on 2026-11-07. Raise a number in the pull request that needs it, and say why.",
+  "Landing page first load (JS+CSS, gzip)": 8192,
+  "Chart app first load (JS+CSS, gzip)": 196608,
+  "All JavaScript (gzip)": 1060000,
+  "All CSS (gzip)": 37000,
+  "Largest JS chunk (gzip)": 180000,
+  "Swiss Ephemeris WASM + data (raw)": 2900000,
+  "3D art in cosmos/ (raw)": 8800000,
+  "Whole site (raw)": 35000000
+}

@@ -9,8 +9,13 @@ npm ci
 npm run typecheck
 npm test
 npm run build:pages
-npm run smoke
+npm run smoke          # includes the axe-core accessibility check
+npm run size           # bundle-size budget
+npm run licenses       # dependency licences
+npm run test:visual    # chart pictures (Linux; see below)
 ```
+
+CI also runs Firefox and WebKit, Lighthouse, and a second build that must match the first byte for byte. [docs/release-engineering.md](docs/release-engineering.md) explains each check and what to do when one fails, including how to accept new chart pictures after an intended change.
 
 Two rules for text and claims:
 

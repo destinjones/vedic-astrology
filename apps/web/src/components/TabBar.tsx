@@ -24,7 +24,7 @@ export function TabBar({ tabs, activeId, busy, onSelect, onNew, onClose, onRenam
 
   return (
     <nav className="tab-bar" aria-label="Open charts">
-      <div className="tab-strip" role="tablist">
+      <div className="tab-strip">
         {tabs.map((t) => {
           const active = t.id === activeId;
           return (
@@ -42,8 +42,7 @@ export function TabBar({ tabs, activeId, busy, onSelect, onNew, onClose, onRenam
                 />
               ) : (
                 <button
-                  role="tab"
-                  aria-selected={active}
+                  aria-current={active ? 'true' : undefined}
                   className="tab-name"
                   disabled={busy && !active}
                   onClick={() => (active ? undefined : onSelect(t.id))}

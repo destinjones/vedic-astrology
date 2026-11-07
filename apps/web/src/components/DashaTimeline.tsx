@@ -51,7 +51,7 @@ export function DashaTimeline({ dasha, system = 'vimshottari' }: Props) {
             <button key={i} className={`dasha-seg${i === open ? ' is-open' : ''}${i === currentIdx ? ' is-now' : ''}`}
               style={{ width: `${w}%`, '--c': l.color } as React.CSSProperties}
               onClick={() => setOpen(i)} title={`${label(l.title)} · ${fmt(d.start)} – ${fmt(d.end)}`}
-              aria-label={`${label(l.title)}, ${fmt(d.start)} – ${fmt(d.end)}`}>
+              aria-label={`${l.abbr}: ${label(l.title)}, ${fmt(d.start)} – ${fmt(d.end)}`}>
               <span>{l.abbr}</span>
             </button>
           );

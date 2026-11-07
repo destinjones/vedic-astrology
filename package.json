@@ -14,13 +14,20 @@
     "build": "npm run build -w @vedic/web",
     "build:pages": "node tools/build-pages.mjs",
     "smoke": "node tools/smoke.mjs",
-    "demos": "node tools/record-demos.mjs"
+    "demos": "node tools/record-demos.mjs",
+    "test:visual": "playwright test --project=visual",
+    "test:browsers": "playwright test --project=chromium --project=firefox --project=webkit --project=mobile-safari",
+    "size": "node tools/size-budget.mjs",
+    "licenses": "node tools/license-check.mjs",
+    "verify:build": "node tools/build-manifest.mjs"
   },
   "engines": {
     "node": ">=20"
   },
   "license": "AGPL-3.0-or-later",
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.65.0",
     "gifenc": "^1.0.3",
     "playwright": "^1.65.0",
     "pngjs": "^7.0.0"

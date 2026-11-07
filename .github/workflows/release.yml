@@ -1,0 +1,63 @@
+# Push a tag like v0.2.0 to publish a release whose files anyone can verify:
+#   vedic-astrology-site-<tag>.tar.gz   the built site, packed reproducibly
+#   SHA256SUMS                          a hash of every file in it (also served at /SHA256SUMS)
+#   sbom.cdx.json                       CycloneDX bill of materials for what ships
+# Each file carries a Sigstore-signed build provenance attestation tying it to this workflow
+# and this commit. Check one with:
+#   gh attestation verify vedic-astrology-site-v0.2.0.tar.gz --repo destinjones/vedic-astrology
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write      # create the GitHub release
+      id-token: write      # sign with Sigstore, no keys to manage
+      attestations: write  # store the signed attestations
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run licenses
+      - run: npm test
+      - name: Build reproducibly
+        run: |
+          export SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
+          echo "SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH" >> "$GITHUB_ENV"
+          npm run build:pages
+          npm run verify:build
+          npm run size
+      - name: Pack the site, the hashes and the SBOM
+        run: |
+          mkdir -p release
+          tar --sort=name --mtime="@$SOURCE_DATE_EPOCH" --owner=0 --group=0 --numeric-owner \
+            -C apps/web/dist -cf - . | gzip -9n > "release/vedic-astrology-site-$GITHUB_REF_NAME.tar.gz"
+          cp apps/web/dist/SHA256SUMS release/SHA256SUMS
+          npm sbom --sbom-format cyclonedx --sbom-type application --omit dev > release/sbom.cdx.json
+          (cd release && sha256sum * > CHECKSUMS.txt)
+      - uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: release/*
+      - uses: actions/attest-sbom@v4
+        with:
+          subject-path: release/vedic-astrology-site-${{ github.ref_name }}.tar.gz
+          sbom-path: release/sbom.cdx.json
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" release/* --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes \
+            --notes "Verify any file with \`gh attestation verify <file> --repo $GITHUB_REPOSITORY\`. Rebuild it yourself with \`git checkout $GITHUB_REF_NAME && npm ci && SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH npm run build:pages && npm run verify:build\`, then compare apps/web/dist/SHA256SUMS with the one attached here."
