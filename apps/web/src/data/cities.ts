@@ -1,4 +1,11 @@
-export interface City { name: string; latitude: number; longitude: number; timezone: string }
+export interface City {
+  name: string;
+  latitude: number;
+  longitude: number;
+  timezone: string;
+  /** Former name the user typed, when the match came from it */
+  formerly?: string;
+}
 
 /** Small offline list until the engine's geocode() is wired in. */
 export const CITIES: City[] = [
@@ -7,6 +14,8 @@ export const CITIES: City[] = [
   { name: 'Bengaluru, India', latitude: 12.9716, longitude: 77.5946, timezone: 'Asia/Kolkata' },
   { name: 'Chennai, India', latitude: 13.0827, longitude: 80.2707, timezone: 'Asia/Kolkata' },
   { name: 'Kolkata, India', latitude: 22.5726, longitude: 88.3639, timezone: 'Asia/Kolkata' },
+  { name: 'Puducherry, India', latitude: 11.9416, longitude: 79.8083, timezone: 'Asia/Kolkata' },
+  { name: 'Pune, India', latitude: 18.5204, longitude: 73.8567, timezone: 'Asia/Kolkata' },
   { name: 'Hyderabad, India', latitude: 17.385, longitude: 78.4867, timezone: 'Asia/Kolkata' },
   { name: 'Varanasi, India', latitude: 25.3176, longitude: 82.9739, timezone: 'Asia/Kolkata' },
   { name: 'Kathmandu, Nepal', latitude: 27.7172, longitude: 85.324, timezone: 'Asia/Kathmandu' },

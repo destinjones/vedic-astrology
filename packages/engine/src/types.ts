@@ -415,4 +415,6 @@ export interface GeoResult {
   admin1?: string;
   population?: number;
   elevation?: number;
+  /** The former or alternate name the user typed, when this match came from it (e.g. "Pondicherry") */
+  formerly?: string;
 }

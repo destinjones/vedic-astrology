@@ -57,4 +57,6 @@ export type {
 } from './strength';
 export { geocode } from './geocode';
 export type { GeocodeOptions } from './geocode';
+export { placeAlias, normalizePlaceName, PLACE_ALIASES } from './placeAliases';
+export type { PlaceAlias } from './placeAliases';
 export * from './constants';
