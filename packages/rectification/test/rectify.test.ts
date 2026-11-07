@@ -29,6 +29,9 @@ describe('event dates', () => {
     expect(eventSpan('2016-02-29').precision).toBe('day');
     expect(() => eventSpan('2015-02-29')).toThrow();
     expect(() => eventSpan('Feb 2016')).toThrow();
+    // the shared event model stores a full date plus a precision
+    expect(eventSpan({ date: '2016-02-01', precision: 'month' })).toMatchObject({ precision: 'month', end: new Date('2016-03-01T00:00:00Z') });
+    expect(eventSpan({ date: '2016-01-01', precision: 'year' }).precision).toBe('year');
   });
 });
 
@@ -94,7 +97,7 @@ describe('change points', () => {
  * tool to find the time in a four-hour window without telling it.
  */
 describe('recovers a planted birth time', () => {
-  const kinds: LifeEventKind[] = ['marriage', 'childBirth', 'careerStart', 'fatherDeath', 'property'];
+  const kinds: LifeEventKind[] = ['marriage', 'childbirth', 'job', 'loss-of-father', 'property'];
   const jdOf = (t: string) => dateToJd(localToUtc('1990-08-15', t, DELHI.timezone).utc);
 
   function plantedEvents(trueLocal: string): LifeEvent[] {

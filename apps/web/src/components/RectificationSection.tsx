@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   EVENT_DEFS,
-  EVENT_KINDS,
+  SCORED_KINDS,
   rectify,
   type Candidate,
   type EventGroup,
@@ -15,12 +15,14 @@ import './rectification.css';
 type Precision = 'day' | 'month' | 'year';
 interface Row { id: number; kind: LifeEventKind; precision: Precision; date: string }
 
-const STORE_KEY = 'vedic.rectify.v1';
-const GROUPS: EventGroup[] = ['Love and partnership', 'Family', 'Study and work', 'Money and home', 'Loss and health', 'Inner life'];
+const STORE_KEY = 'vedic.rectify.v2';
+const GROUPS: EventGroup[] = ['Relationships', 'Career and money', 'Home and movement', 'Health and loss', 'Other'];
 
 const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
 const fromMin = (m: number) => { const x = ((Math.round(m) % 1440) + 1440) % 1440; return `${String(Math.floor(x / 60)).padStart(2, '0')}:${String(x % 60).padStart(2, '0')}`; };
 const datePart = (row: Row) => (row.precision === 'year' ? row.date.slice(0, 4) : row.precision === 'month' ? row.date.slice(0, 7) : row.date);
+/** The shared event model stores a full date plus its precision */
+const fullDate = (row: Row) => (row.precision === 'year' ? `${datePart(row)}-01-01` : row.precision === 'month' ? `${datePart(row)}-01` : row.date);
 const valid = (row: Row) => (row.precision === 'year' ? /^\d{4}$/ : row.precision === 'month' ? /^\d{4}-\d{2}$/ : /^\d{4}-\d{2}-\d{2}$/).test(datePart(row));
 
 interface Saved { rows: Row[]; from?: string; to?: string; likely?: string; plusMinus?: number; useLikely?: boolean }
@@ -67,7 +69,7 @@ export default function RectificationSection({ context, onApply }: {
     // let the button repaint before the (synchronous) search runs
     setTimeout(() => {
       try {
-        const events: LifeEvent[] = ready.map((r) => ({ kind: r.kind, date: datePart(r) }));
+        const events: LifeEvent[] = ready.map((r) => ({ id: String(r.id), kind: r.kind, date: fullDate(r), precision: r.precision }));
         const res = rectify(engine, {
           date: input.date,
           from,
@@ -124,7 +126,7 @@ export default function RectificationSection({ context, onApply }: {
               <div key={g} className="rect-chip-group">
                 <small>{g}</small>
                 <div>
-                  {EVENT_KINDS.filter((k) => EVENT_DEFS[k].group === g).map((k) => (
+                  {SCORED_KINDS.filter((k) => EVENT_DEFS[k].group === g).map((k) => (
                     <button key={k} type="button" className="rect-chip" onClick={() => add(k)} title={EVENT_DEFS[k].question}>+ {EVENT_DEFS[k].label}</button>
                   ))}
                 </div>
@@ -258,7 +260,7 @@ function CandidateCard({ c, open, onToggle, onApply }: { c: Candidate; open: boo
             <li key={i} className={e.fitsBest ? 'is-best' : ''}>
               <div className="rect-fit-head">
                 <b>{e.label}</b>
-                <small className="muted">{e.event.date}</small>
+                <small className="muted">{e.event.precision === 'year' ? e.event.date.slice(0, 4) : e.event.precision === 'month' ? e.event.date.slice(0, 7) : e.event.date}</small>
                 <span className="rect-fit-score">{Math.round(e.score)}</span>
                 {e.fitsBest && <span className="rect-tag">best fit</span>}
               </div>

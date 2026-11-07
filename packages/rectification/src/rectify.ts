@@ -4,7 +4,7 @@
  *   const r = rectify(engine, {
  *     date: '1990-08-15', from: '05:00', to: '08:00',
  *     place: { latitude: 28.61, longitude: 77.21, timezone: 'Asia/Kolkata' },
- *     events: [{ kind: 'marriage', date: '2016-02' }, { kind: 'childBirth', date: '2018-11-03' }],
+ *     events: [{ kind: 'marriage', date: '2016-02' }, { kind: 'childbirth', date: '2018-11-03' }],
  *   });
  *   r.candidates[0].localTime   // best time, with explanations per event
  *   r.changePoints              // when the lagna, navamsa (D9), D60 and Moon nakshatra change
@@ -187,10 +187,10 @@ export function rectify(engine: Engine, input: RectifyInput): RectifyResult {
   const navamsaSegments = segments('navamsa', (jd) => vargaSign(ascAt(jd), 'D9'));
 
   // ---------------------------------------------------------- event samples
-  const prepared = input.events.map((ev) => {
+  const prepared = input.events.filter((ev) => ev.kind !== 'other').map((ev) => {
     const def = EVENT_DEFS[ev.kind];
     if (!def) throw new Error(`Unknown life event "${ev.kind}"`);
-    const span = eventSpan(ev.date);
+    const span = eventSpan(ev);
     const samples = spanSamples(span).map((d) => {
       const jd = dateToJd(d);
       const p = engine.positionsAt(jd, settings).planets;
