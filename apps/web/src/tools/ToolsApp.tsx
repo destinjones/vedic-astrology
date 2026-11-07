@@ -4,12 +4,16 @@ import { useEngine } from './shared';
 import { KpTool } from './KpTool';
 import { PrashnaTool } from './PrashnaTool';
 import { MuhurtaTool } from './MuhurtaTool';
+import { CalendarTool } from './CalendarTool';
+import { SarvatobhadraTool } from './SarvatobhadraTool';
 
-type Tab = 'kp' | 'prashna' | 'muhurta';
+type Tab = 'kp' | 'prashna' | 'muhurta' | 'calendar' | 'sbc';
 const TABS: { id: Tab; label: string; blurb: string }[] = [
   { id: 'kp', label: 'KP chart', blurb: 'Krishnamurti Paddhati: Placidus cusps, star, sub and sub-sub lords, and the four-level significators' },
   { id: 'prashna', label: 'Prashna', blurb: 'Ask a question and read the horary chart for that moment, or use the KP 1–249 number method' },
   { id: 'muhurta', label: 'Muhurta', blurb: 'Find good times to begin something, from the panchanga, Tara bala, Chandra bala and the rising sign' },
+  { id: 'calendar', label: 'Panchanga calendar', blurb: 'A month of tithis and nakshatras, with Rahu kalam, Yamaganda, Gulika kalam, Abhijit, the horas and sunrise and sunset for any day' },
+  { id: 'sbc', label: 'Sarvatobhadra', blurb: 'The 9 × 9 transit board: which stars, signs, letters and tithis each graha strikes, and what that means for your birth chart' },
 ];
 const tabFromHash = (): Tab => {
   const h = location.hash.replace('#', '');
@@ -40,7 +44,7 @@ export default function ToolsApp() {
           <span className="brand-mark">✦</span>
           <div>
             <h1>Jyotisha Explorer</h1>
-            <p>KP, Prashna and Muhurta</p>
+            <p>KP, Prashna, Muhurta and the panchanga</p>
           </div>
         </a>
         <a className="btn-ghost" href={`${import.meta.env.BASE_URL}app/`}>Birth chart</a>
@@ -60,6 +64,8 @@ export default function ToolsApp() {
           {tab === 'kp' && <KpTool engine={engine} />}
           {tab === 'prashna' && <PrashnaTool engine={engine} />}
           {tab === 'muhurta' && <MuhurtaTool engine={engine} />}
+          {tab === 'calendar' && <CalendarTool engine={engine} />}
+          {tab === 'sbc' && <SarvatobhadraTool engine={engine} />}
         </main>
       )}
 

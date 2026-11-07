@@ -19,6 +19,7 @@ export { fromEngineChart } from './adapter';
 export { synastry } from './synastry';
 export type { SynastryPerson, SynastryReport, HouseOverlay, CrossContact, ContactKind, SignRelation } from './synastry';
 export * from './matching';
+export * from './porutham';
 export { localizedYoga } from './yogas';
 export { localizedDosha } from './doshas';
 export { loadLocale, registerLocale, hasReadings, READING_LOCALES, localizer, Localizer } from './i18n/context';
