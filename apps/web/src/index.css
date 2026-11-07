@@ -36,8 +36,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .muted { color: var(--muted); }
 .mono { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
 
-.starfield {
-  position: fixed; inset: 0; pointer-events: none; z-index: -1; opacity: 0.55;
+/* The stars drift by moving a tiled layer with a transform, which the compositor animates without
+   repainting. Animating background-position repainted the whole screen every frame and froze slow devices. */
+.starfield { position: fixed; inset: 0; pointer-events: none; z-index: -1; opacity: 0.55; overflow: hidden; }
+.starfield::before {
+  content: ''; position: absolute; top: -840px; left: -420px; right: 0; bottom: 0;
+  will-change: transform;
   background-image:
     radial-gradient(1px 1px at 10% 20%, #fff 50%, transparent 51%),
     radial-gradient(1px 1px at 30% 70%, #fff 50%, transparent 51%),
@@ -50,8 +54,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
   background-size: 420px 420px;
   animation: drift 120s linear infinite;
 }
-@keyframes drift { to { background-position: 420px 840px; } }
-@media (prefers-reduced-motion: reduce) { .starfield { animation: none; } }
+@keyframes drift { to { transform: translate(420px, 840px); } }
+@media (prefers-reduced-motion: reduce) { .starfield::before { animation: none; } }
 
 .app { position: relative; z-index: 1; max-width: 1360px; margin: 0 auto; padding: 20px 20px 40px; }
 
