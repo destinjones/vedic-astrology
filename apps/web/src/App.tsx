@@ -37,6 +37,7 @@ import { useI18n } from './i18n';
 import { ayanamsaName } from './i18n/names';
 import { LOCALE_BY_CODE } from '@vedic/i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { trackEvent, trackOnce } from './lib/analytics';
 
 const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
@@ -83,6 +84,11 @@ export default function App() {
   const [style, setStyle] = useState<ChartStyle>('north');
   const [vargaId, setVargaId] = useState<VargaId>('D1');
   const [selection, setSelection] = useState<Selection | null>(null);
+  // a click on the chart, wheel, table or sky; the first planet click is a step in the visit counter's funnel
+  const pick = (s: Selection | null) => {
+    if (s?.kind === 'planet') trackOnce('first-planet-click');
+    setSelection(s);
+  };
   const [hoverPlanet, setHoverPlanet] = useState<PlanetId | null>(null);
   const [wheelMode, setWheelMode] = useState<WheelMode>('art');
   const [knowledge, setKnowledge] = useState<Knowledge | null>(null);
@@ -479,7 +485,7 @@ export default function App() {
                 <button type="button" className="link-btn" onClick={() => setEditingId(null)}>Leave the saved chart as it is</button>
               </p>
             )}
-            <BirthForm key={formKey} initial={input} busy={busy} onSubmit={(i) => run(i)} onSample={() => openInTab(DEFAULT_INPUT)} />
+            <BirthForm key={formKey} initial={input} busy={busy} onSubmit={(i) => { trackEvent('chart-submit'); void run(i); }} onSample={() => openInTab(DEFAULT_INPUT)} />
           </div>
         </section>
       )}
@@ -536,9 +542,9 @@ export default function App() {
               <VargaSwitcher value={vargaId} onChange={setVargaId} />
               <div className="chart-stage" onMouseLeave={() => setHoverPlanet(null)}>
                 {style === 'north' ? (
-                  <NorthChart chart={chart} varga={varga} selection={selection} hoverPlanet={hoverPlanet} onSelect={setSelection} onHoverPlanet={setHoverPlanet} />
+                  <NorthChart chart={chart} varga={varga} selection={selection} hoverPlanet={hoverPlanet} onSelect={pick} onHoverPlanet={setHoverPlanet} />
                 ) : (
-                  <SouthChart chart={chart} varga={varga} selection={selection} hoverPlanet={hoverPlanet} onSelect={setSelection} onHoverPlanet={setHoverPlanet} />
+                  <SouthChart chart={chart} varga={varga} selection={selection} hoverPlanet={hoverPlanet} onSelect={pick} onHoverPlanet={setHoverPlanet} />
                 )}
               </div>
               <p className="legend muted">{t('chart.legend')}</p>
@@ -546,7 +552,7 @@ export default function App() {
 
             <aside className="card detail-card" id="details" aria-live="polite">
               {knowledge && knowledge.locale !== locale && <p className="reading-note">{t('app.readingsLanguageNote', { language: LOCALE_BY_CODE[locale].native })}</p>}
-              <DetailPanel chart={chart} varga={varga} selection={selection} onSelect={setSelection} knowledge={knowledge} />
+              <DetailPanel chart={chart} varga={varga} selection={selection} onSelect={pick} knowledge={knowledge} />
             </aside>
           </div>
 
@@ -561,7 +567,7 @@ export default function App() {
             </div>
             <WhenVisible minHeight={520}>
               <Suspense fallback={<div className="sky-overlay static">{t('sections.skyLoading')}</div>}>
-                <SkyView chart={chart} selection={selection} onSelect={setSelection} />
+                <SkyView chart={chart} selection={selection} onSelect={pick} />
               </Suspense>
             </WhenVisible>
           </section>
@@ -575,11 +581,11 @@ export default function App() {
                   <button role="radio" aria-checked={wheelMode === 'diagram'} className={wheelMode === 'diagram' ? 'is-active' : ''} onClick={() => setWheelMode('diagram')}>{t('sections.diagram')}</button>
                 </div>
               </div>
-              <NakshatraWheel mode={wheelMode} chart={chart} selection={selection} onSelect={setSelection} onHoverPlanet={setHoverPlanet} />
+              <NakshatraWheel mode={wheelMode} chart={chart} selection={selection} onSelect={pick} onHoverPlanet={setHoverPlanet} />
             </section>
             <section className="card" id="planets">
               <div className="card-head"><h3>{t('sections.positions')}</h3></div>
-              <PlanetTable chart={chart} selection={selection} onSelect={setSelection} />
+              <PlanetTable chart={chart} selection={selection} onSelect={pick} />
             </section>
           </div>
 

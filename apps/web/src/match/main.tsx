@@ -5,6 +5,9 @@ import '../index.css'
 import './match.css'
 import MatchApp from './MatchApp'
 import { I18nProvider } from '../i18n'
+import { trackPageview } from '../lib/analytics'
+
+trackPageview()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

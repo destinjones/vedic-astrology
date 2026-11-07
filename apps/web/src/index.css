@@ -68,7 +68,8 @@ a.btn-ghost { text-decoration: none; display: inline-block; }
   color: var(--bg); background: linear-gradient(135deg, #f6d48f, var(--accent) 50%, #c98a2b);
   box-shadow: 0 0 24px rgba(232, 182, 90, 0.45);
 }
-.brand h1 { font: 700 26px/1 var(--serif); margin: 0; letter-spacing: 0.02em; }
+.brand h1, .brand .brand-title { font: 700 26px/1 var(--serif); margin: 0; letter-spacing: 0.02em; }
+.brand .brand-title { color: inherit; }
 .brand p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
 
 .btn-primary {
@@ -294,7 +295,7 @@ section > h4 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; lett
   .span-2 { grid-column: auto; }
   .facts { grid-template-columns: 1fr; }
   .varga-strip { grid-template-columns: repeat(4, 1fr); }
-  .brand h1 { font-size: 22px; }
+  .brand h1, .brand .brand-title { font-size: 22px; }
 }
 
 .reading-note { font-size: 12px; color: var(--muted); margin: -4px 0 8px; }
