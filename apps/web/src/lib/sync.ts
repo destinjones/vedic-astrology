@@ -131,8 +131,17 @@ export function blobUrl(base: string, id: string, slot: string | null = SLOT): s
   try { u = new URL(base); } catch { throw new ServerUnavailable('That server address is not a URL.'); }
   if (u.protocol !== 'https:' && !(u.protocol === 'http:' && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(u.hostname)))
     throw new ServerUnavailable('Use an https:// address (http is allowed only for localhost).');
-  u.pathname = `${u.pathname.replace(/\/+$/, '')}/v1/${id}${slot ? `/${slot}` : ''}`;
+  // the base may be given with or without its /v1, e.g. VITE_SYNC_URL=https://sync.example.com/v1
+  u.pathname = `${u.pathname.replace(/\/+$/, '').replace(/\/v1$/, '')}/v1/${id}${slot ? `/${slot}` : ''}`;
   return u.toString();
+}
+
+/** The kill-switch probe: anything but 200 { ok: true } means "use files this time". */
+export async function health(base: string, f: typeof fetch = fetch): Promise<void> {
+  const res = await call(blobUrl(base, 'health', null), { method: 'GET' }, f);
+  let ok = false;
+  try { ok = res.ok && (await res.json())?.ok === true; } catch { /* not JSON */ }
+  if (!ok) throw new ServerUnavailable(res.status === 503 ? 'The sync server is switched off for now.' : `The sync server answered ${res.status}.`);
 }
 
 async function call(url: string, init: RequestInit, f: typeof fetch): Promise<Response> {
@@ -181,6 +190,7 @@ export async function syncRound(opts: {
   merge: (text: string) => string; local: () => string; f?: typeof fetch;
 }): Promise<{ note: string; secret: SyncSecret }> {
   let secret = opts.secret;
+  await health(opts.base, opts.f);
   for (let attempt = 0; ; attempt++) {
     const remote = await pull(opts.base, opts.id, opts.f);
     let note = 'Nothing was stored under this sync ID yet, so this browser’s data was uploaded.';

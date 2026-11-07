@@ -52,7 +52,7 @@ export function fileKv(dir) {
   };
 }
 
-const env = { BLOBS: fileKv(DIR), ALLOW_ORIGIN: process.env.ALLOW_ORIGIN ?? '*', SYNC_DISABLED: process.env.SYNC_DISABLED ?? '0' };
+const env = { SYNC: fileKv(DIR), ALLOW_ORIGIN: process.env.ALLOW_ORIGIN ?? '*', SYNC_DISABLED: process.env.SYNC_DISABLED ?? '0' };
 
 createServer(async (req, res) => {
   try {

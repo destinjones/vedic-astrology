@@ -21,6 +21,11 @@ interface Props {
 
 const resolvePlace = async (q: string) => (await searchGazetteer(q, 1))[0] ?? null;
 const stamp = () => new Date().toISOString().slice(0, 10);
+/** UTF-8 when it is valid, otherwise Windows-1252, which older desktop programs (Solar Fire, Astrolog) write */
+const fileText = async (f: File) => {
+  const bytes = await f.arrayBuffer();
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(bytes); } catch { return new TextDecoder('windows-1252').decode(bytes); }
+};
 
 /** Export, import, bulk paste and encrypted sync, under the saved charts list. */
 export function DataTools({ profiles, onImport, backupText, onMerge }: Props) {
@@ -121,18 +126,20 @@ export function DataTools({ profiles, onImport, backupText, onMerge }: Props) {
         Paste one chart per line, like <code>Asha, 1990-08-15, 06:30, New Delhi</code> or with coordinates and a zone
         {' '}<code>Ravi; 3/11/1985; 11:45 pm; 19.076, 72.8777; Asia/Kolkata</code>. You can also paste a CSV with a header row,
         AAF records, or the text of an Astro-Databank or astro.com chart page. You can also open a Jagannatha Hora <code>.jhd</code>, an Astrolog
-        {' '}<code>.as</code> or <code>.chtk</code>, an Astro-Databank XML export or an iCalendar <code>.ics</code> file.
+        {' '}<code>.as</code> or <code>.chtk</code>, an Astro-Databank XML export, a Solar Fire Quick*Chart
+        {' '}or <code>charts.txt</code> export, or an iCalendar <code>.ics</code> file.
         Places are looked up in this browser.
       </p>
       <textarea value={paste} onChange={(e) => setPaste(e.target.value)} placeholder={'Asha, 1990-08-15, 06:30, New Delhi\nRavi, 1985-11-03, 23:45, Mumbai'} aria-label="Charts to import" />
       <div className="data-row">
         <button type="button" className="btn-ghost sm" disabled={!paste.trim()} onClick={() => void read(paste)}>Check these</button>
         <button type="button" className="btn-ghost sm" onClick={() => fileRef.current?.click()}>Open a file…</button>
-        <input ref={fileRef} type="file" hidden accept=".csv,.json,.aaf,.jhd,.as,.chtk,.xml,.ics,.txt,text/plain,text/calendar,application/xml,text/xml,text/csv,application/json"
-          onChange={async (e) => { const f = e.target.files?.[0]; if (f) await read(await f.text(), f.name); e.target.value = ''; }} />
+        <input ref={fileRef} type="file" hidden accept=".csv,.json,.aaf,.jhd,.as,.chtk,.qck,.dat,.xml,.ics,.txt,text/plain,text/calendar,application/xml,text/xml,text/csv,application/json"
+          onChange={async (e) => { const f = e.target.files?.[0]; if (f) await read(await fileText(f), f.name); e.target.value = ''; }} />
       </div>
       {drafts && (
         <>
+          {[...new Set(drafts.map((d) => d.note).filter(Boolean))].map((n) => <p key={n} className="muted import-note">{n}</p>)}
           <ul className="import-preview">
             {drafts.map((d, i) => (
               <li key={i} className={d.input ? '' : 'bad'}>

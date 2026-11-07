@@ -32,6 +32,8 @@ export interface ImportDraft {
   error?: string;
   /** a place name that still needs coordinates (bulk paste) */
   needsPlace?: string;
+  /** something the person should know about this record, shown in the preview */
+  note?: string;
 }
 
 export type PlaceResolver = (query: string) => Promise<{ name: string; latitude: number; longitude: number; timezone: string } | null>;
@@ -499,11 +501,109 @@ export async function parseIcs(text: string, resolve: PlaceResolver): Promise<Im
   return out;
 }
 
+/* ---------- Solar Fire Quick*Chart (.qck): 100-column records ---------- */
+
+const QCK_LINE = /^.{23}[A-Z]{3} [ \d]\d, -?\d{4}\d{2}:\d{2}:\d{2} [AP]M .{3}[+-]\d{2}:\d{2}\d{3}[EW]\d{2}'\d{2} \d{2}[NS]\d{2}'\d{2} /i;
+const QCK_NOTE = 'Quick*Chart records carry no Rodden rating, source or notes.';
+
+/** Astrolog's test: every line is 100 or 101 characters. A paste that lost its trailing spaces still matches the layout. */
+export const looksLikeQuickChart = (text: string) => {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim());
+  return lines.length > 0 && QCK_LINE.test(lines[0]) && (lines.every((l) => l.length === 100 || l.length === 101) || lines.every((l) => QCK_LINE.test(l)));
+};
+
+export function parseQuickChart(text: string): ImportDraft[] {
+  return text.split(/\r?\n/).filter((l) => l.trim()).map((line): ImportDraft => {
+    const col = (from: number, to: number) => line.slice(from - 1, to);
+    try {
+      const rawName = col(1, 23).trim();
+      const comma = rawName.indexOf(',');
+      const name = comma >= 0 ? `${rawName.slice(comma + 1).trim()} ${rawName.slice(0, comma).trim()}`.trim() : rawName;
+      const dm = /^([A-Z]{3}) ([ \d]\d), (-?\d{4})$/i.exec(col(24, 35));
+      const mo = dm ? MONTHS.findIndex((x) => x.startsWith(dm[1].toLowerCase())) : -1;
+      const time = normaliseTime(`${col(36, 43)} ${col(45, 46)}`);
+      const off = /^([+-])(\d{2}):(\d{2})$/.exec(col(51, 56));
+      const lon = /^(\d{3})([EW])(\d{2})'(\d{2})$/i.exec(col(57, 65));
+      const lat = /^(\d{2})([NS])(\d{2})'(\d{2})$/i.exec(col(67, 74));
+      if (!dm || mo < 0 || !time || !off || !lon || !lat) return { source: line.trimEnd(), error: 'Not a Quick*Chart record' };
+      const deg = (d: string, m: string, sec: string, neg: boolean) => (neg ? -1 : 1) * (Number(d) + Number(m) / 60 + Number(sec) / 3600);
+      const latitude = deg(lat[1], lat[3], lat[4], lat[2].toUpperCase() === 'S');
+      const longitude = deg(lon[1], lon[3], lon[4], lon[2].toUpperCase() === 'W');
+      // west-positive, like Astrolog: "CST +06:00" is UTC−6. The abbreviation is ignored.
+      const utcOffsetMinutes = -(off[1] === '-' ? -1 : 1) * (Number(off[2]) * 60 + Number(off[3]));
+      const place = col(76, 101).trim() || `${lat[0]} ${lon[0]}`;
+      const draft = finish(line.trimEnd(), { name, date: isoDate(Number(dm[3]), mo + 1, Number(dm[2])), time, latitude, longitude, utcOffsetMinutes, place });
+      return { ...draft, note: QCK_NOTE };
+    } catch {
+      return { source: line.trimEnd(), error: 'Could not read this record' };
+    }
+  });
+}
+
+/* ---------- Solar Fire text export (charts.txt): name, time, place, blank ---------- */
+
+const SF_TIME = /^([A-Za-z]{3,})\.?\s+(\d{1,2}),?\s+(-?\d{1,4})\s+(\d{1,2}:\d{2}(?::\d{2})?\s*[ap]\.?m\.?)\s*(\S+)?\s*$/i;
+
+const blocks = (text: string) => text.split(/\r?\n(?:[ \t]*\r?\n)+/).map((b) => b.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)).filter((b) => b.length);
+
+export const looksLikeSolarFireText = (text: string) => {
+  const b = blocks(text);
+  return b.length > 0 && b.every((x) => x.length >= 3 && SF_TIME.test(x[1]));
+};
+
+/** UTC offset of a zone on a date with daylight saving taken out: the smaller of its January and July offsets. */
+function standardOffset(zone: string, y: number): number | null {
+  const at = (mo: number) => {
+    try {
+      const name = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'longOffset' }).formatToParts(new Date(Date.UTC(y, mo, 1, 12)))
+        .find((p) => p.type === 'timeZoneName')?.value ?? '';
+      const m = /GMT(?:([+-])(\d{1,2})(?::(\d{2}))?)?/.exec(name);
+      return m ? (m[1] === '-' ? -1 : 1) * (Number(m[2] ?? 0) * 60 + Number(m[3] ?? 0)) : null;
+    } catch { return null; }
+  };
+  const a = at(0), b = at(6);
+  return a === null || b === null ? null : Math.min(a, b);
+}
+
+export async function parseSolarFireText(text: string, resolve: PlaceResolver): Promise<ImportDraft[]> {
+  const out: ImportDraft[] = [];
+  for (const b of blocks(text)) {
+    // anything past three lines is comments
+    const [name, timeLine, location] = b;
+    const source = `${name} · ${timeLine} · ${location}`;
+    const m = SF_TIME.exec(timeLine);
+    const mo = m ? MONTHS.findIndex((x) => x.startsWith(m[1].toLowerCase().slice(0, 3))) : -1;
+    const time = m ? normaliseTime(m[4]) : null;
+    if (!m || mo < 0 || !time) { out.push({ source, error: 'Unreadable date or time line' }); continue; }
+    const year = Number(m[3]);
+    const zone = (m[5] ?? '').toUpperCase();
+    const explicit = /^([+-])(\d{1,2}):(\d{2})$/.exec(zone);
+    if (!explicit && !['ST', 'DT', 'LT', 'LMT'].includes(zone)) { out.push({ source, error: `Zone "${m[5] ?? 'none'}" not understood; expected ST, DT, LMT or ±HH:MM` }); continue; }
+    const hit = (await resolve(location)) ?? (location.includes(',') ? await resolve(location.split(',')[0]) : null);
+    if (!hit) { out.push({ source, error: `Place "${location}" not found offline`, needsPlace: location }); continue; }
+    let utcOffsetMinutes: number | undefined;
+    if (explicit) utcOffsetMinutes = -(explicit[1] === '-' ? -1 : 1) * (Number(explicit[2]) * 60 + Number(explicit[3])); // west-positive
+    else if (zone === 'LT' || zone === 'LMT') utcOffsetMinutes = Math.round(hit.longitude * 4);
+    else {
+      const std = standardOffset(hit.timezone, year);
+      if (std === null) { out.push({ source, error: `No standard time known for ${hit.timezone}` }); continue; }
+      utcOffsetMinutes = std + (zone === 'DT' ? 60 : 0);
+    }
+    out.push(finish(source, {
+      name, date: isoDate(year, mo + 1, Number(m[2])), time, latitude: hit.latitude, longitude: hit.longitude,
+      timezone: hit.timezone, place: location, utcOffsetMinutes,
+    }));
+  }
+  return out;
+}
+
 /** Picks the right reader for a file or pasted text. */
 export async function parseAny(text: string, fileName: string, resolve: PlaceResolver): Promise<ImportDraft[]> {
   const t = text.trim();
   if (/^@AI\d+/.test(t)) return parseAstrolog(t, fileName.split(/[\\/]/).pop());
   if (/<adb_entry\b/i.test(t)) return parseAdbXml(t);
+  if (looksLikeQuickChart(text)) return parseQuickChart(text);
+  if (looksLikeSolarFireText(t)) return parseSolarFireText(t, resolve);
   if (/^BEGIN:VCALENDAR/i.test(t) || /\bBEGIN:VEVENT\b/i.test(t)) return parseIcs(t, resolve);
   if (/\.jhd$/i.test(fileName)) return parseJhd(text, fileName.split(/[\\/]/).pop());
   if (/^#A93:/im.test(t)) return parseAaf(t);

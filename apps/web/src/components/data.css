@@ -67,3 +67,4 @@
 .data-tools .sync-server { border-left: 2px solid var(--line, rgba(255,255,255,0.12)); padding-left: 12px; }
 .data-tools .sync-server input.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.02em; min-width: 0; flex: 1 1 22ch; }
 .data-tools .btn-ghost.is-on { border-color: var(--accent); color: var(--accent); }
+.import-note { font-size: 12.5px; margin: 8px 0 0; }

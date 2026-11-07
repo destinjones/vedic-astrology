@@ -32,6 +32,7 @@ All paths are under the server's base URL, e.g. `https://sync.example.com`.
 
 | Request | Headers | Answers |
 |---|---|---|
+| `GET /v1/health` | | `200 { "ok": true }`; the client probes this first, and anything else sends it to file sync |
 | `GET /v1/<id>/<slot>` | optional `If-None-Match: <etag>` | `200` body + `ETag` + `Last-Modified`; `304` unchanged; `404` nothing stored |
 | `HEAD /v1/<id>/<slot>` | | as GET, without the body |
 | `PUT /v1/<id>/<slot>` | `If-None-Match: *` to create, or `If-Match: <etag>` to replace | `201` created or `200` replaced, with the new `ETag` and `{ "etag", "updated" }`; `412` the precondition failed (someone wrote first; read, merge, retry); `428` no precondition sent; `400` not an envelope; `413` over 2 MB; `409` the ID already has 50 slots |
@@ -39,6 +40,8 @@ All paths are under the server's base URL, e.g. `https://sync.example.com`.
 | `DELETE /v1/<id>` | | `204`, every slot under the ID is gone |
 | `GET /v1/<id>` | | `200 { "slots": [{ "slot", "etag", "updated" }] }` |
 | `OPTIONS *` | | `204` with CORS headers |
+
+CORS allows the origins listed in `ALLOW_ORIGIN` (comma-separated; the matching one is echoed), methods GET, HEAD, PUT and DELETE, and request headers `If-Match`, `If-None-Match` and `Content-Type`. `ETag`, `Last-Modified` and `Retry-After` are exposed. There are no cookies, so there is no `Allow-Credentials`.
 
 Any request can also answer `429` (rate limit, with `Retry-After`) or `503` (the server's kill switch is on). ETags are strong: the first 128 bits of the body's SHA-256, quoted.
 
@@ -52,6 +55,7 @@ Any request can also answer `429` (rate limit, with `Retry-After`) or `503` (the
 
 ## Client behaviour
 
+0. `GET /v1/health`. Anything but `200 { "ok": true }` goes straight to step 4.
 1. `GET` the slot. If it exists, decrypt it with the passphrase and merge it into the local data (merging keeps everything from both sides).
 2. Seal the local data and `PUT` it with `If-Match` set to the ETag from step 1, or `If-None-Match: *` if there was nothing.
 3. On `412`, go back to step 1 (at most twice more).
@@ -61,7 +65,9 @@ Cloudflare KV is eventually consistent across locations, so `If-Match` is checke
 
 ## Running a server
 
-- **Cloudflare Worker with KV** (what the public site uses): see `wrangler.toml` in this folder. Create the KV namespace, set the custom domain (`sync.<your domain>`, not workers.dev) and `ALLOW_ORIGIN`, then `npx wrangler deploy`. Set `SYNC_DISABLED = "1"` to switch it off; clients fall back to files.
+- **Cloudflare Worker with KV** (what the public site will use): see `wrangler.toml` in this folder. `npx wrangler kv namespace create SYNC`, put the id under `[[kv_namespaces]]`, then `npx wrangler deploy`. Set `SYNC_DISABLED = "1"` to switch it off; clients fall back to files.
+  - The planned home is `sync.jyotisha.app`, as the route `sync.jyotisha.app/v1/*` on the `jyotisha.app` zone. That route needs a proxied DNS record for `sync`; a placeholder `AAAA 100::` is enough.
+  - `workers.dev` is fine for testing. Don't build the site against it or announce it, because browsers would pin it.
 - **Plain Node** for local testing or a small box behind an HTTPS proxy: `node tools/sync-server.mjs` runs the same Worker code with blobs in a folder.
 
-In the app, tick "Sync through a server you trust (optional)" and paste the server's base URL. To list a server as a one-click choice in a build of the site, set `VITE_SYNC_URL=https://sync.your-domain.example` (and optionally `VITE_SYNC_LABEL`) when building.
+In the app, tick "Sync through a server you trust (optional)" and paste the server's base URL, with or without `/v1`. To list a server as a one-click choice in a build of the site, set `VITE_SYNC_URL=https://sync.jyotisha.app/v1` (and optionally `VITE_SYNC_LABEL`) when building. Self-hosters only need that one line, pointed at their own server.

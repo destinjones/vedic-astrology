@@ -4,11 +4,10 @@ An optional, zero-knowledge store for the explorer's encrypted sync. The request
 
 ```sh
 cd tools/sync-worker
-npx wrangler kv namespace create BLOBS   # put the id in wrangler.toml
-# set routes to sync.<your domain> and ALLOW_ORIGIN to your site's origin
-npx wrangler deploy
+npx wrangler kv namespace create SYNC    # put the id in wrangler.toml (it is not a secret)
+npx wrangler deploy                      # workers.dev, for testing
 ```
 
-Then build the site with `VITE_SYNC_URL=https://sync.<your domain>` to offer it as a choice, or paste the URL into the app's sync box.
+For production, once the `jyotisha.app` zone is on Cloudflare: uncomment the `sync.jyotisha.app/v1/*` route in `wrangler.toml`, set `workers_dev = false`, deploy, and build the site with `VITE_SYNC_URL=https://sync.jyotisha.app/v1`. Don't publish a build pointing at workers.dev.
 
 For local testing, `node tools/sync-server.mjs` runs the same code on port 8787 with blobs in `./sync-data`.

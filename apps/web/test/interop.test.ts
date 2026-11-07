@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import gaz from '../src/data/gazetteer.json';
 import { parseGazetteer, searchPlacesIn } from '../src/lib/gazetteer';
-import { normaliseDate, normaliseTime, parseAaf, parseAny, parseAstroDatabank, parseBulk, parseCsv, parseDegMin, parseJhd, profilesToAaf, profilesToCsv } from '../src/lib/interop';
+import { normaliseDate, normaliseTime, parseAaf, parseAny, parseAstroDatabank, parseBulk, parseCsv, parseDegMin, parseJhd, parseQuickChart, profilesToAaf, profilesToCsv } from '../src/lib/interop';
 import type { Profile } from '../src/lib/profiles';
 
 const places = parseGazetteer(gaz as never);
@@ -127,5 +127,37 @@ END:VCALENDAR`, resolve);
   it('parseAny sniffs the new formats', async () => {
     expect((await parseAny('@AI800\n/qb Nov 19 1971 11:01am ST +8:00 122:19:59W 47:36:35N', 'x', resolve))[0].input?.date).toBe('1971-11-19');
     expect((await parseAny('BEGIN:VCALENDAR\nBEGIN:VEVENT\nDTSTART:20000101T000000Z\nGEO:0;0\nEND:VEVENT\nEND:VCALENDAR', 'x.ics', resolve))[0].input).toBeTruthy();
+  });
+});
+
+describe('Solar Fire formats', () => {
+  const QCK = [
+    "Stoppard,Miriam        MAY 12, 193705:00:00 AM BST-01:00001W35'00 54N59'00 Newcastle upon Tyne, Engla",
+    "Roberts,Robin          NOV 23, 196010:30:00 AM CST+06:00089W14'51 30N18'56 Pass Christian, Mississipp",
+  ].join('\r\n');
+  it('reads Quick*Chart records by their fixed columns', async () => {
+    const [a, b] = await parseAny(QCK, 'export.dat', async () => null);
+    expect(a.input).toMatchObject({ name: 'Miriam Stoppard', date: '1937-05-12', time: '05:00:00', utcOffsetMinutes: 60, place: 'Newcastle upon Tyne, Engla' });
+    expect(a.input!.longitude).toBeCloseTo(-(1 + 35 / 60), 6);
+    expect(a.input!.latitude).toBeCloseTo(54 + 59 / 60, 6);
+    expect(a.note).toMatch(/no Rodden rating/);
+    expect(b.input).toMatchObject({ name: 'Robin Roberts', date: '1960-11-23', time: '10:30:00', utcOffsetMinutes: -360 });
+    expect(b.input!.longitude).toBeCloseTo(-(89 + 14 / 60 + 51 / 3600), 6);
+    expect(b.input!.latitude).toBeCloseTo(30 + 18 / 60 + 56 / 3600, 6);
+  });
+  it('one bad Quick*Chart line does not sink the rest', () => {
+    const drafts = parseQuickChart(`${QCK}\r\nBroken,Line            XYZ 99, 19xx`);
+    expect(drafts.filter((d) => d.input)).toHaveLength(2);
+    expect(drafts[2].error).toBeTruthy();
+  });
+  it('reads the charts.txt text export, with ST, explicit offsets and comments', async () => {
+    const seattle = { name: 'Seattle', latitude: 47.6062, longitude: -122.3321, timezone: 'America/Los_Angeles' };
+    const resolve = async (q: string) => (/^seattle/i.test(q) ? seattle : null);
+    const text = '\nWalter D. Pullen\nNov 19 1971 11:01 am ST\nSeattle, WA, USA\n\nSomeone Else\nJuly 4, 1980 3:15 pm -05:00\nSeattle, WA, USA\na comment line\n\nNowhere Person\nJan 1 1990 9:00 am ST\nAtlantis\n';
+    const drafts = await parseAny(text, 'charts.txt', resolve);
+    expect(drafts[0].input).toMatchObject({ name: 'Walter D. Pullen', date: '1971-11-19', time: '11:01', utcOffsetMinutes: -480, place: 'Seattle, WA, USA' });
+    // July in Seattle is daylight time, but ST means standard: still UTC−8; an explicit -05:00 is west-positive, so UTC+5
+    expect(drafts[1].input).toMatchObject({ date: '1980-07-04', time: '15:15', utcOffsetMinutes: 300 });
+    expect(drafts[2].error).toMatch(/Atlantis/);
   });
 });

@@ -29,7 +29,7 @@ There is no second page and no price. Click any planet, house or nakshatra and t
 | **Four ayanamsas** | Lahiri, True Chitra, Raman and Krishnamurti |
 | **Eclipses and Sankrantis** | Every eclipse with its shadow path, whether your place sees it and which chart points it lands on; the twelve Sankranti ingress charts of any year, and national charts |
 | **Real stars** | Swap the 3D view's painted backdrop for the real stars and constellations, or show the sky tonight |
-| **Your data, your way** | Rodden rating per chart, CSV, JSON and AAF export, bulk paste, imports from Astro-Databank (page text and XML), AAF, Jagannatha Hora, Astrolog and iCalendar, a batch view of every saved chart, and encrypted sync with no account |
+| **Your data, your way** | Rodden rating per chart, CSV, JSON and AAF export, bulk paste, imports from Astro-Databank (page text and XML), AAF, Jagannatha Hora, Astrolog, Solar Fire (Quick*Chart and text export) and iCalendar, a batch view of every saved chart, and encrypted sync with no account |
 
 ## Hold your birth sky in your hands
 

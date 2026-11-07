@@ -21,7 +21,7 @@ function memoryKv() {
 function server(extra: Record<string, unknown> = {}) {
   const kv = memoryKv();
   let n = 0;
-  const env = { BLOBS: kv, LIMITER: { limit: async () => ({ success: true }) }, ...extra };
+  const env = { SYNC: kv, LIMITER: { limit: async () => ({ success: true }) }, ...extra };
   const f = (async (url: string, init?: RequestInit) => { n++; return worker.fetch(new Request(url, init), env); }) as typeof fetch;
   return { kv, f, calls: () => n };
 }
@@ -66,6 +66,7 @@ describe('encrypted sync', () => {
     expect(() => blobUrl('http://example.com', 'ab')).toThrow(ServerUnavailable);
     expect(blobUrl('https://example.com/sync/', 'ab')).toBe('https://example.com/sync/v1/ab/main');
     expect(blobUrl('http://localhost:8787', 'ab', null)).toBe('http://localhost:8787/v1/ab');
+    expect(blobUrl('https://sync.example.com/v1/', 'ab')).toBe('https://sync.example.com/v1/ab/main');
   });
 });
 
@@ -111,9 +112,17 @@ describe('sync server', () => {
     const limited = server({ LIMITER: { limit: async ({ key }: { key: string }) => ({ success: key !== id }) } });
     expect((await limited.f(`${BASE}/v1/${id}/main`)).status).toBe(429);
     expect((await limited.f(`${BASE}/v1/${'f'.repeat(32)}/main`)).status).toBe(404);
+    const cors = server({ ALLOW_ORIGIN: 'https://jyotisha.app,https://destinjones.github.io' });
+    const pre = await cors.f(`${BASE}/v1/${id}/main`, { method: 'OPTIONS', headers: { Origin: 'https://destinjones.github.io' } });
+    expect(pre.headers.get('Access-Control-Allow-Origin')).toBe('https://destinjones.github.io');
+    expect(pre.headers.get('Access-Control-Allow-Credentials')).toBeNull();
+    expect(await (await cors.f(`${BASE}/v1/health`)).json()).toEqual({ ok: true });
     const off = server({ SYNC_DISABLED: '1' });
+    expect((await off.f(`${BASE}/v1/health`)).status).toBe(503);
     expect((await off.f(`${BASE}/v1/${id}/main`)).status).toBe(503);
     await expect(pull(BASE, id, off.f)).rejects.toBeInstanceOf(ServerUnavailable);
+    await expect(syncRound({ base: BASE, id, pass: 'correct horse battery staple', secret: null, merge: () => '', local: () => '', f: off.f })).rejects.toBeInstanceOf(ServerUnavailable);
+    expect(off.calls()).toBe(4);
   });
   it('a sync round merges both devices, retrying after a conflict', async () => {
     const { f } = server();

@@ -1,21 +1,26 @@
-# Deploy:  cd tools/sync-worker && npx wrangler kv namespace create BLOBS   (paste the id below)
-#          npx wrangler deploy
+# Deploy:
+#   cd tools/sync-worker
+#   npx wrangler kv namespace create SYNC      # put the returned id below; it is not a secret
+#   npx wrangler deploy
 name = "jyotisha-sync"
 main = "worker.mjs"
 compatibility_date = "2026-10-01"
 
-# Serve on your own subdomain, not on workers.dev. The zone must be on Cloudflare.
-workers_dev = false
-routes = [{ pattern = "sync.example.com", custom_domain = true }]
+# For testing only, until the domain exists. Do not announce or build the site against a
+# workers.dev URL, or every browser pins it.
+workers_dev = true
+# Once jyotisha.app is a zone on this Cloudflare account: uncomment, and set workers_dev = false.
+# routes = [{ pattern = "sync.jyotisha.app/v1/*", zone_name = "jyotisha.app" }]
 
 [vars]
-ALLOW_ORIGIN = "https://destinjones.github.io"
-# Kill switch: set to "1" (or `npx wrangler secret put SYNC_DISABLED`) and every request gets 503;
+# Comma-separated. Keep the github.io origin only while the site moves to the apex.
+ALLOW_ORIGIN = "https://jyotisha.app,https://destinjones.github.io"
+# Kill switch: "1" answers 503 to everything, including /v1/health;
 # browsers then fall back to file sync and say so once.
 SYNC_DISABLED = "0"
 
 [[kv_namespaces]]
-binding = "BLOBS"
+binding = "SYNC"
 id = "REPLACE_WITH_KV_NAMESPACE_ID"
 
 # Per-sync-ID rate limit: 60 requests a minute.
