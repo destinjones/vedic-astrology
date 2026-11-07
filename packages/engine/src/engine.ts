@@ -389,7 +389,7 @@ function makeEngine(swe: SwissEph): Engine {
         nodeSigns: [planets.rahu.sign, planets.ketu.sign],
         ascendant: hd.asc,
         midheaven: hd.mc,
-        bhavaMadhya: houses.map((h, i) => (equalMadhya ? norm360(hd.asc + 30 * i) : hd.cusps[i])),
+        bhavaMadhya: houses.map((_h, i) => (equalMadhya ? norm360(hd.asc + 30 * i) : hd.cusps[i])),
         houseSigns: houses.map((h) => h.sign),
         jdUt: jd,
         ...day,
