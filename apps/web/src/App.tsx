@@ -33,6 +33,7 @@ import { loadKnowledge, type Knowledge } from './lib/readings';
 const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
 const EventChecker = lazy(() => import('./components/EventChecker'));
+const JaiminiSection = lazy(() => import('./components/JaiminiSection'));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
 function WhenVisible({ children, minHeight }: { children: React.ReactNode; minHeight: number }) {
@@ -500,6 +501,17 @@ export default function App() {
           </div>
 
           {chart.dasha && <DashaCard chart={chart} />}
+
+          {chart.engineContext && (
+            <section className="card" id="jaimini">
+              <div className="card-head"><h3>Jaimini astrology</h3><span className="muted">chara karakas, arudha padas, sign aspects and chara dasha</span></div>
+              <WhenVisible minHeight={600}>
+                <Suspense fallback={<div className="sky-overlay static">Working out the Jaimini layer…</div>}>
+                  <JaiminiSection key={chart.engineContext.chart.meta.utc} chart={chart.engineContext.chart} />
+                </Suspense>
+              </WhenVisible>
+            </section>
+          )}
 
           {chart.engineContext && (
             <section className="card timing-host" id="timing">

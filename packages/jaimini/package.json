@@ -1,0 +1,24 @@
+{
+  "name": "@vedic/jaimini",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Jaimini system: chara karakas (7 or 8), arudha padas with Arudha Lagna and Upapada, rashi drishti, Karakamsa and chara dasha, with readings.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@vedic/engine": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
