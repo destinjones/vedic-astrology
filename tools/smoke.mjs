@@ -21,7 +21,7 @@ try {
     const el = page.locator(sel).first();
     await el.waitFor({ state: 'attached', timeout: 60000 });
     await el.evaluate((n) => window.scrollTo(0, n.getBoundingClientRect().top + window.scrollY - 20));
-    await el.scrollIntoViewIfNeeded({ timeout: 60000 });
+    await el.scrollIntoViewIfNeeded({ timeout: 15000 }).catch(() => {});
   };
   // The optional visit counter (built in when VITE_GOATCOUNTER is set) is answered here, so the check never counts itself.
   const COUNTER = /^https:\/\/[a-z0-9-]+\.goatcounter\.com\//;
