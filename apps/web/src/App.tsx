@@ -19,6 +19,7 @@ import { loadKnowledge, type Knowledge } from './lib/readings';
 
 const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
+const RectificationSection = lazy(() => import('./components/RectificationSection'));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
 function WhenVisible({ children, minHeight }: { children: React.ReactNode; minHeight: number }) {
@@ -243,6 +244,21 @@ export default function App() {
               <WhenVisible minHeight={600}>
                 <Suspense fallback={<div className="sky-overlay static">Working out your timeline…</div>}>
                   <TimingSection key={chart.engineContext.chart.meta.utc} context={chart.engineContext} name={chart.input.name} />
+                </Suspense>
+              </WhenVisible>
+            </section>
+          )}
+
+          {chart.engineContext && (
+            <section className="card rect-host" id="rectify">
+              <div className="card-head"><h3>Birth time finder</h3><span className="muted">not sure of your exact time? narrow it down from your life events</span></div>
+              <WhenVisible minHeight={420}>
+                <Suspense fallback={<div className="sky-overlay static">Loading the birth time finder…</div>}>
+                  <RectificationSection
+                    key={`${chart.input.date}|${chart.input.latitude}|${chart.input.longitude}`}
+                    context={chart.engineContext}
+                    onApply={(date, time) => { void run({ ...input, date, time }); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  />
                 </Suspense>
               </WhenVisible>
             </section>
