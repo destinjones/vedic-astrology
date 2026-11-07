@@ -99,9 +99,8 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: chart-picture-diffs
-          path: |
-            playwright-report
-            test-results
+          # the HTML report already holds each expected/actual/diff picture
+          path: playwright-report
           retention-days: 14
 
   # WebAssembly and three.js break first outside Chromium.

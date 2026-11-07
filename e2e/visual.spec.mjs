@@ -13,6 +13,8 @@ const FLAT = 'body, .card { background: #17142f !important; backdrop-filter: non
 for (const [size, viewport] of Object.entries(BREAKPOINTS)) {
   for (const [style, label] of Object.entries(STYLES)) {
     test(`chart ${style} ${size}`, async ({ page }) => {
+      // 16 pictures per test, each taken until two in a row match; CI runners need several minutes
+      test.setTimeout(10 * 60_000);
       await page.setViewportSize(viewport);
       await page.goto('app/#sample');
       await page.waitForSelector('.summary-strip', { timeout: 60_000 });
