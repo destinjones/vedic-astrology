@@ -10,10 +10,16 @@
  *    ("born on 2 October 1869 at 07:12 … Porbandar, India, 21n38, 69e36 … Rodden Rating AA")
  *  - Jagannatha Hora .jhd files (month, day, year, time as H.MMSS, then the
  *    zone, longitude and latitude in D.MM with east and the zone ahead of UTC negative)
+ *  - Astrolog chart info files (.as, and .chtk before Astrolog 6): an @AI header,
+ *    then /qb month day year time daylight zone longitude latitude, and /zi name place.
+ *    Astrolog's zone is hours WEST of Greenwich, so +8:00 is UTC−8.
+ *  - Astro-Databank XML (adb_entry records, as astro.com exports them)
+ *  - iCalendar (.ics) events: DTSTART is the birth moment, SUMMARY the name,
+ *    LOCATION the place and GEO the coordinates
  *
  * Every parser returns drafts; nothing is saved until the person confirms.
  */
-import { timezoneAt } from '@vedic/engine/time';
+import { julianCalendarToJdn, timezoneAt } from '@vedic/engine/time';
 import type { BirthInput, RoddenRating, TimeConfidence } from '../types/chart';
 import { sanitizeInput, type Profile } from './profiles';
 import { RODDEN_RATINGS } from './birthQuality';
@@ -307,9 +313,198 @@ export async function parseBulk(text: string, resolve: PlaceResolver): Promise<I
   return out;
 }
 
+/* ---------- Astrolog .as / .chtk ---------- */
+
+/** "122:19:59W", "47:36:35N", "122W20", "-122.33" → signed degrees (east and north positive) */
+function astrologAngle(s: string): number {
+  const m = /^([+-]?\d+(?:\.\d+)?)(?::(\d+(?:\.\d+)?))?(?::(\d+(?:\.\d+)?))?([NSEW])?$/i.exec(s);
+  const m2 = /^(\d+)([NSEW])(\d+(?:\.\d+)?)$/i.exec(s);
+  if (m2) { const v = Number(m2[1]) + Number(m2[3]) / 60; return /[SW]/i.test(m2[2]) ? -v : v; }
+  if (!m) return NaN;
+  const v = Math.abs(Number(m[1])) + (m[2] ? Number(m[2]) / 60 : 0) + (m[3] ? Number(m[3]) / 3600 : 0);
+  const neg = m[1].startsWith('-') !== /[SW]/i.test(m[4] ?? '');
+  return neg ? -v : v;
+}
+
+/** Astrolog hours: "+8:00", "-5:30", "8", "5:30E" (east), "ST" = 0, "DT" = 1 */
+function astrologHours(s: string): number {
+  if (/^ST$/i.test(s)) return 0;
+  if (/^DT$/i.test(s)) return 1;
+  const m = /^([+-]?)(\d+(?:\.\d+)?)(?::(\d+))?(?::(\d+))?([EW])?$/i.exec(s);
+  if (!m) return NaN;
+  const v = Number(m[2]) + (m[3] ? Number(m[3]) / 60 : 0) + (m[4] ? Number(m[4]) / 3600 : 0);
+  // a trailing E means east of Greenwich, which Astrolog writes as negative
+  const neg = (m[1] === '-') !== /E/i.test(m[5] ?? '');
+  return neg ? -v : v;
+}
+
+/** Splits a command line into words, keeping "quoted strings" whole. */
+const words = (line: string) => [...line.matchAll(/"([^"]*)"|(\S+)/g)].map((m) => m[1] ?? m[2]);
+
+export function parseAstrolog(text: string, fileName = ''): ImportDraft[] {
+  const lines = text.split(/\r?\n/);
+  const src = fileName || 'Astrolog file';
+  if (!/^@AI\d+/.test(lines[0]?.trim() ?? '')) return [{ source: src, error: 'Not an Astrolog chart file (no @AI header on the first line)' }];
+  let qb: string[] | null = null;
+  let zi: string[] = [];
+  for (const raw of lines.slice(1)) {
+    const line = raw.replace(/;.*$/, '').trim();
+    if (/^[-/]qb\b/i.test(line)) qb = words(line).slice(1);
+    else if (/^[-/]zi\b/i.test(line)) zi = words(line).slice(1);
+  }
+  if (!qb || qb.length < 8) return [{ source: src, error: 'No /qb line with eight fields' }];
+  const [mon, day, yr, tm, dst, zone, lon, lat] = qb;
+  const mo = /^\d+$/.test(mon) ? Number(mon) : MONTHS.findIndex((x) => x.startsWith(mon.toLowerCase().slice(0, 3))) + 1;
+  const longitude = astrologAngle(lon);
+  const latitude = astrologAngle(lat);
+  const raw: Record<string, unknown> = {
+    name: zi[0] ?? fileName.replace(/\.(as|chtk)$/i, ''),
+    date: mo >= 1 ? isoDate(Number(yr), mo, Number(day)) : '',
+    time: normaliseTime(tm) ?? '',
+    place: zi[1] ?? '',
+    latitude, longitude,
+  };
+  if (/^LMT$/i.test(zone)) raw.utcOffsetMinutes = Math.round(longitude * 4);
+  else {
+    const z = astrologHours(zone), d = astrologHours(dst);
+    if (Number.isFinite(z) && Number.isFinite(d)) raw.utcOffsetMinutes = Math.round((-z + d) * 60);
+  }
+  return [finish(src, raw)];
+}
+
+/* ---------- Astro-Databank XML ---------- */
+
+const attr = (tag: string, name: string) => new RegExp(`\\b${name}\\s*=\\s*"([^"]*)"`, 'i').exec(tag)?.[1];
+const xmlText = (s: string) => s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1').replace(/<[^>]+>/g, '')
+  .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&').trim();
+const element = (xml: string, name: string) => new RegExp(`<${name}\\b([^>]*)>([\\s\\S]*?)</${name}>|<${name}\\b([^>]*)/>`, 'i').exec(xml);
+const ADB_RATING: Record<string, RoddenRating> = { 1: 'AA', 2: 'A', 3: 'B', 4: 'C', 5: 'DD', 6: 'X', 7: 'XX' };
+
+/** "47n36", "122w20", "122w2030" (degrees, direction, minutes and optional seconds) */
+function adbAngle(s: string | undefined): number {
+  const m = /^(\d+)([nsew])(\d{2})(\d{2})?$/i.exec((s ?? '').trim());
+  if (!m) return NaN;
+  let v = Number(m[1]) + Number(m[3]) / 60 + (m[4] ? Number(m[4]) / 3600 : 0);
+  if (/[sw]/i.test(m[2])) v = -v;
+  if (v > 180) v -= 360;
+  if (v < -180) v += 360;
+  return v;
+}
+
+export function parseAdbXml(xml: string): ImportDraft[] {
+  const out: ImportDraft[] = [];
+  for (const m of xml.matchAll(/<adb_entry\b[^>]*>([\s\S]*?)<\/adb_entry>/gi)) {
+    const entry = m[1];
+    const pub = element(entry, 'public_data')?.[2] ?? entry;
+    const name = xmlText(element(pub, 'name')?.[2] ?? '');
+    const date = element(pub, 'sbdate');
+    const dAttrs = date?.[1] ?? date?.[3] ?? '';
+    const time = element(pub, 'sbtime');
+    const tAttrs = time?.[1] ?? time?.[3] ?? '';
+    const place = element(pub, 'place');
+    const pAttrs = place?.[1] ?? place?.[3] ?? '';
+    const country = xmlText(element(pub, 'country')?.[2] ?? '');
+    const rr = ADB_RATING[attr(element(pub, 'roddenrating')?.[0] ?? '', 'rrc') ?? ''];
+    const [y, mo, d] = [Number(attr(dAttrs, 'iyear')), Number(attr(dAttrs, 'imonth')), Number(attr(dAttrs, 'iday'))];
+    const julian = /^j/i.test(attr(dAttrs, 'ccalendar') ?? '');
+    const unknown = /^y/i.test(attr(tAttrs, 'time_unknown') ?? '');
+    const hhmm = unknown ? '12:00' : normaliseTime(xmlText(time?.[2] ?? '')) ?? '';
+    const latitude = adbAngle(attr(pAttrs, 'slati'));
+    const longitude = adbAngle(attr(pAttrs, 'slong'));
+    const raw: Record<string, unknown> = {
+      name,
+      date: Number.isFinite(y) && mo && d ? isoDate(y, mo, d) : '',
+      time: hhmm,
+      place: [xmlText(place?.[2] ?? ''), country].filter(Boolean).join(', '),
+      latitude, longitude,
+      ...(rr ? { rodden: rr } : {}),
+      ...(unknown ? { timeConfidence: 'unknown' as TimeConfidence } : {}),
+      ...(julian ? { calendar: 'julian' } : {}),
+    };
+    // the exact offset ADB used: local clock time minus the UT instant it records
+    const jdUt = Number(attr(tAttrs, 'jd_ut'));
+    const [hh, mm, ss = 0] = hhmm.split(':').map(Number);
+    if (!unknown && Number.isFinite(jdUt) && jdUt > 0 && raw.date) {
+      const jdLocal = calendarJdn(y, mo, d, julian) - 0.5 + (hh * 3600 + mm * 60 + ss) / 86400;
+      let off = Math.round((jdLocal - jdUt) * 1440);
+      if (off > 14 * 60) off -= 1440;
+      if (off < -14 * 60) off += 1440;
+      raw.utcOffsetMinutes = off;
+    } else if (/^l/i.test(attr(tAttrs, 'ctimetype') ?? '') && Number.isFinite(longitude)) {
+      raw.utcOffsetMinutes = Math.round(longitude * 4);
+    }
+    out.push(finish(name || 'adb_entry', raw));
+  }
+  return out;
+}
+
+/** Julian day number of a calendar date, in whichever calendar it was given. */
+function calendarJdn(y: number, m: number, d: number, julian: boolean): number {
+  if (julian) return julianCalendarToJdn(y, m, d);
+  const a = Math.floor((14 - m) / 12), yy = y + 4800 - a, mm = m + 12 * a - 3;
+  return d + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045;
+}
+
+/* ---------- iCalendar ---------- */
+
+export async function parseIcs(text: string, resolve: PlaceResolver): Promise<ImportDraft[]> {
+  // unfold continuation lines first (RFC 5545: a line starting with a space continues the previous one)
+  const lines = text.replace(/\r?\n[ \t]/g, '').split(/\r?\n/);
+  const out: ImportDraft[] = [];
+  let ev: Record<string, { params: string; value: string }> | null = null;
+  const unescape = (v: string) => v.replace(/\\n/gi, ' ').replace(/\\([,;\\])/g, '$1').trim();
+  for (const line of lines) {
+    if (/^BEGIN:VEVENT/i.test(line)) { ev = {}; continue; }
+    if (/^END:VEVENT/i.test(line) && ev) {
+      const e = ev; ev = null;
+      const dt = e.DTSTART;
+      const name = unescape(e.SUMMARY?.value ?? '');
+      if (!dt) { out.push({ source: name || 'event', error: 'No DTSTART' }); continue; }
+      const m = /^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?$/.exec(dt.value.trim());
+      if (!m) { out.push({ source: name || 'event', error: 'Unreadable DTSTART' }); continue; }
+      const dateOnly = !m[4];
+      const tzid = /TZID=([^;:]+)/i.exec(dt.params)?.[1]?.replace(/^"|"$/g, '');
+      const raw: Record<string, unknown> = {
+        name,
+        date: `${m[1]}-${m[2]}-${m[3]}`,
+        time: dateOnly ? '12:00' : `${m[4]}:${m[5]}${m[6] && m[6] !== '00' ? `:${m[6]}` : ''}`,
+        ...(dateOnly ? { timeConfidence: 'unknown' as TimeConfidence } : {}),
+        ...(m[7] ? { utcOffsetMinutes: 0 } : {}),
+      };
+      const geo = /^(-?\d+(?:\.\d+)?)[;,](-?\d+(?:\.\d+)?)$/.exec(e.GEO?.value.trim() ?? '');
+      const location = unescape(e.LOCATION?.value ?? '');
+      if (geo) Object.assign(raw, { latitude: Number(geo[1]), longitude: Number(geo[2]), place: location || undefined });
+      else if (location) {
+        const hit = await resolve(location);
+        if (!hit) { out.push({ source: name || location, error: `Place "${location}" not found offline; add GEO coordinates`, needsPlace: location }); continue; }
+        Object.assign(raw, { latitude: hit.latitude, longitude: hit.longitude, place: hit.name, timezone: hit.timezone });
+      } else { out.push({ source: name || 'event', error: 'No LOCATION or GEO' }); continue; }
+      // a TZID names the clock the time was read on; a UTC time is kept exact with offset 0
+      if (tzid) raw.timezone = tzid;
+      const draft = finish(name || 'event', raw);
+      // a UTC time (…Z) becomes the place's own clock time, so the chart reads naturally
+      if (m[7] && draft.input) {
+        const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: draft.input.timezone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' })
+          .formatToParts(new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] ?? 0)))).map((x) => [x.type, x.value]));
+        const { utcOffsetMinutes: _drop, ...rest } = draft.input;
+        draft.input = { ...rest, date: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}:${p.second}` };
+      }
+      out.push(draft);
+      continue;
+    }
+    if (!ev) continue;
+    const mm = /^([A-Z-]+)((?:;[^:]*)?):(.*)$/i.exec(line);
+    if (mm) ev[mm[1].toUpperCase()] = { params: mm[2], value: mm[3] };
+  }
+  return out;
+}
+
 /** Picks the right reader for a file or pasted text. */
 export async function parseAny(text: string, fileName: string, resolve: PlaceResolver): Promise<ImportDraft[]> {
   const t = text.trim();
+  if (/^@AI\d+/.test(t)) return parseAstrolog(t, fileName.split(/[\\/]/).pop());
+  if (/<adb_entry\b/i.test(t)) return parseAdbXml(t);
+  if (/^BEGIN:VCALENDAR/i.test(t) || /\bBEGIN:VEVENT\b/i.test(t)) return parseIcs(t, resolve);
   if (/\.jhd$/i.test(fileName)) return parseJhd(text, fileName.split(/[\\/]/).pop());
   if (/^#A93:/im.test(t)) return parseAaf(t);
   if (/^[[{]/.test(t)) return parseJsonRecords(t);

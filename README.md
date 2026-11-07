@@ -29,7 +29,7 @@ There is no second page and no price. Click any planet, house or nakshatra and t
 | **Four ayanamsas** | Lahiri, True Chitra, Raman and Krishnamurti |
 | **Eclipses and Sankrantis** | Every eclipse with its shadow path, whether your place sees it and which chart points it lands on; the twelve Sankranti ingress charts of any year, and national charts |
 | **Real stars** | Swap the 3D view's painted backdrop for the real stars and constellations, or show the sky tonight |
-| **Your data, your way** | Rodden rating per chart, CSV, JSON and AAF export, bulk paste, imports from Astro-Databank, AAF and Jagannatha Hora, a batch view of every saved chart, and encrypted sync with no account |
+| **Your data, your way** | Rodden rating per chart, CSV, JSON and AAF export, bulk paste, imports from Astro-Databank (page text and XML), AAF, Jagannatha Hora, Astrolog and iCalendar, a batch view of every saved chart, and encrypted sync with no account |
 
 ## Hold your birth sky in your hands
 
@@ -45,7 +45,7 @@ Nine planets rendered in Blender, each tethered to its exact sidereal degree. Sp
 
 - **Real ephemeris.** Positions come from the [Swiss Ephemeris](https://www.astro.com/swisseph/), compiled to WebAssembly.
 - **Tested against real events.** The suite checks the Mercury stations of April 2024, Saturn entering sidereal Pisces on 2025-03-29, Jupiter entering Gemini on 2025-05-14, published Sade Sati dates and ashtakavarga totals (SAV = 337). `npm test` runs every package's tests. The [accuracy page](https://destinjones.github.io/vedic-astrology/accuracy/) measures every position source against the Swiss Ephemeris files, and [known limitations](https://destinjones.github.io/vedic-astrology/limitations/) lists what is approximate.
-- **Your birth data stays home.** The chart is worked out and saved in your browser. Place search runs on a built-in list of 25,506 places; the only thing that can be sent anywhere is the text you type in the place box, to a city lookup for small towns, and one switch turns that off. Sync between devices is encrypted in the browser with your passphrase and goes only to a server you choose. Fonts and art are served from this site. There is no analytics.
+- **Your birth data stays home.** The chart is worked out and saved in your browser. Place search runs on a built-in list of 25,506 places; the only thing that can be sent anywhere is the text you type in the place box, to a city lookup for small towns, and one switch turns that off. Sync between devices is encrypted in the browser with your passphrase and travels as a file by default; an optional [sync server](tools/sync-worker/SPEC.md) sees only ciphertext, a random ID and timestamps. Fonts and art are served from this site. There is no analytics.
 - **Every rule is public.** Read how a yoga is detected in [`packages/interpretations`](packages/interpretations/src/yogas.ts). Disagree with one? Open an issue.
 
 ## Keep your feet on the ground

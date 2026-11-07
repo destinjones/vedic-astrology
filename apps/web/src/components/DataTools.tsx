@@ -4,7 +4,10 @@ import type { Profile } from '../lib/profiles';
 import { downloadText } from '../lib/backup';
 import { parseAny, profilesToAaf, profilesToCsv, profilesToJson, type ImportDraft } from '../lib/interop';
 import { searchGazetteer } from '../lib/gazetteer';
-import { deriveKeys, generatePassphrase, loadSyncUrl, open, passphraseProblem, pull, push, seal, storeSyncUrl, WrongPassphrase, type SyncKeys } from '../lib/sync';
+import {
+  Conflict, fallbackNoticed, formatSyncId, generatePassphrase, HOSTED_SYNC, loadSyncId, loadSyncUrl, newSyncId, normaliseSyncId, open,
+  passphraseProblem, remove, seal, ServerUnavailable, setFallbackNoticed, storeSyncId, storeSyncUrl, syncRound, unlock, WrongPassphrase, type SyncSecret,
+} from '../lib/sync';
 
 interface Props {
   profiles: Profile[];
@@ -41,17 +44,19 @@ export function DataTools({ profiles, onImport, backupText, onMerge }: Props) {
   /* ---------- sync ---------- */
   const [pass, setPass] = useState('');
   const [show, setShow] = useState(false);
-  const [url, setUrl] = useState(loadSyncUrl);
+  const [useServer, setUseServer] = useState(() => !!loadSyncUrl());
+  const [url, setUrl] = useState(() => loadSyncUrl() || HOSTED_SYNC[0]?.url || '');
+  const [syncId, setSyncId] = useState(loadSyncId);
   const [syncNote, setSyncNote] = useState<{ text: string; error?: boolean } | null>(null);
   const [working, setWorking] = useState(false);
-  const keyCache = useRef<{ pass: string; keys: SyncKeys } | null>(null);
+  const secret = useRef<SyncSecret | null>(null);
   const sealedRef = useRef<HTMLInputElement>(null);
 
-  const keys = async () => {
-    const problem = passphraseProblem(pass);
-    if (problem) throw new Error(problem);
-    if (keyCache.current?.pass !== pass) keyCache.current = { pass, keys: await deriveKeys(pass) };
-    return keyCache.current.keys;
+  const checkPass = () => { const problem = passphraseProblem(pass); if (problem) throw new Error(problem); };
+  const sealHere = async () => {
+    checkPass();
+    if (secret.current?.pass !== pass) secret.current = await unlock(pass);
+    return seal(secret.current, backupText());
   };
   const task = async (label: string, fn: () => Promise<string>) => {
     setWorking(true);
@@ -60,20 +65,45 @@ export function DataTools({ profiles, onImport, backupText, onMerge }: Props) {
     catch (e) { setSyncNote({ text: e instanceof WrongPassphrase ? 'That passphrase does not open this data.' : (e as Error).message, error: true }); }
     finally { setWorking(false); }
   };
-  const syncNow = () => task('Deriving the key and syncing…', async () => {
-    const k = await keys();
-    storeSyncUrl(url.trim());
-    const remote = await pull(url.trim(), k.id);
-    const merged = remote ? onMerge(await open(k, remote)) : 'Nothing stored yet under this passphrase; uploaded this browser’s data.';
-    await push(url.trim(), k.id, await seal(k, backupText()));
-    return `${merged} Synced at ${new Date().toLocaleTimeString()}.`;
-  });
-  const saveSealed = () => task('Encrypting…', async () => {
-    const k = await keys();
-    downloadText(await seal(k, backupText()), `jyotisha-sync-${stamp()}.jyosync`);
+  const saveFile = async () => {
+    downloadText(await sealHere(), `jyotisha-sync-${stamp()}.jyosync`);
     return 'Saved an encrypted file. Put it in any cloud folder, then open it on the other device with the same passphrase.';
+  };
+  const saveSealed = () => task('Making the key and encrypting…', saveFile);
+  const openSealed = (file: File) => task('Making the key and decrypting…', async () => {
+    const opened = await open(pass, await file.text(), secret.current);
+    secret.current = opened.secret;
+    return onMerge(opened.text);
   });
-  const openSealed = (file: File) => task('Decrypting…', async () => onMerge(await open(await keys(), await file.text())));
+  const syncNow = () => task('Making the key and syncing…', async () => {
+    checkPass();
+    let id = normaliseSyncId(syncId);
+    if (syncId.trim() && !id) throw new Error('A sync ID is 32 letters and digits (0–9, a–f). Copy it again from your other device.');
+    if (!id) { id = newSyncId(); setSyncId(formatSyncId(id)); }
+    storeSyncId(formatSyncId(id));
+    storeSyncUrl(url.trim());
+    try {
+      const round = await syncRound({ base: url.trim(), id, pass, secret: secret.current, merge: onMerge, local: backupText });
+      secret.current = round.secret;
+      setFallbackNoticed(false);
+      return `${round.note} Synced at ${new Date().toLocaleTimeString()}.`;
+    } catch (e) {
+      if (!(e instanceof ServerUnavailable || e instanceof Conflict)) throw e;
+      // kill switch: never leave the person without a copy; fall back to file sync and say so once
+      const saved = await saveFile();
+      if (fallbackNoticed()) return saved;
+      setFallbackNoticed(true);
+      return `${e.message} Nothing was sent, so an encrypted file was saved instead. ${saved.replace(/^Saved an encrypted file\. /, '')}`;
+    }
+  });
+  const forget = () => task('Deleting…', async () => {
+    const id = normaliseSyncId(syncId);
+    if (!id) throw new Error('There is no sync ID to delete.');
+    await remove(url.trim(), id);
+    storeSyncId('');
+    setSyncId('');
+    return 'Deleted everything the server held under this sync ID. The data in this browser is untouched.';
+  });
 
   return (
     <details className="data-tools" id="data-tools">
@@ -90,14 +120,15 @@ export function DataTools({ profiles, onImport, backupText, onMerge }: Props) {
       <p className="muted">
         Paste one chart per line, like <code>Asha, 1990-08-15, 06:30, New Delhi</code> or with coordinates and a zone
         {' '}<code>Ravi; 3/11/1985; 11:45 pm; 19.076, 72.8777; Asia/Kolkata</code>. You can also paste a CSV with a header row,
-        AAF records, or the text of an Astro-Databank or astro.com chart page, or open a Jagannatha Hora <code>.jhd</code> file.
+        AAF records, or the text of an Astro-Databank or astro.com chart page. You can also open a Jagannatha Hora <code>.jhd</code>, an Astrolog
+        {' '}<code>.as</code> or <code>.chtk</code>, an Astro-Databank XML export or an iCalendar <code>.ics</code> file.
         Places are looked up in this browser.
       </p>
       <textarea value={paste} onChange={(e) => setPaste(e.target.value)} placeholder={'Asha, 1990-08-15, 06:30, New Delhi\nRavi, 1985-11-03, 23:45, Mumbai'} aria-label="Charts to import" />
       <div className="data-row">
         <button type="button" className="btn-ghost sm" disabled={!paste.trim()} onClick={() => void read(paste)}>Check these</button>
         <button type="button" className="btn-ghost sm" onClick={() => fileRef.current?.click()}>Open a file…</button>
-        <input ref={fileRef} type="file" hidden accept=".csv,.json,.aaf,.jhd,.txt,text/plain,text/csv,application/json"
+        <input ref={fileRef} type="file" hidden accept=".csv,.json,.aaf,.jhd,.as,.chtk,.xml,.ics,.txt,text/plain,text/calendar,application/xml,text/xml,text/csv,application/json"
           onChange={async (e) => { const f = e.target.files?.[0]; if (f) await read(await f.text(), f.name); e.target.value = ''; }} />
       </div>
       {drafts && (
@@ -121,9 +152,9 @@ export function DataTools({ profiles, onImport, backupText, onMerge }: Props) {
 
       <h4>Encrypted sync between devices</h4>
       <p className="muted">
-        No account. Your tabs, notes and saved charts are encrypted here with a key made from your passphrase
-        (PBKDF2, 600,000 rounds, then AES-256-GCM). Only the ciphertext leaves this browser, and the passphrase is never stored or sent.
-        Use the same passphrase on each device. If you lose it, the data cannot be recovered.
+        No account. Your tabs, notes and saved charts are encrypted in this browser with a key made on this device from your
+        passphrase (Argon2id, then AES-256-GCM). The passphrase is never stored or sent, and if you lose it the data cannot be recovered.
+        Use the same passphrase on each device.
       </p>
       <div className="data-row">
         <input type={show ? 'text' : 'password'} value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Passphrase, 16 characters or more" autoComplete="new-password" aria-label="Sync passphrase" />
@@ -131,15 +162,38 @@ export function DataTools({ profiles, onImport, backupText, onMerge }: Props) {
         <button type="button" className="btn-ghost sm" onClick={() => { setPass(generatePassphrase()); setShow(true); }}>Make one</button>
       </div>
       <div className="data-row">
-        <button type="button" className="btn-ghost sm" disabled={working} onClick={saveSealed}>Save encrypted file</button>
+        <button type="button" className="btn-primary" disabled={working} onClick={saveSealed}>Save encrypted file</button>
         <button type="button" className="btn-ghost sm" disabled={working} onClick={() => sealedRef.current?.click()}>Open encrypted file…</button>
         <input ref={sealedRef} type="file" hidden accept=".jyosync,application/json" onChange={(e) => { const f = e.target.files?.[0]; if (f) void openSealed(f); e.target.value = ''; }} />
       </div>
-      <p className="muted">Or sync through a server you trust. It only ever receives the encrypted blob, named by a code derived from the passphrase. <code>node tools/sync-server.mjs</code> in the source runs one.</p>
-      <div className="data-row">
-        <input type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://your-server.example/sync" aria-label="Sync server address" />
-        <button type="button" className="btn-primary" disabled={working || !url.trim()} onClick={syncNow}>Sync now</button>
-      </div>
+
+      <label className="check-row">
+        <input type="checkbox" checked={useServer} onChange={(e) => setUseServer(e.target.checked)} />
+        {' '}Sync through a server you trust (optional)
+      </label>
+      {useServer && (
+        <div className="sync-server">
+          <p className="muted" id="sync-server-sees">
+            The server sees only ciphertext, a random sync ID and the times it was written and read. It never sees your passphrase, names or birth data.
+          </p>
+          <div className="data-row">
+            {HOSTED_SYNC.map((h) => (
+              <button key={h.url} type="button" className={`btn-ghost sm ${url === h.url ? 'is-on' : ''}`} onClick={() => setUrl(h.url)}>{h.label}</button>
+            ))}
+            <input type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://sync.your-domain.example" aria-label="Sync server address" />
+          </div>
+          <div className="data-row">
+            <input value={syncId} onChange={(e) => setSyncId(e.target.value)} placeholder="Sync ID: leave empty on the first device" aria-label="Sync ID" spellCheck={false} autoComplete="off" className="mono" />
+            <button type="button" className="btn-primary" disabled={working || !url.trim()} onClick={syncNow}>Sync now</button>
+            <button type="button" className="btn-ghost sm" disabled={working || !normaliseSyncId(syncId) || !url.trim()} onClick={forget}>Delete from server</button>
+          </div>
+          <p className="muted">
+            The first sync makes a random sync ID. On your other devices, enter that ID and the same passphrase.
+            If the server fails or does not answer, an encrypted file is saved instead. To run your own server, see the
+            {' '}<a href="https://github.com/destinjones/vedic-astrology/tree/main/tools/sync-worker" target="_blank" rel="noreferrer">sync server notes</a>.
+          </p>
+        </div>
+      )}
       {syncNote && <p className={`data-status ${syncNote.error ? 'is-error' : ''}`} role="status">{syncNote.text}</p>}
     </details>
   );

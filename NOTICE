@@ -13,7 +13,7 @@ THIRD-PARTY SOFTWARE AND DATA
   https://www.astro.com/swisseph/
 - swisseph-wasm (WebAssembly build of the above), GPL-3.0-or-later
   https://github.com/prolaxu/swisseph-wasm
-- three.js, MIT. React, MIT. Luxon, MIT. astronomy-engine, MIT. tz-lookup, CC0-1.0.
+- three.js, MIT. React, MIT. Luxon, MIT. astronomy-engine, MIT. tz-lookup, CC0-1.0. hash-wasm (Argon2id for sync), MIT.
 - Inter and Cormorant Garamond fonts, SIL Open Font License 1.1, through Fontsource.
 
 BUNDLED DATA

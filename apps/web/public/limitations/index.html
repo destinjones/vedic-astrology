@@ -98,7 +98,11 @@ where you are) are shown only for the chart's own place.</p>
 <h3>Encrypted sync</h3>
 <p>Sync encrypts in the browser with a key made from your passphrase, so a lost passphrase cannot be recovered by anyone. Syncing merges: new charts,
 tabs, history entries and life events from either device are kept, notes written on both are kept one after the other, and a deleted chart is not
-deleted on the other device. The passphrase is the only protection, so use a long one; the "Make one" button gives a strong random passphrase.</p>
+deleted on the other device. The key is made on your device with Argon2id, which is deliberately slow (about a second on a phone), and the passphrase
+is the only protection, so use a long one; the "Make one" button gives a strong random passphrase.</p>
+<p>File sync is the default. A sync server is optional: it sees only ciphertext, a random sync ID and timestamps, keeps each blob for 180 days after
+its last write, and deletes on request. Two devices syncing within the same minute from far apart can overwrite each other once; the next sync puts
+the missing data back. If the server fails, the app saves an encrypted file instead.</p>
 </div>
 <p class="foot">Jyotisha Explorer is free software under the AGPL. <a href="https://github.com/destinjones/vedic-astrology">Source</a>.</p>
 </main>

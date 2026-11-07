@@ -76,3 +76,56 @@ Nobody, sometime, nowhere`, resolve);
     expect(profilesToCsv([p]).split('\r\n')[1].startsWith(`"'=HYPERLINK`)).toBe(true);
   });
 });
+
+import { parseAdbXml, parseAstrolog, parseIcs } from '../src/lib/interop';
+
+describe('more formats', () => {
+  it('reads an Astrolog chart info file (.as / .chtk), with its west-positive zone', () => {
+    const [d] = parseAstrolog(`@AI800  ; Astrolog chart info.
+/qb Nov 19 1971 11:01am ST +8:00 122:19:59W 47:36:35N
+/zi "Walter D. Pullen" "Seattle, WA, USA"`, 'pullen.chtk');
+    expect(d.input).toMatchObject({ name: 'Walter D. Pullen', date: '1971-11-19', time: '11:01', place: 'Seattle, WA, USA', utcOffsetMinutes: -480, timezone: 'America/Los_Angeles' });
+    expect(d.input!.longitude).toBeCloseTo(-(122 + 19 / 60 + 59 / 3600), 6);
+    expect(d.input!.latitude).toBeCloseTo(47 + 36 / 60 + 35 / 3600, 6);
+    // daylight time adds an hour; a month number works too
+    const [s] = parseAstrolog('@AI740\n/qb 7 4 1990 12:00 DT +5:00 74:00W 40:43N\n/zi "Someone" "New York"');
+    expect(s.input).toMatchObject({ date: '1990-07-04', utcOffsetMinutes: -240 });
+    expect(parseAstrolog('/qb Nov 19 1971 11:01am ST +8:00 122:19:59W 47:36:35N')[0].error).toMatch(/@AI/);
+  });
+  it('reads Astro-Databank XML, taking the offset from jd_ut and the Rodden rating', () => {
+    const xml = `<?xml version="1.0"?><astrodatabank_export><adb_entry adb_id="1">
+      <public_data><name>Gandhi, Mohandas</name><gender csex="m"/><roddenrating rrc="1">AA</roddenrating>
+      <bdata><sbdate ccalendar="g" iyear="1869" imonth="10" iday="2">2 October 1869</sbdate>
+      <sbtime ctimetype="l" jd_ut="2403971.606667" sznabbr="LMT">07:12</sbtime>
+      <place slati="21n38" slong="69e36">Porbandar</place><country>India</country></bdata></public_data></adb_entry></astrodatabank_export>`;
+    const [d] = parseAdbXml(xml);
+    expect(d.input).toMatchObject({ name: 'Gandhi, Mohandas', date: '1869-10-02', time: '07:12', rodden: 'AA', place: 'Porbandar, India', utcOffsetMinutes: 278 });
+  });
+  it('reads iCalendar events, local, UTC and date-only', async () => {
+    const drafts = await parseIcs(`BEGIN:VCALENDAR
+BEGIN:VEVENT
+SUMMARY:Asha born
+DTSTART;TZID=Asia/Kolkata:19900815T063000
+LOCATION:New Delhi
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Ravi
+DTSTART:19851103T181500Z
+GEO:19.076;72.8777
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Grandad
+DTSTART;VALUE=DATE:19400101
+LOCATION:Mumbai
+END:VEVENT
+END:VCALENDAR`, resolve);
+    expect(drafts[0].input).toMatchObject({ name: 'Asha born', date: '1990-08-15', time: '06:30', timezone: 'Asia/Kolkata' });
+    expect(drafts[1].input).toMatchObject({ name: 'Ravi', date: '1985-11-03', time: '23:45:00', timezone: 'Asia/Kolkata' });
+    expect(drafts[1].input!.utcOffsetMinutes).toBeUndefined();
+    expect(drafts[2].input).toMatchObject({ date: '1940-01-01', timeConfidence: 'unknown' });
+  });
+  it('parseAny sniffs the new formats', async () => {
+    expect((await parseAny('@AI800\n/qb Nov 19 1971 11:01am ST +8:00 122:19:59W 47:36:35N', 'x', resolve))[0].input?.date).toBe('1971-11-19');
+    expect((await parseAny('BEGIN:VCALENDAR\nBEGIN:VEVENT\nDTSTART:20000101T000000Z\nGEO:0;0\nEND:VEVENT\nEND:VCALENDAR', 'x.ics', resolve))[0].input).toBeTruthy();
+  });
+});
