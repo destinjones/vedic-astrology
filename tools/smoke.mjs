@@ -53,16 +53,19 @@ try {
   await page.waitForTimeout(1500);
 
   // keyboard: a number key switches the divisional chart, and the quick switcher finds and opens one
+  // back at the chart, so the 3D view pauses (it only animates on screen, and without a GPU it is slow)
+  await page.locator('#chart').scrollIntoViewIfNeeded();
   await page.locator('body').click({ position: { x: 2, y: 2 } });
+  // the chart re-renders after each switch, which can take a while on a slow machine, so wait for the caption
+  const captionShows = (name) => page.locator('.varga-caption', { hasText: name }).waitFor({ timeout: 15000 }).then(() => true, () => false);
   await page.keyboard.press('9');
-  if (!(await page.locator('.varga-caption').innerText()).includes('Navamsha')) problems.push('keyboard: 9 did not open the Navamsha');
+  if (!(await captionShows('Navamsha'))) problems.push('keyboard: 9 did not open the Navamsha');
   await page.keyboard.press('ControlOrMeta+k');
   await page.locator('.qs-input').fill('dashamsha');
   // wait for the list to filter before choosing, so a slow machine does not pick the old top result
   await page.locator('.qs-list [role=option]').first().filter({ hasText: 'Dashamsha' }).waitFor({ timeout: 10000 }).catch(() => {});
   await page.keyboard.press('Enter');
-  await page.locator('.varga-caption', { hasText: 'Dashamsha' }).waitFor({ timeout: 5000 }).catch(() => {});
-  if (!(await page.locator('.varga-caption').innerText()).includes('Dashamsha')) problems.push('quick switch: "dashamsha" + Enter did not open the D10');
+  if (!(await captionShows('Dashamsha'))) problems.push('quick switch: "dashamsha" + Enter did not open the D10');
   await page.locator('#varshaphal').scrollIntoViewIfNeeded();
   await page.waitForSelector('#varshaphal .vp-moment', { timeout: 60000 });
   const yearStart = await page.locator('#varshaphal .vp-moment').innerText();
