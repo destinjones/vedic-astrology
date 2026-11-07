@@ -6,7 +6,10 @@ The illustrated PDF behind **Download PDF report** and **Consultation export**. 
 - `doc.ts`: a small flow-layout layer (headings, wrapping paragraphs across pages and columns, callouts, tables, chapter openers, running heads and folios).
 - `charts.ts`: vector North and South Indian charts, the Blender wheel with each graha at its longitude, the life weather chart, dasha band and ashtakavarga bars.
 - `assets.ts`: loads the Blender art from `assets/3d` and flattens it to JPEG for the page it sits on.
-- `fonts/`: Cormorant Garamond and Inter as TTF (jsPDF embeds TrueType only), latin subsets under the SIL OFL. Text outside these subsets is dropped by `printable()` in `doc.ts`; a translated report will need a font with the right script (for Hindi, a Devanagari face such as Noto Sans Devanagari) registered in `fonts.ts`.
+- `fonts/`: Cormorant Garamond and Inter as TTF (jsPDF embeds TrueType only), latin subsets under the SIL OFL. `fonts/indic/` holds Noto Serif and Noto Sans for Devanagari, Bengali, Gujarati, Tamil, Telugu and Kannada (two weights each, subset to the script with every layout feature kept).
+- `indic.ts`: Indian scripts. jsPDF does no shaping, so each Indic run is shaped with HarfBuzz (`harfbuzzjs`, loaded only when needed) and drawn glyph by glyph in the matching Noto face; Latin text keeps the report's own faces, so mixed lines work. `doc.ts` does this for you in `line`, `wrap` and `width`, so sections need nothing special. Fonts are fetched for the app's language and for any script in the name, place, note or brand; text in a script with no font loaded is dropped rather than printed as boxes.
+
+The app passes its language as `locale`: readings print in it when a translation exists (Hindi today), otherwise in English. The report's own headings and explanations are still English.
 - `sections/`: one file per chapter.
 
 ## Adding a section from another feature

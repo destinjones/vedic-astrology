@@ -23,6 +23,12 @@ export const SECTIONS: { id: string; title: string; key: string; keywords: strin
   { id: 'planets', title: 'Planetary positions', key: 'p', keywords: 'table degrees longitude' },
   { id: 'dasha', title: 'Vimshottari dasha', key: 'd', keywords: 'periods mahadasha antardasha timeline', needs: (c) => !!c.dasha },
   { id: 'timing', title: 'Good and hard times', key: 't', keywords: 'timing transits gochar retrogrades', needs: (c) => !!c.engineContext },
+  { id: 'strength', title: 'Planet strength', key: 'b', keywords: 'shadbala bala ashtakavarga strength', needs: (c) => !!c.engineContext?.chart.strength },
+  { id: 'jaimini', title: 'Jaimini', key: 'j', keywords: 'chara karaka arudha pada chara dasha', needs: (c) => !!c.engineContext },
+  { id: 'events', title: 'Event checker', key: 'e', keywords: 'past life events dashas transits active', needs: (c) => !!c.engineContext },
+  { id: 'rectify', title: 'Birth time rectification', key: 'r', keywords: 'rectify correct birth time', needs: (c) => !!c.engineContext },
+  { id: 'varshaphal', title: 'Varshaphal (annual chart)', key: 'v', keywords: 'solar return annual year tajika', needs: (c) => !!c.engineContext },
+  { id: 'client-history', title: 'Client notes and history', key: 'h', keywords: 'notes questions predictions log' },
 ];
 
 /** Scroll a part of the explorer into view and move keyboard focus there. */

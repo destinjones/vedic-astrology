@@ -339,11 +339,52 @@ export default function App() {
     setEditing(true);
     requestAnimationFrame(() => document.querySelector<HTMLInputElement>('.birth-form input')?.focus());
   };
-  // Keyboard and quick-switch commands. Other features (client tabs, saved charts) add theirs here.
-  const commands: Command[] = chart
-    ? chartCommands({ chart, vargaId, setVargaId, style, setStyle, selection, setSelection, wheelMode, setWheelMode, editBirth })
-    : [{ id: 'sample', group: 'Chart', title: 'Open the sample chart', keywords: 'example demo', run: () => void run(DEFAULT_INPUT) },
-       { id: 'birth.focus', group: 'Chart', title: 'Enter birth details', shortcut: 'e', keywords: 'form new chart', run: () => { jumpTo('intake'); editBirth(); } }];
+  // Keyboard and quick-switch commands: client tabs first, then the open chart.
+  const tabIndex = ws.tabs.findIndex((x) => x.id === ws.activeId);
+  const stepTab = (d: number) => { if (ws.tabs.length > 1) switchTab(ws.tabs[(tabIndex + d + ws.tabs.length) % ws.tabs.length].id); };
+  const clientCommands: Command[] = [
+    ...ws.tabs.map((x, i): Command => ({
+      id: `tab.${x.id}`,
+      group: 'Clients',
+      title: `Switch to ${x.label}`,
+      hint: x.input ? `${x.input.date} · ${x.input.place}` : 'empty tab',
+      keywords: 'tab client person open',
+      shortcut: i < 9 ? `Alt+${i + 1}` : undefined,
+      active: x.id === ws.activeId,
+      run: () => { if (x.id !== ws.activeId) switchTab(x.id); },
+    })),
+    { id: 'tab.next', group: 'Clients', title: 'Next tab', shortcut: 'Alt+]', keywords: 'client tab forward', run: () => stepTab(1) },
+    { id: 'tab.prev', group: 'Clients', title: 'Previous tab', shortcut: 'Alt+[', keywords: 'client tab back', run: () => stepTab(-1) },
+    { id: 'tab.new', group: 'Clients', title: 'New tab', shortcut: 'Alt+n', keywords: 'client person add blank', run: () => { newTab(); requestAnimationFrame(() => document.querySelector<HTMLInputElement>('.birth-form input')?.focus()); } },
+    { id: 'tab.close', group: 'Clients', title: `Close ${activeTab.label}`, keywords: 'client tab close archive', hint: 'kept under closed tabs', run: () => closeTab(activeTab.id) },
+    ...ws.archived.map((x): Command => ({
+      id: `reopen.${x.id}`,
+      group: 'Closed tabs',
+      title: `Reopen ${x.label}`,
+      hint: x.input ? `${x.input.date} · ${x.input.place}` : undefined,
+      keywords: 'client tab closed archived restore',
+      run: () => reopenTab(x),
+    })),
+    ...profiles.map((pr): Command => ({
+      id: `saved.${pr.id}`,
+      group: 'Saved charts',
+      title: `Open ${pr.label}`,
+      hint: `${pr.input.date} · ${pr.input.place}`,
+      keywords: 'saved profile chart family friend',
+      run: () => openInTab(pr.input),
+    })),
+    { id: 'famous', group: 'Tools', title: 'Famous charts library', keywords: 'celebrity public figures india america britain', run: () => { setShowFamous(true); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+    { id: 'compare', group: 'Tools', title: 'Compare charts side by side', keywords: 'side by side two charts compatibility', run: () => { location.href = `${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`; } },
+    ...(chart ? [{ id: 'present', group: 'Tools', title: 'Present this chart', keywords: 'full screen walkthrough screen share recording', run: startPresent }] : []),
+    { id: 'backup', group: 'Tools', title: 'Back up all tabs and charts', keywords: 'export download file save', run: backup },
+  ];
+  const commands: Command[] = [
+    ...clientCommands,
+    ...(chart
+      ? chartCommands({ chart, vargaId, setVargaId, style, setStyle, selection, setSelection, wheelMode, setWheelMode, editBirth })
+      : [{ id: 'sample', group: 'Chart', title: 'Open the sample chart', keywords: 'example demo', run: () => void run(DEFAULT_INPUT) },
+         { id: 'birth.focus', group: 'Chart', title: 'Enter birth details', shortcut: 'e', keywords: 'form new chart', run: () => { jumpTo('intake'); editBirth(); } }]),
+  ];
 
   const varga = chart ? getVarga(chart, vargaId) : null;
   const moon = chart?.planets.find((p) => p.id === 'moon');
