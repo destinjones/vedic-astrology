@@ -31,6 +31,28 @@ export {
 } from './zodiac';
 export { dateToJd, jdToDate, jdToIso, timezoneAt, localToUtc } from './time';
 export type { ResolvedTime } from './time';
+export { TZ_HISTORY, historyFor, lmtOffsetMinutes } from './timezoneHistory';
+export type { TimeWarning, TimeWarningCode, TzHistoryEntry } from './timezoneHistory';
+export {
+  Ayanamsa,
+  AYANAMSA_IDS,
+  DEFAULT_AYANAMSA,
+  isAyanamsaId,
+  parseAyanamsa,
+  toAyanamsa,
+  UnknownAyanamsaError,
+} from './ayanamsa';
+export type { AyanamsaName } from './ayanamsa';
+export {
+  DEGREE_DECIMALS,
+  DEGREE_EPSILON,
+  roundDegree,
+  normDegree,
+  degreeDelta,
+  sameDegree,
+  arcminutesBetween,
+} from './precision';
+export * from './request';
 export {
   computeStrength,
   drishtiValue,
@@ -101,3 +123,27 @@ export type {
   MuhurtaDay,
   MuhurtaResult,
 } from './muhurta';
+export { parseLongitude, parsePositionTable, deltaArcminutes } from './interop';
+export type { InteropBody, PastedPosition } from './interop';
+export { bhavaChalit, sripatiMadhya, equalMadhya, sandhisFrom, bhavaOfLongitude } from './bhava';
+export type { BhavaSystem, BhavaPlacement, BhavaChalit } from './bhava';
+export { panchangaAt, tithiName, karanaName } from './panchanga';
+export type { PanchangaAt, PanchangaSpan, PanchangaPlace } from './panchanga';
+export { computeAvasthas, baladiAvastha, jagradadiAvastha, deeptadiFromDignity, BALADI_FACTOR, JAGRADADI_FACTOR } from './avasthas';
+export type { PlanetAvasthas, BaladiAvastha, JagradadiAvastha, DeeptadiAvastha } from './avasthas';
+export {
+  chartFlags,
+  gandantaOf,
+  isAbhuktaMula,
+  grahaYuddhas,
+  pushkaraNavamsa,
+  inNthDegree,
+  dashaJunctions,
+  MRITYU_BHAGA,
+  PUSHKARA_BHAGA,
+  PUSHKARA_NAVAMSA,
+  ABHUKTA_ARC,
+} from './flags';
+export type { ChartFlag, FlagKind, GandantaInfo, GrahaYuddha, DashaJunction } from './flags';
+export { computeAyurdaya, PINDAYU_YEARS, NISARGAYU_YEARS, AYURDAYA_CAVEAT } from './ayurdaya';
+export type { Ayurdaya, AyurdayaMethod, AyurdayaEntry } from './ayurdaya';

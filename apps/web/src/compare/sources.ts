@@ -3,37 +3,13 @@
  * opened in the explorer, the famous charts library, share links, and the
  * compare page's own URL. Everything stays in the browser.
  */
-import type { Ayanamsa, BirthInput, Chart, PlanetId } from '../types/chart';
+import type { BirthInput, Chart, PlanetId } from '../types/chart';
 import type { ChartInput, SignNumber } from '@vedic/interpretations';
+import { decodeChartRequest } from '@vedic/engine/request';
+import { fromChartRequest, sanitizeInput, shareHash } from '../lib/profiles';
 
-const AYANAMSAS: readonly Ayanamsa[] = ['lahiri', 'true_chitra', 'raman', 'krishnamurti'];
-
-const isTimeZone = (tz: string): boolean => {
-  try { new Intl.DateTimeFormat('en', { timeZone: tz }); return true; } catch { return false; }
-};
-
-/** A clean BirthInput, or null when anything is missing or out of range. */
-export function cleanInput(raw: unknown): BirthInput | null {
-  if (!raw || typeof raw !== 'object') return null;
-  const r = raw as Record<string, unknown>;
-  const str = (v: unknown, max = 200) => (typeof v === 'string' ? v.slice(0, max) : '');
-  const num = (v: unknown) => (typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' ? Number(v) : NaN);
-  const date = str(r.date, 10);
-  const time = str(r.time, 8);
-  const latitude = num(r.latitude);
-  const longitude = num(r.longitude);
-  const timezone = str(r.timezone, 64);
-  const ayanamsa = (AYANAMSAS as readonly string[]).includes(str(r.ayanamsa)) ? (r.ayanamsa as Ayanamsa) : 'lahiri';
-  if (!/^-?\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}(:\d{2})?$/.test(time)) return null;
-  if (!Number.isFinite(latitude) || Math.abs(latitude) > 90 || !Number.isFinite(longitude) || Math.abs(longitude) > 180) return null;
-  if (!timezone || !isTimeZone(timezone)) return null;
-  return {
-    name: str(r.name, 80),
-    date, time,
-    place: str(r.place) || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
-    latitude, longitude, timezone, ayanamsa,
-  };
-}
+/** A clean BirthInput, or null when anything is missing or out of range. Shared with the explorer. */
+export const cleanInput = sanitizeInput;
 
 const fullTime = (t: string) => (t.length === 5 ? `${t}:00` : t);
 export const sameBirth = (a: BirthInput, b: BirthInput): boolean =>
@@ -105,26 +81,14 @@ export async function famousCharts(): Promise<SourceChart[]> {
 
 /* ---------- links ---------- */
 
-/** Birth details as readable URL params, the same format as the explorer's share links. */
+/** Birth details as readable URL params, the same versioned format as the explorer's share links. */
 export function birthParams(input: BirthInput): string {
-  const q = new URLSearchParams();
-  if (input.name?.trim()) q.set('n', input.name.trim());
-  q.set('d', input.date);
-  q.set('t', input.time);
-  q.set('p', input.place);
-  q.set('lat', String(+input.latitude.toFixed(5)));
-  q.set('lon', String(+input.longitude.toFixed(5)));
-  q.set('tz', input.timezone);
-  if (input.ayanamsa !== 'lahiri') q.set('ay', input.ayanamsa);
-  return q.toString();
+  return shareHash(input).slice(1);
 }
 
 function fromParams(q: URLSearchParams): BirthInput | null {
-  if (!q.has('d') || !q.has('t') || !q.has('lat') || !q.has('lon') || !q.has('tz')) return null;
-  return cleanInput({
-    name: q.get('n') ?? '', date: q.get('d'), time: q.get('t'), place: q.get('p') ?? '',
-    latitude: q.get('lat'), longitude: q.get('lon'), timezone: q.get('tz'), ayanamsa: q.get('ay') ?? 'lahiri',
-  });
+  const r = decodeChartRequest(q);
+  return 'request' in r ? fromChartRequest(r.request) : null;
 }
 
 /** Compare page hash: one `c=` per chart, each holding that chart's share params. */
