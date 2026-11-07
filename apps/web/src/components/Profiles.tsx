@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { BirthInput } from '../types/chart';
 import { sameBirth, shareUrl, type Profile } from '../lib/profiles';
 import type { Tab } from '../lib/tabs';
+import { DataTools } from './DataTools';
 
 const fmtDate = (d: string) => {
   const [y, m, day] = d.split('-').map(Number);
@@ -25,9 +26,13 @@ interface ListProps {
   onBackup: () => void;
   /** Restores a backup file's text and returns what happened, in words. */
   onRestore: (text: string) => string;
+  /** Full backup text, for encrypted sync */
+  backupText: () => string;
+  onImport: (items: { label: string; input: BirthInput }[]) => number;
+  onBatch: () => void;
 }
 
-export function SavedCharts({ profiles, current, busy, onOpen, onEdit, onDelete, closed, onReopen, onForget, onBackup, onRestore }: ListProps) {
+export function SavedCharts({ profiles, current, busy, onOpen, onEdit, onDelete, closed, onReopen, onForget, onBackup, onRestore, backupText, onImport, onBatch }: ListProps) {
   const [note, setNote] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -39,6 +44,7 @@ export function SavedCharts({ profiles, current, busy, onOpen, onEdit, onDelete,
       <div className="saved-head">
         <h3>Saved charts</h3>
         <div className="saved-tools">
+          {profiles.length > 1 && <button type="button" className="btn-ghost sm" onClick={onBatch} title="All saved charts in one table">Batch view</button>}
           <button type="button" className="btn-ghost sm" onClick={onBackup} title="Download one file with every tab, note, history entry and saved chart">Back up everything</button>
           <button type="button" className="btn-ghost sm" onClick={() => fileRef.current?.click()}>Restore</button>
           <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) void upload(f); e.target.value = ''; }} />
@@ -102,6 +108,7 @@ export function SavedCharts({ profiles, current, busy, onOpen, onEdit, onDelete,
         </details>
       )}
       {note && <p className="muted saved-note" role="status">{note}</p>}
+      <DataTools profiles={profiles} onImport={onImport} backupText={backupText} onMerge={onRestore} />
     </div>
   );
 }

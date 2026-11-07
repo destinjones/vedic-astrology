@@ -3,7 +3,8 @@
  * profiles live in localStorage, and share links carry the birth details in
  * the URL fragment (#...), which browsers never send to the server.
  */
-import type { Ayanamsa, BirthInput } from '../types/chart';
+import type { Ayanamsa, BirthInput, CalendarSystem, RoddenRating, TimeConfidence } from '../types/chart';
+import { RODDEN_RATINGS, TIME_CONFIDENCES } from './birthQuality';
 
 export interface Profile {
   id: string;
@@ -40,7 +41,15 @@ export function sanitizeInput(raw: unknown): BirthInput | null {
   if (!Number.isFinite(latitude) || Math.abs(latitude) > 90) return null;
   if (!Number.isFinite(longitude) || Math.abs(longitude) > 180) return null;
   if (!timezone || !isTimeZone(timezone)) return null;
+  const offset = num(r.utcOffsetMinutes);
+  const calendar = (['auto', 'gregorian', 'julian'] as const).find((c) => c === r.calendar) as CalendarSystem | undefined;
+  const rodden = (RODDEN_RATINGS as readonly string[]).includes(str(r.rodden, 2)) ? (r.rodden as RoddenRating) : undefined;
+  const timeConfidence = (TIME_CONFIDENCES as readonly string[]).includes(str(r.timeConfidence, 12)) ? (r.timeConfidence as TimeConfidence) : undefined;
   return {
+    ...(Number.isFinite(offset) && Math.abs(offset) <= 16 * 60 ? { utcOffsetMinutes: offset } : {}),
+    ...(calendar && calendar !== 'auto' ? { calendar } : {}),
+    ...(rodden ? { rodden } : {}),
+    ...(timeConfidence ? { timeConfidence } : {}),
     name: str(r.name, 80),
     date,
     time,
@@ -59,7 +68,8 @@ export const sameBirth = (a: BirthInput, b: BirthInput): boolean =>
   fullTime(a.time) === fullTime(b.time) &&
   Math.abs(a.latitude - b.latitude) < 1e-4 &&
   Math.abs(a.longitude - b.longitude) < 1e-4 &&
-  a.timezone === b.timezone;
+  a.timezone === b.timezone &&
+  (a.calendar ?? 'auto') === (b.calendar ?? 'auto');
 
 /* ---------- profile storage ---------- */
 
@@ -144,6 +154,10 @@ export function shareHash(input: BirthInput, includeName = true): string {
   q.set('lon', String(+input.longitude.toFixed(5)));
   q.set('tz', input.timezone);
   if (input.ayanamsa !== 'lahiri') q.set('ay', input.ayanamsa);
+  if (input.utcOffsetMinutes !== undefined) q.set('off', String(input.utcOffsetMinutes));
+  if (input.calendar && input.calendar !== 'auto') q.set('cal', input.calendar);
+  if (input.rodden) q.set('rr', input.rodden);
+  if (input.timeConfidence) q.set('tc', input.timeConfidence);
   return '#' + q.toString();
 }
 
@@ -166,5 +180,9 @@ export function parseShareHash(hash: string): BirthInput | null {
     longitude: q.get('lon'),
     timezone: q.get('tz'),
     ayanamsa: q.get('ay') ?? 'lahiri',
+    utcOffsetMinutes: q.get('off') ?? undefined,
+    calendar: q.get('cal') ?? undefined,
+    rodden: q.get('rr') ?? undefined,
+    timeConfidence: q.get('tc') ?? undefined,
   });
 }

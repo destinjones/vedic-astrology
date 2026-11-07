@@ -31,12 +31,15 @@ import { YogaDoshaCard } from './components/YogaDoshaCard';
 import { StrengthSection } from './components/StrengthSection';
 import { ReportActions } from './components/ReportActions';
 import { FamousCharts } from './components/FamousCharts';
+import { BatchView } from './components/BatchView';
 import { FAMOUS_CHARTS, famousChartById, RODDEN_MEANING } from './data/famousCharts';
 import { loadKnowledge, type Knowledge } from './lib/readings';
 import { useI18n } from './i18n';
 import { ayanamsaName } from './i18n/names';
 import { LOCALE_BY_CODE } from '@vedic/i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
+import './components/data.css';
+import { birthQuality, RODDEN_LABEL } from './lib/birthQuality';
 
 const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
@@ -94,6 +97,7 @@ export default function App() {
   const [ws, setWs] = useState<Workspace>(loadWorkspace);
   const [presenting, setPresenting] = useState(false);
   const [showFamous, setShowFamous] = useState(false);
+  const [showBatch, setShowBatch] = useState(false);
   // worked-out charts per tab, so switching tabs is instant
   const charts = useRef(new Map<string, Chart>());
   const wsRef = useRef(ws);
@@ -323,6 +327,17 @@ export default function App() {
     setEditing(true);
     requestAnimationFrame(() => document.querySelector('.birth-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
   };
+  const importMany = (items: { label: string; input: BirthInput }[]) => {
+    let list = profiles;
+    let added = 0;
+    for (const it of items) {
+      const before = list.length;
+      list = upsertProfile(list, it.label, it.input);
+      if (list.length > before) added++;
+    }
+    saveProfiles(list);
+    return added;
+  };
   const saveCurrent = (label: string) => {
     if (!chart) return false;
     const list = upsertProfile(profiles, label, chart.input);
@@ -377,6 +392,8 @@ export default function App() {
     { id: 'compare', group: 'Tools', title: 'Compare charts side by side', keywords: 'side by side two charts compatibility', run: () => { location.href = `${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`; } },
     ...(chart ? [{ id: 'present', group: 'Tools', title: 'Present this chart', keywords: 'full screen walkthrough screen share recording', run: startPresent }] : []),
     { id: 'backup', group: 'Tools', title: 'Back up all tabs and charts', keywords: 'export download file save', run: backup },
+    { id: 'data', group: 'Tools', title: 'Import, export and encrypted sync', keywords: 'csv json aaf jhd jagannatha astro.com astrodatabank paste bulk sync devices passphrase', run: () => { setEditing(true); requestAnimationFrame(() => { const d = document.getElementById('data-tools') as HTMLDetailsElement | null; if (d) { d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }); } },
+    ...(profiles.length > 1 ? [{ id: 'batch', group: 'Tools', title: 'Batch view of all saved charts', keywords: 'clients table list overview', run: () => setShowBatch(true) }] : []),
   ];
   const commands: Command[] = [
     ...clientCommands,
@@ -387,6 +404,8 @@ export default function App() {
   ];
 
   const varga = chart ? getVarga(chart, vargaId) : null;
+  // famous charts carry their own rating; any other chart is rated by the person
+  const quality = chart && !famous ? birthQuality(chart.input) : null;
   const moon = chart?.planets.find((p) => p.id === 'moon');
   const sun = chart?.planets.find((p) => p.id === 'sun');
 
@@ -447,6 +466,10 @@ export default function App() {
         <div className="card tab-loading" role="status">Opening {activeTab.label}'s chart…</div>
       )}
 
+      {showBatch && (
+        <BatchView profiles={profiles} busy={busy} onOpen={(p) => { setShowBatch(false); openInTab(p.input); }} onClose={() => setShowBatch(false)} />
+      )}
+
       {showFamous && (
         <FamousCharts busy={busy} onOpen={(c) => openInTab(c.input)} onClose={() => setShowFamous(false)} />
       )}
@@ -472,6 +495,9 @@ export default function App() {
               onForget={forgetTab}
               onBackup={backup}
               onRestore={restore}
+              backupText={() => exportAll(wsRef.current, profiles)}
+              onImport={importMany}
+              onBatch={() => { setShowBatch(true); requestAnimationFrame(() => document.getElementById('batch')?.scrollIntoView({ behavior: 'smooth', block: 'start' })); }}
             />
             {editingId && (
               <p className="editing-note">
@@ -511,7 +537,7 @@ export default function App() {
               <small>{chart.input.name || t('summary.birth')}</small>
               <b>{chart.input.date} · {chart.input.time} · {chart.input.place}</b>
             </div>
-            {famous && (
+            {famous ? (
               <div className="summary-item">
                 <small>Rodden rating</small>
                 <b title={RODDEN_MEANING[famous.rodden]}>
@@ -521,8 +547,25 @@ export default function App() {
                     : <span className="muted">{famous.source}</span>}
                 </b>
               </div>
+            ) : chart.input.rodden && (
+              <div className="summary-item">
+                <small>Rodden rating</small>
+                <b title={RODDEN_LABEL[chart.input.rodden]}>{chart.input.rodden}</b>
+              </div>
+            )}
+            {chart.engineContext?.chart.meta.calendar === 'julian' && (
+              <div className="summary-item">
+                <small>Julian calendar date</small>
+                <b title="The date was read in the Julian (Old Style) calendar">= {chart.engineContext.chart.meta.gregorianDate} Gregorian</b>
+              </div>
             )}
           </section>
+          {quality && (
+            <div className={`quality-banner quality-${quality.level}`} role="note" id="time-quality">
+              <b>{quality.title}.</b> {quality.detail}{' '}
+              <button type="button" className="link-btn" onClick={() => setEditing(true)}>Rate this birth time</button>
+            </div>
+          )}
 
           <div className="explorer-grid">
             <section className="card chart-card" id="chart">
@@ -545,6 +588,9 @@ export default function App() {
             </section>
 
             <aside className="card detail-card" id="details" aria-live="polite">
+              {quality && (selection?.kind === 'house' || selection?.kind === 'asc' || vargaId !== 'D1') && (
+                <p className="reading-note quality-note">{quality.title}: read house and lagna findings here as provisional.</p>
+              )}
               {knowledge && knowledge.locale !== locale && <p className="reading-note">{t('app.readingsLanguageNote', { language: LOCALE_BY_CODE[locale].native })}</p>}
               <DetailPanel chart={chart} varga={varga} selection={selection} onSelect={setSelection} knowledge={knowledge} />
             </aside>
