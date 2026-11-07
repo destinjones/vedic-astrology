@@ -15,6 +15,7 @@ import { getVarga } from './lib/astro';
 import { ART } from './data/art';
 
 import { YogaDoshaCard } from './components/YogaDoshaCard';
+import { ReportActions } from './components/ReportActions';
 import { loadKnowledge, type Knowledge } from './lib/readings';
 
 const SkyView = lazy(() => import('./components/SkyView'));
@@ -121,7 +122,10 @@ export default function App() {
           </div>
         </a>
         {chart && !editing && (
-          <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>
+          <div className="topbar-actions">
+            <ReportActions chart={chart} />
+            <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>
+          </div>
         )}
       </header>
 

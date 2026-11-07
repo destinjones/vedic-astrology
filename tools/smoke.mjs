@@ -10,7 +10,7 @@ const browser = await chromium.launch({
 const problems = [];
 
 try {
-  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, acceptDownloads: true });
   const offsite = new Set();
   page.on('pageerror', (e) => problems.push(`page error: ${e.message}`));
   page.on('console', (m) => { if (m.type() === 'error') problems.push(`console error: ${m.text()}`); });
@@ -36,6 +36,17 @@ try {
   await page.waitForSelector('.sky-card canvas', { timeout: 60000 });
   await page.waitForTimeout(1500);
 
+  // the PDF report is generated in the browser; make sure it downloads and is a real PDF
+  const [download] = await Promise.all([
+    page.waitForEvent('download', { timeout: 180000 }),
+    page.getByRole('button', { name: 'Download PDF report' }).click(),
+  ]);
+  const pdfPath = await download.path();
+  const { readFileSync } = await import('node:fs');
+  const pdf = readFileSync(pdfPath);
+  if (pdf.subarray(0, 5).toString() !== '%PDF-') problems.push('PDF report: download is not a PDF');
+  else if (pdf.length < 300_000) problems.push(`PDF report: suspiciously small (${pdf.length} bytes)`);
+
   const away = [...offsite];
   if (away.length) problems.push(`opening a chart called other sites: ${away.join(', ')}`);
 } finally {
@@ -47,4 +58,4 @@ if (problems.length) {
   console.error(`Site check failed:\n- ${problems.join('\n- ')}`);
   process.exit(1);
 }
-console.log('Site check passed: landing page, engine, readings, timeline and sky view all load.');
+console.log('Site check passed: landing page, engine, readings, timeline, sky view and PDF report all work.');
