@@ -10,6 +10,7 @@
     ".": "./src/index.ts",
     "./types": "./src/types.ts",
     "./places": "./src/placeAliases.ts",
+    "./time": "./src/time.ts",
     "./request": "./src/request.ts",
     "./precision": "./src/precision.ts"
   },

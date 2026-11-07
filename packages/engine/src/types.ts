@@ -125,6 +125,11 @@ export interface BirthInput {
    * IANA historical rules. Use for war time / LMT corrections a user knows about.
    */
   utcOffsetMinutes?: number;
+  /**
+   * Calendar of `date`. Default 'auto': dates before 1582-10-15 are read as
+   * Julian. Set 'julian' for places that switched later (Britain 1752).
+   */
+  calendar?: import('./time').CalendarSystem;
   /** Optional person label, passed through to the output untouched */
   name?: string;
 }
@@ -352,6 +357,10 @@ export interface ChartMeta {
   utcOffsetMinutes: number;
   /** Birth was before standard time in the zone: the place's own Local Mean Time was used */
   localMeanTime: boolean;
+  /** Calendar the birth date was read in */
+  calendar: 'gregorian' | 'julian';
+  /** The birth date in the proleptic Gregorian calendar (differs from input.date when Julian) */
+  gregorianDate: string;
   /**
    * Notes on how the birth time was resolved: LMT, DST gaps and overlaps, and
    * periods where local clocks differed from the tz database (see TZ_HISTORY).

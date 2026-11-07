@@ -395,7 +395,7 @@ export function kpChartAt(
 export function computeKpChart(engine: Engine, input: BirthInput, opts: KpOptions = {}): KpChart {
   const { latitude, longitude } = input.place;
   const tz = input.place.timezone ?? timezoneAt(latitude, longitude);
-  const t = localToUtc(input.date, input.time, tz, input.utcOffsetMinutes, longitude);
+  const t = localToUtc(input.date, input.time, tz, input.utcOffsetMinutes, longitude, latitude, input.calendar);
   return kpChartAt(engine, dateToJd(t.utc), { latitude, longitude, timezone: tz }, opts);
 }
 

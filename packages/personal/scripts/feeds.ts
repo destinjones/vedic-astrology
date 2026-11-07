@@ -13,7 +13,8 @@ import { FEED_CITIES, panchangaDays, panchangaIcs } from '../src/ics';
 const out = resolve(process.cwd(), process.argv[2] ?? 'feeds');
 mkdirSync(out, { recursive: true });
 const engine = await createEngine();
-const now = new Date();
+// the commit time when SOURCE_DATE_EPOCH is set, so two builds of one commit write identical feeds
+const now = process.env.SOURCE_DATE_EPOCH ? new Date(Number(process.env.SOURCE_DATE_EPOCH) * 1000) : new Date();
 const from = new Date(now.getTime() - 31 * 86_400_000);
 for (const city of FEED_CITIES) {
   const days = panchangaDays(engine, { place: city, from, days: 400 });

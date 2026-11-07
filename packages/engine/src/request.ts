@@ -48,6 +48,12 @@ export interface ChartRequest {
   /** Manual UTC offset in minutes that overrides the zone's rules (war time, LMT) */
   utcOffsetMinutes?: number;
   ayanamsa: AyanamsaId;
+  /** Calendar the date is written in. Absent means 'auto': Julian before 1582-10-15. */
+  calendar?: 'gregorian' | 'julian';
+  /** Rodden rating of the birth data (AA, A, B, C, DD, X, XX), carried as given */
+  rodden?: string;
+  /** How sure the person is of the birth time, carried as given */
+  timeConfidence?: string;
 }
 
 export type DecodeFailure = 'not_a_chart' | 'too_new' | 'invalid';
@@ -73,6 +79,7 @@ type Params = Record<string, string>;
 export const MIGRATIONS: Readonly<Record<number, (p: Params) => Params>> = Object.freeze({
   // v0 (unversioned): n d t p lat lon tz ay. The manual UTC offset was not carried.
   // v1 adds the explicit version and the optional `off` (minutes east of UTC).
+  // Later, still v1 (optional, ignored by older readers): `cal` calendar, `rr` Rodden rating, `tc` time confidence.
   0: (p: Params): Params => ({ ...p, v: '1' }),
 });
 
@@ -130,6 +137,9 @@ export function validateChartRequest(raw: {
   place?: { name?: unknown; latitude?: unknown; longitude?: unknown; timezone?: unknown };
   utcOffsetMinutes?: unknown;
   ayanamsa?: unknown;
+  calendar?: unknown;
+  rodden?: unknown;
+  timeConfidence?: unknown;
 }): { request: ChartRequest; warnings: string[] } | { errors: string[] } {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -162,6 +172,13 @@ export function validateChartRequest(raw: {
     else warnings.push(`unknown ayanamsa ${JSON.stringify(ay)}, using ${DEFAULT_AYANAMSA}`);
   }
 
+  let calendar: 'gregorian' | 'julian' | undefined;
+  const cal = str(raw.calendar).toLowerCase();
+  if (cal === 'gregorian' || cal === 'julian') calendar = cal;
+  else if (cal && cal !== 'auto') warnings.push(`unknown calendar ${JSON.stringify(cal)}, reading the date automatically`);
+  const rodden = str(raw.rodden).toUpperCase().slice(0, 4);
+  const timeConfidence = str(raw.timeConfidence).slice(0, 24);
+
   if (errors.length) return { errors };
   const name = str(raw.name).slice(0, MAX_NAME);
   const placeName = str(raw.place?.name).slice(0, MAX_PLACE);
@@ -178,6 +195,9 @@ export function validateChartRequest(raw: {
     },
     ...(utcOffsetMinutes !== undefined ? { utcOffsetMinutes } : {}),
     ayanamsa,
+    ...(calendar ? { calendar } : {}),
+    ...(rodden ? { rodden } : {}),
+    ...(timeConfidence ? { timeConfidence } : {}),
   };
   return { request, warnings };
 }
@@ -201,6 +221,9 @@ export function encodeChartRequest(req: ChartRequest, opts: { includeName?: bool
   q.set('tz', req.place.timezone);
   if (req.utcOffsetMinutes !== undefined) q.set('off', String(req.utcOffsetMinutes));
   if (req.ayanamsa !== DEFAULT_AYANAMSA) q.set('ay', req.ayanamsa);
+  if (req.calendar) q.set('cal', req.calendar);
+  if (req.rodden) q.set('rr', req.rodden);
+  if (req.timeConfidence) q.set('tc', req.timeConfidence);
   return q.toString();
 }
 
@@ -251,6 +274,9 @@ export function decodeChartRequest(input: string | URLSearchParams): DecodeResul
     place: { name: p.p, latitude: p.lat, longitude: p.lon, timezone: p.tz },
     utcOffsetMinutes: p.off,
     ayanamsa: p.ay,
+    calendar: p.cal,
+    rodden: p.rr,
+    timeConfidence: p.tc,
   });
   if ('errors' in r) return { ok: false, reason: 'invalid', fromVersion, message: r.errors.join('; ') };
   return { ok: true, request: r.request, fromVersion, warnings: r.warnings };
@@ -289,6 +315,7 @@ export function chartRequestToEngine(req: ChartRequest): { input: BirthInput; op
       ...(req.name ? { name: req.name } : {}),
       place: { ...req.place },
       ...(req.utcOffsetMinutes !== undefined ? { utcOffsetMinutes: req.utcOffsetMinutes } : {}),
+      ...(req.calendar ? { calendar: req.calendar } : {}),
     },
     options: { ayanamsa: req.ayanamsa },
   };

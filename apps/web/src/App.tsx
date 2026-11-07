@@ -37,12 +37,15 @@ import { ConditionCard } from './components/ConditionCard';
 import { StrengthSection } from './components/StrengthSection';
 import { ReportActions } from './components/ReportActions';
 import { FamousCharts } from './components/FamousCharts';
+import { BatchView } from './components/BatchView';
 import { FAMOUS_CHARTS, famousChartById, famousErrorReportUrl, RODDEN_MEANING } from './data/famousCharts';
 import { loadKnowledge, type Knowledge } from './lib/readings';
 import { useI18n } from './i18n';
 import { ayanamsaName } from './i18n/names';
 import { LOCALE_BY_CODE } from '@vedic/i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
+import './components/data.css';
+import { birthQuality, RODDEN_LABEL } from './lib/birthQuality';
 import { ExportDialog, type ExportTab } from './components/ExportDialog';
 import { AnnotationPanel, AnnotationPins } from './components/Annotations';
 import { Narrator } from './components/Narrator';
@@ -61,6 +64,7 @@ const JaiminiSection = lazy(() => import('./components/JaiminiSection'));
 const RemediesSection = lazy(() => import('./components/RemediesSection'));
 const RectificationSection = lazy(() => import('./components/RectificationSection'));
 const VarshaphalSection = lazy(() => import('./components/VarshaphalSection'));
+const SkyEvents = lazy(() => import('./components/SkyEvents'));
 const Personal = lazy(() => import('./personal/Personal'));
 const ClassicalTiming = lazy(() => import('./components/ClassicalTiming').then((m) => ({ default: m.ClassicalTiming })));
 
@@ -124,6 +128,7 @@ export default function App() {
   const [ws, setWs] = useState<Workspace>(loadWorkspace);
   const [presenting, setPresenting] = useState(false);
   const [showFamous, setShowFamous] = useState(false);
+  const [showBatch, setShowBatch] = useState(false);
   const [exportTab, setExportTab] = useState<ExportTab | null>(null);
   const [annotating, setAnnotating] = useState(false);
   const [focusNote, setFocusNote] = useState<string | null>(null);
@@ -289,12 +294,13 @@ export default function App() {
   };
   const forgetTab = (tab: Tab) => setWs((w) => ({ ...w, archived: w.archived.filter((t) => t.id !== tab.id) }));
   const backup = () => downloadText(exportAll(wsRef.current, profiles), backupFileName());
-  const restore = (text: string) => {
+  const restore = (text: string, sync = false) => {
     try {
-      const r = restoreAll(wsRef.current, profiles, text);
+      const r = restoreAll(wsRef.current, profiles, text, { mergeExisting: sync });
       wsRef.current = r.ws;
       setWs(r.ws);
       saveProfiles(r.profiles);
+      if (sync) return `Merged ${r.tabsAdded} new tab${r.tabsAdded === 1 ? '' : 's'} and ${r.chartsAdded} new saved chart${r.chartsAdded === 1 ? '' : 's'}, and joined notes and history on the rest.`;
       if (!r.tabsAdded && !r.chartsAdded) return 'Everything in that backup is already here.';
       return `Restored ${r.tabsAdded} tab${r.tabsAdded === 1 ? '' : 's'} and ${r.chartsAdded} saved chart${r.chartsAdded === 1 ? '' : 's'}.`;
     } catch {
@@ -362,6 +368,17 @@ export default function App() {
     setEditing(true);
     requestAnimationFrame(() => document.querySelector('.birth-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
   };
+  const importMany = (items: { label: string; input: BirthInput }[]) => {
+    let list = profiles;
+    let added = 0;
+    for (const it of items) {
+      const before = list.length;
+      list = upsertProfile(list, it.label, it.input);
+      if (list.length > before) added++;
+    }
+    saveProfiles(list);
+    return added;
+  };
   const saveCurrent = (label: string) => {
     if (!chart) return false;
     const list = upsertProfile(profiles, label, chart.input);
@@ -424,6 +441,8 @@ export default function App() {
       ...(speechSupported() ? [{ id: 'listen', group: 'Tools', title: 'Listen to this chart read aloud', keywords: 'audio narration speak voice read', run: () => setNarrating(true) }] : []),
     ] : []),
     { id: 'backup', group: 'Tools', title: 'Back up all tabs and charts', keywords: 'export download file save', run: backup },
+    { id: 'data', group: 'Tools', title: 'Import, export and encrypted sync', keywords: 'csv json aaf jhd jagannatha astro.com astrodatabank paste bulk sync devices passphrase', run: () => { setEditing(true); requestAnimationFrame(() => { const d = document.getElementById('data-tools') as HTMLDetailsElement | null; if (d) { d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }); } },
+    ...(profiles.length > 1 ? [{ id: 'batch', group: 'Tools', title: 'Batch view of all saved charts', keywords: 'clients table list overview', run: () => setShowBatch(true) }] : []),
   ];
   const commands: Command[] = [
     ...clientCommands,
@@ -435,6 +454,8 @@ export default function App() {
 
   const chalit = chart?.engineContext && houseMode !== 'rashi' ? chart.engineContext.chart.bhavaChalit[houseMode] : null;
   const varga = chart ? withChalit(getVarga(chart, vargaId), vargaId === 'D1' ? chalit : null) : null;
+  // famous charts carry their own rating; any other chart is rated by the person
+  const quality = chart && !famous ? birthQuality(chart.input) : null;
   const moon = chart?.planets.find((p) => p.id === 'moon');
   const sun = chart?.planets.find((p) => p.id === 'sun');
 
@@ -499,6 +520,10 @@ export default function App() {
         <div className="card tab-loading" role="status">Opening {activeTab.label}'s chart…</div>
       )}
 
+      {showBatch && (
+        <BatchView profiles={profiles} busy={busy} onOpen={(p) => { setShowBatch(false); openInTab(p.input); }} onClose={() => setShowBatch(false)} />
+      )}
+
       {showFamous && (
         <FamousCharts busy={busy} onOpen={(c) => openInTab(c.input)} onClose={() => setShowFamous(false)} />
       )}
@@ -524,6 +549,10 @@ export default function App() {
               onForget={forgetTab}
               onBackup={backup}
               onRestore={restore}
+              onSyncMerge={(text) => restore(text, true)}
+              backupText={() => exportAll(wsRef.current, profiles)}
+              onImport={importMany}
+              onBatch={() => { setShowBatch(true); requestAnimationFrame(() => document.getElementById('batch')?.scrollIntoView({ behavior: 'smooth', block: 'start' })); }}
             />
             {editingId && (
               <p className="editing-note">
@@ -563,7 +592,7 @@ export default function App() {
               <small>{chart.input.name || t('summary.birth')}</small>
               <b>{chart.input.date} · {chart.input.time} · {chart.input.place}</b>
             </div>
-            {famous && (
+            {famous ? (
               <div className="summary-item">
                 <small>Rodden rating</small>
                 <b title={RODDEN_MEANING[famous.rodden]}>
@@ -577,8 +606,25 @@ export default function App() {
                   <a href={famousErrorReportUrl(famous)} target="_blank" rel="noopener noreferrer">Report an error</a>
                 </span>
               </div>
+            ) : chart.input.rodden && (
+              <div className="summary-item">
+                <small>Rodden rating</small>
+                <b title={RODDEN_LABEL[chart.input.rodden]}>{chart.input.rodden}</b>
+              </div>
+            )}
+            {chart.engineContext?.chart.meta.calendar === 'julian' && (
+              <div className="summary-item">
+                <small>Julian calendar date</small>
+                <b title="The date was read in the Julian (Old Style) calendar">= {chart.engineContext.chart.meta.gregorianDate} Gregorian</b>
+              </div>
             )}
           </section>
+          {quality && (
+            <div className={`quality-banner quality-${quality.level}`} role="note" id="time-quality">
+              <b>{quality.title}.</b> {quality.detail}{' '}
+              <button type="button" className="link-btn" onClick={() => setEditing(true)}>Rate this birth time</button>
+            </div>
+          )}
 
           {chart.engineContext && (
             <Suspense fallback={null}>
@@ -624,6 +670,9 @@ export default function App() {
             </section>
 
             <aside className="card detail-card" id="details" aria-live="polite">
+              {quality && (selection?.kind === 'house' || selection?.kind === 'asc' || vargaId !== 'D1') && (
+                <p className="reading-note quality-note">{quality.title}: read house and lagna findings here as provisional.</p>
+              )}
               {knowledge && knowledge.locale !== locale && <p className="reading-note">{t('app.readingsLanguageNote', { language: LOCALE_BY_CODE[locale].native })}</p>}
               <DetailPanel chart={chart} varga={varga} selection={selection} onSelect={pick} knowledge={knowledge} />
             </aside>
@@ -782,11 +831,22 @@ export default function App() {
           )}
 
           {chart.engineContext && (
+            <>
+            <section className="card" id="eclipses">
+              <div className="card-head"><h3>Eclipses and Sankrantis</h3><span className="muted">where the shadows fall, on Earth and on this chart</span></div>
+              <WhenVisible minHeight={420}>
+                <Suspense fallback={<div className="sky-overlay static">Finding eclipses…</div>}>
+                  <SkyEvents key={chart.engineContext.chart.meta.utc} context={chart.engineContext} input={chart.input} profiles={profiles} onOpen={(i) => { openInTab(i); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
+                </Suspense>
+              </WhenVisible>
+            </section>
+
             <WhenVisible minHeight={520}>
               <Suspense fallback={null}>
                 <Personal part="keepsakes" chart={chart} />
               </Suspense>
             </WhenVisible>
+            </>
           )}
 
           <ClientHistory

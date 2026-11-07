@@ -29,8 +29,20 @@ export {
   zodiacPosition,
   dignityOf,
 } from './zodiac';
-export { dateToJd, jdToDate, jdToIso, timezoneAt, localToUtc } from './time';
-export type { ResolvedTime } from './time';
+export {
+  dateToJd,
+  jdToDate,
+  jdToIso,
+  timezoneAt,
+  localToUtc,
+  julianToGregorian,
+  julianCalendarToJdn,
+  jdnToGregorian,
+  isBeforeGregorian,
+  resolveCalendar,
+  GREGORIAN_START,
+} from './time';
+export type { ResolvedTime, CalendarSystem } from './time';
 export { TZ_HISTORY, historyFor, lmtOffsetMinutes } from './timezoneHistory';
 export type { TimeWarning, TimeWarningCode, TzHistoryEntry } from './timezoneHistory';
 export {

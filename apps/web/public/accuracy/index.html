@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ephemeris accuracy · Jyotisha Explorer</title>
+<meta name="description" content="How far each position source in Jyotisha Explorer is from the Swiss Ephemeris, measured, with the method and the script that produced it.">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+<main class="doc">
+<p class="crumb"><a href="../">Jyotisha Explorer</a> · <a href="../limitations/">Known limitations</a></p>
+<h1>Ephemeris accuracy</h1>
+<p class="lede">Every position on this site comes from the <a href="https://www.astro.com/swisseph/">Swiss Ephemeris</a> 2.10.03,
+compiled to WebAssembly and run in your browser. This page measures the other position sources the code can fall back to against it, so you
+know exactly how much to trust a degree. Measured 2026-11-07 by <a href="https://github.com/destinjones/vedic-astrology/blob/main/tools/accuracy.mts"><code>tools/accuracy.mts</code></a>
+(engine 0.1.0); run <code>npm run accuracy</code> to measure it again. Raw numbers: <a href="accuracy.json">accuracy.json</a>.</p>
+
+<h2>What the reference is</h2>
+<p>For births from 1800 to 2399 the engine reads the Swiss Ephemeris data files, which reproduce NASA JPL's DE431 numerical integration to
+about a milliarcsecond. That is the reference below. Times are converted to Terrestrial Time with the Swiss Ephemeris' own ΔT model, which
+is the largest real uncertainty for old charts: ΔT was about 2 minutes around 1600 and is uncertain by minutes before 1000 CE, which moves
+the Moon by up to a few arcminutes and the ascendant by up to about a degree.</p>
+<p>One arcminute (1′) is one sixtieth of a degree, and one arcsecond (1″) a sixtieth of that. A sign is 30°, a nakshatra 13°20′, a navamsa 3°20′,
+and a D60 shashtiamsa only 30′, so an error of 1″ never changes a sign or nakshatra except in the instant a planet crosses one.</p>
+
+<h2>1. Outside 1800 to 2399: the Moshier theory</h2>
+<p>Outside the file range the engine switches to the Moshier analytical theory built into the Swiss Ephemeris. Measured against the files
+over 1800–2399, sampled every 29.3 days:</p>
+<table><thead><tr><th>Body</th><th>Median</th><th>99%</th><th>Worst</th><th>Worst on</th></tr></thead><tbody><tr><td>Sun</td><td>0.02″</td><td>0.07″</td><td>0.12″</td><td>2305-09-18</td></tr><tr><td>Moon</td><td>0.57″</td><td>2.3″</td><td>3.5″</td><td>2382-03-01</td></tr><tr><td>Mercury</td><td>0.02″</td><td>0.11″</td><td>0.19″</td><td>2327-12-08</td></tr><tr><td>Venus</td><td>0.03″</td><td>0.32″</td><td>0.78″</td><td>2328-12-23</td></tr><tr><td>Mars</td><td>0.05″</td><td>0.55″</td><td>1.3″</td><td>2317-07-04</td></tr><tr><td>Jupiter</td><td>0.29″</td><td>0.88″</td><td>1.3″</td><td>2381-01-15</td></tr><tr><td>Saturn</td><td>0.12″</td><td>0.45″</td><td>0.63″</td><td>2001-12-01</td></tr><tr><td>Rahu (mean)</td><td>< 0.01″</td><td>< 0.01″</td><td>< 0.01″</td><td>1800-01-01</td></tr></tbody></table>
+
+<h2>2. The timing package's own fallback: astronomy-engine</h2>
+<p>The timing package carries a small pure-JavaScript ephemeris (<a href="https://github.com/cosinekitty/astronomy">astronomy-engine</a> plus its own
+mean Lahiri formula) for programs that use it without the WebAssembly engine. The website does not use it. Sidereal longitudes against the
+files, 1900–2100, every 9.7 days:</p>
+<table><thead><tr><th>Body</th><th>Median</th><th>99%</th><th>Worst</th><th>Worst on</th></tr></thead><tbody><tr><td>Sun</td><td>11.9″</td><td>19.7″</td><td>23.0″</td><td>2086-02-11</td></tr><tr><td>Moon</td><td>13.8″</td><td>1.1′</td><td>1.2′</td><td>2086-08-24</td></tr><tr><td>Mercury</td><td>11.6″</td><td>23.1″</td><td>28.7″</td><td>2085-08-10</td></tr><tr><td>Venus</td><td>11.7″</td><td>23.6″</td><td>36.3″</td><td>2002-10-21</td></tr><tr><td>Mars</td><td>11.8″</td><td>21.8″</td><td>28.1″</td><td>2067-10-06</td></tr><tr><td>Jupiter</td><td>11.4″</td><td>22.8″</td><td>25.7″</td><td>1963-11-05</td></tr><tr><td>Saturn</td><td>9.9″</td><td>23.6″</td><td>27.5″</td><td>1944-11-28</td></tr><tr><td>Rahu (mean)</td><td>0.15″</td><td>0.31″</td><td>0.32″</td><td>1899-12-31</td></tr></tbody></table>
+<p>Its Lahiri formula agrees with the Swiss Ephemeris' to < 0.01″ at worst. Most of the 10 to 20″ above is nutation:
+astronomy-engine gives positions on the true ecliptic of date, while sidereal positions from the Swiss Ephemeris are on the mean ecliptic,
+the convention sidereal astrology uses. The rest is the fallback's simpler lunar and planetary theory.</p>
+
+<h2>3. If your browser cannot run the engine: the preview calculator</h2>
+<p>If the WebAssembly engine fails to load, the explorer still draws a chart from mean motions only, and says so in a "preview" banner
+at the top. It is there so the page is not blank, not for reading: Venus and Mars can be tens of degrees off, as measured here at noon UTC every
+9.7 days over 1900–2100.</p>
+<table><thead><tr><th>Body</th><th>Median</th><th>99%</th><th>Worst</th><th>Worst on</th></tr></thead><tbody><tr><td>Sun</td><td>29.9′</td><td>31.9′</td><td>32.1′</td><td>1939-12-02</td></tr><tr><td>Moon</td><td>6.3°</td><td>9.4°</td><td>9.7°</td><td>1947-02-02</td></tr><tr><td>Mercury</td><td>6.4°</td><td>23.6°</td><td>25.6°</td><td>1904-09-04</td></tr><tr><td>Venus</td><td>43.4°</td><td>85.1°</td><td>85.8°</td><td>2081-01-15</td></tr><tr><td>Mars</td><td>24.4°</td><td>61.6°</td><td>64.9°</td><td>2086-10-02</td></tr><tr><td>Jupiter</td><td>11.6°</td><td>24.1°</td><td>25.9°</td><td>2096-11-04</td></tr><tr><td>Saturn</td><td>6.8°</td><td>17.6°</td><td>19.2°</td><td>2099-01-18</td></tr><tr><td>Rahu (mean)</td><td>1.6′</td><td>2.2′</td><td>2.2′</td><td>2099-12-24</td></tr></tbody></table>
+
+<h2>What this does not measure</h2>
+<ul>
+<li><b>Your birth data.</b> A birth time four minutes off moves the ascendant about a degree. This dwarfs every number here; see the Rodden rating on each chart.</li>
+<li><b>The ayanamsa itself.</b> Lahiri, True Chitra, Raman and Krishnamurti are definitions, not measurements, and differ from each other by up to about 1.5°.
+The engine reproduces each one as the Swiss Ephemeris defines it.</li>
+<li><b>Other programs.</b> Paste a longitude from another program into the check page to see the difference for one chart.</li>
+</ul>
+<p class="foot">Jyotisha Explorer is free software under the AGPL. <a href="https://github.com/destinjones/vedic-astrology">Source</a>.</p>
+</main>
+</body>
+</html>

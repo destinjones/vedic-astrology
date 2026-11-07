@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Ayanamsa, BirthInput } from '../types/chart';
+import type { Ayanamsa, BirthInput, CalendarSystem, RoddenRating, TimeConfidence } from '../types/chart';
+import { RODDEN_LABEL, RODDEN_RATINGS, TIME_CONFIDENCE_LABEL, TIME_CONFIDENCES } from '../lib/birthQuality';
+import { onlinePlaceSearch, searchGazetteer, setOnlinePlaceSearch } from '../lib/gazetteer';
 import { placeAlias, normalizePlaceName } from '@vedic/engine/places';
 import { CITIES, type City } from '../data/cities';
 import { searchPlaces } from '../engine';
@@ -27,7 +29,7 @@ export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel }: Pr
   // so editing the date, time or place drops it and the zone's own rules apply again.
   const set = <K extends keyof BirthInput>(k: K, v: BirthInput[K]) => setF((s) => {
     const next = { ...s, [k]: v };
-    if (k !== 'name' && k !== 'ayanamsa') delete next.utcOffsetMinutes;
+    if (!['name', 'ayanamsa', 'rodden', 'timeConfidence', 'calendar'].includes(k)) delete next.utcOffsetMinutes;
     return next;
   });
 
@@ -53,10 +55,21 @@ export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel }: Pr
     }).slice(0, 4);
   }, [f.place]);
 
-  // online place search (Open-Meteo via the engine), debounced to stay well inside its limits
+  // the bundled GeoNames gazetteer: searched in this browser, nothing is sent
+  const [gazetteer, setGazetteer] = useState<City[]>([]);
   useEffect(() => {
     const q = f.place.trim();
-    if (!showMatches || q.length < 3) { setRemote([]); return; }
+    if (!showMatches || q.length < 2) { setGazetteer([]); return; }
+    let live = true;
+    const t = setTimeout(() => { searchGazetteer(q).then((r) => { if (live) setGazetteer(r); }).catch(() => {}); }, 120);
+    return () => { live = false; clearTimeout(t); };
+  }, [f.place, showMatches]);
+
+  // online place search (Open-Meteo via the engine), debounced to stay well inside its limits
+  const [online, setOnline] = useState(onlinePlaceSearch);
+  useEffect(() => {
+    const q = f.place.trim();
+    if (!online || !showMatches || q.length < 3) { setRemote([]); return; }
     const ctl = new AbortController();
     const t = setTimeout(() => {
       searchPlaces(q, ctl.signal)
@@ -64,16 +77,19 @@ export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel }: Pr
         .catch(() => {});
     }, 400);
     return () => { clearTimeout(t); ctl.abort(); };
-  }, [f.place, showMatches]);
+  }, [f.place, showMatches, online]);
 
   const matches = useMemo(() => {
     const seen = new Set<string>();
     // a renamed city found offline beats an unrelated literal match online (Madras, Oregon)
-    const ordered = [...offline.filter((c) => c.formerly), ...remote, ...offline];
+    const ordered = [...offline.filter((c) => c.formerly), ...gazetteer.filter((c) => c.formerly), ...offline, ...gazetteer, ...remote];
     // same town from both lists ("Mumbai, India" and "Mumbai, Maharashtra, India") shows once
     const key = (c: City) => `${c.latitude.toFixed(1)},${c.longitude.toFixed(1)}`;
     return ordered.filter((c) => (seen.has(key(c)) ? false : (seen.add(key(c)), true))).slice(0, 7);
-  }, [remote, offline]);
+  }, [remote, offline, gazetteer]);
+  // dates before Britain's switch (1752) may be in either calendar; later ones are always Gregorian
+  const year = Number(/^-?\d+/.exec(f.date)?.[0]);
+  const showCalendar = Number.isFinite(year) && year < 1753 || (f.calendar !== undefined && f.calendar !== 'auto');
   const showMap = located && f.place.trim().length > 0 && Number.isFinite(f.latitude) && Number.isFinite(f.longitude)
     && Math.abs(f.latitude) <= 90 && Math.abs(f.longitude) <= 180;
 
@@ -130,7 +146,11 @@ export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel }: Pr
           </ul>
         )}
       </label>
-      {showMap && (
+      <label className="check span-2 place-online">
+        <input type="checkbox" checked={online} onChange={(e) => { setOnline(e.target.checked); setOnlinePlaceSearch(e.target.checked); }} />
+        <span>Also search online for small towns <small className="muted">sends what you type to Open-Meteo and shows an OpenStreetMap preview. Off: 25,000 places are searched in this browser and nothing is sent.</small></span>
+      </label>
+      {showMap && online && (
         <PlaceMap
           key={picked?.name ?? 'typed'}
           latitude={f.latitude}
@@ -151,6 +171,30 @@ export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel }: Pr
         <span>{t('form.timezone')}</span>
         <input list="zones" value={f.timezone} onChange={(e) => set('timezone', e.target.value)} />
         <datalist id="zones">{ZONES.map((z) => <option key={z} value={z} />)}</datalist>
+      </label>
+      {showCalendar && (
+        <label className="field span-2">
+          <span>Calendar of this date</span>
+          <select value={f.calendar ?? 'auto'} onChange={(e) => set('calendar', e.target.value as CalendarSystem)}>
+            <option value="auto">Automatic: Julian before 15 Oct 1582, Gregorian after</option>
+            <option value="julian">Julian (Old Style), e.g. Britain and its colonies before Sept 1752</option>
+            <option value="gregorian">Gregorian (New Style), the modern calendar</option>
+          </select>
+        </label>
+      )}
+      <label className="field">
+        <span>Time source <small className="muted">Rodden rating</small></span>
+        <select value={f.rodden ?? ''} onChange={(e) => set('rodden', (e.target.value || undefined) as RoddenRating | undefined)}>
+          <option value="">Unrated</option>
+          {RODDEN_RATINGS.map((r) => <option key={r} value={r}>{RODDEN_LABEL[r]}</option>)}
+        </select>
+      </label>
+      <label className="field">
+        <span>How exact is the time?</span>
+        <select value={f.timeConfidence ?? ''} onChange={(e) => set('timeConfidence', (e.target.value || undefined) as TimeConfidence | undefined)}>
+          <option value="">Not said</option>
+          {TIME_CONFIDENCES.map((c) => <option key={c} value={c}>{TIME_CONFIDENCE_LABEL[c]}</option>)}
+        </select>
       </label>
       <label className="field">
         <span>{t('form.ayanamsa')}</span>

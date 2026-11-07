@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Known limitations · Jyotisha Explorer</title>
+<meta name="description" content="What Jyotisha Explorer does not do, or does only approximately, so you know where to check its results.">
+<link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+<main class="doc">
+<p class="crumb"><a href="../">Jyotisha Explorer</a> · <a href="../accuracy/">Ephemeris accuracy</a></p>
+<h1>Known limitations</h1>
+<p class="lede">Everything on this site is worked out in your browser from published rules and the Swiss Ephemeris. This page lists, plainly,
+where those results are approximate, incomplete or depend on choices you should know about. If you find something missing from this list,
+please <a href="https://github.com/destinjones/vedic-astrology/issues">open an issue</a>.</p>
+
+<h2>Your birth data matters most</h2>
+<div class="item">
+<h3>The birth time</h3>
+<p>The ascendant moves about one degree every four minutes, so a time rounded to the hour can change the lagna, every house placement, the
+navamsa and finer divisional charts, and shift dasha dates by weeks or months. Rate each chart's time with its Rodden rating under
+"Edit birth details"; charts that are unrated or uncertain show a warning. The birth time finder can narrow an uncertain time from life
+events, but it ranks candidates, it does not prove one.</p>
+</div>
+<div class="item">
+<h3>Clock time and time zones</h3>
+<p>Local clock time is converted with the IANA time zone database, which records daylight saving and war time for most places since about
+1970 and many before. Before standard time the birthplace's own local mean time is used. Some historical local times are not in the database:
+Bombay Time (UTC+4:51) and Calcutta Time (UTC+5:53) were used in parts of India until 1955 and 1948, and many towns kept their own time or ignored
+daylight saving. Charts imported from Astro-Databank text, AAF or Jagannatha Hora files keep the exact offset they carry; for other charts, check
+the zone and the UTC offset shown on the chart.</p>
+</div>
+<div class="item">
+<h3>Old dates and the calendar</h3>
+<p>Dates before 15 October 1582 are read as Julian by default, as historical records give them. Many countries switched to the Gregorian
+calendar later (Britain and its colonies in September 1752, Russia in 1918): choose "Julian" in the calendar box for those. For births before
+1800 the engine uses the Moshier theory and the Swiss Ephemeris' ΔT model, whose uncertainty grows to minutes of time before about 1600
+(see <a href="../accuracy/">ephemeris accuracy</a>). Some browsers' date pickers do not accept years before 1 CE.</p>
+</div>
+<div class="item">
+<h3>Place search</h3>
+<p>The built-in place list holds 25,506 places: every town of 15,000 people or more worldwide and of 1,000 or more in South Asia, from GeoNames.
+Smaller villages need the online search (Open-Meteo) or coordinates typed in by hand. Places are matched by their current name; well-known
+former names such as Bombay, Madras and Pondicherry are recognised. Coordinates are those of the town centre.</p>
+</div>
+
+<h2>Calculation choices</h2>
+<div class="item">
+<h3>Ayanamsa</h3>
+<p>Lahiri (Chitrapaksha) is the default, as used by the Indian government's ephemeris. True Chitra, Raman and Krishnamurti are offered;
+they differ from Lahiri by up to about 1.5°, enough to move a planet near a sign or nakshatra edge. There is no single correct ayanamsa.</p>
+</div>
+<div class="item">
+<h3>Nodes, houses and aspects</h3>
+<p>Rahu and Ketu use the mean node unless you choose the true node in the engine. Readings use whole-sign houses from the lagna. Aspects are
+the classical graha drishti by sign; aspect strength in Shadbala uses the classical sputa drishti formula.</p>
+</div>
+<div class="item">
+<h3>Dasha year length</h3>
+<p>Vimshottari dates use a year of 365.2425 days. Some traditions use 360-day or 365.25-day years, which move dates by days per decade of age.</p>
+</div>
+
+<h2>Readings and rules</h2>
+<div class="item">
+<h3>Rules are a selection, not the whole tradition</h3>
+<p>The site detects 44 yogas and 9 doshas with the conditions and cancellations its code states, and writes readings from a fixed knowledge base.
+Classical texts disagree with each other, and astrologers weigh many factors together; no rule engine reproduces that judgement. Every rule is
+public in <a href="https://github.com/destinjones/vedic-astrology/tree/main/packages/interpretations">packages/interpretations</a>.</p>
+</div>
+<div class="item">
+<h3>Not a prediction, and not advice</h3>
+<p>Astrology is a traditional practice, not a science. Scores and readings show what the tradition says, for reflection. They are not medical,
+legal or financial advice.</p>
+</div>
+
+<h2>Sky and eclipses</h2>
+<div class="item">
+<h3>The 3D sky</h3>
+<p>Planets stand at their exact sidereal longitudes. The painted backdrop is artwork; the "Real stars" mode instead places the stars of the
+Hipparcos catalogue brighter than magnitude 5 at their positions for J2000, without proper motion (a few arcminutes at most for the brightest stars
+over a century), with the constellation figures of the d3-celestial project.</p>
+</div>
+<div class="item">
+<h3>Eclipses</h3>
+<p>Eclipse times come from astronomy-engine and agree with NASA's published times to within about a minute. The path of a solar eclipse is drawn from the
+centre line of the Moon's shadow; the edges of the zone of totality or annularity are not drawn, and local circumstances (when it starts and ends
+where you are) are shown only for the chart's own place.</p>
+</div>
+
+<h2>Your data</h2>
+<div class="item">
+<h3>Stored in this browser</h3>
+<p>Charts, tabs, notes and history live in your browser's storage. Clearing site data, or a private window, removes them. Use
+"Back up everything" or encrypted sync to keep a copy.</p>
+</div>
+<div class="item">
+<h3>Encrypted sync</h3>
+<p>Sync encrypts in the browser with a key made from your passphrase, so a lost passphrase cannot be recovered by anyone. Syncing merges: new charts,
+tabs, history entries and life events from either device are kept, notes written on both are kept one after the other, and a deleted chart is not
+deleted on the other device. The key is made on your device with Argon2id, which is deliberately slow (about a second on a phone), and the passphrase
+is the only protection, so use a long one; the "Make one" button gives a strong random passphrase.</p>
+<p>File sync is the default. A sync server is optional: it sees only ciphertext, a random sync ID and timestamps, keeps each blob for 180 days after
+its last write, and deletes on request. Two devices syncing within the same minute from far apart can overwrite each other once; the next sync puts
+the missing data back. If the server fails, the app saves an encrypted file instead.</p>
+</div>
+<p class="foot">Jyotisha Explorer is free software under the AGPL. <a href="https://github.com/destinjones/vedic-astrology">Source</a>.</p>
+</main>
+</body>
+</html>

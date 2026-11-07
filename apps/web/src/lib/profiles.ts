@@ -3,8 +3,9 @@
  * profiles live in localStorage, and share links carry the birth details in
  * the URL fragment (#...), which browsers never send to the server.
  */
+import type { Ayanamsa, BirthInput, CalendarSystem, RoddenRating, TimeConfidence } from '../types/chart';
+import { RODDEN_RATINGS, TIME_CONFIDENCES } from './birthQuality';
 import { CHART_REQUEST_VERSION, decodeChartRequest, encodeChartRequest, type ChartRequest } from '@vedic/engine/request';
-import type { Ayanamsa, BirthInput } from '../types/chart';
 
 export interface Profile {
   id: string;
@@ -42,7 +43,14 @@ export function sanitizeInput(raw: unknown): BirthInput | null {
   if (!Number.isFinite(latitude) || Math.abs(latitude) > 90) return null;
   if (!Number.isFinite(longitude) || Math.abs(longitude) > 180) return null;
   if (!timezone || !isTimeZone(timezone)) return null;
+  const calendar = (['auto', 'gregorian', 'julian'] as const).find((c) => c === r.calendar) as CalendarSystem | undefined;
+  const rodden = (RODDEN_RATINGS as readonly string[]).includes(str(r.rodden, 2)) ? (r.rodden as RoddenRating) : undefined;
+  const timeConfidence = (TIME_CONFIDENCES as readonly string[]).includes(str(r.timeConfidence, 12)) ? (r.timeConfidence as TimeConfidence) : undefined;
   return {
+    ...(Number.isFinite(offset) && Math.abs(offset) <= 16 * 60 ? { utcOffsetMinutes: offset } : {}),
+    ...(calendar && calendar !== 'auto' ? { calendar } : {}),
+    ...(rodden ? { rodden } : {}),
+    ...(timeConfidence ? { timeConfidence } : {}),
     name: str(r.name, 80),
     date,
     time,
@@ -64,7 +72,8 @@ export const sameBirth = (a: BirthInput, b: BirthInput): boolean =>
   Math.abs(a.latitude - b.latitude) < 1e-4 &&
   Math.abs(a.longitude - b.longitude) < 1e-4 &&
   a.timezone === b.timezone &&
-  (a.utcOffsetMinutes ?? null) === (b.utcOffsetMinutes ?? null);
+  (a.utcOffsetMinutes ?? null) === (b.utcOffsetMinutes ?? null) &&
+  (a.calendar ?? 'auto') === (b.calendar ?? 'auto');
 
 /* ---------- profile storage ---------- */
 
@@ -145,6 +154,9 @@ export function toChartRequest(input: BirthInput): ChartRequest {
     place: { ...(input.place ? { name: input.place } : {}), latitude: input.latitude, longitude: input.longitude, timezone: input.timezone },
     ...(input.utcOffsetMinutes !== undefined ? { utcOffsetMinutes: input.utcOffsetMinutes } : {}),
     ayanamsa: input.ayanamsa,
+    ...(input.calendar && input.calendar !== 'auto' ? { calendar: input.calendar } : {}),
+    ...(input.rodden ? { rodden: input.rodden } : {}),
+    ...(input.timeConfidence ? { timeConfidence: input.timeConfidence } : {}),
   };
 }
 
@@ -160,6 +172,9 @@ export function fromChartRequest(r: ChartRequest): BirthInput | null {
     timezone: r.place.timezone,
     ayanamsa: r.ayanamsa,
     utcOffsetMinutes: r.utcOffsetMinutes,
+    calendar: r.calendar,
+    rodden: r.rodden,
+    timeConfidence: r.timeConfidence,
   });
 }
 

@@ -133,3 +133,22 @@ describe('JSON form', () => {
     });
   });
 });
+
+describe('optional calendar, Rodden rating and time confidence', () => {
+  it('travel in a v1 link and come back', () => {
+    const r = decodeChartRequest('v=1&d=1642-12-25&t=01:38&lat=52.80&lon=-0.63&tz=Europe%2FLondon&cal=julian&rr=AA&tc=exact');
+    expect(r).toMatchObject({ ok: true, request: { calendar: 'julian', rodden: 'AA', timeConfidence: 'exact' } });
+    if (!r.ok) return;
+    const again = decodeChartRequest(encodeChartRequest(r.request));
+    expect(again).toMatchObject({ ok: true, request: r.request });
+    expect(chartRequestToEngine(r.request).input.calendar).toBe('julian');
+  });
+  it('drops an unknown calendar with a warning', () => {
+    const r = decodeChartRequest('v=1&d=1990-08-15&t=06:30&lat=28.6&lon=77.2&tz=Asia%2FKolkata&cal=mayan');
+    expect(r).toMatchObject({ ok: true });
+    if (r.ok) {
+      expect(r.request.calendar).toBeUndefined();
+      expect(r.warnings.join(' ')).toMatch(/calendar/);
+    }
+  });
+});

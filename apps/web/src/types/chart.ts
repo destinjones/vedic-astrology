@@ -36,7 +36,25 @@ export interface BirthInput {
    * zone's historical rules, for places whose clocks did not follow their zone.
    */
   utcOffsetMinutes?: number;
+  /** Calendar of `date`. Default 'auto' reads dates before 1582-10-15 as Julian. */
+  calendar?: CalendarSystem;
+  /** How reliable the birth time is, on the Rodden scale. Unset means unrated. */
+  rodden?: RoddenRating;
+  /** How exact the clock time is, in the person's own words. */
+  timeConfidence?: TimeConfidence;
 }
+
+export type CalendarSystem = 'auto' | 'gregorian' | 'julian';
+
+/**
+ * Lois Rodden's reliability scale for birth data, as used by Astro-Databank:
+ * AA birth record, A from memory, B biography, C caution, DD conflicting,
+ * X no time, XX no confirmed date.
+ */
+export type RoddenRating = 'AA' | 'A' | 'B' | 'C' | 'DD' | 'X' | 'XX';
+
+/** exact: to the minute; rounded: to the nearest quarter or hour; approximate: "morning"; unknown: no time. */
+export type TimeConfidence = 'exact' | 'rounded' | 'approximate' | 'unknown';
 
 export interface PlanetPosition {
   id: PlanetId;
