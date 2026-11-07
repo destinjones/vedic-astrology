@@ -1,6 +1,6 @@
 import { useI18n } from '../i18n';
 import { addSigns, occupantsByHouse } from '../lib/astro';
-import { aspectTargets, focusPlanet, PlanetGlyphs, type ChartViewProps } from './chartShared';
+import { aspectTargets, focusPlanet, houseLabel, PlanetGlyphs, useChartNav, type ChartViewProps } from './chartShared';
 
 type Pt = [number, number];
 const S = 400;
@@ -42,14 +42,20 @@ function planetPoint(i: number, pts: Pt[]): Pt {
   return c;
 }
 
+/** Centre of each house, for moving between houses with the arrow keys. */
+const CENTERS: Record<number, [number, number]> = Object.fromEntries(HOUSE_POLYS.map((pts, i) => [i + 1, centroid(pts)]));
+
 export function NorthChart(props: ChartViewProps) {
   const { varga, selection, hoverPlanet, onSelect } = props;
   const { t, v } = useI18n();
   const occ = occupantsByHouse(varga);
   const targets = aspectTargets(varga, focusPlanet(selection, hoverPlanet));
+  const nav = useChartNav(CENTERS, selection, onSelect);
+  const names = { sign: (n: number) => v.signs[n - 1], planet: (id: keyof typeof v.planets) => v.planets[id].name, lagna: t('summary.lagna'), empty: '—', house: t('table.house') };
 
   return (
-    <svg viewBox={`-6 -6 ${S + 12} ${S + 12}`} className="chart-svg" role="img" aria-label="North Indian chart">
+    <svg viewBox={`-6 -6 ${S + 12} ${S + 12}`} className="chart-svg" role="group"
+      aria-label={`${t('chart.north')}, ${varga.id} ${v.vargas[varga.id]}. Arrow keys move between houses, Enter opens one, Tab reaches its planets.`}>
       <defs>
         <linearGradient id="northBg" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor="var(--chart-bg-a)" />
@@ -64,20 +70,21 @@ export function NorthChart(props: ChartViewProps) {
         const [lx, ly] = signLabelPoint(pts);
         const [px, py] = planetPoint(i, pts);
         return (
-          <g key={house} className="chart-house" onClick={() => onSelect({ kind: 'house', num: house })}>
+          <g key={house} className="chart-house" onClick={() => onSelect({ kind: 'house', num: house })}
+            {...nav.houseProps(house, houseLabel(house, varga, names, props.overlay && { label: props.overlay.label, ids: props.overlay.houses[house] ?? [] }))}>
             <polygon
               points={pts.map((p) => p.join(',')).join(' ')}
               className={`house-poly${selected ? ' is-selected' : ''}${targets.has(house) ? ' is-aspected' : ''}${house === 1 ? ' is-lagna' : ''}`}
             />
-            <text x={lx} y={ly} textAnchor="middle" className="chart-signnum">
+            <text x={lx} y={ly} textAnchor="middle" className="chart-signnum" aria-hidden>
               <title>{t('wheel.signHouse', { sign: v.signs[sign - 1], house })}</title>
               {sign}
             </text>
-            <PlanetGlyphs {...props} ids={occ[house]} cx={px} cy={py} perCol={pts.length === 4 ? 4 : 3} showAsc={house === 1} extra={props.overlay?.houses[house]} />
+            <PlanetGlyphs {...props} ids={occ[house]} cx={px} cy={py} perCol={pts.length === 4 ? 4 : 3} showAsc={house === 1} extra={props.overlay?.houses[house]} focusable={nav.current === house} />
           </g>
         );
       })}
-      <g className="chart-lines" pointerEvents="none">
+      <g className="chart-lines" pointerEvents="none" aria-hidden>
         <rect x={0} y={0} width={S} height={S} rx={6} fill="none" />
         <line x1={0} y1={0} x2={S} y2={S} />
         <line x1={S} y1={0} x2={0} y2={S} />

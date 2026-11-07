@@ -28,6 +28,7 @@ const onWheel = (lonDeg: number, r: number, h: number) => {
 };
 
 import { useI18n } from '../i18n';
+import { reducedMotion, useReducedMotion } from '../lib/display';
 import type { Vocab } from '@vedic/i18n';
 import type { PlanetPosition } from '../types/chart';
 
@@ -45,7 +46,10 @@ export default function SkyView({ chart, selection, onSelect }: Props) {
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
-  const [spin, setSpin] = useState(true);
+  // reduced motion (the system setting or ours) starts the sky still; the button can still turn it
+  const calm = useReducedMotion();
+  const [spin, setSpin] = useState(() => !reducedMotion());
+  useEffect(() => { if (calm) setSpin(false); }, [calm]);
   const controlsRef = useRef<OrbitControls | null>(null);
   const captureRef = useRef<SkyCapture | null>(null);
   const [exporting, setExporting] = useState(false);
@@ -278,8 +282,10 @@ export default function SkyView({ chart, selection, onSelect }: Props) {
     const clock = new THREE.Clock();
     const frame = () => {
       const dt = clock.getDelta();
-      for (const s of spinners) s.rotation.y += dt * 0.25;
-      for (const n of nodesRef.current) if (n.halo.visible) n.halo.rotation.z += dt * 0.8;
+      if (!reducedMotion()) {
+        for (const s of spinners) s.rotation.y += dt * 0.25;
+        for (const n of nodesRef.current) if (n.halo.visible) n.halo.rotation.z += dt * 0.8;
+      }
       controls.update();
       renderer.render(scene, camera);
       labels.render(scene, camera);

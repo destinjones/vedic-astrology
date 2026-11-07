@@ -1,6 +1,7 @@
 import type { ChartInterpretation } from '@vedic/interpretations';
 import { ReadingBlock } from './ReadingBlock';
 import { useI18n } from '../i18n';
+import { Glossed } from './Gloss';
 
 /** Every yoga and dosha the detectors found in this chart, with the reason it qualifies. */
 export function YogaDoshaCard({ report }: { report: ChartInterpretation }) {
@@ -18,7 +19,7 @@ export function YogaDoshaCard({ report }: { report: ChartInterpretation }) {
         {report.yogas.map((y) => (
           <div key={y.id + y.reason}>
             <ReadingBlock reading={{ ...y.reading, title: `${y.name} (${v.strength[y.strength]})` }} />
-            <p className="yd-reason">{y.reason}</p>
+            <p className="yd-reason"><Glossed text={y.reason} /></p>
           </div>
         ))}
       </div>
@@ -28,7 +29,7 @@ export function YogaDoshaCard({ report }: { report: ChartInterpretation }) {
         {doshas.map((d) => (
           <div key={d.id}>
             <ReadingBlock reading={{ ...d.reading, title: `${d.name} (${v.severity[d.severity]})` }} />
-            <p className="yd-reason">{d.reason}</p>
+            <p className="yd-reason"><Glossed text={d.reason} /></p>
             {d.cancellations.length > 0 && <p className="yd-reason">{t('yd.softened', { list: d.cancellations.join('; ') })}</p>}
           </div>
         ))}

@@ -23,3 +23,5 @@ export {
 export type { JaiminiInput, SignQuality } from './core';
 export { jaimini, charaDashaReading } from './analyze';
 export type { JaiminiChart } from './analyze';
+export { argalaOn, ARGALA_PAIRS } from './argala';
+export type { ArgalaEntry, ArgalaOnSign } from './argala';
