@@ -24,7 +24,7 @@ try {
   if (offsite.size) problems.push(`landing page called other sites: ${[...offsite].join(', ')}`);
 
   // the other pages render (a page error is recorded by the handler above)
-  for (const p of ['compare/', 'match/', 'tools/']) {
+  for (const p of ['compare/', 'match/', 'tools/', 'learn/']) {
     await page.goto(`${url}${BASE}${p}`, { waitUntil: 'networkidle' });
     if (!(await page.locator('#root').innerText()).trim()) problems.push(`${p}: page is blank`);
   }
@@ -35,6 +35,14 @@ try {
   if (await page.locator('.preview-banner').count()) problems.push('app fell back to the preview calculator: the Swiss Ephemeris did not load');
   const lagna = await page.locator('.summary-item').first().innerText();
   if (!lagna.includes('Leo')) problems.push(`sample chart lagna should be Leo, got: ${lagna}`);
+
+  // the chart works from the keyboard: one Tab stop, arrows move between houses, Enter opens one
+  await page.focus('#chart [data-house="1"]');
+  await page.keyboard.press('PageDown');
+  await page.keyboard.press('Enter');
+  const opened = await page.evaluate(() => document.activeElement?.getAttribute('data-house'));
+  if (opened !== '2') problems.push(`chart keyboard: Page Down from the 1st house should focus the 2nd, got ${opened}`);
+  if (!(await page.locator('#details', { hasText: '2nd house' }).count())) problems.push('chart keyboard: Enter did not open the 2nd house');
 
   await page.locator('#jaimini').scrollIntoViewIfNeeded();
   await page.waitForSelector('#jaimini .jm-karakas', { timeout: 60000 });
