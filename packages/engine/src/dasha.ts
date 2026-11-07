@@ -87,9 +87,9 @@ export function vimshottari(
 
 /**
  * Active chain of periods at a moment: [maha, antar, pratyantar, ...].
- * Returns [] outside the computed 120-year window.
+ * Works for every dasha system. Returns [] outside the computed window.
  */
-export function dashaAt(dasha: VimshottariDasha, when: Date | string | number): DashaPeriod[] {
+export function dashaAt(dasha: { periods: DashaPeriod[] }, when: Date | string | number): DashaPeriod[] {
   const jd =
     typeof when === 'number' ? when : dateToJd(typeof when === 'string' ? new Date(when) : when);
   const chain: DashaPeriod[] = [];
@@ -104,7 +104,7 @@ export function dashaAt(dasha: VimshottariDasha, when: Date | string | number): 
 }
 
 /** Flatten periods at a given level (1 = maha, 2 = antar, ...) */
-export function dashaLevel(dasha: VimshottariDasha, level: number): DashaPeriod[] {
+export function dashaLevel(dasha: { periods: DashaPeriod[] }, level: number): DashaPeriod[] {
   const out: DashaPeriod[] = [];
   const walk = (ps: DashaPeriod[] | undefined) => {
     for (const p of ps ?? []) {
