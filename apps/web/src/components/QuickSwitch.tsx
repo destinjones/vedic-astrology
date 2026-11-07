@@ -102,9 +102,10 @@ export function QuickSwitch({ commands }: Props) {
     const c = results[i];
     if (!c) return;
     setPalette(false);
-    // focus goes back to the page before the command moves it (scrolls, opens the form)
+    // focus goes back to the page before the command moves it (scrolls, opens the form).
+    // Run it now rather than on the next frame: a busy page (the 3D sky) can hold frames back.
     restoreFocus.current?.focus?.({ preventScroll: true });
-    requestAnimationFrame(() => c.run());
+    c.run();
   };
 
   const onPaletteKey = (e: React.KeyboardEvent) => {
