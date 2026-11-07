@@ -36,6 +36,16 @@ try {
   await page.waitForSelector('.sky-card canvas', { timeout: 60000 });
   await page.waitForTimeout(1500);
 
+  // keyboard: a number key switches the divisional chart, and the quick switcher finds and opens one
+  await page.locator('body').click({ position: { x: 2, y: 2 } });
+  await page.keyboard.press('9');
+  if (!(await page.locator('.varga-caption').innerText()).includes('Navamsha')) problems.push('keyboard: 9 did not open the Navamsha');
+  await page.keyboard.press('ControlOrMeta+k');
+  await page.locator('.qs-input').fill('dashamsha');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('.varga-caption').innerText()).includes('Dashamsha')) problems.push('quick switch: "dashamsha" + Enter did not open the D10');
+
   const away = [...offsite];
   if (away.length) problems.push(`opening a chart called other sites: ${away.join(', ')}`);
 

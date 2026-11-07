@@ -21,6 +21,9 @@ import { VargaSwitcher } from './components/VargaSwitcher';
 import { NAKSHATRAS, PLANET_BY_ID, signInfo } from './data/constants';
 import { getVarga } from './lib/astro';
 import { ART } from './data/art';
+import { QuickSwitch } from './components/QuickSwitch';
+import { chartCommands, jumpTo } from './lib/chartCommands';
+import type { Command } from './lib/commands';
 
 import { YogaDoshaCard } from './components/YogaDoshaCard';
 import { StrengthSection } from './components/StrengthSection';
@@ -307,6 +310,16 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  const editBirth = () => {
+    setEditing(true);
+    requestAnimationFrame(() => document.querySelector<HTMLInputElement>('.birth-form input')?.focus());
+  };
+  // Keyboard and quick-switch commands. Other features (client tabs, saved charts) add theirs here.
+  const commands: Command[] = chart
+    ? chartCommands({ chart, vargaId, setVargaId, style, setStyle, selection, setSelection, wheelMode, setWheelMode, editBirth })
+    : [{ id: 'sample', group: 'Chart', title: 'Open the sample chart', keywords: 'example demo', run: () => void run(DEFAULT_INPUT) },
+       { id: 'birth.focus', group: 'Chart', title: 'Enter birth details', shortcut: 'e', keywords: 'form new chart', run: () => { jumpTo('intake'); editBirth(); } }];
+
   const varga = chart ? getVarga(chart, vargaId) : null;
   const moon = chart?.planets.find((p) => p.id === 'moon');
   const sun = chart?.planets.find((p) => p.id === 'sun');
@@ -330,13 +343,16 @@ export default function App() {
             <p>Vedic birth chart, every placement, every varga</p>
           </div>
         </a>
-        {chart && (
-          <div className="topbar-actions">
-            <button className="btn-ghost" onClick={startPresent} title="Full screen walkthrough for a client, a screen share or a recording">▶ Present</button>
-            <ChartActions input={chart.input} profiles={profiles} onSave={saveCurrent} onShowSaved={showSaved} />
-            {!editing && <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>}
-          </div>
-        )}
+        <div className="topbar-actions">
+          <QuickSwitch commands={commands} />
+          {chart && (
+            <>
+              <button className="btn-ghost" onClick={startPresent} title="Full screen walkthrough for a client, a screen share or a recording">▶ Present</button>
+              <ChartActions input={chart.input} profiles={profiles} onSave={saveCurrent} onShowSaved={showSaved} />
+              {!editing && <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>}
+            </>
+          )}
+        </div>
       </header>
 
       <TabBar
@@ -360,7 +376,7 @@ export default function App() {
       )}
 
       {(editing || !chart) && !(busy && !chart && activeTab.input) && (
-        <section className={`intake ${chart ? 'intake-compact' : ''}`}>
+        <section id="intake" className={`intake ${chart ? 'intake-compact' : ''}`}>
           {!chart && (
             <div className="intake-copy">
               <h2>Your sky at the moment you arrived</h2>
@@ -422,7 +438,7 @@ export default function App() {
           </section>
 
           <div className="explorer-grid">
-            <section className="card chart-card">
+            <section className="card chart-card" id="chart">
               <div className="card-head">
                 <h3>Birth chart</h3>
                 <div className="seg" role="radiogroup" aria-label="Chart style">
@@ -441,7 +457,7 @@ export default function App() {
               <p className="legend muted">R retrograde · c combust · highlighted houses show the aspects of the planet under your cursor</p>
             </section>
 
-            <aside className="card detail-card" aria-live="polite">
+            <aside className="card detail-card" id="details" aria-live="polite">
               <DetailPanel chart={chart} varga={varga} selection={selection} onSelect={setSelection} knowledge={knowledge} />
             </aside>
           </div>
@@ -450,7 +466,7 @@ export default function App() {
 
           {chart.engineContext?.chart.strength && <StrengthSection strength={chart.engineContext.chart.strength} />}
 
-          <section className="card sky-card">
+          <section className="card sky-card" id="sky">
             <div className="card-head">
               <h3>Sky view</h3>
               <span className="muted">your grahas in 3D, placed by sidereal longitude</span>
@@ -463,7 +479,7 @@ export default function App() {
           </section>
 
           <div className="explorer-grid lower">
-            <section className="card wheel-card">
+            <section className="card wheel-card" id="wheel">
               <div className="card-head">
                 <h3>Nakshatra wheel</h3>
                 <div className="seg" role="radiogroup" aria-label="Wheel style">
@@ -473,7 +489,7 @@ export default function App() {
               </div>
               <NakshatraWheel mode={wheelMode} chart={chart} selection={selection} onSelect={setSelection} onHoverPlanet={setHoverPlanet} />
             </section>
-            <section className="card">
+            <section className="card" id="planets">
               <div className="card-head"><h3>Planetary positions</h3></div>
               <PlanetTable chart={chart} selection={selection} onSelect={setSelection} />
             </section>
