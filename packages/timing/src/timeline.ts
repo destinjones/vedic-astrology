@@ -14,7 +14,7 @@ export interface TimelineOptions extends DashaOptions {
   to?: Date;
   /** Sampling step for the transit / combined series, days. Default 7. */
   stepDays?: number;
-  /** Share of the combined score that comes from dasha (rest from transits). Default 0.55. */
+  /** Share of the combined score that comes from dasha (rest from transits). Default 0.6 (dasha promises, transits trigger). */
   dashaShare?: number;
   /** Pre-computed dasha tree (e.g. scored engine periods). */
   dashas?: DashaPeriod[];
@@ -62,7 +62,7 @@ export function buildTimeline(eph: Ephemeris, chart: NatalChart, opts: TimelineO
   const from = opts.from ?? addDays(now, -365 * 2);
   const to = opts.to ?? addDays(now, 365 * 5);
   const step = opts.stepDays ?? 7;
-  const share = opts.dashaShare ?? 0.55;
+  const share = opts.dashaShare ?? 0.6;
   const dashas = opts.dashas ?? computeVimshottari(chart, { depth: opts.depth ?? 3, yearDays: opts.yearDays });
 
   const tseries = transitSeries(eph, chart, from, to, step);

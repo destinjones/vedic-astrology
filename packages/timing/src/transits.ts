@@ -4,8 +4,8 @@
  * Saturn phases, and a sampled favourability series.
  */
 import { type Ephemeris, type NatalChart, type Planet, PLANETS, type Positions, type Reason, type Scored, type SevenPlanet } from './types';
-import { DAY_MS, houseFrom, norm360, ordinal, scored, signName, signOf } from './astro';
-import { type Ashtakavarga, BAV_TOTALS, computeAshtakavarga, kakshya } from './ashtakavarga';
+import { DAY_MS, dignity, houseFrom, norm360, ordinal, scored, signName, signOf } from './astro';
+import { type Ashtakavarga, computeAshtakavarga, kakshya } from './ashtakavarga';
 import { findIngresses } from './events';
 import { HOUSE_TOPICS } from './dasha';
 
@@ -26,17 +26,6 @@ export const GOCHARA: Record<Planet, Record<number, number>> = {
 export const TRANSIT_WEIGHT: Record<Planet, number> = {
   Saturn: 22, Jupiter: 22, Rahu: 12, Ketu: 9, Mars: 9, Sun: 5, Venus: 5, Mercury: 4, Moon: 2,
 };
-
-/**
- * Unfavourable-house weight per planet, chosen so a planet's long-run average
- * over all 12 houses is near zero (Saturn is good in only 3 houses, Venus in 9).
- */
-const UNFAV_SCALE = Object.fromEntries(
-  (Object.keys(GOCHARA) as Planet[]).map((p) => {
-    const n = Object.keys(GOCHARA[p]).length;
-    return [p, Math.min(1.2, Math.max(0.4, n / (12 - n)))];
-  }),
-) as Record<Planet, number>;
 
 const NO_VEDHA: [Planet, Planet][] = [['Sun', 'Saturn'], ['Moon', 'Mercury']];
 const vedhaExempt = (a: Planet, b: Planet) => NO_VEDHA.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
@@ -80,27 +69,49 @@ export function transitSnapshot(chart: NatalChart, pos: Positions, date: Date, a
     const table = GOCHARA[p];
     const favourable = h in table;
     let obstructedBy: Planet | null = null;
+    let relievedBy: Planet | null = null;
     if (favourable) {
+      // Vedha (Phaladeepika 26): a planet in the paired house cancels the good result.
       const vh = table[h];
       obstructedBy = PLANETS.find((q) => q !== p && !vedhaExempt(p, q) && houseOf(q) === vh) ?? null;
+    } else {
+      // Vipareeta vedha: a planet in the good house paired with this bad house blocks the bad result.
+      const good = Object.entries(table).find(([, v]) => v === h)?.[0];
+      if (good) relievedBy = PLANETS.find((q) => q !== p && !vedhaExempt(p, q) && houseOf(q) === Number(good)) ?? null;
     }
     const w = TRANSIT_WEIGHT[p];
     const reasons: Reason[] = [];
     const special = SPECIAL[p]?.[h];
-    if (favourable && !obstructedBy) reasons.push({ weight: w, text: `${p} transits the ${ordinal(h)} from your Moon (favourable)` });
-    else if (favourable && obstructedBy) reasons.push({ weight: w * 0.15, text: `${p} in the ${ordinal(h)} from Moon would help, but ${obstructedBy} causes vedha (blocks it)` });
-    else reasons.push({ weight: -w * (UNFAV_SCALE[p] + (special ? 0.45 : 0)), text: `${p} transits the ${ordinal(h)} from your Moon${special ? `: ${special}` : ''} (${HOUSE_TOPICS[houseFrom(ascSign, sign)].split(',')[0]} area from lagna)` });
 
+    // Ashtakavarga (BPHS 66-72): 0-3 bindus unfavourable, 4 average, 5-8 favourable;
+    // where ashtakavarga and gochara disagree, ashtakavarga moderates the gochara result.
     let bindus: number | null = null, kLord: string | null = null, kHas: boolean | null = null;
-    if (p in av.bav) {
+    if (p in av.bav) bindus = av.bav[p as SevenPlanet][sign];
+    let gocharaFactor = 1;
+    let moderated = '';
+    if (bindus !== null && favourable && bindus <= 3) { gocharaFactor = 0.5; moderated = ` (halved: only ${bindus} bindus)`; }
+    if (bindus !== null && !favourable && bindus >= 5) { gocharaFactor = 0.5; moderated = ` (halved: ${bindus} bindus protect)`; }
+
+    const area = HOUSE_TOPICS[houseFrom(ascSign, sign)].split(',')[0];
+    if (favourable && !obstructedBy) reasons.push({ weight: w * gocharaFactor, text: `${p} transits the ${ordinal(h)} from your Moon (favourable)${moderated}` });
+    else if (favourable && obstructedBy) reasons.push({ weight: 0, text: `${p} in the ${ordinal(h)} from Moon would help, but ${obstructedBy} causes vedha (blocks it)` });
+    else if (relievedBy) reasons.push({ weight: -w * 0.25, text: `${p} transits the ${ordinal(h)} from your Moon${special ? `: ${special}` : ''}, but ${relievedBy} blocks most of the harm (vipareeta vedha)` });
+    else reasons.push({ weight: -w * (special ? 1.2 : 1) * gocharaFactor, text: `${p} transits the ${ordinal(h)} from your Moon${special ? `: ${special}` : ''} (${area} area from lagna)${moderated}` });
+
+    if (bindus !== null) {
       const sp = p as SevenPlanet;
-      bindus = av.bav[sp][sign];
-      const adj = (bindus - BAV_TOTALS[sp] / 12) / 4; // centred on the planet's average bindus per sign
-      reasons.push({ weight: adj * w * 0.8, text: `${bindus} of 8 ashtakavarga bindus for ${p} in ${signName(sign)}` });
+      reasons.push({ weight: ((bindus - 4) / 4) * w * 0.6, text: `${bindus} of 8 ashtakavarga bindus for ${p} in ${signName(sign)} (4 is average)` });
       const k = kakshya(pos[p].longitude);
       kLord = k.lord;
       kHas = av.prastara[sp][sign].includes(k.lord as never);
       if (w >= 9) reasons.push({ weight: (kHas ? 0.15 : -0.1) * w, text: `in the ${k.lord} kakshya, which ${kHas ? 'gives' : 'does not give'} a bindu` });
+    }
+
+    // Strength of the transiting planet: exalted or own sign gives fuller good results.
+    if (p !== 'Rahu' && p !== 'Ketu') {
+      const dg = dignity(p, pos[p].longitude);
+      if (dg === 'exalted' || dg === 'own' || dg === 'moolatrikona') reasons.push({ weight: 0.2 * w, text: `${p} is ${dg} in transit (strong)` });
+      else if (dg === 'debilitated') reasons.push({ weight: -0.2 * w, text: `${p} is debilitated in transit (weak)` });
     }
 
     const contacts: PlanetTransit['contacts'] = [];

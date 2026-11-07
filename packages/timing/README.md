@@ -44,4 +44,4 @@ npm run demo:build -w @vedic/timing  # static build in packages/timing/demo/dist
 
 `npm test -w @vedic/timing` checks published events (Mercury stations of April 2024, sidereal Saturn into Pisces 29 Mar 2025, Jupiter into Gemini 14 May 2025, Sade Sati for an Aquarius Moon 2020–2028), BAV/SAV totals, dignities, dasha continuity, and engine/fallback agreement.
 
-Scoring weights are a reasoned synthesis of Parashari rules, not a single canonical formula; everything is in `src/astro.ts`, `src/dasha.ts` and `src/transits.ts` for tuning.
+Every rule and weight, with its classical source, is documented in [docs/SCORING.md](docs/SCORING.md). `test/scoring.test.ts` checks textbook cases so tuning can't drift away from the texts.

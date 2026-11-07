@@ -576,7 +576,7 @@ function DetailPanel({ selection, chart, onClose }: { selection: Selection; char
     return (
       <section className="vt-card">
         <h2>Details</h2>
-        <p className="vt-sub" style={{ margin: 0 }}>Click any dasha, window, retrograde or Saturn phase to see why it scores the way it does.</p>
+        <p className="vt-sub" style={{ margin: 0 }}>Click any dasha, window, retrograde or Saturn phase to see why it scores the way it does. Every rule comes from the classical texts: <a href="https://github.com/destinjones/vedic-astrology/blob/main/packages/timing/docs/SCORING.md" target="_blank" rel="noreferrer">how the scores work</a>.</p>
       </section>
     );
   }

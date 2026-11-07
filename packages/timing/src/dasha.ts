@@ -3,8 +3,11 @@
  * favourability scoring of every period for a given natal chart.
  */
 import { type NatalChart, type Planet, type Reason, type Scored } from './types';
+import { DUSTHANA, EXALTATION, NATURAL_BENEFIC, SIGN_LORD, addDays, houseFrom, housesRuled, isCombust, ordinal, scored, signOf, signName } from './astro';
 import {
-  DIGNITY_SCORE, DUSTHANA, KENDRA, NATURAL_BENEFIC, SIGN_LORD, TRIKONA, addDays, dignity, functionalNature, houseFrom, housesRuled, isCombust, ordinal, relation, scored, signOf, signName } from './astro';
+  AVASTHA_FACTOR, COMPOUND_SCORE, baladiAvastha, compoundDignity, compoundRelation, lordship, moonIsWaxing, neechaBhanga, sambandha, type Lordship,
+} from './classical';
+import { PLANETS } from './types';
 
 export const DASHA_ORDER: Planet[] = ['Ketu', 'Venus', 'Sun', 'Moon', 'Mars', 'Rahu', 'Jupiter', 'Saturn', 'Mercury'];
 export const DASHA_YEARS: Record<Planet, number> = {
@@ -48,55 +51,106 @@ export function moonNakshatra(moonLon: number) {
   return { index: idx, lord: DASHA_ORDER[idx % 9], fraction };
 }
 
-/** Static strength of a planet as a dasha lord for this chart. */
+/** House placement points from the lagna (BPHS 47-48 dasha results by placement). */
+function placementReason(chart: NatalChart, p: Planet, house: number, rules: number[]): Reason | null {
+  const malefic = isNaturalMalefic(chart, p);
+  if (DUSTHANA.includes(house) && rules.some((h) => DUSTHANA.includes(h)) && !rules.includes(1)) {
+    return { weight: 6, text: `lord of a dusthana placed in the ${ordinal(house)} (Viparita Raja Yoga: gain through adversity)` };
+  }
+  switch (house) {
+    case 1: return { weight: 14, text: 'placed in the 1st house (kendra and trikona)' };
+    case 4: case 7: return { weight: 10, text: `placed in the ${ordinal(house)} house (kendra)` };
+    case 10: return { weight: 14, text: 'placed in the 10th house (strongest kendra)' };
+    case 5: case 9: return { weight: 14, text: `placed in the ${ordinal(house)} house (trikona)` };
+    case 11: return { weight: 9, text: 'placed in the 11th house (gains, upachaya)' };
+    case 3: return { weight: malefic ? 7 : 0, text: `placed in the 3rd house (upachaya${malefic ? ', good for a malefic' : ''})` };
+    case 2: return { weight: 3, text: 'placed in the 2nd house (resources)' };
+    case 6: return malefic ? { weight: 4, text: 'malefic in the 6th house (upachaya: overcomes rivals)' } : { weight: -10, text: 'benefic in the 6th house (dusthana: health, debts, disputes)' };
+    case 8: return { weight: -18, text: 'placed in the 8th house (dusthana: obstacles, sudden change)' };
+    case 12: return { weight: -14, text: 'placed in the 12th house (dusthana: loss, expense, withdrawal)' };
+  }
+  return null;
+}
+
+function isNaturalMalefic(chart: NatalChart, p: Planet): boolean {
+  if (p === 'Moon') return !moonIsWaxing(chart);
+  return NATURAL_BENEFIC[p] < 0;
+}
+
+/**
+ * Static strength of a planet as a dasha lord for this chart, following the
+ * Parashari dasha-results principles (see docs/SCORING.md).
+ */
 export function lordStrength(chart: NatalChart, p: Planet): { value: number; reasons: Reason[] } {
   const asc = signOf(chart.ascendant);
   const pos = chart.planets[p];
   const s = signOf(pos.longitude);
   const house = houseFrom(asc, s);
   const reasons: Reason[] = [];
+  const node = p === 'Rahu' || p === 'Ketu';
 
-  const dig = dignity(p, pos.longitude);
-  if (p === 'Rahu' || p === 'Ketu') {
+  if (node) {
+    // BPHS 47: Rahu and Ketu give the results of their dispositor and of the planets they join.
     const disp = SIGN_LORD[s];
-    const dd = dignity(disp, chart.planets[disp].longitude);
-    reasons.push({ weight: DIGNITY_SCORE[dd] * 15, text: `${p} acts like its dispositor ${disp}, which is ${dd}` });
+    const dd = compoundDignity(chart, disp);
+    const dl = lordship(disp, asc, chart);
+    reasons.push({ weight: (COMPOUND_SCORE[dd] * 0.5) + dl.value * 15, text: `${p} acts for its dispositor ${disp} (${dd.replace('_', ' ')}, ${dl.notes.join(', ')})` });
+    for (const q of PLANETS) {
+      if (q === p || q === 'Rahu' || q === 'Ketu' || signOf(chart.planets[q].longitude) !== s) continue;
+      const ql = lordship(q, asc, chart);
+      reasons.push({ weight: ql.value * 12, text: `${p} is conjunct ${q} (${ql.notes.join(', ')}) and carries its results` });
+    }
+    if (EXALTATION[p] === s) reasons.push({ weight: 12, text: `${p} exalted in ${signName(s)}` });
+    else if (EXALTATION[p] !== undefined && (EXALTATION[p]! + 6) % 12 === s) reasons.push({ weight: -12, text: `${p} debilitated in ${signName(s)}` });
+  } else {
+    const dig = compoundDignity(chart, p);
+    let w = COMPOUND_SCORE[dig];
+    let text = `${p} is ${dig.replace('_', ' ')}${['exalted', 'debilitated', 'own', 'moolatrikona'].includes(dig) ? '' : ' (compound relation with its sign lord)'} in ${signName(s)}`;
+    if (dig === 'debilitated') {
+      const nb = neechaBhanga(chart, p);
+      if (nb) { w = -8; text += `, but debilitation is cancelled (neecha bhanga: ${nb})`; }
+    }
+    if (w !== 0) reasons.push({ weight: w, text });
   }
-  if (dig !== 'neutral') reasons.push({ weight: DIGNITY_SCORE[dig] * 30, text: `${p} is ${dig} in ${signName(s)}` });
 
-  if (TRIKONA.includes(house) || KENDRA.includes(house)) {
-    reasons.push({ weight: house === 1 || TRIKONA.includes(house) ? 16 : 12, text: `placed in the ${ordinal(house)} house (${KENDRA.includes(house) ? 'kendra' : 'trikona'})` });
-  } else if (DUSTHANA.includes(house)) {
-    const malefic = NATURAL_BENEFIC[p] < 0;
-    // Viparita: dusthana lord in dusthana
-    const lordsDusthana = housesRuled(p, asc).some((h) => DUSTHANA.includes(h));
-    if (lordsDusthana) reasons.push({ weight: 4, text: `dusthana lord in the ${ordinal(house)}: Viparita-style results (gain after difficulty)` });
-    else reasons.push({ weight: malefic && house === 6 ? 2 : -18, text: `placed in the ${ordinal(house)} house (dusthana)` });
-  } else if (house === 3 || house === 11) {
-    reasons.push({ weight: NATURAL_BENEFIC[p] < 0 ? 10 : 6, text: `placed in the ${ordinal(house)} house (upachaya, grows over time)` });
-  } else if (house === 2) {
-    reasons.push({ weight: 4, text: 'placed in the 2nd house (resources)' });
+  const ls = lordship(p, asc, chart);
+  const place = placementReason(chart, p, house, ls.houses);
+  if (place && place.weight !== 0) reasons.push(place);
+
+  if (!node && Math.abs(ls.value) > 0.05) {
+    reasons.push({ weight: ls.value * 30, text: `functionally ${ls.value > 0 ? 'benefic' : 'malefic'} for ${signName(asc)} lagna: ${ls.notes.join(', ')}` });
   }
+  const nat = p === 'Moon' ? (moonIsWaxing(chart) ? 0.4 : -0.2) : NATURAL_BENEFIC[p];
+  reasons.push({ weight: nat * 8, text: p === 'Moon' ? `${moonIsWaxing(chart) ? 'waxing Moon (natural benefic)' : 'waning Moon (weak, natural malefic)'}` : `natural ${nat >= 0 ? 'benefic' : 'malefic'}` });
 
-  const fn = functionalNature(p, asc);
-  if (Math.abs(fn.value) > 0.05) reasons.push({ weight: fn.value * 28, text: `functionally ${fn.value > 0 ? 'benefic' : 'malefic'} for ${signName(asc)} lagna: ${fn.note}` });
-  reasons.push({ weight: NATURAL_BENEFIC[p] * 8, text: `natural ${NATURAL_BENEFIC[p] >= 0 ? 'benefic' : 'malefic'}` });
-
-  const retro = pos.speed < 0 && p !== 'Rahu' && p !== 'Ketu';
-  if (p !== 'Sun' && isCombust(p, pos.longitude, chart.planets.Sun.longitude, retro)) {
-    reasons.push({ weight: -12, text: `combust (too close to the Sun), weakening its results` });
+  const retro = pos.speed < 0 && !node;
+  if (p !== 'Sun' && !node && isCombust(p, pos.longitude, chart.planets.Sun.longitude, retro)) {
+    reasons.push({ weight: -10, text: 'combust (too close to the Sun): its results are weakened' });
   }
-  if (retro) reasons.push({ weight: 3, text: 'retrograde: strong (cheshta bala) but results come in a delayed, revisiting way' });
+  if (retro) reasons.push({ weight: 4, text: 'retrograde: strong in motional strength (cheshta bala), results come in a revisiting way' });
 
-  // From the Moon too (Chandra lagna), half weight
+  // From the Moon (Chandra lagna), lighter weight
   const fromMoon = houseFrom(signOf(chart.planets.Moon.longitude), s);
   if (p !== 'Moon') {
-    if (DUSTHANA.includes(fromMoon)) reasons.push({ weight: -6, text: `${ordinal(fromMoon)} from the Moon (emotionally taxing)` });
-    else if (KENDRA.includes(fromMoon) || TRIKONA.includes(fromMoon)) reasons.push({ weight: 5, text: `${ordinal(fromMoon)} from the Moon (supportive to the mind)` });
+    if ([6, 8, 12].includes(fromMoon)) reasons.push({ weight: -5, text: `${ordinal(fromMoon)} from the Moon (taxing for the mind)` });
+    else if ([1, 4, 5, 7, 9, 10].includes(fromMoon)) reasons.push({ weight: 4, text: `${ordinal(fromMoon)} from the Moon (supports the mind)` });
+  }
+
+  // Baladi avastha scales how fully the good can be delivered (BPHS 45).
+  if (!node) {
+    const av = baladiAvastha(pos.longitude);
+    const f = AVASTHA_FACTOR[av];
+    if (f < 1) {
+      const pos = reasons.filter((r) => r.weight > 0).reduce((a, r) => a + r.weight, 0);
+      const cut = -pos * (1 - f) * 0.35;
+      if (cut < -0.5) reasons.push({ weight: cut, text: `${AVASTHA_LABEL[av]} avastha (${Math.round(f * 100)}% capacity): good results come only partly` });
+    }
   }
   const value = reasons.reduce((a, r) => a + r.weight, 0);
   return { value, reasons };
 }
+
+const AVASTHA_LABEL: Record<string, string> = { bala: 'infant (bala)', kumara: 'adolescent (kumara)', yuva: 'adult (yuva)', vriddha: 'old (vriddha)', mrita: 'dead (mrita)' };
 
 function themesFor(chart: NatalChart, p: Planet): DashaPeriod['themes'] {
   const asc = signOf(chart.ascendant);
@@ -106,19 +160,33 @@ function themesFor(chart: NatalChart, p: Planet): DashaPeriod['themes'] {
   return out;
 }
 
-/** Relationship between a sub-period lord and its parent lord. */
+/**
+ * Relationship between a sub-period lord and its parent lord (BPHS 51-56,
+ * antardasha results): position counted from the major lord, compound
+ * friendship, and sambandha between a kendra lord and a trikona lord (raja yoga).
+ */
 function pairReasons(chart: NatalChart, parent: Planet, child: Planet, w: number): Reason[] {
   if (parent === child) return [];
   const a = signOf(chart.planets[parent].longitude), b = signOf(chart.planets[child].longitude);
   const h = houseFrom(a, b);
   const out: Reason[] = [];
-  if ([6, 8, 12].includes(h)) out.push({ weight: -14 * w, text: `${child} sits ${ordinal(h)} from ${parent} (shadashtaka/dwirdwadasha friction)` });
-  else if ([1, 5, 9].includes(h)) out.push({ weight: 10 * w, text: `${child} is ${h === 1 ? 'conjunct' : `${ordinal(h)} (trine) from`} ${parent}: they cooperate` });
-  else if ([4, 7, 10].includes(h)) out.push({ weight: 6 * w, text: `${child} is ${ordinal(h)} (kendra) from ${parent}: supportive` });
-  else if ([3, 11].includes(h)) out.push({ weight: 4 * w, text: `${child} is ${ordinal(h)} from ${parent}: steady effort brings gains` });
-  const rel = relation(parent, child);
-  if (rel === 'enemy') out.push({ weight: -7 * w, text: `${parent} and ${child} are natural enemies` });
-  else if (rel === 'friend') out.push({ weight: 5 * w, text: `${parent} and ${child} are natural friends` });
+  if ([6, 8, 12].includes(h)) out.push({ weight: -14 * w, text: `${child} sits ${ordinal(h)} from ${parent} (6/8/12 from the main lord: friction)` });
+  else if (h === 1) out.push({ weight: 8 * w, text: `${child} is conjunct ${parent}: they work together` });
+  else if ([5, 9].includes(h)) out.push({ weight: 10 * w, text: `${child} is ${ordinal(h)} (trine) from ${parent}: harmonious` });
+  else if ([4, 7, 10].includes(h)) out.push({ weight: 7 * w, text: `${child} is ${ordinal(h)} (kendra) from ${parent}: supportive` });
+  else if (h === 11) out.push({ weight: 8 * w, text: `${child} is 11th from ${parent}: gains` });
+  else if (h === 3) out.push({ weight: 2 * w, text: `${child} is 3rd from ${parent}: effort needed` });
+  const rel = compoundRelation(chart, child, parent);
+  const rw: Record<string, number> = { great_friend: 8, friend: 4, neutral: 0, enemy: -5, great_enemy: -9 };
+  if (rw[rel]) out.push({ weight: rw[rel] * w, text: `${child} is a ${rel.replace('_', ' ')} of ${parent} (natural + temporal relationship)` });
+  const asc = signOf(chart.ascendant);
+  const lp = lordship(parent, asc, chart), lc = lordship(child, asc, chart);
+  const kendra = (l: Lordship) => l.houses.some((x) => [1, 4, 7, 10].includes(x));
+  const trikona = (l: Lordship) => l.houses.some((x) => [1, 5, 9].includes(x));
+  const rel2 = sambandha(chart, parent, child);
+  if (rel2 && ((kendra(lp) && trikona(lc)) || (trikona(lp) && kendra(lc)))) {
+    out.push({ weight: (rel2 === 'aspect' ? 8 : 14) * w, text: `${parent} and ${child} link a kendra and a trikona by ${rel2} (raja yoga in this period)` });
+  }
   return out;
 }
 

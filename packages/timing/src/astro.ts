@@ -95,35 +95,6 @@ export function housesRuled(planet: Planet, ascSign: SignIndex): number[] {
     .map((s) => houseFrom(ascSign, s));
 }
 
-/**
- * Functional nature of a planet for an ascendant, in -1..1, with reasons.
- * Trikona lords benefic, 3/6/11 lords malefic, 8th lord malefic unless also lagna lord,
- * kendra lordship neutralises natural benefics (kendradhipati dosha) and helps malefics.
- */
-export function functionalNature(planet: Planet, ascSign: SignIndex): { value: number; note: string } {
-  if (planet === 'Rahu' || planet === 'Ketu') {
-    return { value: -0.2, note: `${planet} has no lordship; acts through its sign lord and placement` };
-  }
-  const hs = housesRuled(planet, ascSign);
-  let v = 0;
-  const notes: string[] = [];
-  const isNatBen = NATURAL_BENEFIC[planet] > 0;
-  for (const h of hs) {
-    if (h === 1) { v += 0.6; notes.push('lagna lord'); }
-    else if (h === 5 || h === 9) { v += 0.8; notes.push(`${ordinal(h)} lord (trikona)`); }
-    else if (h === 4 || h === 7 || h === 10) { v += isNatBen ? -0.2 : 0.3; notes.push(`${ordinal(h)} lord (kendra)`); }
-    else if (h === 2) { v += 0.05; notes.push('2nd lord'); }
-    else if (h === 12) { v -= 0.25; notes.push('12th lord'); }
-    else if (h === 3 || h === 6 || h === 11) { v -= 0.45; notes.push(`${ordinal(h)} lord`); }
-    else if (h === 8) { v -= hs.includes(1) ? 0 : 0.6; notes.push('8th lord'); }
-  }
-  // Yogakaraka: rules a kendra and a trikona (not lagna counted as both)
-  const kendra = hs.filter((h) => [4, 7, 10].includes(h)).length > 0;
-  const trikona = hs.filter((h) => [5, 9].includes(h)).length > 0;
-  if (kendra && trikona) { v += 0.5; notes.push('yogakaraka'); }
-  return { value: Math.max(-1, Math.min(1, v)), note: notes.join(', ') || 'no lordship' };
-}
-
 export function toneOf(score: number): Tone {
   if (score >= 45) return 'excellent';
   if (score >= 15) return 'good';
