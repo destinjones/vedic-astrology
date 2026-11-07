@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
-import type { KootaResult, ManglikComparison, ManglikSide, MatchResult } from '@vedic/interpretations';
+import type { KootaResult, ManglikComparison, ManglikSide, MatchResult, PoruthamResult } from '@vedic/interpretations';
+import type { JaiminiMatch } from '@vedic/jaimini';
+import type { Engine, MuhurtaNatal } from '@vedic/engine';
 import type { BirthInput } from '../types/chart';
 import { BirthForm } from '../components/BirthForm';
 import { computeChart } from '../engine';
 import { ART, grahaArt } from '../data/art';
+import { JaiminiPanel, PoruthamPanel, TraditionsCard, WeddingDates } from './Traditions';
+import { TrustFooter } from '../trust/TrustFooter';
 
 type Seat = 'a' | 'b';
 
@@ -26,6 +30,13 @@ function loadPeople(): Record<Seat, BirthInput | null> {
   return { a: null, b: null };
 }
 
+interface Extra {
+  porutham: PoruthamResult;
+  jaimini: JaiminiMatch;
+  engine: Engine;
+  natals: [MuhurtaNatal, MuhurtaNatal];
+}
+
 const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
 const label = (p: BirthInput | null, seat: Seat) => p?.name?.trim() || (seat === 'a' ? 'Partner 1' : 'Partner 2');
 
@@ -35,6 +46,7 @@ export default function MatchApp() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<MatchResult | null>(null);
+  const [extra, setExtra] = useState<Extra | null>(null);
 
   useEffect(() => {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(people)); } catch { /* ignore */ }
@@ -45,13 +57,26 @@ export default function MatchApp() {
     setBusy(true);
     setError(null);
     try {
-      const [ca, cb, lib] = await Promise.all([computeChart(p.a), computeChart(p.b), import('@vedic/interpretations')]);
+      const [ca, cb, lib, jl] = await Promise.all([computeChart(p.a), computeChart(p.b), import('@vedic/interpretations'), import('@vedic/jaimini')]);
       if (!ca.engineContext || !cb.engineContext) throw new Error('The ephemeris engine did not load, so the Moon positions are not exact enough to match. Please reload and try again.');
-      setResult(lib.matchCharts(lib.fromEngineChart(ca.engineContext.chart), lib.fromEngineChart(cb.engineContext.chart)));
+      const A = lib.fromEngineChart(ca.engineContext.chart), B = lib.fromEngineChart(cb.engineContext.chart);
+      const ec = ca.engineContext.chart, ecb = cb.engineContext.chart;
+      const names = { a: label(p.a, 'a'), b: label(p.b, 'b') };
+      setResult(lib.matchCharts(A, B));
+      setExtra({
+        porutham: lib.porutham(A, B),
+        jaimini: jl.jaiminiMatch(jl.inputFromChart(ec), jl.inputFromChart(ecb), names),
+        engine: ca.engineContext.engine,
+        natals: [
+          { label: names.a, moonNakshatra: ec.planets.moon.nakshatra, moonSign: ec.planets.moon.sign, lagnaSign: ec.ascendant.sign },
+          { label: names.b, moonNakshatra: ecb.planets.moon.nakshatra, moonSign: ecb.planets.moon.sign, lagnaSign: ecb.ascendant.sign },
+        ],
+      });
       requestAnimationFrame(() => document.getElementById('result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
       setResult(null);
+      setExtra(null);
     } finally {
       setBusy(false);
     }
@@ -87,7 +112,7 @@ export default function MatchApp() {
         <a className="brand" href={import.meta.env.BASE_URL}>
           <span className="brand-mark">✦</span>
           <div>
-            <h1>Jyotisha Explorer</h1>
+            <p className="brand-title">Jyotisha Explorer</p>
             <p>Kundali matching, the classical way</p>
           </div>
         </a>
@@ -96,10 +121,12 @@ export default function MatchApp() {
 
       <section className="match-intro">
         <p className="eyebrow">Ashtakoota guna milan</p>
-        <h2>Two Moons, eight kootas, thirty-six gunas.</h2>
+        <h1>Kundali matching: two Moons, eight kootas, thirty-six gunas.</h1>
         <p className="muted">
           Enter both birth details. The match reads each person’s natal Moon (its sign, nakshatra and degree) through the eight
           classical kootas, explains every score, and then compares Mars in both charts for Manglik dosha with its cancellations.
+          It also reads the South Indian ten poruthams and the Jaimini marriage points (Upapada and the 7th from Karakamsa), and
+          proposes wedding dates that suit both charts.
         </p>
       </section>
 
@@ -144,12 +171,13 @@ export default function MatchApp() {
       </div>
       {error && <p className="form-error match-error" role="alert">{error}</p>}
 
-      {result && <Result r={result} names={{ a: label(people.a, 'a'), b: label(people.b, 'b') }} />}
+      {result && <Result r={result} extra={extra} place={people.b} names={{ a: label(people.a, 'a'), b: label(people.b, 'b') }} />}
 
       <footer className="foot muted">
         <p>Sidereal zodiac · {people.a?.ayanamsa ?? 'lahiri'} ayanamsa · North Indian Ashtakoota tables</p>
         <p>Matching is a traditional practice, not a science, and a score cannot tell you whether a relationship will work. Use it for reflection and conversation, never as the only reason for a decision.</p>
         <p>Both sets of birth details stay in this browser. Free software under <a href="https://github.com/destinjones/vedic-astrology/blob/main/LICENSE">AGPL-3.0</a>: <a href="https://github.com/destinjones/vedic-astrology">get the source</a>.</p>
+        <TrustFooter />
       </footer>
     </div>
   );
@@ -171,7 +199,7 @@ function PersonMoon({ r, seat }: { r: MatchResult; seat: Seat }) {
 
 const BAND_TONE: Record<MatchResult['band'], string> = { excellent: 'good', very_good: 'good', acceptable: 'mid', not_recommended: 'bad' };
 
-function Result({ r, names }: { r: MatchResult; names: Record<Seat, string> }) {
+function Result({ r, extra, place, names }: { r: MatchResult; extra: Extra | null; place: BirthInput | null; names: Record<Seat, string> }) {
   const tone = BAND_TONE[r.band];
   return (
     <main id="result" className="match-result">
@@ -189,7 +217,9 @@ function Result({ r, names }: { r: MatchResult; names: Record<Seat, string> }) {
         </div>
       </section>
 
-      <section className="card">
+      {extra && <TraditionsCard r={r} p={extra.porutham} j={extra.jaimini} />}
+
+      <section className="card" id="kootas">
         <div className="card-head">
           <h3>The eight kootas</h3>
           <span className="muted">click any koota for what it means and why you scored it</span>
@@ -222,6 +252,12 @@ function Result({ r, names }: { r: MatchResult; names: Record<Seat, string> }) {
       )}
 
       <ManglikPanel m={r.manglik} names={names} />
+
+      {extra && <PoruthamPanel p={extra.porutham} names={names} />}
+      {extra && <JaiminiPanel j={extra.jaimini} names={names} />}
+      {extra && place && (
+        <WeddingDates engine={extra.engine} natals={extra.natals} place={{ name: place.place, latitude: place.latitude, longitude: place.longitude, timezone: place.timezone }} />
+      )}
 
       <section className="card notes-card">
         <h3>Reading the score wisely</h3>
@@ -314,7 +350,7 @@ function ManglikPanel({ m, names }: { m: ManglikComparison; names: Record<Seat, 
         <span className={`chip chip-${tone}`}>{m.status === 'neither' ? 'no dosha' : m.status === 'both' ? 'matched' : m.status}</span>
       </div>
       <div className="manglik-head">
-        <img src={grahaArt('mars').image} alt="" className="manglik-art" loading="lazy" />
+        <img src={grahaArt('mars').image} alt="Mangala, Mars, as a rust-red sphere" className="manglik-art" loading="lazy" />
         <div>
           <h4>{m.headline}</h4>
           <p>{m.summary}</p>

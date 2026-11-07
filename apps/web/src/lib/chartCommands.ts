@@ -3,6 +3,7 @@ import type { ChartStyle, Selection } from '../types/ui';
 import type { WheelMode } from '../components/NakshatraWheel';
 import { HOUSES, NAKSHATRAS, PLANETS, VARGAS } from '../data/constants';
 import type { Command } from './commands';
+import { scrollBehavior } from './display';
 
 /** Divisional charts with a number-key shortcut: the ones a reading reaches for most. */
 const VARGA_KEYS: Partial<Record<VargaId, string>> = { D1: '1', D2: '2', D3: '3', D4: '4', D7: '7', D9: '9', D10: '0' };
@@ -35,7 +36,7 @@ export const SECTIONS: { id: string; title: string; key: string; keywords: strin
 export function jumpTo(id: string) {
   const el = document.getElementById(id);
   if (!el) return;
-  el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  el.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
   if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
   el.focus({ preventScroll: true });
 }

@@ -1,0 +1,105 @@
+# A live preview of every pull request on Cloudflare Pages, linked in a PR comment,
+# so a reviewer can click through the change instead of checking out the branch.
+#
+# One-time setup (see docs/release-engineering.md):
+#   secrets  CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID
+#   variable CLOUDFLARE_PAGES_PROJECT (optional, default "vedic-astrology")
+# Until the secrets exist this workflow builds and then skips the deploy, so it never fails a PR.
+name: Preview
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # Runs the repository's code, so it gets no secrets.
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build, laid out the way GitHub Pages serves it
+        run: |
+          npm run build:pages
+          npm run verify:build
+          mkdir -p preview
+          mv apps/web/dist preview/vedic-astrology
+          # the site lives under /vedic-astrology/, as on GitHub Pages
+          printf '/  /vedic-astrology/  302\n' > preview/_redirects
+          # a preview must never be indexed or mistaken for the real site
+          printf '/*\n  X-Robots-Tag: noindex\n' > preview/_headers
+      - uses: actions/upload-artifact@v7
+        with:
+          name: preview
+          path: preview
+          retention-days: 3
+
+  # Holds the Cloudflare token, so it runs no repository code: it only uploads the built files.
+  deploy:
+    needs: build
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+      deployments: write
+    steps:
+      - name: Is Cloudflare set up?
+        id: setup
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$TOKEN" ] && [ -n "$ACCOUNT" ]; then echo "ready=true" >> "$GITHUB_OUTPUT"
+          else echo "::notice::Preview deploys are off: add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID (see docs/release-engineering.md)."; fi
+      - if: steps.setup.outputs.ready == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: preview
+          path: preview
+      - if: steps.setup.outputs.ready == 'true'
+        id: deploy
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          gitHubToken: ${{ github.token }}
+          command: >-
+            pages deploy preview
+            --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT || 'vedic-astrology' }}
+            --branch=pr-${{ github.event.pull_request.number }}
+            --commit-hash=${{ github.event.pull_request.head.sha }}
+            --commit-dirty=true
+      - if: steps.setup.outputs.ready == 'true'
+        uses: actions/github-script@v9
+        env:
+          ALIAS: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
+          URL: ${{ steps.deploy.outputs.deployment-url }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        with:
+          script: |
+            const base = (process.env.ALIAS || process.env.URL).replace(/\/$/, '');
+            const marker = '<!-- preview-deploy -->';
+            const body = `${marker}\n**Preview** for ${process.env.SHA.slice(0, 7)}: ${base}/vedic-astrology/\n\n` +
+              `- [Sample chart](${base}/vedic-astrology/app/#sample) · [Compare](${base}/vedic-astrology/compare/) · [Match](${base}/vedic-astrology/match/) · [Tools](${base}/vedic-astrology/tools/)\n` +
+              `- This exact deploy: ${process.env.URL}\n\n---\n_Updated on every push to this pull request._`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
+            const mine = comments.find((c) => c.user.type === 'Bot' && c.body.includes(marker));
+            if (mine) await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id, body });
+            else await github.rest.issues.createComment({ owner, repo, issue_number, body });

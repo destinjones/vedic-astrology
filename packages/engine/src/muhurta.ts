@@ -6,12 +6,18 @@
  * houses, and the day's inauspicious periods (Rahu kalam, Yamaganda, Gulika)
  * stay the same. With the person's natal Moon it adds Tara bala (the day's
  * star counted from the birth star) and Chandra bala (the Moon's sign counted
- * from the birth Moon sign).
+ * from the birth Moon sign), for one person or for several (a couple).
+ *
+ * The classical muhurta components are all scored: the nakshatra's mukha
+ * (facing up, down or sideways), Dhanishta panchaka and the panchaka rahita
+ * remainder, Vishti (Bhadra) with her dwelling by the Moon's sign, disha
+ * shoola for journeys, Jupiter or Venus combust (Guru/Shukra asta) and
+ * Kharmas for weddings and house-warmings.
  *
  * Rules follow Muhurta Chintamani and common panchanga practice. The weights
  * are this project's own and are exported so they can be tuned.
  */
-import { GRAHAS, NAKSHATRAS, PLANET_NAMES, SIGN_NAMES, TITHI_NAMES, VARA_NAMES, YOGA_NAMES } from './constants';
+import { COMBUSTION_ORB, GRAHAS, NAKSHATRAS, PLANET_NAMES, SIGN_NAMES, TITHI_NAMES, VARA_NAMES, YOGA_NAMES } from './constants';
 import type { Engine } from './engine';
 import { localWeekday, sunriseBefore } from './kp';
 import { dateToJd, jdToIso, timezoneAt } from './time';
@@ -32,6 +38,9 @@ export type MuhurtaActivity =
   | 'surgery';
 
 type Modality = 'movable' | 'fixed' | 'dual';
+/** Which way a nakshatra "faces": up for raising things, down for digging, sideways for movement */
+export type NakshatraMukha = 'urdhva' | 'adho' | 'tiryak';
+export type Direction = 'east' | 'south' | 'west' | 'north';
 
 export interface MuhurtaActivityDef {
   id: MuhurtaActivity;
@@ -51,6 +60,14 @@ export interface MuhurtaActivityDef {
   emptyHouses: number[];
   /** Tithis (1–30) to avoid on top of the general ones */
   avoidTithis: number[];
+  /** Preferred nakshatra "face" (mukha), when the texts give one for this kind of work */
+  mukha?: NakshatraMukha[];
+  /** Dhanishta panchaka (the Moon in Aquarius or Pisces) is avoided for this work */
+  panchaka?: boolean;
+  /** Jupiter or Venus combust (Guru or Shukra asta) rules this work out */
+  asta?: boolean;
+  /** The Sun in Sagittarius or Pisces (Kharmas) rules this work out */
+  kharmas?: boolean;
 }
 
 // Nakshatra groups (Muhurta Chintamani)
@@ -61,6 +78,40 @@ const MISHRA = [3, 16]; // mixed: Krittika, Vishakha
 const KSHIPRA = [1, 8, 13]; // swift: Ashwini, Pushya, Hasta
 const MRIDU = [5, 14, 17, 27]; // soft: Mrigashira, Chitra, Anuradha, Revati
 const TIKSHNA = [6, 9, 18, 19]; // sharp: Ardra, Ashlesha, Jyeshtha, Mula
+
+// Nakshatra mukha (Muhurta Chintamani, Nakshatra prakarana): nine stars each
+const URDHVA = [4, 6, 8, 12, 21, 22, 23, 24, 26]; // Rohini, Ardra, Pushya, U.Phalguni, U.Ashadha, Shravana, Dhanishta, Shatabhisha, U.Bhadrapada
+const ADHO = [2, 3, 9, 10, 11, 16, 19, 20, 25]; // Bharani, Krittika, Ashlesha, Magha, P.Phalguni, Vishakha, Mula, P.Ashadha, P.Bhadrapada
+const TIRYAK = [1, 5, 7, 13, 14, 15, 17, 18, 27]; // Ashwini, Mrigashira, Punarvasu, Hasta, Chitra, Swati, Anuradha, Jyeshtha, Revati
+
+export const NAKSHATRA_MUKHA: Record<NakshatraMukha, { label: string; meaning: string; members: number[] }> = {
+  urdhva: { label: 'Urdhva mukha (facing up)', meaning: 'raising things: building, roofs, flags, coronations, planting trees, opening a shop', members: URDHVA },
+  adho: { label: 'Adho mukha (facing down)', meaning: 'going down: digging foundations and wells, mining, burying, surgery, lending', members: ADHO },
+  tiryak: { label: 'Tiryak mukha (facing sideways)', meaning: 'moving across: travel, vehicles, ploughing, trade, taming animals', members: TIRYAK },
+};
+export const mukhaOf = (nak: number): NakshatraMukha => (URDHVA.includes(nak) ? 'urdhva' : ADHO.includes(nak) ? 'adho' : 'tiryak');
+
+/** Disha shoola: the direction each weekday "spears", 0 = Sunday */
+export const VARA_SHOOLA: Direction[] = ['west', 'east', 'north', 'north', 'south', 'west', 'east'];
+/** Nakshatra shoola: four stars that spear one direction each */
+export const NAKSHATRA_SHOOLA: Partial<Record<number, Direction>> = { 18: 'east', 25: 'south', 4: 'west', 12: 'north' };
+
+/** Panchaka rahita remainders: (tithi + weekday + nakshatra + lagna) mod 9 */
+const PANCHAKA_RAHITA: Record<number, { name: string; meaning: string } | null> = {
+  0: null, 3: null, 5: null, 7: null,
+  1: { name: 'Mrityu panchaka', meaning: 'danger to life' },
+  2: { name: 'Agni panchaka', meaning: 'danger from fire' },
+  4: { name: 'Raja panchaka', meaning: 'trouble from authority' },
+  6: { name: 'Chora panchaka', meaning: 'loss by theft' },
+  8: { name: 'Roga panchaka', meaning: 'illness' },
+};
+
+/** Where Bhadra (Vishti karana) dwells, by the Moon's sign */
+export function bhadraLoka(moonSign: number): 'earth' | 'heaven' | 'netherworld' {
+  if ([4, 5, 11, 12].includes(moonSign)) return 'earth';
+  if ([1, 2, 3, 8].includes(moonSign)) return 'heaven';
+  return 'netherworld';
+}
 
 export const NAKSHATRA_GROUPS: Record<string, { label: string; meaning: string; members: number[] }> = {
   dhruva: { label: 'Dhruva (fixed)', meaning: 'lasting things: foundations, homes, marriage, planting', members: DHRUVA },
@@ -96,6 +147,8 @@ export const MUHURTA_ACTIVITIES: MuhurtaActivityDef[] = [
     lagna: ['fixed', 'dual'],
     emptyHouses: [7],
     avoidTithis: [8, 23],
+    asta: true,
+    kharmas: true,
   },
   {
     id: 'griha_pravesha',
@@ -108,6 +161,10 @@ export const MUHURTA_ACTIVITIES: MuhurtaActivityDef[] = [
     lagna: ['fixed', 'dual'],
     emptyHouses: [4],
     avoidTithis: [],
+    mukha: ['urdhva'],
+    panchaka: true,
+    asta: true,
+    kharmas: true,
   },
   {
     id: 'property',
@@ -120,6 +177,9 @@ export const MUHURTA_ACTIVITIES: MuhurtaActivityDef[] = [
     lagna: ['fixed'],
     emptyHouses: [4],
     avoidTithis: [],
+    mukha: ['urdhva'],
+    panchaka: true,
+    asta: true,
   },
   {
     id: 'business',
@@ -132,6 +192,7 @@ export const MUHURTA_ACTIVITIES: MuhurtaActivityDef[] = [
     lagna: ['fixed', 'dual'],
     emptyHouses: [10],
     avoidTithis: [],
+    mukha: ['urdhva'],
   },
   {
     id: 'travel',
@@ -144,6 +205,8 @@ export const MUHURTA_ACTIVITIES: MuhurtaActivityDef[] = [
     lagna: ['movable', 'dual'],
     emptyHouses: [],
     avoidTithis: [6, 21],
+    mukha: ['tiryak'],
+    panchaka: true,
   },
   {
     id: 'vehicle',
@@ -156,6 +219,7 @@ export const MUHURTA_ACTIVITIES: MuhurtaActivityDef[] = [
     lagna: ['movable', 'dual'],
     emptyHouses: [4],
     avoidTithis: [],
+    mukha: ['tiryak'],
   },
   {
     id: 'education',
@@ -192,6 +256,7 @@ export const MUHURTA_ACTIVITIES: MuhurtaActivityDef[] = [
     lagna: ['movable', 'dual'],
     emptyHouses: [8],
     avoidTithis: [],
+    mukha: ['adho'],
   },
   {
     id: 'naming',
@@ -224,6 +289,17 @@ export const MUHURTA_WEIGHTS = {
   yogaBad: -9,
   yogaSevere: -18,
   vishti: -20,
+  vishtiAway: -8,
+  mukhaGood: 4,
+  mukhaOpposite: -4,
+  panchaka: -12,
+  panchakaRahita: 3,
+  rahitaMrityu: -10,
+  rahitaAgni: -8,
+  rahitaOther: -5,
+  shoola: -18,
+  asta: -25,
+  kharmas: -25,
   karanaFixed: -6,
   taraGood: 8,
   taraJanma: -4,
@@ -245,6 +321,8 @@ export const MUHURTA_WEIGHTS = {
 };
 
 export interface MuhurtaNatal {
+  /** Who this is, for labels when several people are checked (e.g. a couple) */
+  label?: string;
   /** Natal Moon nakshatra 1–27 */
   moonNakshatra: number;
   /** Natal Moon sign 1–12 */
@@ -262,6 +340,14 @@ export interface MuhurtaSearch {
   longitude: number;
   timezone?: string;
   natal?: MuhurtaNatal;
+  /**
+   * Several people at once, such as a couple for a wedding. Tara bala,
+   * Chandra bala and the 8th-from-lagna rule are checked for each, and a
+   * blocker for any one of them blocks the window. Used instead of `natal`.
+   */
+  natals?: MuhurtaNatal[];
+  /** Direction of travel, for the disha shoola rules */
+  direction?: Direction;
   /** Sampling step in minutes (boundaries are refined to the minute). Default 10 */
   stepMinutes?: number;
   /** Only report windows that fall between sunrise and sunset. Default false */
@@ -299,6 +385,20 @@ export interface MuhurtaState {
   moonSign: number;
   tara?: { number: number; name: string };
   chandra?: number;
+  /** Tara and Chandra bala for every person checked, in the order given */
+  personal: { label?: string; tara: { number: number; name: string }; chandra: number }[];
+  /** Which way the day's nakshatra faces */
+  mukha: NakshatraMukha;
+  /** Dhanishta panchaka: the Moon in Aquarius or Pisces */
+  panchaka: boolean;
+  /** Panchaka rahita remainder (tithi + weekday + nakshatra + lagna) mod 9 and its name, if a bad one */
+  rahita: { remainder: number; name?: string; meaning?: string };
+  /** Where Bhadra dwells when the karana is Vishti */
+  bhadraLoka?: 'earth' | 'heaven' | 'netherworld';
+  /** Jupiter and Venus combust */
+  asta: { jupiter: boolean; venus: boolean };
+  /** Directions speared by the weekday and the nakshatra */
+  shoola: { vara: Direction; nakshatra?: Direction };
   period: 'rahu_kalam' | 'yamaganda' | 'gulika' | 'abhijit' | null;
   daytime: boolean;
   /** Signs occupied by each graha */
@@ -341,16 +441,16 @@ export interface MuhurtaResult {
   weights: typeof MUHURTA_WEIGHTS;
 }
 
-const TARA_NAMES = ['Janma', 'Sampat', 'Vipat', 'Kshema', 'Pratyari', 'Sadhaka', 'Naidhana', 'Mitra', 'Parama Mitra'];
+export const TARA_NAMES = ['Janma', 'Sampat', 'Vipat', 'Kshema', 'Pratyari', 'Sadhaka', 'Naidhana', 'Mitra', 'Parama Mitra'];
 const BAD_YOGAS = [1, 6, 9, 10, 13, 15, 19]; // Vishkambha, Atiganda, Shula, Ganda, Vyaghata, Vajra, Parigha
 const SEVERE_YOGAS = [17, 27]; // Vyatipata, Vaidhriti
 const MOVABLE_KARANAS = ['Bava', 'Balava', 'Kaulava', 'Taitila', 'Gara', 'Vanija', 'Vishti'];
 const NATURAL_BENEFICS: GrahaId[] = ['jupiter', 'venus', 'mercury'];
 const NATURAL_MALEFICS: GrahaId[] = ['saturn', 'mars', 'rahu', 'ketu', 'sun'];
 // Day split into 8 parts sunrise→sunset; part number (1-based) per weekday Sun..Sat
-const RAHU_PART = [8, 2, 7, 5, 6, 4, 3];
-const YAMA_PART = [5, 4, 3, 2, 1, 7, 6];
-const GULIKA_PART = [7, 6, 5, 4, 3, 2, 1];
+export const RAHU_PART = [8, 2, 7, 5, 6, 4, 3];
+export const YAMA_PART = [5, 4, 3, 2, 1, 7, 6];
+export const GULIKA_PART = [7, 6, 5, 4, 3, 2, 1];
 
 const toJd = (w: Date | string | number) => (typeof w === 'number' ? w : dateToJd(typeof w === 'string' ? new Date(w) : w));
 const modalityOf = (sign: number): Modality => (['movable', 'fixed', 'dual'] as const)[(sign - 1) % 3];
@@ -383,6 +483,7 @@ export function findMuhurtas(engine: Engine, q: MuhurtaSearch): MuhurtaResult {
   const ayanamsa = q.ayanamsa ?? 'lahiri';
   const step = (q.stepMinutes ?? 10) / 1440;
   const W = MUHURTA_WEIGHTS;
+  const natals: MuhurtaNatal[] = q.natals?.length ? q.natals : q.natal ? [q.natal] : [];
 
   // Sunrises covering the range (Vedic days run sunrise to sunrise)
   const days: DayInfo[] = [];
@@ -435,6 +536,14 @@ export function findMuhurtas(engine: Engine, q: MuhurtaSearch): MuhurtaResult {
     }
     const planetSigns = {} as Record<GrahaId, number>;
     for (const g of GRAHAS) planetSigns[g] = snap.planets[g].sign;
+    const fromSun = (g: GrahaId) => {
+      const d = Math.abs(norm360(snap.planets[g].longitude - sun));
+      return Math.min(d, 360 - d);
+    };
+    const orb = (g: 'jupiter' | 'venus') => (snap.planets[g].retrograde ? COMBUSTION_ORB[g]!.retro : COMBUSTION_ORB[g]!.direct);
+    const kName = karanaName(karana);
+    const rem = (tithi + (d.weekday + 1) + nak + lagnaSign) % 9;
+    const rahitaBad = PANCHAKA_RAHITA[rem];
     const s: MuhurtaState = {
       tithi,
       tithiName: tithiName(tithi),
@@ -446,25 +555,34 @@ export function findMuhurtas(engine: Engine, q: MuhurtaSearch): MuhurtaResult {
       yoga,
       yogaName: YOGA_NAMES[yoga - 1],
       karana,
-      karanaName: karanaName(karana),
+      karanaName: kName,
       lagnaSign,
       lagnaName: SIGN_NAMES[lagnaSign - 1],
       moonSign,
+      personal: natals.map((n) => {
+        const t = ((((nak - n.moonNakshatra) % 27) + 27) % 27) % 9;
+        return { label: n.label, tara: { number: t + 1, name: TARA_NAMES[t] }, chandra: houseFromSign(n.moonSign, moonSign) };
+      }),
+      mukha: mukhaOf(nak),
+      panchaka: moonSign === 11 || moonSign === 12,
+      rahita: rahitaBad ? { remainder: rem, ...rahitaBad } : { remainder: rem },
+      bhadraLoka: kName === 'Vishti' ? bhadraLoka(moonSign) : undefined,
+      asta: { jupiter: fromSun('jupiter') < orb('jupiter'), venus: fromSun('venus') < orb('venus') },
+      shoola: { vara: VARA_SHOOLA[d.weekday], nakshatra: NAKSHATRA_SHOOLA[nak] },
       period,
       daytime,
       planetSigns,
     };
-    if (q.natal) {
-      const t = ((((nak - q.natal.moonNakshatra) % 27) + 27) % 27) % 9;
-      s.tara = { number: t + 1, name: TARA_NAMES[t] };
-      s.chandra = houseFromSign(q.natal.moonSign, moonSign);
+    if (s.personal[0]) {
+      s.tara = s.personal[0].tara;
+      s.chandra = s.personal[0].chandra;
     }
     return s;
   };
 
   // Key of everything that affects the score; a change starts a new window
   const keyOf = (s: MuhurtaState) =>
-    [s.tithi, s.weekday, s.nakshatra, s.yoga, s.karana, s.lagnaSign, s.period, s.daytime, ...GRAHAS.map((g) => s.planetSigns[g])].join('|');
+    [s.tithi, s.weekday, s.nakshatra, s.yoga, s.karana, s.lagnaSign, s.period, s.daytime, s.asta.jupiter, s.asta.venus, ...GRAHAS.map((g) => s.planetSigns[g])].join('|');
 
   // Sample, then bisect each change to the minute
   const cuts: number[] = [startJd];
@@ -496,7 +614,7 @@ export function findMuhurtas(engine: Engine, q: MuhurtaSearch): MuhurtaResult {
     const b = cuts[i + 1];
     if (b - a < 0.5 / 1440) continue;
     const s = stateAt((a + b) / 2);
-    const factors = scoreState(s, def, q.natal, W);
+    const factors = scoreState(s, def, natals, W, q.direction);
     const score = Math.max(0, Math.min(100, Math.round(W.base + factors.reduce((t, f) => t + f.points, 0))));
     const blocked = factors.some((f) => f.blocker);
     windows.push({
@@ -550,7 +668,7 @@ export function findMuhurtas(engine: Engine, q: MuhurtaSearch): MuhurtaResult {
   return { activity: def, timezone: tz, windows, best, days: dayList, weights: W };
 }
 
-function scoreState(s: MuhurtaState, def: MuhurtaActivityDef, natal: MuhurtaNatal | undefined, W: typeof MUHURTA_WEIGHTS): MuhurtaFactor[] {
+function scoreState(s: MuhurtaState, def: MuhurtaActivityDef, natals: MuhurtaNatal[], W: typeof MUHURTA_WEIGHTS, direction?: Direction): MuhurtaFactor[] {
   const f: MuhurtaFactor[] = [];
   const add = (key: string, label: string, detail: string, points: number, blocker = false) => f.push({ key, label, detail, points, blocker });
 
@@ -583,33 +701,75 @@ function scoreState(s: MuhurtaState, def: MuhurtaActivityDef, natal: MuhurtaNata
   if (SEVERE_YOGAS.includes(s.yoga)) add('yoga', `${s.yogaName} yoga`, 'One of the two worst yogas; the texts reject it for any auspicious work.', W.yogaSevere, true);
   else if (BAD_YOGAS.includes(s.yoga)) add('yoga', `${s.yogaName} yoga`, 'An inauspicious yoga.', W.yogaBad);
 
-  // Karana
-  if (s.karanaName === 'Vishti') add('karana', 'Vishti (Bhadra) karana', 'Bhadra is rejected for auspicious beginnings.', W.vishti, def.id !== 'surgery');
-  else if (['Shakuni', 'Chatushpada', 'Naga', 'Kimstughna'].includes(s.karanaName))
+  // Karana, with Bhadra's dwelling
+  if (s.karanaName === 'Vishti') {
+    const exempt = def.id === 'surgery';
+    if (s.bhadraLoka === 'earth' || exempt)
+      add('karana', 'Vishti (Bhadra) karana', `Bhadra is rejected for auspicious beginnings, and with the Moon in ${SIGN_NAMES[s.moonSign - 1]} she dwells on earth, where she does harm.`, W.vishti, !exempt);
+    else
+      add('karana', 'Vishti (Bhadra) karana', `Bhadra is in force, but with the Moon in ${SIGN_NAMES[s.moonSign - 1]} she dwells in ${s.bhadraLoka === 'heaven' ? 'heaven' : 'the netherworld'}, and Muhurta Chintamani holds that she then does little harm on earth. Many panchangas still avoid her.`, W.vishtiAway);
+  } else if (['Shakuni', 'Chatushpada', 'Naga', 'Kimstughna'].includes(s.karanaName))
     add('karana', `${s.karanaName} karana`, 'A fixed karana around the new Moon, weak for beginnings.', W.karanaFixed);
 
-  // Tara and Chandra bala
-  if (natal && s.tara) {
-    const n = s.tara.number;
-    if ([2, 4, 6, 8, 9].includes(n)) add('tara', `${s.tara.name} tara`, `The day's star is ${s.tara.name.toLowerCase()} (${n}) from your birth star: supportive.`, W.taraGood);
-    else if (n === 7) add('tara', 'Naidhana tara', 'The 7th tara from your birth star, the most harmful one.', W.taraNaidhana, true);
-    else if (n === 1) add('tara', 'Janma tara', 'The Moon is in your birth star: sensitive, mixed.', W.taraJanma);
-    else add('tara', `${s.tara.name} tara`, `The ${n === 3 ? '3rd' : '5th'} tara from your birth star: obstructive.`, W.taraBad);
+  // Nakshatra mukha
+  if (def.mukha) {
+    const m = NAKSHATRA_MUKHA[s.mukha];
+    if (def.mukha.includes(s.mukha)) add('mukha', m.label, `Suited to ${m.meaning}.`, W.mukhaGood);
+    else if ((def.mukha.includes('urdhva') && s.mukha === 'adho') || (def.mukha.includes('adho') && s.mukha === 'urdhva'))
+      add('mukha', m.label, `The star faces the wrong way for this work: it suits ${m.meaning}.`, W.mukhaOpposite);
   }
-  if (natal && s.chandra) {
-    const h = s.chandra;
-    if (h === 8) add('chandra', 'Chandrashtama', 'The Moon transits the 8th sign from your birth Moon: avoid starting anything important.', W.chandrashtama, true);
-    else if ([1, 3, 6, 7, 10, 11].includes(h)) add('chandra', `Moon ${ord(h)} from birth Moon`, 'Good Chandra bala.', W.chandraGood);
-    else if ([2, 5, 9].includes(h) && s.paksha === 'shukla') add('chandra', `Moon ${ord(h)} from birth Moon`, 'Good Chandra bala in the waxing fortnight.', W.chandraGood / 2);
-    else add('chandra', `Moon ${ord(h)} from birth Moon`, 'Weak Chandra bala.', W.chandraMid);
+
+  // Panchaka
+  if (def.panchaka && s.panchaka)
+    add('panchaka', 'Dhanishta panchaka', `The Moon is in ${SIGN_NAMES[s.moonSign - 1]}, crossing the last five stars (Dhanishta to Revati). Building, roofing, entering a house and southward journeys are avoided in these days.`, W.panchaka, def.id === 'travel' && direction === 'south');
+  if (s.rahita.name) {
+    const pts = s.rahita.remainder === 1 ? W.rahitaMrityu : s.rahita.remainder === 2 ? W.rahitaAgni : W.rahitaOther;
+    add('rahita', s.rahita.name, `Tithi, weekday, nakshatra and lagna add up to a remainder of ${s.rahita.remainder} when divided by 9, which the panchaka check reads as ${s.rahita.meaning}. It passes when the lagna changes.`, pts);
+  } else add('rahita', 'Panchaka rahita', `Tithi, weekday, nakshatra and lagna leave a remainder of ${s.rahita.remainder} by 9, free of the five panchakas.`, W.panchakaRahita);
+
+  // Disha shoola
+  if (direction) {
+    if (s.shoola.vara === direction) add('shoola', `${s.weekdayName} shoola`, `${s.weekdayName} spears the ${direction}. The texts say not to set out ${direction}ward on this weekday.`, W.shoola, true);
+    if (s.shoola.nakshatra === direction) add('nshoola', `${s.nakshatraName} shoola`, `${s.nakshatraName} spears the ${direction}, so a ${direction}ward journey is avoided while the Moon is in it.`, W.shoola, true);
   }
+
+  // Jupiter and Venus combust, and Kharmas
+  if (def.asta) {
+    const asta = (['jupiter', 'venus'] as const).filter((g) => s.asta[g]);
+    if (asta.length)
+      add('asta', `${asta.map((g) => (g === 'jupiter' ? 'Guru' : 'Shukra')).join(' and ')} asta`, `${asta.map((g) => PLANET_NAMES[g]).join(' and ')} ${asta.length > 1 ? 'are' : 'is'} combust (too close to the Sun). Marriages, house-warmings and other samskaras wait until ${asta.length > 1 ? 'they rise' : 'it rises'} again.`, W.asta, true);
+  }
+  if (def.kharmas && (s.planetSigns.sun === 9 || s.planetSigns.sun === 12))
+    add('kharmas', 'Kharmas', `The Sun is in ${SIGN_NAMES[s.planetSigns.sun - 1]}, Jupiter's sign, the month called Kharmas or Malmas in North India, when weddings and house-warmings are not held. Regional calendars differ on which months they close.`, W.kharmas, true);
+
+  // Tara and Chandra bala, for every person
+  const multi = natals.length > 1;
+  s.personal.forEach((p, i) => {
+    const who = multi ? `${p.label ?? `Person ${i + 1}`}: ` : '';
+    const your = multi ? `${p.label ?? `person ${i + 1}`}'s` : 'your';
+    const k = multi ? `-${i}` : '';
+    const n = p.tara.number;
+    if ([2, 4, 6, 8, 9].includes(n)) add(`tara${k}`, `${who}${p.tara.name} tara`, `The day's star is ${p.tara.name.toLowerCase()} (${n}) from ${your} birth star: supportive.`, W.taraGood);
+    else if (n === 7) add(`tara${k}`, `${who}Naidhana tara`, `The 7th tara from ${your} birth star, the most harmful one.`, W.taraNaidhana, true);
+    else if (n === 1) add(`tara${k}`, `${who}Janma tara`, `The Moon is in ${your} birth star: sensitive, mixed.`, W.taraJanma);
+    else add(`tara${k}`, `${who}${p.tara.name} tara`, `The ${n === 3 ? '3rd' : '5th'} tara from ${your} birth star: obstructive.`, W.taraBad);
+    const h = p.chandra;
+    if (h === 8) add(`chandra${k}`, `${who}Chandrashtama`, `The Moon transits the 8th sign from ${your} birth Moon: avoid starting anything important.`, W.chandrashtama, true);
+    else if ([1, 3, 6, 7, 10, 11].includes(h)) add(`chandra${k}`, `${who}Moon ${ord(h)} from birth Moon`, 'Good Chandra bala.', W.chandraGood);
+    else if ([2, 5, 9].includes(h) && s.paksha === 'shukla') add(`chandra${k}`, `${who}Moon ${ord(h)} from birth Moon`, 'Good Chandra bala in the waxing fortnight.', W.chandraGood / 2);
+    else add(`chandra${k}`, `${who}Moon ${ord(h)} from birth Moon`, 'Weak Chandra bala.', W.chandraMid);
+  });
 
   // Lagna
   const mod = modalityOf(s.lagnaSign);
   if (def.lagna.includes(mod)) add('lagna', `${s.lagnaName} rising`, `A ${mod} sign, as preferred for ${def.label.toLowerCase()}.`, W.lagnaModality);
   else add('lagna', `${s.lagnaName} rising`, `A ${mod} sign; ${def.lagna.join(' or ')} signs are preferred.`, 0);
-  if (natal?.lagnaSign && houseFromSign(natal.lagnaSign, s.lagnaSign) === 8)
-    add('lagna8', 'Lagna 8th from birth lagna', 'The rising sign is the 8th from your birth ascendant.', W.lagnaEighthFromNatal);
+  natals.forEach((n, i) => {
+    if (n.lagnaSign && houseFromSign(n.lagnaSign, s.lagnaSign) === 8) {
+      const multi = natals.length > 1;
+      add(`lagna8${multi ? `-${i}` : ''}`, `${multi ? `${n.label ?? `Person ${i + 1}`}: ` : ''}Lagna 8th from birth lagna`, `The rising sign is the 8th from ${multi ? `${n.label ?? `person ${i + 1}`}'s` : 'your'} birth ascendant.`, W.lagnaEighthFromNatal);
+    }
+  });
   const houseOf = (g: GrahaId) => houseFromSign(s.lagnaSign, s.planetSigns[g]);
   const benK = NATURAL_BENEFICS.filter((g) => [1, 4, 7, 10, 5, 9].includes(houseOf(g)));
   if (benK.length)

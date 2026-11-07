@@ -1,0 +1,9 @@
+/* ---------- severity and beginner mode (YogaDoshaCard) ---------- */
+.yd-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-bottom: 8px; }
+.yd-beginner { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; }
+.yd-level { display: inline-block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; border-radius: 999px; padding: 2px 8px; margin-right: 6px; border: 1px solid var(--line-soft); color: var(--muted); }
+.yd-level.l1 { color: #1a1206; background: var(--accent); border-color: var(--accent); }
+.yd-level.l2 { color: var(--accent); border-color: var(--line); }
+.yd-rarity { font-size: 12px; color: var(--muted); }
+.yd-hidden { margin: 8px 0 0; font-size: 14px; }
+.yd-meta { margin: 0 0 6px; }

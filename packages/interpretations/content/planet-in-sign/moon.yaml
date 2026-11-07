@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../schema/planet-in-sign.schema.json
+planet: moon
+readings:
+  aries:
+    summary: "Moon in Aries: quick feelings and an independent heart."
+    detail: Emotions arrive fast and leave fast. You react honestly and directly, and you need freedom and action to feel at ease. Impatience and irritability are the shadow, but you rarely stay upset for long.
+    strengths: [emotional courage, enthusiasm, quick recovery, directness]
+    challenges: [impulsiveness, irritability, impatience]
+
+  taurus:
+    summary: "Exalted Moon: calm, stable and emotionally rich."
+    detail: The Moon is exalted in Taurus, giving one of the most contented minds in the zodiac. You find peace in comfort, beauty and routine, and you are loyal and affectionate. Popularity and wealth often come easily. The only risk is resistance to change.
+    strengths: [emotional stability, contentment, loyalty, magnetism]
+    challenges: [possessiveness, stubbornness, over-indulgence]
+
+  gemini:
+    summary: "Moon in Gemini: a curious, talkative mind."
+    detail: Feelings are processed through words. You need conversation, variety and mental stimulation to feel well. You are witty and adaptable, but the mind can become restless or anxious when under-stimulated.
+    strengths: [wit, adaptability, curiosity, communication]
+    challenges: [restlessness, nervousness, emotional superficiality]
+
+  cancer:
+    summary: "Moon in Cancer: deeply caring and intuitive."
+    detail: The Moon is at home in Cancer. You feel deeply, nurture naturally and have a strong bond with mother, home and family. Intuition is acute. Moods can rise and fall like tides, and you may hold on to hurt.
+    strengths: [empathy, intuition, nurturing, strong memory]
+    challenges: [moodiness, clinginess, over-sensitivity]
+
+  leo:
+    summary: "Moon in Leo: a warm, proud and generous heart."
+    detail: You need to be appreciated and you give generously in return. Emotions are dramatic and sincere. Creativity and leadership feed the mind. Wounded pride is the quickest way to upset you.
+    strengths: [warmth, generosity, loyalty, self-confidence]
+    challenges: [pride, need for attention, dramatic reactions]
+
+  virgo:
+    summary: "Moon in Virgo: a careful, analytical mind."
+    detail: You feel safest when things are in order. You show care through practical help and attention to detail. The mind is discriminating and helpful but prone to worry and self-criticism.
+    strengths: [practical care, discernment, diligence, health awareness]
+    challenges: [anxiety, over-analysis, criticism of self and others]
+
+  libra:
+    summary: "Moon in Libra: a mind that seeks harmony."
+    detail: Emotional well-being depends on relationships and a pleasant environment. You are diplomatic, artistic and sociable. Indecision and dependence on others’ moods are the shadow.
+    strengths: [diplomacy, artistic taste, fairness, charm]
+    challenges: [indecision, people-pleasing, avoidance of conflict]
+
+  scorpio:
+    summary: "Debilitated Moon: intense emotions that run deep."
+    detail: The Moon is weakest in Scorpio. Feelings are powerful, private and sometimes turbulent, with a tendency toward suspicion or emotional extremes. Yet this placement gives extraordinary psychological insight and resilience, and it often turns hardship into transformation. Look for neecha-bhanga, which is common and strengthens it.
+    strengths: [psychological depth, resilience, loyalty, intuition]
+    challenges: [emotional turbulence, suspicion, jealousy, tendency to brood]
+
+  sagittarius:
+    summary: "Moon in Sagittarius: an optimistic, freedom-loving mind."
+    detail: You feel best when exploring, learning or believing in something. You are honest, cheerful and philosophical. You may find routine and emotional heaviness hard to tolerate.
+    strengths: [optimism, honesty, generosity, faith]
+    challenges: [restlessness, tactlessness, avoidance of feelings]
+
+  capricorn:
+    summary: "Moon in Capricorn: a disciplined, reserved heart."
+    detail: Emotions are controlled and expressed through responsibility. You are dependable and practical, often mature beyond your years. Warmth may be hidden behind duty, and there can be a streak of melancholy.
+    strengths: [emotional control, responsibility, patience, practicality]
+    challenges: [emotional coldness, pessimism, loneliness]
+
+  aquarius:
+    summary: "Moon in Aquarius: an idealistic, detached mind."
+    detail: You process feelings intellectually and care about causes and communities. Friends matter a great deal. You value independence and may find intimacy harder than friendship.
+    strengths: [humanitarian spirit, originality, loyalty to friends, objectivity]
+    challenges: [emotional detachment, unpredictability, aloofness]
+
+  pisces:
+    summary: "Moon in Pisces: a gentle, imaginative and psychic mind."
+    detail: The mind is sensitive, compassionate and highly imaginative. You absorb the moods of others and are drawn to art, music, spirituality and service. Boundaries and grounding are essential.
+    strengths: [compassion, imagination, intuition, spiritual sensitivity]
+    challenges: [escapism, over-sensitivity, confusion]

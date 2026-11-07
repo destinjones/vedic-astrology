@@ -17,6 +17,7 @@ import {
 } from './constants';
 import { DEFAULT_DASHA_YEAR_DAYS, vimshottari } from './dasha';
 import { ashtottari, ashtottariApplies, kalachakra, yogini } from './dashas';
+import { DEFAULT_AYANAMSA, parseAyanamsa } from './ayanamsa';
 import { dateToJd, jdToDate, jdToIso, localToUtc, timezoneAt } from './time';
 import type {
   AyanamsaId,
@@ -40,6 +41,7 @@ import type {
   VargaPlacement,
 } from './types';
 import { VARGAS, VARGA_IDS, vargaDegree } from './vargas';
+import { bhavaChalit } from './bhava';
 import { SHADBALA_PLANETS, computeStrength, type ShadbalaPlanet, type StrengthPlanetInput } from './strength';
 import {
   addSigns,
@@ -164,8 +166,8 @@ function toJd(when: Date | string | number): number {
 function makeEngine(swe: SwissEph): Engine {
   let currentSid = -1;
   const setSid = (a: AyanamsaId) => {
-    const code = AYANAMSA_CODES[a];
-    if (code === undefined) throw new Error(`Unknown ayanamsa "${a}"`);
+    // the type says AyanamsaId, but JS callers and URLs can pass anything
+    const code = AYANAMSA_CODES[parseAyanamsa(a)];
     if (code !== currentSid) {
       swe.set_sid_mode(code, 0, 0);
       currentSid = code;
@@ -230,7 +232,7 @@ function makeEngine(swe: SwissEph): Engine {
 
   function computeChart(input: BirthInput, options: ChartOptions = {}): Chart {
     const opts = {
-      ayanamsa: options.ayanamsa ?? 'lahiri',
+      ayanamsa: options.ayanamsa === undefined ? DEFAULT_AYANAMSA : parseAyanamsa(options.ayanamsa),
       houseSystem: options.houseSystem ?? 'whole_sign',
       nodeType: options.nodeType ?? 'mean',
       includeOuterPlanets: options.includeOuterPlanets ?? false,
@@ -244,7 +246,7 @@ function makeEngine(swe: SwissEph): Engine {
     if (!(latitude >= -90 && latitude <= 90)) throw new Error('Latitude must be between -90 and 90');
     if (!(longitude >= -180 && longitude <= 180)) throw new Error('Longitude must be between -180 and 180');
     const timezone = input.place.timezone ?? timezoneAt(latitude, longitude);
-    const t = localToUtc(input.date, input.time, timezone, input.utcOffsetMinutes, longitude, input.calendar);
+    const t = localToUtc(input.date, input.time, timezone, input.utcOffsetMinutes, longitude, latitude, input.calendar);
     const jd = dateToJd(t.utc);
     const jdEt = jd + swe.deltat(jd);
     setSid(opts.ayanamsa);
@@ -375,6 +377,8 @@ function makeEngine(swe: SwissEph): Engine {
 
     const panchanga = computePanchanga(jd, planets.sun.longitude, planets.moon.longitude, latitude, longitude, timezone, t.utcOffsetMinutes);
 
+    const wsPlanets = Object.fromEntries(ids.map((id) => [id, planets[id]])) as Partial<Record<PlanetId, PlanetPosition>>;
+
     let strength: Chart['strength'];
     if (opts.strength) {
       setSid(opts.ayanamsa);
@@ -422,6 +426,7 @@ function makeEngine(swe: SwissEph): Engine {
         localMeanTime: t.localMeanTime,
         calendar: t.calendar,
         gregorianDate: t.gregorianDate,
+        timeWarnings: t.warnings,
         utc: t.utc.toISOString(),
         jdUt: jd,
         jdEt,
@@ -441,6 +446,10 @@ function makeEngine(swe: SwissEph): Engine {
       dasha,
       dashas,
       panchanga,
+      bhavaChalit: {
+        sripati: bhavaChalit('sripati', hd.asc, hd.mc, wsPlanets, ascSign),
+        equal: bhavaChalit('equal', hd.asc, hd.mc, wsPlanets, ascSign),
+      },
       ...(strength ? { strength } : {}),
     };
   }

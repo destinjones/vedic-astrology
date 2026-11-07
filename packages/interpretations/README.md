@@ -22,6 +22,19 @@ Yogas covered: the five Pancha Mahapurusha (Ruchaka, Bhadra, Hamsa, Malavya, Sas
 
 Doshas covered: Manglik (from ascendant, Moon and Venus, with 9 cancellation rules), Kaal Sarp (12 named types, Kaal Amrit, partial), Pitra, Grahan, Guru Chandala, Shrapit, Angarak, Kemadruma, Gandanta.
 
+## Writing and checking readings
+
+Planet-in-sign, planet-in-house and hand-written planet-in-nakshatra readings, and the audit notes for every yoga, live as YAML in [`content/`](content). Edit them there; `npm run content -w @vedic/interpretations` validates them against the schemas and the [style guide](content/STYLE.md) and regenerates `src/data/generated/content.ts`.
+
+Four checks guard the text:
+
+| Check | Where | Fails when |
+|---|---|---|
+| Reading snapshots | `test/reading-snapshots.test.ts` | any reading for the Gandhi chart changes, in English or Hindi. The diff of `test/__snapshots__/*.md` shows the change in code review. |
+| Yoga lint | `test/yoga-lint.test.ts` | a yoga has no citation, no cancellation note, or no positive test chart |
+| Readability | `test/readability.test.ts` | a reading drifts past the grade, sentence-length or jargon limits |
+| Content build | `npm run content:check` | the YAML is invalid, or the generated file or [`COVERAGE.md`](content/COVERAGE.md) is stale |
+
 ## API
 
 ```ts

@@ -1,7 +1,7 @@
 {
   "name": "@vedic/web",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@fontsource/atkinson-hyperlegible": "^5.3.0",
     "@fontsource/cormorant-garamond": "^5.0.0",
     "@fontsource/inter": "^5.0.0",
     "@fontsource/noto-sans-bengali": "^5.3.0",
@@ -20,12 +21,15 @@
     "@fontsource/noto-sans-kannada": "^5.3.0",
     "@fontsource/noto-sans-tamil": "^5.3.0",
     "@fontsource/noto-sans-telugu": "^5.3.0",
+    "@fontsource/opendyslexic": "^5.3.0",
     "@vedic/engine": "*",
     "@vedic/i18n": "*",
     "@vedic/interpretations": "*",
     "@vedic/jaimini": "*",
+    "@vedic/personal": "*",
     "@vedic/rectification": "*",
     "@vedic/sky": "*",
+    "@vedic/remedies": "*",
     "@vedic/tajika": "*",
     "@vedic/timing": "*",
     "harfbuzzjs": "^1.6.4",
@@ -42,6 +46,7 @@
     "@types/three": "^0.187.0",
     "@vitejs/plugin-react": "^6.1.2",
     "oxlint": "^1.90.0",
+    "postcss": "^8.5.32",
     "typescript": "^5.9.3",
     "vite": "^8.3.6"
   }

@@ -1,3 +1,4 @@
+import { argalaOn, type ArgalaOnSign } from './argala';
 import { addSigns, houseFrom, signOf, vargaSign, type Chart, type GrahaId, type SignNumber } from '@vedic/engine';
 import {
   NAME,
@@ -33,6 +34,8 @@ export interface JaiminiChart {
   /** Graha -> the signs it aspects by rashi drishti */
   grahaDrishti: Record<GrahaId, SignNumber[]>;
   charaDasha: CharaDasha;
+  /** Argala on each house from the lagna, index 0 = 1st house */
+  argala: ArgalaOnSign[];
   readings: {
     atmakaraka: JaiminiReading;
     amatyakaraka: JaiminiReading;
@@ -81,6 +84,7 @@ export function jaimini(source: Chart | JaiminiInput, opts: JaiminiOptions = {})
     rashiDrishti,
     grahaDrishti,
     charaDasha: dasha,
+    argala: SIGNS.map((_, i) => argalaOn(input, ((input.ascendantSign - 1 + i) % 12) + 1)),
     readings: {
       atmakaraka: atmakarakaReading(ak, karakas[1]),
       amatyakaraka: roleReading(byId('AmK'), AMATYAKARAKA, 'Career and counsel'),

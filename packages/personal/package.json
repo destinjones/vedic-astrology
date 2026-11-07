@@ -1,0 +1,35 @@
+{
+  "name": "@vedic/personal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Personal features: today brief, Sade Sati countdown, birth-time scrubbing, ayanamsa diff, chart story, finding severity and rarity, time capsules, generative posters and panchanga calendar feeds",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./severity": "./src/severity.ts",
+    "./rarity": "./src/rarity.ts",
+    "./sample": "./src/sample.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json",
+    "rarity": "tsx scripts/rarity.ts",
+    "feeds": "tsx scripts/feeds.ts"
+  },
+  "dependencies": {
+    "@vedic/engine": "*",
+    "@vedic/interpretations": "*",
+    "@vedic/timing": "*",
+    "luxon": "^3.7.2"
+  },
+  "devDependencies": {
+    "@types/luxon": "^3.7.6",
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  },
+  "sideEffects": false
+}

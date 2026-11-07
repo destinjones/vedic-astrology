@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../schema/planet-in-sign.schema.json
+planet: sun
+readings:
+  aries:
+    summary: "Exalted Sun: confident, courageous and born to lead."
+    detail: The Sun reaches its peak in Aries. Willpower is strong, the sense of self is clear and there is little hesitation about taking charge. You tend to act on principle and inspire others by example. The risk is impatience with slower people and a temper that flares when authority is challenged.
+    strengths: [natural leadership, courage, strong vitality, clear purpose]
+    challenges: [impatience, domineering streak, heat-related or head ailments]
+
+  taurus:
+    summary: "Sun in Taurus: steady authority built on values and resources."
+    detail: Here the Sun shines slowly and reliably. You want tangible results and lasting security, and you lead by being dependable. Venus rules this sign and is unfriendly to the Sun, so pride can attach to possessions or appearance. Finance, food, art and land are natural fields.
+    strengths: [persistence, financial sense, calm presence, loyalty]
+    challenges: [stubbornness, materialism, resistance to change]
+
+  gemini:
+    summary: "Sun in Gemini: a bright, versatile communicator."
+    detail: The self is expressed through ideas, speech and writing. You are curious, sociable and quick to learn, and you often shine in media, teaching, trade or anything that rewards a nimble mind. Identity can feel split between many interests, so focus becomes the key to authority.
+    strengths: [intelligence, eloquence, adaptability, networking]
+    challenges: [scattered energy, superficiality, nervous tension]
+
+  cancer:
+    summary: "Sun in Cancer: a protective, emotionally driven self."
+    detail: The Sun in the Moon’s sign links identity to home, family and feeling. You lead by caring for people and are fiercely protective of your own. Confidence fluctuates with mood, and the relationship with the father or with authority figures may be emotionally complex.
+    strengths: [empathy, protectiveness, intuition, devotion to family]
+    challenges: [moodiness, over-sensitivity, holding onto the past]
+
+  leo:
+    summary: "Sun in Leo: dignified, generous and naturally commanding."
+    detail: The Sun rules Leo and is in its moolatrikona here, so the self is strong and well integrated. You have presence, warmth and a flair for leadership and creative expression. Respect matters a great deal. The lesson is to lead with the heart rather than the ego.
+    strengths: [charisma, integrity, creativity, leadership]
+    challenges: [pride, need for recognition, difficulty accepting criticism]
+
+  virgo:
+    summary: "Sun in Virgo: a precise, service-minded self."
+    detail: Identity is tied to competence. You shine by doing things well, solving problems and refining systems. Health, analysis, accounting, editing and service professions suit you. Self-criticism is the shadow, and you may underrate your own authority.
+    strengths: [analytical skill, diligence, practicality, helpfulness]
+    challenges: [perfectionism, worry, self-doubt]
+
+  libra:
+    summary: "Debilitated Sun: identity shaped through others."
+    detail: In Libra the Sun is at its weakest. Confidence often depends on approval, and there can be a tendency to compromise too much or to struggle with authority figures. Yet this placement also gives diplomacy, fairness and a talent for partnership. Strength grows as you learn to stand alone. Check for neecha-bhanga (cancellation), which can turn this into a source of rise.
+    strengths: [diplomacy, fairness, social grace, artistic sense]
+    challenges: [low self-confidence, people-pleasing, friction with father or bosses]
+
+  scorpio:
+    summary: "Sun in Scorpio: intense, strategic and private power."
+    detail: The Sun in Mars’ watery sign gives determination and a taste for depth. You lead from behind the scenes, investigate thoroughly and are hard to defeat. Research, medicine, finance and security work suit you. Watch for secrecy and holding grudges.
+    strengths: [determination, investigative mind, resilience, strategic thinking]
+    challenges: [secrecy, vindictiveness, intense temper]
+
+  sagittarius:
+    summary: "Sun in Sagittarius: principled, inspiring and philosophical."
+    detail: In Jupiter’s fire sign the Sun becomes a teacher and advocate. You are idealistic, generous and guided by beliefs. Law, religion, education, publishing and travel are natural arenas. The shadow is self-righteousness.
+    strengths: [ethics, optimism, teaching ability, vision]
+    challenges: [preachiness, bluntness, restlessness]
+
+  capricorn:
+    summary: "Sun in Capricorn: disciplined, ambitious and patient."
+    detail: The Sun in Saturn’s sign works hard and climbs steadily. Recognition tends to come later but lasts. You are practical, serious and responsible, and you may carry duties from a young age. The relationship with the father can be dutiful or distant.
+    strengths: [discipline, ambition, endurance, organisational skill]
+    challenges: [coldness, pessimism, workaholism]
+
+  aquarius:
+    summary: "Sun in Aquarius: an independent, humanitarian self."
+    detail: Identity is found in groups, causes and ideas. You are inventive and principled but may feel at odds with authority or tradition. Science, technology, social work and networks suit you. Personal warmth can be harder to show than ideals.
+    strengths: [originality, humanitarian spirit, independence, systems thinking]
+    challenges: [detachment, rebelliousness, conflict with authority]
+
+  pisces:
+    summary: "Sun in Pisces: compassionate, imaginative and spiritual."
+    detail: In Jupiter’s water sign the Sun softens. You are kind, intuitive and drawn to art, healing or spirituality. The ego is less assertive, which can make leadership feel uncomfortable, but you lead through compassion and inspiration.
+    strengths: [compassion, imagination, spiritual depth, humility]
+    challenges: [lack of direction, escapism, weak boundaries]

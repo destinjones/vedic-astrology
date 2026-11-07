@@ -5,6 +5,7 @@
  */
 import type { Ayanamsa, BirthInput, CalendarSystem, RoddenRating, TimeConfidence } from '../types/chart';
 import { RODDEN_RATINGS, TIME_CONFIDENCES } from './birthQuality';
+import { CHART_REQUEST_VERSION, decodeChartRequest, encodeChartRequest, type ChartRequest } from '@vedic/engine/request';
 
 export interface Profile {
   id: string;
@@ -36,6 +37,7 @@ export function sanitizeInput(raw: unknown): BirthInput | null {
   const longitude = num(r.longitude);
   const timezone = str(r.timezone, 64);
   const ayanamsa = (AYANAMSAS as readonly string[]).includes(str(r.ayanamsa)) ? (r.ayanamsa as Ayanamsa) : 'lahiri';
+  const offset = num(r.utcOffsetMinutes);
   if (!/^-?\d{4}-\d{2}-\d{2}$/.test(date)) return null;
   if (!/^\d{2}:\d{2}(:\d{2})?$/.test(time)) return null;
   if (!Number.isFinite(latitude) || Math.abs(latitude) > 90) return null;
@@ -58,6 +60,8 @@ export function sanitizeInput(raw: unknown): BirthInput | null {
     longitude,
     timezone,
     ayanamsa,
+    // a manual offset (war time, LMT) changes the chart, so it must survive storage and links
+    ...(Number.isFinite(offset) && Math.abs(offset) <= 16 * 60 ? { utcOffsetMinutes: offset } : {}),
   };
 }
 
@@ -69,6 +73,7 @@ export const sameBirth = (a: BirthInput, b: BirthInput): boolean =>
   Math.abs(a.latitude - b.latitude) < 1e-4 &&
   Math.abs(a.longitude - b.longitude) < 1e-4 &&
   a.timezone === b.timezone &&
+  (a.utcOffsetMinutes ?? null) === (b.utcOffsetMinutes ?? null) &&
   (a.calendar ?? 'auto') === (b.calendar ?? 'auto');
 
 /* ---------- profile storage ---------- */
@@ -140,49 +145,60 @@ export function importProfiles(list: Profile[], text: string): { list: Profile[]
 
 /* ---------- share links ---------- */
 
+/** The UI's birth details as the engine's versioned, serialisable ChartRequest. */
+export function toChartRequest(input: BirthInput): ChartRequest {
+  return {
+    v: CHART_REQUEST_VERSION,
+    ...(input.name?.trim() ? { name: input.name.trim() } : {}),
+    date: input.date,
+    time: input.time,
+    place: { ...(input.place ? { name: input.place } : {}), latitude: input.latitude, longitude: input.longitude, timezone: input.timezone },
+    ...(input.utcOffsetMinutes !== undefined ? { utcOffsetMinutes: input.utcOffsetMinutes } : {}),
+    ayanamsa: input.ayanamsa,
+    ...(input.calendar && input.calendar !== 'auto' ? { calendar: input.calendar } : {}),
+    ...(input.rodden ? { rodden: input.rodden } : {}),
+    ...(input.timeConfidence ? { timeConfidence: input.timeConfidence } : {}),
+  };
+}
+
+/** A decoded ChartRequest as UI birth details (null if the UI cannot use it). */
+export function fromChartRequest(r: ChartRequest): BirthInput | null {
+  return sanitizeInput({
+    name: r.name ?? '',
+    date: r.date,
+    time: r.time,
+    place: r.place.name ?? '',
+    latitude: r.place.latitude,
+    longitude: r.place.longitude,
+    timezone: r.place.timezone,
+    ayanamsa: r.ayanamsa,
+    utcOffsetMinutes: r.utcOffsetMinutes,
+    calendar: r.calendar,
+    rodden: r.rodden,
+    timeConfidence: r.timeConfidence,
+  });
+}
+
 /**
- * Encodes the birth details as readable URL-fragment params, e.g.
- * #d=1990-08-15&t=06:30&p=New+Delhi%2C+India&lat=28.6139&lon=77.209&tz=Asia%2FKolkata&ay=lahiri&n=Asha
+ * Encodes the birth details as readable, versioned URL-fragment params, e.g.
+ * #v=1&n=Asha&d=1990-08-15&t=06%3A30&p=New+Delhi%2C+India&lat=28.6139&lon=77.209&tz=Asia%2FKolkata
+ * The format lives in @vedic/engine/request, which keeps every older link readable.
  */
 export function shareHash(input: BirthInput, includeName = true): string {
-  const q = new URLSearchParams();
-  if (includeName && input.name?.trim()) q.set('n', input.name.trim());
-  q.set('d', input.date);
-  q.set('t', input.time);
-  q.set('p', input.place);
-  q.set('lat', String(+input.latitude.toFixed(5)));
-  q.set('lon', String(+input.longitude.toFixed(5)));
-  q.set('tz', input.timezone);
-  if (input.ayanamsa !== 'lahiri') q.set('ay', input.ayanamsa);
-  if (input.utcOffsetMinutes !== undefined) q.set('off', String(input.utcOffsetMinutes));
-  if (input.calendar && input.calendar !== 'auto') q.set('cal', input.calendar);
-  if (input.rodden) q.set('rr', input.rodden);
-  if (input.timeConfidence) q.set('tc', input.timeConfidence);
-  return '#' + q.toString();
+  return '#' + encodeChartRequest(toChartRequest(input), { includeName });
 }
 
 export function shareUrl(input: BirthInput, includeName = true, base = location.origin + location.pathname): string {
   return base + shareHash(input, includeName);
 }
 
-/** Reads a share link fragment. Returns null for any other hash (like #sample or #timing). */
+/** Reads a share link fragment, any format version. Returns null for any other hash (like #sample or #timing). */
 export function parseShareHash(hash: string): BirthInput | null {
-  const h = hash.replace(/^#/, '');
-  if (!h.includes('d=') || !h.includes('t=')) return null;
-  const q = new URLSearchParams(h);
-  if (!q.has('d') || !q.has('t') || !q.has('lat') || !q.has('lon') || !q.has('tz')) return null;
-  return sanitizeInput({
-    name: q.get('n') ?? '',
-    date: q.get('d'),
-    time: q.get('t'),
-    place: q.get('p') ?? '',
-    latitude: q.get('lat'),
-    longitude: q.get('lon'),
-    timezone: q.get('tz'),
-    ayanamsa: q.get('ay') ?? 'lahiri',
-    utcOffsetMinutes: q.get('off') ?? undefined,
-    calendar: q.get('cal') ?? undefined,
-    rodden: q.get('rr') ?? undefined,
-    timeConfidence: q.get('tc') ?? undefined,
-  });
+  const r = decodeChartRequest(hash);
+  if ('reason' in r) {
+    if (r.reason !== 'not_a_chart') console.warn(`Share link not opened: ${r.message}`);
+    return null;
+  }
+  for (const w of r.warnings) console.warn(`Share link: ${w}`);
+  return fromChartRequest(r.request);
 }

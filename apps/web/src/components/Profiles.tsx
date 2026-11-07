@@ -122,11 +122,15 @@ interface ActionProps {
   profiles: Profile[];
   onSave: (label: string) => boolean;
   onShowSaved: () => void;
+  /** Set when the open chart is from the famous charts library: its link gets a preview page that unfurls as the chart. */
+  famousId?: string;
+  /** Opens the share card / image export. */
+  onExport?: () => void;
 }
 
 type Pop = null | 'save' | 'share';
 
-export function ChartActions({ input, profiles, onSave, onShowSaved }: ActionProps) {
+export function ChartActions({ input, profiles, onSave, onShowSaved, famousId, onExport }: ActionProps) {
   const [pop, setPop] = useState<Pop>(null);
   const saved = profiles.find((p) => sameBirth(p.input, input));
   const [label, setLabel] = useState('');
@@ -150,7 +154,8 @@ export function ChartActions({ input, profiles, onSave, onShowSaved }: ActionPro
     setPop((p) => (p === which ? null : which));
   };
 
-  const link = shareUrl(input, withName);
+  // a famous chart's page has og: tags, so its link shows the chart in chats and social posts
+  const link = famousId ? `${location.origin}${import.meta.env.BASE_URL}c/${famousId}/` : shareUrl(input, withName);
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(link);
@@ -196,7 +201,7 @@ export function ChartActions({ input, profiles, onSave, onShowSaved }: ActionPro
             <span>Link to this chart</span>
             <input ref={linkRef} readOnly value={link} onFocus={(e) => e.target.select()} />
           </label>
-          {input.name?.trim() && (
+          {input.name?.trim() && !famousId && (
             <label className="check">
               <input type="checkbox" checked={withName} onChange={(e) => setWithName(e.target.checked)} /> Include the name “{input.name.trim()}”
             </label>
@@ -207,7 +212,10 @@ export function ChartActions({ input, profiles, onSave, onShowSaved }: ActionPro
               <button type="button" className="btn-ghost" onClick={() => navigator.share({ title: 'Vedic birth chart', url: link }).catch(() => {})}>Share…</button>
             )}
           </div>
-          <p className="muted pop-note">{status ?? 'Anyone with the link sees this birth date, time and place. The details sit after the # so they never reach the server.'}</p>
+          {onExport && <button type="button" className="btn-ghost sm" onClick={() => { setPop(null); onExport(); }}>Share as a picture, embed or export…</button>}
+          <p className="muted pop-note">{status ?? (famousId
+            ? 'This link shows the chart as its preview in WhatsApp, Telegram and social posts.'
+            : 'Anyone with the link sees this birth date, time and place. The details sit after the # so they never reach the server, which also means chat apps show a plain preview: send the share card picture with it.')}</p>
         </div>
       )}
     </div>

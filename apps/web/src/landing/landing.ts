@@ -1,9 +1,14 @@
 import '../fonts';
 import './landing.css';
+import '../a11y.css';
+import { reducedMotion } from '../lib/display';
+import { trackPageview } from '../lib/analytics';
+
+trackPageview();
 
 // Counts the headline numbers up once they scroll into view. The real numbers
 // are already in the HTML, so nothing is lost without JavaScript or with reduced motion.
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduce = reducedMotion();
 
 if (!reduce && 'IntersectionObserver' in window) {
   const io = new IntersectionObserver((entries) => {

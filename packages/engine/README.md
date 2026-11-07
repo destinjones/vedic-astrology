@@ -4,6 +4,16 @@ The sidereal chart engine behind Jyotisha Explorer: the [Swiss Ephemeris](https:
 wrapped in a typed, synchronous API. It runs the same in a browser and in Node 20+, needs no network, and is the only place in the
 project that computes a planetary position. How accurate those positions are is measured on the [accuracy page](https://destinjones.github.io/vedic-astrology/accuracy/).
 
+## Install
+
+```bash
+npm install @vedic/engine
+```
+
+The full API is in the [API reference](https://destinjones.github.io/vedic-astrology/docs/engine/).
+
+## Use
+
 ```ts
 import { createEngine } from '@vedic/engine';
 
@@ -103,3 +113,7 @@ measured numbers. Old dates carry an extra uncertainty from ΔT, the drift of th
 time zones, KP and the Julian calendar.
 
 License: AGPL-3.0-or-later, as the Swiss Ephemeris requires.
+
+## Licence
+
+AGPL-3.0-or-later, because the Swiss Ephemeris is AGPL (or a paid licence from Astrodienst). If you run a changed copy as a network service you must offer its source to its users. See [NOTICE](https://github.com/destinjones/vedic-astrology/blob/main/NOTICE).

@@ -8,7 +8,11 @@ import { type SadeSatiSpell, type SaturnPhase, SATURN_PHASE_TEXT, transitSnapsho
 import { BAV_TOTALS } from '../src/ashtakavarga';
 import { addDays, ordinal, signName, signOf } from '../src/astro';
 import type { TransitHit, TransitSearchResult } from '../src/search';
+import { childrenOf, spanLabel } from '../src/subperiods';
+import { windowsToIcs } from '../src/ics';
+import type { PredictionMark } from '../src/predictions';
 import { TransitSearch } from './TransitSearch';
+import { PredictionLog } from './PredictionLog';
 import { fmtDate, fmtMonth, fmtRange, GLYPH, PLANET_COLOR, scoreColor, seqColor, seqInk, signed, TONE_LABEL } from './scale';
 import './timing.css';
 
@@ -37,9 +41,18 @@ export interface TimingDashboardProps {
   name?: string;
   /** Scored periods from the chart engine, so boundaries match the chart exactly. */
   dashas?: DashaPeriod[];
+  /**
+   * The "did it happen?" record for past windows. When given, a card lets the
+   * user mark past windows and shows hit rates per rule; storage is the caller's.
+   */
+  predictions?: { marks: PredictionMark[]; onChange: (marks: PredictionMark[]) => void };
+  /** Extra buttons shown with the upcoming windows (e.g. print, notifications). */
+  windowActions?: React.ReactNode;
+  /** Seed for calendar UIDs so two people's windows never collide. */
+  calendarId?: string;
 }
 
-export function TimingDashboard({ chart, ephemeris, name, dashas }: TimingDashboardProps) {
+export function TimingDashboard({ chart, ephemeris, name, dashas, predictions, windowActions, calendarId }: TimingDashboardProps) {
   const [rangeId, setRangeId] = useState<(typeof RANGES)[number]['id']>('3y');
   const [selection, setSelection] = useState<Selection>(null);
   const [inspect, setInspect] = useState<Date>(() => new Date());
@@ -91,7 +104,7 @@ export function TimingDashboard({ chart, ephemeris, name, dashas }: TimingDashbo
           </section>
           <section className="vt-card">
             <h2>Dasha map</h2>
-            <p className="vt-sub">Vimshottari periods colored by how well each lord works for your chart. Click a mahadasha to open its antardashas, then a pratyantar level.</p>
+            <p className="vt-sub">Vimshottari periods colored by how well each lord works for your chart. Click a mahadasha to open its antardashas, then down through pratyantar and sookshma to prana, the level of hours.</p>
             <DashaExplorer timeline={timeline} chart={chart} selection={selection} onSelect={setSelection} />
           </section>
           <section className="vt-card">
@@ -107,7 +120,8 @@ export function TimingDashboard({ chart, ephemeris, name, dashas }: TimingDashbo
         </div>
         <aside className="vt-stack">
           <DetailPanel selection={selection} chart={chart} onClose={() => setSelection(null)} />
-          <WindowsCard timeline={timeline} selection={selection} onSelect={setSelection} />
+          <WindowsCard timeline={timeline} selection={selection} onSelect={setSelection} name={name} calendarId={calendarId} actions={windowActions} />
+          {predictions && <PredictionLog chart={chart} ephemeris={ephemeris} dashas={timeline.dashas} marks={predictions.marks} onChange={predictions.onChange} />}
           <RetroCard timeline={timeline} selection={selection} onSelect={setSelection} />
           <SaturnCard timeline={timeline} chart={chart} selection={selection} onSelect={setSelection} />
         </aside>
@@ -393,18 +407,29 @@ function WeatherTip({ hover, timeline, width }: { hover: { x: number; pt: Combin
 }
 
 // ---------------------------------------------------------------------------
+/** Date and UTC time, for periods shorter than a few days. */
+const fmtFine = (d: Date) => `${fmtDate(d)} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
+const fmtFineRange = (a: Date, b: Date) => `${fmtFine(a)} – ${fmtFine(b)} UTC`;
+
 function DashaExplorer({ timeline, chart, selection, onSelect }: { timeline: Timeline; chart: NatalChart; selection: Selection; onSelect: (s: Selection) => void }) {
   const now = new Date();
   const [maha, setMaha] = useState<DashaPeriod | null>(() => timeline.current[0] ?? null);
   const [antar, setAntar] = useState<DashaPeriod | null>(() => timeline.current[1] ?? null);
-  useEffect(() => { setMaha(timeline.current[0] ?? null); setAntar(timeline.current[1] ?? null); }, [timeline]);
+  const [pratyantar, setPratyantar] = useState<DashaPeriod | null>(() => timeline.current[2] ?? null);
+  const [sookshma, setSookshma] = useState<DashaPeriod | null>(null);
+  useEffect(() => { setMaha(timeline.current[0] ?? null); setAntar(timeline.current[1] ?? null); setPratyantar(timeline.current[2] ?? null); setSookshma(null); }, [timeline]);
+  // levels 4 and 5 are built on demand, for the period that is open
+  const running = (list: DashaPeriod[]) => list.find((p) => p.start <= now && now < p.end) ?? null;
+  const sookshmas = pratyantar ? childrenOf(chart, pratyantar) : [];
+  const openSookshma = sookshma && sookshmas.includes(sookshma) ? sookshma : running(sookshmas);
+  const pranas = openSookshma ? childrenOf(chart, openSookshma) : [];
   const life0 = chart.birth.getTime(), life1 = addDays(chart.birth, 365.25 * 100).getTime();
   const lifeMahas = timeline.dashas.filter((m) => m.end.getTime() > life0 && m.start.getTime() < life1);
   const sel = selection?.kind === 'dasha' ? selection.period : null;
 
-  const Row = ({ periods, a, b, active, onPick, label }: { periods: DashaPeriod[]; a: number; b: number; active: DashaPeriod | null; onPick: (p: DashaPeriod) => void; label: string }) => (
+  const Row = ({ periods, a, b, active, onPick, label, fine }: { periods: DashaPeriod[]; a: number; b: number; active: DashaPeriod | null; onPick: (p: DashaPeriod) => void; label: string; fine?: boolean }) => (
     <div style={{ marginBottom: 12 }}>
-      <div className="vt-spread" style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}><span>{label}</span><span>{fmtRange(new Date(a), new Date(b))}</span></div>
+      <div className="vt-spread" style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}><span>{label}</span><span>{fine ? fmtFineRange(new Date(a), new Date(b)) : fmtRange(new Date(a), new Date(b))}</span></div>
       <div className="vt-dasha-row">
         {periods.map((p, i) => {
           const s = Math.max(a, p.start.getTime()), e = Math.min(b, p.end.getTime());
@@ -412,7 +437,7 @@ function DashaExplorer({ timeline, chart, selection, onSelect }: { timeline: Tim
           return (
             <button key={i} className="vt-dasha-seg" aria-pressed={sel === p || active === p}
               style={{ flexGrow: share, flexBasis: 0, background: scoreColor(p.score) }}
-              title={`${p.path.join(' – ')}\n${fmtRange(p.start, p.end)}\n${TONE_LABEL[p.tone].label} (${signed(p.score)})`}
+              title={`${p.path.join(' – ')}\n${fine ? fmtFineRange(p.start, p.end) : fmtRange(p.start, p.end)} (${spanLabel(p.start, p.end)})\n${TONE_LABEL[p.tone].label} (${signed(p.score)})`}
               onClick={() => { onPick(p); onSelect({ kind: 'dasha', period: p }); }}>
               {share > 0.045 ? `${GLYPH[p.lord]} ${share > 0.09 ? p.lord : ''}` : ''}
             </button>
@@ -426,8 +451,10 @@ function DashaExplorer({ timeline, chart, selection, onSelect }: { timeline: Tim
   return (
     <div>
       <Row label="Mahadashas across your life" periods={lifeMahas} a={life0} b={life1} active={maha} onPick={(p) => { setMaha(p); setAntar(p.children?.[0] ?? null); }} />
-      {maha?.children && <Row label={`${maha.lord} mahadasha: antardashas`} periods={maha.children} a={maha.start.getTime()} b={maha.end.getTime()} active={antar} onPick={setAntar} />}
-      {antar?.children && <Row label={`${antar.path.join(' – ')}: pratyantardashas`} periods={antar.children} a={antar.start.getTime()} b={antar.end.getTime()} active={null} onPick={() => {}} />}
+      {maha?.children && <Row label={`${maha.lord} mahadasha: antardashas`} periods={maha.children} a={maha.start.getTime()} b={maha.end.getTime()} active={antar} onPick={(p) => { setAntar(p); setPratyantar(p.children?.[0] ?? null); setSookshma(null); }} />}
+      {antar?.children && <Row label={`${antar.path.join(' – ')}: pratyantardashas`} periods={antar.children} a={antar.start.getTime()} b={antar.end.getTime()} active={pratyantar} onPick={(p) => { setPratyantar(p); setSookshma(null); }} />}
+      {pratyantar && sookshmas.length > 0 && <Row fine label={`${pratyantar.path.join(' – ')}: sookshmas`} periods={sookshmas} a={pratyantar.start.getTime()} b={pratyantar.end.getTime()} active={openSookshma} onPick={setSookshma} />}
+      {openSookshma && pranas.length > 0 && <Row fine label={`${openSookshma.path.join(' – ')}: pranas`} periods={pranas} a={openSookshma.start.getTime()} b={openSookshma.end.getTime()} active={null} onPick={() => {}} />}
       <div className="vt-legend">
         <span><i style={{ background: scoreColor(60) }} />Strong, supportive lord</span>
         <span><i style={{ background: scoreColor(0) }} />Mixed</span>
@@ -526,8 +553,28 @@ function AshtakavargaGrid({ timeline, chart }: { timeline: Timeline; chart: Nata
 }
 
 // ---------------------------------------------------------------------------
-function WindowsCard({ timeline, selection, onSelect }: { timeline: Timeline; selection: Selection; onSelect: (s: Selection) => void }) {
+function downloadText(text: string, filename: string, type: string) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function WindowsCard({ timeline, selection, onSelect, name, calendarId, actions }: { timeline: Timeline; selection: Selection; onSelect: (s: Selection) => void; name?: string; calendarId?: string; actions?: React.ReactNode }) {
   const now = new Date();
+  const [withHard, setWithHard] = useState(false);
+  const exportIcs = () => {
+    const slug = (name || 'chart').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'chart';
+    const ics = windowsToIcs(timeline.windows, {
+      name: `${name ? `${name}: ` : ''}astrology windows`, person: name, uidSeed: calendarId,
+      tones: withHard ? ['favourable', 'challenging'] : ['favourable'],
+    });
+    downloadText(ics, `${slug}-windows.ics`, 'text/calendar;charset=utf-8');
+  };
   const upcoming = timeline.windows.filter((w) => w.end > now);
   const good = upcoming.filter((w) => w.tone === 'favourable').slice(0, 4);
   const bad = upcoming.filter((w) => w.tone === 'challenging').slice(0, 4);
@@ -545,6 +592,13 @@ function WindowsCard({ timeline, selection, onSelect }: { timeline: Timeline; se
       <div className="vt-list">{good.length ? good.map(item) : <span className="vt-muted">None stand out in this range. Try a longer range.</span>}</div>
       <h3>▼ Times to go carefully</h3>
       <div className="vt-list">{bad.length ? bad.map(item) : <span className="vt-muted">None stand out in this range.</span>}</div>
+      <h3>Take them with you</h3>
+      <div className="vt-row">
+        <button className="vt-btn" onClick={exportIcs} disabled={!upcoming.some((w) => withHard || w.tone === 'favourable')} title="All-day events with a 9 am reminder, for Google, Apple or Outlook calendars">Add to calendar (.ics)</button>
+        {actions}
+      </div>
+      <label className="vt-check" style={{ marginTop: 8 }}><input type="checkbox" checked={withHard} onChange={(e) => setWithHard(e.target.checked)} /> Include the times to go carefully</label>
+      <p className="vt-sub" style={{ margin: '6px 0 0' }}>The file covers the upcoming windows in the selected range. Importing it again updates the same events.</p>
     </section>
   );
 }

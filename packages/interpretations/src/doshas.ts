@@ -5,12 +5,13 @@ import { aspectsPlanet, houseFromPlanet, houseOf, isStrong, sameSign } from './c
 import type { ChartInput, DoshaDefinition, DoshaResult, HouseNumber, PlanetId, Reading } from './types';
 import { SEVEN_PLANETS } from './types';
 import { localizer, type LocaleOptions, type Localizer } from './i18n/context';
+import { DOSHA_SOURCES } from './sources';
 
 const r = (id: string, title: string, summary: string, detail: string[], strengths: string[], challenges: string[], remedies: string[], score: number): Reading => ({
   id: `dosha:${id}`, title, summary, detail, strengths, challenges, keywords: ['dosha'], tone: 'challenging', score, remedies,
 });
 
-export const DOSHA_DEFINITIONS: Record<string, DoshaDefinition> = {
+const RAW_DOSHAS: Record<string, Omit<DoshaDefinition, 'source'>> = {
   manglik: {
     id: 'manglik', name: 'Manglik Dosha', aka: ['Kuja Dosha', 'Mangal Dosha', 'Bhauma Dosha'],
     rule: 'Mars in the 1st, 2nd, 4th, 7th, 8th or 12th house from the ascendant (also checked from the Moon and Venus).',
@@ -79,6 +80,13 @@ export const DOSHA_DEFINITIONS: Record<string, DoshaDefinition> = {
     ], ['spiritual potential', 'transformation'], ['early difficulty', 'emotional knots'], ['Ganesha worship', 'Mantras for the nakshatra lord', 'Therapeutic and spiritual practice'], -1),
   },
 };
+
+export const DOSHA_DEFINITIONS: Record<string, DoshaDefinition> = Object.fromEntries(
+  Object.entries(RAW_DOSHAS).map(([id, d]) => {
+    const source = DOSHA_SOURCES[id] ?? null;
+    return [id, { ...d, source, reading: { ...d.reading, source } }];
+  }),
+);
 
 /** A dosha definition with its name, rule and reading in the given language (English where untranslated). */
 export function localizedDosha(id: string, loc: Localizer = localizer('en')): DoshaDefinition {

@@ -43,13 +43,12 @@ export function StrengthSection({ strength }: { strength: ChartStrength }) {
         <div>
           <h4 className="sb-title">Total strength in rupas</h4>
           <p className="sb-note muted">The bar is the planet's total. The white tick is the minimum Parashara asks of that planet. Click a planet for its breakdown.</p>
-          <div className="sb-bars" role="list">
+          <div className="sb-bars">
             {rows.map((r) => {
               const info = PLANET_BY_ID[r.planet];
               return (
                 <button
                   key={r.planet}
-                  role="listitem"
                   className={`sb-row ${sel === r.planet ? 'is-selected' : ''}`}
                   onClick={() => setSel(r.planet)}
                   aria-pressed={sel === r.planet}

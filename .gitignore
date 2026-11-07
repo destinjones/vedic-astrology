@@ -8,3 +8,7 @@ coverage/
 blender/.logs/
 __pycache__/
 sync-data/
+.lighthouseci/
+test-results/
+playwright-report/
+dist-pkg/
