@@ -74,7 +74,7 @@ export default defineConfig({
   plugins: [react(), swissEphAssets(), cosmosAssets()],
   build: {
     rollupOptions: {
-      input: { landing: join(here, 'index.html'), app: join(here, 'app/index.html'), compare: join(here, 'compare/index.html'), match: join(here, 'match/index.html') },
+      input: { landing: join(here, 'index.html'), app: join(here, 'app/index.html'), compare: join(here, 'compare/index.html'), match: join(here, 'match/index.html'), tools: join(here, 'tools/index.html') },
     },
   },
   server: { fs: { allow: ['../..'] } },
