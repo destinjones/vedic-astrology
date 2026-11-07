@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How it works · Jyotisha Explorer</title>
+    <meta name="description" content="How Jyotisha Explorer calculates a Vedic chart, step by step: time zones, Julian Day, the Swiss Ephemeris, the ayanamsa subtraction, signs, nakshatras, vargas and dashas." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href="https://destinjones.github.io/vedic-astrology/how-it-works/" />
+    <meta name="theme-color" content="#0b0a1a" />
+    <script type="module" src="/src/trust/page.ts"></script>
+  </head>
+  <body>
+    <header class="doc-nav">
+      <a class="wordmark" href="%BASE_URL%">✦ Jyotisha Explorer</a>
+      <nav>
+        <a href="%BASE_URL%app/">Birth chart</a>
+        <a href="%BASE_URL%check/">Check our numbers</a>
+        <a href="%BASE_URL%privacy/">Privacy</a>
+      </nav>
+    </header>
+
+    <main class="doc">
+      <h1>How it works</h1>
+      <p class="lede">
+        Every chart on this site comes from the same pipeline, run in your browser, in this order. Nothing is looked up from
+        a table of pre-made charts and nothing is sent to a server. If you want to redo any step yourself, the
+        <a href="%BASE_URL%check/">check page</a> prints each of these numbers for your own chart.
+      </p>
+
+      <h2>The receipts</h2>
+      <div class="grid2">
+        <div class="box">
+          <h3>A real ephemeris</h3>
+          <p>Positions come from the Swiss Ephemeris, the same library behind Astro.com, Jagannatha Hora and most serious astrology software, compiled to WebAssembly and running on your own device.</p>
+        </div>
+        <div class="box">
+          <h3>Tested against the sky</h3>
+          <p>The test suite checks real events: Mercury's stations of April and May 2024, Saturn entering sidereal Pisces in March 2025, Jupiter entering Gemini in May 2025, and every planet against a second, independent ephemeris.</p>
+        </div>
+        <div class="box">
+          <h3>Your birth data stays home</h3>
+          <p>The chart is worked out in your browser and saved only there. The <a href="%BASE_URL%privacy/">privacy page</a> lists the only two things that ever leave, and every page has a network log to prove it.</p>
+        </div>
+        <div class="box">
+          <h3>Read every line</h3>
+          <p>All the code, every rule and every reading is public under the AGPL. Disagree with a yoga rule? <a href="https://github.com/destinjones/vedic-astrology">Open the file</a> and show us.</p>
+        </div>
+      </div>
+
+      <h2>The pipeline</h2>
+      <ol class="pipeline">
+        <li>
+          <b>Your birth details</b>
+          A date, the time the local clock showed, and a place. The place becomes a latitude and longitude, either from the
+          town search or typed by hand.
+        </li>
+        <li>
+          <b>The clock's offset from Universal Time</b>
+          The time zone comes from the coordinates, using an offline map of zone borders. The offset in force on that date,
+          daylight saving and war time included, comes from the IANA time zone database (the one your phone uses). Before a
+          place kept standard time its clocks followed the Sun, so for those years the offset is the town's own local mean
+          time: its longitude divided by 15, in hours. You can always override the offset by hand.
+        </li>
+        <li>
+          <b>Universal Time and the Julian Day</b>
+          Local time minus the offset gives Universal Time, which is turned into a Julian Day, a plain count of days used by
+          every ephemeris. The engine also applies ΔT, the gap of about a minute between clock time and the steady time the
+          planets keep, because the Earth's spin is slightly irregular.
+        </li>
+        <li>
+          <b>Tropical positions from the Swiss Ephemeris</b>
+          For each graha the Swiss Ephemeris returns its geocentric apparent longitude, measured along the ecliptic from the
+          true spring equinox of that date. This is the "tropical" longitude that Western programs print. Dates from 1800 to
+          2399 use the bundled Swiss Ephemeris files; earlier or later dates use its built-in Moshier model, still accurate to
+          a fraction of an arc second for the planets. Rahu is the Moon's mean node by default (the true node is an option),
+          and Ketu is exactly opposite.
+        </li>
+        <li>
+          <b>Subtract the ayanamsa</b>
+          The equinox drifts backwards against the stars by about 50 arc seconds a year. The ayanamsa is how far it has
+          drifted, and subtracting it turns a tropical position into a sidereal (Vedic) one. The default is Lahiri
+          (Chitrapaksha), the standard of the Indian government's calendar committee; True Chitra, B.V. Raman and
+          Krishnamurti are also offered.
+          <p>One detail most explanations skip: the tropical position is measured from the <i>true</i> equinox, which nods by
+          up to 17 arc seconds on an 18.6-year cycle (nutation). So the amount subtracted is the mean ayanamsa plus that nod.
+          For the sample chart (15 August 1990, 6:30 am, New Delhi) the Sun works out as:</p>
+          <div class="formula">tropical Sun                    141.964948°
+mean Lahiri ayanamsa           − 23.726051°
+nutation in longitude           − 0.004067°   (14.6″)
+───────────────────────────────────────────
+sidereal Sun                    118.234830°   = Cancer 28°14′05″</div>
+          <p>The planet table in the explorer shows this last number, to four decimals, for every planet, so you can compare it with any other program.</p>
+        </li>
+        <li>
+          <b>The ascendant</b>
+          The degree of the zodiac rising on the eastern horizon at the birth place and moment, from the Swiss Ephemeris
+          house routine, in the same sidereal frame. Houses are whole signs: the rising sign is the first house, the next
+          sign the second, and so on.
+        </li>
+        <li>
+          <b>Sign, degree, nakshatra and pada</b>
+          Plain arithmetic on the sidereal longitude. The sign is <span class="mono">floor(longitude ÷ 30) + 1</span> and the
+          degree is what is left. Each of the 27 nakshatras spans 13°20′ and each of its four padas 3°20′, so the Sun at
+          118.2348° is in nakshatra <span class="mono">floor(118.2348 ÷ 13.3333) + 1 = 9</span>, Ashlesha, in its fourth pada.
+        </li>
+        <li>
+          <b>Divisional charts</b>
+          Each of the sixteen vargas, from D1 to D60, divides every sign into equal parts and maps each part to a sign by
+          the rules of Brihat Parashara Hora Shastra. They are all computed from the sidereal longitudes above, so a varga can
+          never disagree with the birth chart's degrees.
+        </li>
+        <li>
+          <b>Dashas</b>
+          Vimshottari starts from the Moon's nakshatra: how far the Moon has travelled through it sets how much of the first
+          period was already used up at birth. The year length is 365.2425 days. Yogini, Ashtottari and Kalachakra follow
+          their own classical rules from the same Moon.
+        </li>
+        <li>
+          <b>Strength, yogas, doshas and readings</b>
+          Shadbala, ashtakavarga, the 44 yogas and the 9 doshas are rules applied to the positions above. Each finding is
+          shown with the exact reason it formed or was cancelled, and every rule and reading is a file in the
+          <a href="https://github.com/destinjones/vedic-astrology/tree/main/packages">source</a>.
+        </li>
+      </ol>
+
+      <h2>Why your numbers might differ from another program</h2>
+      <ul>
+        <li><b>A different ayanamsa.</b> Raman or KP differ from Lahiri by a constant few arc minutes to a degree and a half.</li>
+        <li><b>Tropical against sidereal.</b> About 24° on every planet means one of the two charts is Western.</li>
+        <li><b>Mean against true node.</b> Rahu and Ketu can differ by up to about 1°45′.</li>
+        <li><b>The birth time or place.</b> The ascendant moves about a degree every four minutes, the Moon about half an arc minute every minute.</li>
+        <li><b>The time zone in old records.</b> Before standard time, or in war years, two programs may read the same clock time differently. The engine shows when it used local mean time.</li>
+      </ul>
+      <p>
+        The <a href="%BASE_URL%check/">check page</a> takes positions pasted from Astro.com, Jagannatha Hora or anything else
+        and shows the difference in arc minutes, with these explanations beside the numbers.
+      </p>
+
+      <h2>What this does not prove</h2>
+      <p>
+        Accurate positions are astronomy. What they mean is astrology, a traditional practice and not a science, and
+        calculating it carefully does not make a reading come true. Readings and scores show what the tradition says, for
+        reflection, and are not medical, legal or financial advice.
+      </p>
+    </main>
+
+    <footer class="doc-foot">
+      <p><a href="%BASE_URL%">Home</a> · <a href="%BASE_URL%privacy/">Privacy</a> · <a href="%BASE_URL%check/">Check our numbers</a> · <a href="https://github.com/destinjones/vedic-astrology">Source</a> · <a href="https://github.com/destinjones/vedic-astrology/blob/main/LICENSE">AGPL-3.0</a> · Positions by <a href="https://www.astro.com/swisseph/">Swiss Ephemeris</a></p>
+      <p class="mono" data-build></p>
+    </footer>
+  </body>
+</html>

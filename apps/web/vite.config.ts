@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process'
 import { createReadStream, readdirSync, readFileSync, statSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, extname, join, relative, resolve, sep } from 'node:path'
@@ -122,16 +123,48 @@ function learnPagesPlugin(): Plugin {
   }
 }
 
-export default defineConfig({
+/**
+ * What the footer prints: the Swiss Ephemeris version actually compiled into
+ * the WASM, the wrapper and engine versions, the commit and the build date.
+ * Anyone can then match a deployed page to a tag and a known ephemeris.
+ */
+async function buildInfo() {
+  const pkg = (name: string) => JSON.parse(readFileSync(require.resolve(`${name}/package.json`), 'utf8')) as { version: string }
+  let swissEphemeris = 'unknown'
+  try {
+    const { default: SwissEph } = await import('swisseph-wasm')
+    const swe = new SwissEph()
+    await swe.initSwissEph()
+    swissEphemeris = swe.version()
+    swe.close()
+  } catch { /* fall back to 'unknown'; the footer still shows the wrapper version */ }
+  let commit = process.env.GITHUB_SHA ?? ''
+  if (!commit) {
+    try { commit = execSync('git rev-parse HEAD', { cwd: here, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim() } catch { /* not a git checkout */ }
+  }
+  return {
+    swissEphemeris,
+    wrapper: pkg('swisseph-wasm').version,
+    engine: JSON.parse(readFileSync(join(here, '../../packages/engine/package.json'), 'utf8')).version as string,
+    commit: commit.slice(0, 12),
+    builtAt: new Date().toISOString(),
+  }
+}
+
+export default defineConfig(async () => ({
+  define: { __BUILD_INFO__: JSON.stringify(await buildInfo()) },
   // GitHub Pages serves the site from /vedic-astrology/; the workflow sets VITE_BASE.
   base: process.env.VITE_BASE ?? '/',
   plugins: [react(), swissEphAssets(), cosmosAssets(), learnPagesPlugin()],
   build: {
     rollupOptions: {
-      input: { landing: join(here, 'index.html'), app: join(here, 'app/index.html'), compare: join(here, 'compare/index.html'), match: join(here, 'match/index.html'), tools: join(here, 'tools/index.html'), learn: join(here, 'src/learn/style.ts') },
+      input: { landing: join(here, 'index.html'), app: join(here, 'app/index.html'), compare: join(here, 'compare/index.html'), match: join(here, 'match/index.html'), tools: join(here, 'tools/index.html'),
+        privacy: join(here, 'privacy/index.html'), howItWorks: join(here, 'how-it-works/index.html'), check: join(here, 'check/index.html'),
+        learn: join(here, 'src/learn/style.ts'),
+      },
     },
   },
   server: { fs: { allow: ['../..'] } },
   // swisseph-wasm loads its .wasm/.data relative to its own module URL
   optimizeDeps: { exclude: ['swisseph-wasm'] },
-})
+}))

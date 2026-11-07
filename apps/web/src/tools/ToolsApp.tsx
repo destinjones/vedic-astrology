@@ -4,6 +4,7 @@ import { useEngine } from './shared';
 import { KpTool } from './KpTool';
 import { PrashnaTool } from './PrashnaTool';
 import { MuhurtaTool } from './MuhurtaTool';
+import { TrustFooter } from '../trust/TrustFooter';
 
 type Tab = 'kp' | 'prashna' | 'muhurta';
 const TABS: { id: Tab; label: string; blurb: string }[] = [
@@ -66,6 +67,7 @@ export default function ToolsApp() {
       <footer className="foot muted">
         <p>KP uses the Krishnamurti ayanamsa and Placidus houses (Porphyry above the polar circles). Muhurta uses Lahiri, like most printed panchangas.</p>
         <p>Astrology is a traditional practice, not a science. These tools are for reflection and for learning the methods, and nothing here is medical, legal or financial advice. Everything is calculated in your browser.</p>
+        <TrustFooter />
       </footer>
     </div>
   );

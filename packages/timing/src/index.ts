@@ -10,3 +10,4 @@ export * from './timeline';
 export { createAstronomyEphemeris, lahiriAyanamsa, siderealLongitude, ascendantSidereal } from './adapters/astronomyEphemeris';
 export * from './lifeEvents';
 export * from './search';
+export * from './doubleTransit';

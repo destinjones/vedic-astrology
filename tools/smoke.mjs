@@ -29,7 +29,7 @@ try {
   if (offsite.size) problems.push(`landing page called other sites: ${[...offsite].join(', ')}`);
 
   // the other pages render (a page error is recorded by the handler above)
-  for (const p of ['compare/', 'match/', 'tools/']) {
+  for (const p of ['compare/', 'match/', 'tools/', 'check/']) {
     await page.goto(`${url}${BASE}${p}`, { waitUntil: 'networkidle' });
     if (!(await page.locator('#root').innerText()).trim()) problems.push(`${p}: page is blank`);
   }
@@ -46,6 +46,14 @@ try {
   }
   const terms = await page.locator('.gloss > div').count();
   if (terms < 200) problems.push(`glossary has only ${terms} terms`);
+  // the trust pages are static HTML and must not call any other site
+  for (const [p, h] of [['privacy/', 'Privacy'], ['how-it-works/', 'How it works']]) {
+    offsite.clear();
+    await page.goto(`${url}${BASE}${p}`, { waitUntil: 'networkidle' });
+    if (!(await page.locator('h1').innerText()).includes(h)) problems.push(`${p}: headline missing`);
+    if (!(await page.locator('[data-build]').innerText()).includes('Swiss Ephemeris')) problems.push(`${p}: build line missing`);
+    if (offsite.size) problems.push(`${p} called other sites: ${[...offsite].join(', ')}`);
+  }
 
   await page.goto(`${url}${BASE}app/#sample`);
   await page.waitForSelector('.summary-strip', { timeout: 60000 });
@@ -53,6 +61,16 @@ try {
   if (await page.locator('.preview-banner').count()) problems.push('app fell back to the preview calculator: the Swiss Ephemeris did not load');
   const lagna = await page.locator('.summary-item').first().innerText();
   if (!lagna.includes('Leo')) problems.push(`sample chart lagna should be Leo, got: ${lagna}`);
+
+  // panchanga, planet condition and the bhava chalit switch
+  const panch = await page.locator('#panchanga').innerText();
+  if (!/tithi/i.test(panch) || !/nakshatra/i.test(panch)) problems.push('panchanga card missing its limbs');
+  if (!(await page.locator('#condition .planet-table tbody tr').count())) problems.push('planet condition table is empty');
+  await page.locator('.chalit button', { hasText: 'Sripati' }).click();
+  await page.waitForSelector('.chalit-note', { timeout: 10000 });
+  await page.locator('.chalit button', { hasText: 'Rashi' }).click();
+  await page.locator('#junctions').scrollIntoViewIfNeeded();
+  await page.waitForSelector('#junctions .dt-table', { timeout: 60000 });
 
   await page.locator('#jaimini').scrollIntoViewIfNeeded();
   await page.waitForSelector('#jaimini .jm-karakas', { timeout: 60000 });
@@ -126,4 +144,4 @@ if (problems.length) {
   console.error(`Site check failed:\n- ${problems.join('\n- ')}`);
   process.exit(1);
 }
-console.log('Site check passed: landing page, engine, readings, Jaimini, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, saved charts and share links all work.');
+console.log('Site check passed: landing page, engine, readings, panchanga, bhava chalit, planet condition, dasha junctions, Jaimini, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, saved charts and share links all work.');

@@ -28,16 +28,21 @@ import type { Command } from './lib/commands';
 import { compareHash } from './compare/sources';
 
 import { YogaDoshaCard } from './components/YogaDoshaCard';
+import { ChalitControl } from './components/ChalitControl';
+import { chalitHouses, withChalit, type HouseMode } from './lib/chalit';
+import { PanchangaCard } from './components/PanchangaCard';
+import { ConditionCard } from './components/ConditionCard';
 import { StrengthSection } from './components/StrengthSection';
 import { ReportActions } from './components/ReportActions';
 import { FamousCharts } from './components/FamousCharts';
-import { FAMOUS_CHARTS, famousChartById, RODDEN_MEANING } from './data/famousCharts';
+import { FAMOUS_CHARTS, famousChartById, famousErrorReportUrl, RODDEN_MEANING } from './data/famousCharts';
 import { loadKnowledge, type Knowledge } from './lib/readings';
 import { useI18n } from './i18n';
 import { ayanamsaName } from './i18n/names';
 import { LOCALE_BY_CODE } from '@vedic/i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { trackEvent, trackOnce } from './lib/analytics';
+import { TrustFooter } from './trust/TrustFooter';
 
 const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
@@ -45,6 +50,7 @@ const EventChecker = lazy(() => import('./components/EventChecker'));
 const JaiminiSection = lazy(() => import('./components/JaiminiSection'));
 const RectificationSection = lazy(() => import('./components/RectificationSection'));
 const VarshaphalSection = lazy(() => import('./components/VarshaphalSection'));
+const ClassicalTiming = lazy(() => import('./components/ClassicalTiming').then((m) => ({ default: m.ClassicalTiming })));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
 function WhenVisible({ children, minHeight }: { children: React.ReactNode; minHeight: number }) {
@@ -91,6 +97,12 @@ export default function App() {
   };
   const [hoverPlanet, setHoverPlanet] = useState<PlanetId | null>(null);
   const [wheelMode, setWheelMode] = useState<WheelMode>('art');
+  // rashi (whole sign) or a bhava chalit chart; readings follow whichever is shown
+  const [houseMode, setHouseMode] = useState<HouseMode>(() => {
+    try { const m = localStorage.getItem('vedic.houseMode'); if (m === 'sripati' || m === 'equal') return m; } catch { /* ignore */ }
+    return 'rashi';
+  });
+  useEffect(() => { try { localStorage.setItem('vedic.houseMode', houseMode); } catch { /* ignore */ } }, [houseMode]);
   const [knowledge, setKnowledge] = useState<Knowledge | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>(loadProfiles);
   // bumped to remount the form with new initial values (editing a saved chart)
@@ -172,9 +184,10 @@ export default function App() {
     setKnowledge(null);
     if (!chart?.engineContext) return;
     let live = true;
-    loadKnowledge(chart.engineContext.chart, locale).then((k) => { if (live) setKnowledge(k); }).catch((e) => console.error('Readings unavailable', e));
+    const bhava = houseMode === 'rashi' ? undefined : chalitHouses(chart.engineContext.chart.bhavaChalit[houseMode]);
+    loadKnowledge(chart.engineContext.chart, locale, bhava).then((k) => { if (live) setKnowledge(k); }).catch((e) => console.error('Readings unavailable', e));
     return () => { live = false; };
-  }, [chart, locale]);
+  }, [chart, locale, houseMode]);
 
   // /app/#sample opens the sample chart straight away (the landing page links here),
   // and a share link (/app/#d=…&t=…) opens the chart it carries.
@@ -392,7 +405,8 @@ export default function App() {
          { id: 'birth.focus', group: 'Chart', title: 'Enter birth details', shortcut: 'e', keywords: 'form new chart', run: () => { jumpTo('intake'); editBirth(); } }]),
   ];
 
-  const varga = chart ? getVarga(chart, vargaId) : null;
+  const chalit = chart?.engineContext && houseMode !== 'rashi' ? chart.engineContext.chart.bhavaChalit[houseMode] : null;
+  const varga = chart ? withChalit(getVarga(chart, vargaId), vargaId === 'D1' ? chalit : null) : null;
   const moon = chart?.planets.find((p) => p.id === 'moon');
   const sun = chart?.planets.find((p) => p.id === 'sun');
 
@@ -526,6 +540,10 @@ export default function App() {
                     ? <a className="muted" href={famous.sourceUrl} target="_blank" rel="noopener noreferrer">{famous.source}</a>
                     : <span className="muted">{famous.source}</span>}
                 </b>
+                <span className="summary-sub muted">
+                  {famous.field}, as of {famous.asOf} ·{' '}
+                  <a href={famousErrorReportUrl(famous)} target="_blank" rel="noopener noreferrer">Report an error</a>
+                </span>
               </div>
             )}
           </section>
@@ -540,6 +558,7 @@ export default function App() {
                 </div>
               </div>
               <VargaSwitcher value={vargaId} onChange={setVargaId} />
+              {chart.engineContext && vargaId === 'D1' && <ChalitControl mode={houseMode} onChange={setHouseMode} chalit={chalit} />}
               <div className="chart-stage" onMouseLeave={() => setHoverPlanet(null)}>
                 {style === 'north' ? (
                   <NorthChart chart={chart} varga={varga} selection={selection} hoverPlanet={hoverPlanet} onSelect={pick} onHoverPlanet={setHoverPlanet} />
@@ -557,6 +576,12 @@ export default function App() {
           </div>
 
           {knowledge && <YogaDoshaCard report={knowledge.report} />}
+
+          {chart.engineContext && (
+            <PanchangaCard key={chart.engineContext.chart.meta.utc} engine={chart.engineContext.engine} chart={chart.engineContext.chart} />
+          )}
+
+          {chart.engineContext && <ConditionCard key={`c${chart.engineContext.chart.meta.utc}`} chart={chart.engineContext.chart} />}
 
           {chart.engineContext?.chart.strength && <StrengthSection strength={chart.engineContext.chart.strength} />}
 
@@ -590,6 +615,17 @@ export default function App() {
           </div>
 
           {chart.dasha && <DashaCard chart={chart} />}
+
+          {chart.engineContext && (
+            <section className="card" id="junctions">
+              <div className="card-head"><h3>Dasha junctions and double transits</h3><span className="muted">sandhi, chidra and Jupiter with Saturn on each house</span></div>
+              <WhenVisible minHeight={260}>
+                <Suspense fallback={<div className="sky-overlay static">Finding the junctions…</div>}>
+                  <ClassicalTiming key={chart.engineContext.chart.meta.utc} engine={chart.engineContext.engine} chart={chart.engineContext.chart} />
+                </Suspense>
+              </WhenVisible>
+            </section>
+          )}
 
           {chart.engineContext && (
             <section className="card" id="jaimini">
@@ -676,6 +712,8 @@ export default function App() {
           agpl: <a href="https://github.com/destinjones/vedic-astrology/blob/main/LICENSE">AGPL-3.0</a>,
           source: <a href="https://github.com/destinjones/vedic-astrology">{t('footer.getSource')}</a>,
         })}</p>
+        <p>{rich('footer.mapTiles', { osm: <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> })}</p>
+        <TrustFooter />
       </footer>
     </div>
   );
