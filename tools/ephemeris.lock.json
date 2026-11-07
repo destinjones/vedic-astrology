@@ -1,0 +1,9 @@
+{
+  "package": "swisseph-wasm@0.1.0",
+  "sha256": {
+    "wasm/swisseph.wasm": "a6e5f53cc39bac07f44b4ce54e5f90f6bd1e25b6d20df2ea0bc4c1374d09842c",
+    "wasm/swisseph.data": "1aac44b2ea3dfe668a063ed29dada99a7a96d8fa22fdce626cdf9e270b084ed0",
+    "wasm/swisseph.js": "f645827dc8620c058101aa2373bd1254c679c2eeb5a6a80e97a1528bfac5df36"
+  },
+  "swissEphemeris": "2.10.03"
+}

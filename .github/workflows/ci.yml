@@ -28,6 +28,8 @@ jobs:
       - name: Dependency licences are compatible with AGPL-3.0-or-later
         run: npm run licenses
       - run: npm run typecheck
+      - run: npm run content:check
+      - run: npm run verify:ephemeris
       - run: npm test
       - name: Build the site
         run: |
@@ -36,6 +38,8 @@ jobs:
           npm run verify:build
       - name: Bundle size budget
         run: npm run size
+      - name: Check that @vedic/engine packs and imports (does not publish)
+        run: npm run pack -w @vedic/engine
       - run: npx playwright install --with-deps chromium
       - name: Site check and accessibility (axe-core)
         run: npm run smoke

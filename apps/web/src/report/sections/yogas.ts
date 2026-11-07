@@ -1,4 +1,4 @@
-import { DOSHA_DEFINITIONS, YOGA_DEFINITIONS } from '@vedic/interpretations';
+import { DOSHA_DEFINITIONS, YOGA_DEFINITIONS, formatSource, type RuleSource } from '@vedic/interpretations';
 import type { ReportDoc } from '../doc';
 import { cap, list } from '../format';
 import { C } from '../theme';
@@ -9,6 +9,13 @@ const CATEGORY: Record<string, string> = {
   lunar: 'Lunar yoga', solar: 'Solar yoga', nabhasa: 'Nabhasa yoga · pattern', parivartana: 'Parivartana · exchange',
   viparita: 'Viparita raja yoga · reversal', 'neecha-bhanga': 'Neecha bhanga · cancelled weakness', spiritual: 'Spiritual yoga',
   arishta: 'Arishta yoga · caution', other: 'Yoga',
+};
+
+/** "Classical source: BPHS 37.7–10; Phaladeepika 6.5." or the reason there is none. */
+const sourceLine = (s?: RuleSource | null): string[] => {
+  if (!s) return [];
+  if (s.citations.length) return [`Classical source: ${formatSource(s)}.`];
+  return s.nonClassical ? [`Classical source: none found. ${s.nonClassical}`] : [];
 };
 
 export function yogas(doc: ReportDoc, ctx: ReportContext, h: SectionHelpers) {
@@ -34,7 +41,10 @@ export function yogas(doc: ReportDoc, ctx: ReportContext, h: SectionHelpers) {
       body: [y.reason, y.reading.summary, ...y.reading.detail.slice(0, 1)],
       edge: y.category === 'arishta' ? C.bad : y.strength === 'strong' ? C.good : C.gold,
       tint: y.strength === 'strong' ? C.goodPale : C.paperDeep,
-      bullets: y.involved.length ? [`Planets: ${list(y.involved.map(cap))}${y.houses.length ? `; houses ${y.houses.join(', ')}` : ''}.`] : undefined,
+      bullets: [
+        ...(y.involved.length ? [`Planets: ${list(y.involved.map(cap))}${y.houses.length ? `; houses ${y.houses.join(', ')}` : ''}.`] : []),
+        ...sourceLine(y.reading.source),
+      ],
     });
   });
 
@@ -48,7 +58,7 @@ export function yogas(doc: ReportDoc, ctx: ReportContext, h: SectionHelpers) {
       body: [d.reason, d.reading.summary, ...d.reading.detail.slice(0, 1), ...(d.cancellations.length ? [`What softens it: ${d.cancellations.join('; ')}.`] : [])],
       edge: d.severity === 'cancelled' || d.severity === 'low' ? C.mixed : C.bad,
       tint: d.severity === 'cancelled' || d.severity === 'low' ? C.mixedPale : C.badPale,
-      bullets: d.reading.remedies?.slice(0, 4),
+      bullets: [...(d.reading.remedies?.slice(0, 4) ?? []), ...sourceLine(d.reading.source)],
     });
   });
   if (clear.length) {

@@ -10,8 +10,10 @@ import {
 } from './chart-utils';
 import { conjunctionKey } from './data/conditions';
 import { PLANET_PROFILES } from './data/planets';
+import { PLANET_IN_NAKSHATRA_TEXT } from './data/generated/content';
 import { detectDoshas } from './doshas';
 import { localizer, type LocaleOptions } from './i18n/context';
+import { READING_SOURCES } from './sources';
 import type { ChartInput, Dignity, DoshaResult, PlanetId, Reading, Tone, YogaResult } from './types';
 import { PLANETS } from './types';
 import { detectYogas } from './yogas';
@@ -54,6 +56,7 @@ export function getPlanetInSign(planet: PlanetId, sign: number, dignity?: Dignit
     keywords: [...s.themes.slice(0, 2), ...pr.significations.slice(0, 2), dig],
     tone: toneOf(score),
     score,
+    source: READING_SOURCES.planetInSign,
   };
 }
 
@@ -77,6 +80,7 @@ export function getPlanetInHouse(planet: PlanetId, house: number, opts?: LocaleO
     keywords: [h.label, ...h.groups, pr.name.toLowerCase()],
     tone: toneOf(score),
     score,
+    source: READING_SOURCES.planetInHouse,
   };
 }
 
@@ -100,13 +104,30 @@ export function getPlanetInNakshatra(planet: PlanetId, nakshatra: number, pada?:
     relation = L.ph.nakRelNeutral(lord.name, pr.name);
   }
   const ganaScore = n.gana === 'deva' ? 0.5 : n.gana === 'rakshasa' ? -0.5 : 0;
-  const score = clamp(relScore + ganaScore);
+  // A hand-written reading's score holds in every language, so a chart's findings do not depend on the reading language.
+  const authored = PLANET_IN_NAKSHATRA_TEXT[planet]?.[n.number];
+  const written = L.locale === 'en' ? authored : undefined;
+  const score = authored?.score ?? clamp(relScore + ganaScore);
+  const padaLine = pada && pada >= 1 && pada <= 4 ? [L.ph.nakPada(pada, n.padas[pada - 1])] : [];
+  if (written) {
+    return {
+      id: `nakshatra:${planet}:${n.id}${pada ? `:${pada}` : ''}`,
+      title: L.ph.nakTitle(pr.name, n.name, pada),
+      summary: written.summary,
+      detail: [...written.detail, ...padaLine],
+      strengths: written.strengths,
+      challenges: written.challenges,
+      keywords: [...n.keywords, n.gana, n.motivation],
+      tone: toneOf(score),
+      score,
+    };
+  }
   const detail = [
     L.ph.nakColours(n.name, L.lens(planet, PLANET_LENS[planet]), n.description),
     L.ph.nakRuled({ lord: lord.name, deity: n.deity, symbol: n.symbol, shakti: n.shakti, relation }),
     L.ph.nakWorks({ planet: pr.name, high: pr.highExpression, gifts: two(L, n.gifts), shadows: two(L, n.shadows), low: pr.lowExpression }),
   ];
-  if (pada && pada >= 1 && pada <= 4) detail.push(L.ph.nakPada(pada, n.padas[pada - 1]));
+  detail.push(...padaLine);
   return {
     id: `nakshatra:${planet}:${n.id}${pada ? `:${pada}` : ''}`,
     title: L.ph.nakTitle(pr.name, n.name, pada),
@@ -117,6 +138,7 @@ export function getPlanetInNakshatra(planet: PlanetId, nakshatra: number, pada?:
     keywords: [...n.keywords, n.gana, n.motivation],
     tone: toneOf(score),
     score,
+    source: READING_SOURCES.nakshatra,
   };
 }
 
@@ -136,13 +158,14 @@ export function getHouseLordIn(lordOf: number, placedIn: number, planet?: Planet
     keywords: [a.label, b.label],
     tone: toneOf(score),
     score,
+    source: READING_SOURCES.houseLord,
   };
 }
 
 export function getRetrograde(planet: PlanetId, opts?: LocaleOptions): Reading {
   const L = localizer(opts?.locale);
   const t = L.retrograde(planet);
-  return { id: `retro:${planet}`, title: L.ph.retroTitle(L.planetName(planet)), summary: t.summary, detail: [t.detail], strengths: t.strengths, challenges: t.challenges, keywords: L.ph.keywords.retrograde, tone: 'mixed', score: 0 };
+  return { id: `retro:${planet}`, title: L.ph.retroTitle(L.planetName(planet)), summary: t.summary, detail: [t.detail], strengths: t.strengths, challenges: t.challenges, keywords: L.ph.keywords.retrograde, tone: 'mixed', score: 0, source: READING_SOURCES.retrograde };
 }
 
 export function getConjunction(a: PlanetId, b: PlanetId, opts?: LocaleOptions): Reading | null {
@@ -150,7 +173,7 @@ export function getConjunction(a: PlanetId, b: PlanetId, opts?: LocaleOptions): 
   const k = conjunctionKey(a, b);
   const c = L.conjunction(k);
   if (!c) return null;
-  return { id: `conj:${k}`, title: L.ph.conjTitle(L.planetName(a), L.planetName(b)), summary: c[0], detail: [c[1]], strengths: [], challenges: [], keywords: L.ph.keywords.conjunction, tone: toneOf(c[2]), score: c[2] };
+  return { id: `conj:${k}`, title: L.ph.conjTitle(L.planetName(a), L.planetName(b)), summary: c[0], detail: [c[1]], strengths: [], challenges: [], keywords: L.ph.keywords.conjunction, tone: toneOf(c[2]), score: c[2], source: READING_SOURCES.conjunction };
 }
 
 export function getAspect(planet: PlanetId, distance: number, targetHouse: number, opts?: LocaleOptions): Reading {
@@ -170,6 +193,7 @@ export function getAspect(planet: PlanetId, distance: number, targetHouse: numbe
     keywords: L.ph.keywords.aspect,
     tone: toneOf(benefic),
     score: benefic,
+    source: READING_SOURCES.aspect,
   };
 }
 
@@ -202,21 +226,31 @@ export interface ChartInterpretation {
   highlights: { strengths: Reading[]; challenges: Reading[] };
 }
 
-export function interpretChart(chart: ChartInput, opts?: LocaleOptions): ChartInterpretation {
+export interface InterpretOptions extends LocaleOptions {
+  /**
+   * Bhava chalit houses: when given, planet-in-house and house-lord placement
+   * readings follow the bhava a planet occupies instead of its whole-sign house.
+   * Yogas and doshas stay sign-based, as the classical rules are written.
+   */
+  bhavaHouses?: Partial<Record<PlanetId, number>>;
+}
+
+export function interpretChart(chart: ChartInput, opts?: InterpretOptions): ChartInterpretation {
   const L = localizer(opts?.locale);
+  const placedIn = (p: PlanetId) => opts?.bhavaHouses?.[p] ?? houseOf(chart, p);
   const planets = {} as Record<PlanetId, PlanetReport>;
   const placements: Reading[] = [];
   const houseLords: Reading[] = [];
 
   for (let h = 1; h <= 12; h++) {
     const lord = lordOfHouse(chart, h);
-    houseLords.push(getHouseLordIn(h, houseOf(chart, lord), lord, opts));
+    houseLords.push(getHouseLordIn(h, placedIn(lord), lord, opts));
   }
 
   for (const p of PLANETS) {
     const pos = chart.planets[p];
     const dignity = dignityOf(chart, p);
-    const house = houseOf(chart, p);
+    const house = placedIn(p);
     const sign = getPlanetInSign(p, pos.sign, dignity, opts);
     const houseR = getPlanetInHouse(p, house, opts);
     const nak = getPlanetInNakshatra(p, pos.nakshatra, pos.pada, opts);

@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=../schema/planet-in-nakshatra.schema.json
+#
+# Hand-written Moon in nakshatra readings. Every nakshatra not listed here keeps
+# the composed reading. Run `npm run content -w @vedic/interpretations` after editing.
+planet: moon
+readings:
+  rohini:
+    summary: "Moon in Rohini: a settled, sensuous and magnetic mind."
+    detail:
+      - Rohini is the Moon’s favourite nakshatra and falls in Taurus, where the Moon is exalted. The mind here is calm, appreciative and drawn to beauty, food, music and comfort. You attract people without trying and tend to build a life that is pleasant to live in.
+      - The shadow is attachment. You can hold on to people, possessions and routines long after they have stopped serving you, and jealousy can surface when you feel someone else is being favoured. Growth comes from enjoying what you have without needing to keep it.
+    strengths: [emotional steadiness, charm, artistic taste, loyalty]
+    challenges: [possessiveness, jealousy, over-indulgence]
+    score: 2

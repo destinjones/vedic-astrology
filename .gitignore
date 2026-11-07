@@ -10,3 +10,4 @@ __pycache__/
 .lighthouseci/
 test-results/
 playwright-report/
+dist-pkg/

@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../schema/planet-in-sign.schema.json
+planet: ketu
+readings:
+  aries:
+    summary: "Ketu in Aries: detached courage."
+    detail: Ketu in Mars’ sign gives instinctive courage and past-life warrior skills. You may act without thinking or feel little need to prove yourself. Accidents and impulsiveness are risks.
+    strengths: [instinctive courage, independence, spiritual warrior, quick action]
+    challenges: [impulsiveness, accidents, lack of direction]
+
+  taurus:
+    summary: "Ketu in Taurus: detachment from material comfort."
+    detail: Ketu is considered debilitated in Taurus. You may feel indifferent to wealth or experience fluctuations in resources. Simplicity and spiritual values can replace material desire.
+    strengths: [simplicity, non-attachment, spiritual values, endurance]
+    challenges: [financial instability, dissatisfaction, stubbornness]
+
+  gemini:
+    summary: "Ketu in Gemini: intuitive rather than logical thinking."
+    detail: Ketu in Mercury’s sign gives sudden insights but may make communication or logical reasoning feel unnatural. You may already have mastered these skills in the past.
+    strengths: [intuition, research skill, technical insight, depth]
+    challenges: [communication difficulties, restlessness, scattered thoughts]
+
+  cancer:
+    summary: "Ketu in Cancer: detachment from home and emotion."
+    detail: Ketu in the Moon’s sign can create emotional distance from family or roots. You may feel like an outsider at home. Spiritual nurturing replaces conventional comfort.
+    strengths: [emotional independence, intuition, spiritual depth, compassion]
+    challenges: [emotional detachment, family distance, insecurity]
+
+  leo:
+    summary: "Ketu in Leo: detachment from ego and recognition."
+    detail: Ketu in the Sun’s sign gives natural authority without the need for applause. You may avoid the spotlight or feel unrecognised. Spiritual leadership suits you.
+    strengths: [humility, natural authority, creativity, spiritual insight]
+    challenges: [low self-esteem, avoidance of leadership, pride issues]
+
+  virgo:
+    summary: "Ketu in Virgo: intuitive analysis and healing."
+    detail: Ketu in Mercury’s earth sign gives skill in healing, research and detail work, often instinctively. Over-analysis and health worries can arise.
+    strengths: [healing ability, precision, intuitive analysis, service]
+    challenges: [perfectionism, health anxiety, criticism]
+
+  libra:
+    summary: "Ketu in Libra: detachment in relationships."
+    detail: Ketu in Venus’ air sign may make partnerships feel unfulfilling or karmic. You may seek spiritual rather than conventional unions. Balance comes from within.
+    strengths: [independence, spiritual relationships, fairness, artistic intuition]
+    challenges: [relationship dissatisfaction, indecision, loneliness]
+
+  scorpio:
+    summary: "Ketu in Scorpio: deep spiritual insight."
+    detail: Ketu is considered exalted in Scorpio. You have strong intuition, interest in the occult and the ability to transform through crisis. This is a powerful placement for spiritual work.
+    strengths: [occult insight, transformation, research, psychic ability]
+    challenges: [secrecy, sudden upheavals, isolation]
+
+  sagittarius:
+    summary: "Ketu in Sagittarius: detached wisdom."
+    detail: Ketu in Jupiter’s fire sign gives innate philosophical or spiritual knowledge. You may reject organised religion or teachers in favour of direct experience.
+    strengths: [spiritual wisdom, independence of thought, intuition, idealism]
+    challenges: [rejection of guidance, restlessness, dogmatism]
+
+  capricorn:
+    summary: "Ketu in Capricorn: detachment from status."
+    detail: Ketu in Saturn’s earth sign may make worldly ambition feel hollow. You can work hard without needing recognition. Career may change unexpectedly.
+    strengths: [humility, practical wisdom, hard work, detachment]
+    challenges: [career instability, lack of ambition, pessimism]
+
+  aquarius:
+    summary: "Ketu in Aquarius: detached humanitarianism."
+    detail: Ketu in Saturn’s air sign gives interest in collective causes and esoteric knowledge, with detachment from groups or social status.
+    strengths: [humanitarian insight, originality, spiritual detachment, scientific intuition]
+    challenges: [isolation, aloofness, eccentricity]
+
+  pisces:
+    summary: "Ketu in Pisces: spiritual liberation."
+    detail: Ketu in Jupiter’s water sign is excellent for spiritual practice, meditation and intuition. You may feel drawn to retreat, renunciation or mysticism. Practical life may feel less important.
+    strengths: [spiritual depth, intuition, compassion, liberation]
+    challenges: [escapism, confusion, impracticality]

@@ -22,6 +22,7 @@ import {
   signDistance,
 } from './chart-utils';
 import { PLANET_PROFILES } from './data/planets';
+import { YOGA_SOURCES } from './sources';
 import { signLord } from './data/signs';
 import type { ChartInput, HouseNumber, PlanetId, Reading, Strength, Tone, YogaCategory, YogaDefinition, YogaResult } from './types';
 import { localizer, type LocaleOptions, type Localizer } from './i18n/context';
@@ -52,7 +53,10 @@ const def = (
   tone: Tone,
   score: number,
   aka?: string[],
-): YogaDefinition => ({ id, name, aka, category, rule, reading: reading(`yoga:${id}`, name, summary, detail, strengths, challenges, tone, score, [category]) });
+): YogaDefinition => {
+  const source = YOGA_SOURCES[id] ?? null;
+  return { id, name, aka, category, rule, source, reading: { ...reading(`yoga:${id}`, name, summary, detail, strengths, challenges, tone, score, [category]), source } };
+};
 
 export const YOGA_DEFINITIONS: Record<string, YogaDefinition> = {
   ruchaka: def('ruchaka', 'Ruchaka Yoga', 'mahapurusha', 'Mars in its own sign or exaltation (Aries, Scorpio, Capricorn) in a kendra (1, 4, 7, 10) from the ascendant.',

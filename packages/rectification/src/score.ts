@@ -21,8 +21,8 @@ import type { DatePrecision, EventDef } from './events';
 export const WEIGHTS = {
   dasha: 0.65,
   transit: 0.35,
-  /** maha, antar, pratyantar by how precisely the event date is known */
-  levels: { day: [0.8, 1, 0.8], month: [0.8, 1, 0.6], year: [0.8, 1, 0.3] } as Record<DatePrecision, number[]>,
+  /** maha, antar, pratyantar (and sookshma for an exact day) by how precisely the event date is known */
+  levels: { day: [0.8, 1, 0.8, 0.45], month: [0.8, 1, 0.6], year: [0.8, 1, 0.3] } as Record<DatePrecision, number[]>,
   ownsPrimary: 0.45,
   inPrimary: 0.35,
   aspectsPrimary: 0.12,
@@ -103,6 +103,7 @@ export function dashaMatch(c: CandidateChart, chain: GrahaId[], def: EventDef, p
   let sum = 0, wsum = 0;
   const parts: DashaMatch['parts'] = [];
   chain.forEach((lord, i) => {
+    if (w[i] === undefined) return;
     const s = signification(c, lord, def);
     sum += w[i] * s.value;
     wsum += w[i];

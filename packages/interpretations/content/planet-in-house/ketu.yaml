@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../schema/planet-in-house.schema.json
+planet: ketu
+readings:
+  "1":
+    summary: "Ketu in the 1st: a detached, intuitive personality."
+    detail: You may feel disconnected from your body or identity, but you have strong intuition and spiritual insight.
+    strengths: [intuition, spiritual insight, independence]
+    challenges: [identity confusion, health issues, lack of direction]
+    score: -1
+
+  "2":
+    summary: "Ketu in the 2nd: detachment from wealth and family."
+    detail: Ketu in the 2nd may bring irregular speech or diet and detachment from family values or money.
+    strengths: [simplicity, spiritual values, honest speech]
+    challenges: [financial instability, family distance, speech issues]
+    score: -1
+
+  "3":
+    summary: "Ketu in the 3rd: instinctive courage."
+    detail: Ketu is good in the 3rd, giving fearlessness, technical skill and spiritual courage.
+    strengths: [courage, technical skill, spiritual effort]
+    challenges: [sibling distance, impulsiveness]
+    score: 2
+
+  "4":
+    summary: "Ketu in the 4th: detachment from home."
+    detail: Ketu in the 4th may bring emotional distance from home or mother, frequent moves or a spiritual home.
+    strengths: [spiritual home, independence, detachment]
+    challenges: [emotional insecurity, domestic disruption]
+    score: -1
+
+  "5":
+    summary: "Ketu in the 5th: intuitive intelligence."
+    detail: Ketu in the 5th gives past-life spiritual merit and intuitive intelligence but may complicate children or romance.
+    strengths: [intuition, spiritual intelligence, mantra skill]
+    challenges: [complications with children, romantic detachment]
+    score: 0
+
+  "6":
+    summary: "Ketu in the 6th: victory over enemies and disease."
+    detail: Ketu is excellent in the 6th, giving victory over enemies, healing ability and success in service.
+    strengths: [victory, healing, service, resilience]
+    challenges: [mysterious health issues]
+    score: 3
+
+  "7":
+    summary: "Ketu in the 7th: detachment in partnership."
+    detail: Ketu in the 7th may bring a spiritual or detached partner, delays or dissatisfaction in marriage.
+    strengths: [spiritual partnership, independence]
+    challenges: [relationship dissatisfaction, separation]
+    score: -1
+
+  "8":
+    summary: "Ketu in the 8th: deep occult insight."
+    detail: Ketu in the 8th gives strong intuition, interest in the occult and research, and possible sudden events.
+    strengths: [occult insight, research, transformation]
+    challenges: [sudden events, health issues]
+    score: 0
+
+  "9":
+    summary: "Ketu in the 9th: detached spirituality."
+    detail: Ketu in the 9th gives innate spiritual wisdom but may bring distance from father, teachers or religion.
+    strengths: [spiritual wisdom, independence of belief]
+    challenges: [conflict with father, loss of faith]
+    score: 0
+
+  "10":
+    summary: "Ketu in the 10th: detachment from status."
+    detail: Ketu in the 10th may bring career changes, unconventional work or detachment from worldly ambition.
+    strengths: [spiritual career, technical expertise, humility]
+    challenges: [career instability, lack of recognition]
+    score: -1
+
+  "11":
+    summary: "Ketu in the 11th: gains through detachment."
+    detail: Ketu in the 11th can give sudden gains and spiritual friendships, though desires may feel unfulfilling.
+    strengths: [sudden gains, spiritual friends, detachment from desire]
+    challenges: [unfulfilled desires, distance from friends]
+    score: 2
+
+  "12":
+    summary: "Ketu in the 12th: spiritual liberation."
+    detail: Ketu in the 12th is considered excellent for moksha, meditation and spiritual practice.
+    strengths: [spiritual liberation, meditation, intuition, charity]
+    challenges: [isolation, expenses, confusion]
+    score: 2

@@ -1,0 +1,162 @@
+[
+  {
+    "title": "Write Moon in Ashwini, Magha and Mula",
+    "labels": [
+      "good first issue",
+      "readings"
+    ],
+    "body": "The Moon's nakshatra is the first thing most people look up, and right now the Moon in Ashwini, Magha and Mula (the nakshatras ruled by Ketu) has a reading composed by the program rather than written by a person.\n\n**What to do**\n\n1. Read [content/README.md](packages/interpretations/content/README.md) and [STYLE.md](packages/interpretations/content/STYLE.md). Moon in Rohini in `content/planet-in-nakshatra/moon.yaml` is a worked example.\n2. Add entries keyed `ashwini`, `magha`, `mula` to `packages/interpretations/content/planet-in-nakshatra/moon.yaml`: a one-sentence `summary`, one to three paragraphs of `detail`, and short `strengths` and `challenges`.\n3. Run `npm run content -w @vedic/interpretations` and `npm test -w @vedic/interpretations`. Update the snapshot if the Gandhi chart uses one of yours.\n4. Add your name under `credit:` if you would like to be on the credits page.\n\nOne nakshatra per pull request is fine; say which you are taking in a comment so two people do not write the same one.\n\nYour own words, please: no text from books, sites or other programs."
+  },
+  {
+    "title": "Write Moon in Bharani, Purva Phalguni and Purva Ashadha",
+    "labels": [
+      "good first issue",
+      "readings"
+    ],
+    "body": "The Moon's nakshatra is the first thing most people look up, and right now the Moon in Bharani, Purva Phalguni and Purva Ashadha (the nakshatras ruled by Venus) has a reading composed by the program rather than written by a person.\n\n**What to do**\n\n1. Read [content/README.md](packages/interpretations/content/README.md) and [STYLE.md](packages/interpretations/content/STYLE.md). Moon in Rohini in `content/planet-in-nakshatra/moon.yaml` is a worked example.\n2. Add entries keyed `bharani`, `purva-phalguni`, `purva-ashadha` to `packages/interpretations/content/planet-in-nakshatra/moon.yaml`: a one-sentence `summary`, one to three paragraphs of `detail`, and short `strengths` and `challenges`.\n3. Run `npm run content -w @vedic/interpretations` and `npm test -w @vedic/interpretations`. Update the snapshot if the Gandhi chart uses one of yours.\n4. Add your name under `credit:` if you would like to be on the credits page.\n\nOne nakshatra per pull request is fine; say which you are taking in a comment so two people do not write the same one.\n\nYour own words, please: no text from books, sites or other programs."
+  },
+  {
+    "title": "Write Moon in Krittika, Uttara Phalguni and Uttara Ashadha",
+    "labels": [
+      "good first issue",
+      "readings"
+    ],
+    "body": "The Moon's nakshatra is the first thing most people look up, and right now the Moon in Krittika, Uttara Phalguni and Uttara Ashadha (the nakshatras ruled by the Sun) has a reading composed by the program rather than written by a person.\n\n**What to do**\n\n1. Read [content/README.md](packages/interpretations/content/README.md) and [STYLE.md](packages/interpretations/content/STYLE.md). Moon in Rohini in `content/planet-in-nakshatra/moon.yaml` is a worked example.\n2. Add entries keyed `krittika`, `uttara-phalguni`, `uttara-ashadha` to `packages/interpretations/content/planet-in-nakshatra/moon.yaml`: a one-sentence `summary`, one to three paragraphs of `detail`, and short `strengths` and `challenges`.\n3. Run `npm run content -w @vedic/interpretations` and `npm test -w @vedic/interpretations`. Update the snapshot if the Gandhi chart uses one of yours.\n4. Add your name under `credit:` if you would like to be on the credits page.\n\nOne nakshatra per pull request is fine; say which you are taking in a comment so two people do not write the same one.\n\nYour own words, please: no text from books, sites or other programs."
+  },
+  {
+    "title": "Write Moon in Hasta and Shravana",
+    "labels": [
+      "good first issue",
+      "readings"
+    ],
+    "body": "The Moon's nakshatra is the first thing most people look up, and right now the Moon in Hasta and Shravana (the nakshatras ruled by the Moon) has a reading composed by the program rather than written by a person.\n\n**What to do**\n\n1. Read [content/README.md](packages/interpretations/content/README.md) and [STYLE.md](packages/interpretations/content/STYLE.md). Moon in Rohini in `content/planet-in-nakshatra/moon.yaml` is a worked example.\n2. Add entries keyed `hasta`, `shravana` to `packages/interpretations/content/planet-in-nakshatra/moon.yaml`: a one-sentence `summary`, one to three paragraphs of `detail`, and short `strengths` and `challenges`.\n3. Run `npm run content -w @vedic/interpretations` and `npm test -w @vedic/interpretations`. Update the snapshot if the Gandhi chart uses one of yours.\n4. Add your name under `credit:` if you would like to be on the credits page.\n\nOne nakshatra per pull request is fine; say which you are taking in a comment so two people do not write the same one.\n\nYour own words, please: no text from books, sites or other programs."
+  },
+  {
+    "title": "Write Moon in Mrigashira, Chitra and Dhanishta",
+    "labels": [
+      "good first issue",
+      "readings"
+    ],
+    "body": "The Moon's nakshatra is the first thing most people look up, and right now the Moon in Mrigashira, Chitra and Dhanishta (the nakshatras ruled by Mars) has a reading composed by the program rather than written by a person.\n\n**What to do**\n\n1. Read [content/README.md](packages/interpretations/content/README.md) and [STYLE.md](packages/interpretations/content/STYLE.md). Moon in Rohini in `content/planet-in-nakshatra/moon.yaml` is a worked example.\n2. Add entries keyed `mrigashira`, `chitra`, `dhanishta` to `packages/interpretations/content/planet-in-nakshatra/moon.yaml`: a one-sentence `summary`, one to three paragraphs of `detail`, and short `strengths` and `challenges`.\n3. Run `npm run content -w @vedic/interpretations` and `npm test -w @vedic/interpretations`. Update the snapshot if the Gandhi chart uses one of yours.\n4. Add your name under `credit:` if you would like to be on the credits page.\n\nOne nakshatra per pull request is fine; say which you are taking in a comment so two people do not write the same one.\n\nYour own words, please: no text from books, sites or other programs."
+  },
+  {
+    "title": "Write Moon in Ardra, Swati and Shatabhisha",
+    "labels": [
+      "good first issue",
+      "readings"
+    ],
+    "body": "The Moon's nakshatra is the first thing most people look up, and right now the Moon in Ardra, Swati and Shatabhisha (the nakshatras ruled by Rahu) has a reading composed by the program rather than written by a person.\n\n**What to do**\n\n1. Read [content/README.md](packages/interpretations/content/README.md) and [STYLE.md](packages/interpretations/content/STYLE.md). Moon in Rohini in `content/planet-in-nakshatra/moon.yaml` is a worked example.\n2. Add entries keyed `ardra`, `swati`, `shatabhisha` to `packages/interpretations/content/planet-in-nakshatra/moon.yaml`: a one-sentence `summary`, one to three paragraphs of `detail`, and short `strengths` and `challenges`.\n3. Run `npm run content -w @vedic/interpretations` and `npm test -w @vedic/interpretations`. Update the snapshot if the Gandhi chart uses one of yours.\n4. Add your name under `credit:` if you would like to be on the credits page.\n\nOne nakshatra per pull request is fine; say which you are taking in a comment so two people do not write the same one.\n\nYour own words, please: no text from books, sites or other programs."
+  },
+  {
+    "title": "Write Moon in Punarvasu, Vishakha and Purva Bhadrapada",
+    "labels": [
+      "good first issue",
+      "readings"
+    ],
+    "body": "The Moon's nakshatra is the first thing most people look up, and right now the Moon in Punarvasu, Vishakha and Purva Bhadrapada (the nakshatras ruled by Jupiter) has a reading composed by the program rather than written by a person.\n\n**What to do**\n\n1. Read [content/README.md](packages/interpretations/content/README.md) and [STYLE.md](packages/interpretations/content/STYLE.md). Moon in Rohini in `content/planet-in-nakshatra/moon.yaml` is a worked example.\n2. Add entries keyed `punarvasu`, `vishakha`, `purva-bhadrapada` to `packages/interpretations/content/planet-in-nakshatra/moon.yaml`: a one-sentence `summary`, one to three paragraphs of `detail`, and short `strengths` and `challenges`.\n3. Run `npm run content -w @vedic/interpretations` and `npm test -w @vedic/interpretations`. Update the snapshot if the Gandhi chart uses one of yours.\n4. Add your name under `credit:` if you would like to be on the credits page.\n\nOne nakshatra per pull request is fine; say which you are taking in a comment so two people do not write the same one.\n\nYour own words, please: no text from books, sites or other programs."
+  },
+  {
+    "title": "Write Moon in Pushya, Anuradha and Uttara Bhadrapada",
+    "labels": [
+      "good first issue",
+      "readings"
+    ],
+    "body": "The Moon's nakshatra is the first thing most people look up, and right now the Moon in Pushya, Anuradha and Uttara Bhadrapada (the nakshatras ruled by Saturn) has a reading composed by the program rather than written by a person.\n\n**What to do**\n\n1. Read [content/README.md](packages/interpretations/content/README.md) and [STYLE.md](packages/interpretations/content/STYLE.md). Moon in Rohini in `content/planet-in-nakshatra/moon.yaml` is a worked example.\n2. Add entries keyed `pushya`, `anuradha`, `uttara-bhadrapada` to `packages/interpretations/content/planet-in-nakshatra/moon.yaml`: a one-sentence `summary`, one to three paragraphs of `detail`, and short `strengths` and `challenges`.\n3. Run `npm run content -w @vedic/interpretations` and `npm test -w @vedic/interpretations`. Update the snapshot if the Gandhi chart uses one of yours.\n4. Add your name under `credit:` if you would like to be on the credits page.\n\nOne nakshatra per pull request is fine; say which you are taking in a comment so two people do not write the same one.\n\nYour own words, please: no text from books, sites or other programs."
+  },
+  {
+    "title": "Write Moon in Ashlesha, Jyeshtha and Revati",
+    "labels": [
+      "good first issue",
+      "readings"
+    ],
+    "body": "The Moon's nakshatra is the first thing most people look up, and right now the Moon in Ashlesha, Jyeshtha and Revati (the nakshatras ruled by Mercury) has a reading composed by the program rather than written by a person.\n\n**What to do**\n\n1. Read [content/README.md](packages/interpretations/content/README.md) and [STYLE.md](packages/interpretations/content/STYLE.md). Moon in Rohini in `content/planet-in-nakshatra/moon.yaml` is a worked example.\n2. Add entries keyed `ashlesha`, `jyeshtha`, `revati` to `packages/interpretations/content/planet-in-nakshatra/moon.yaml`: a one-sentence `summary`, one to three paragraphs of `detail`, and short `strengths` and `challenges`.\n3. Run `npm run content -w @vedic/interpretations` and `npm test -w @vedic/interpretations`. Update the snapshot if the Gandhi chart uses one of yours.\n4. Add your name under `credit:` if you would like to be on the credits page.\n\nOne nakshatra per pull request is fine; say which you are taking in a comment so two people do not write the same one.\n\nYour own words, please: no text from books, sites or other programs."
+  },
+  {
+    "title": "Write Jupiter in Punarvasu, Vishakha and Purva Bhadrapada",
+    "labels": [
+      "good first issue",
+      "readings"
+    ],
+    "body": "These are the three nakshatras Jupiter rules, so Jupiter is \"at home\" in each, and they deserve better than the composed reading.\n\nCreate `packages/interpretations/content/planet-in-nakshatra/jupiter.yaml`, copying the two header lines from `moon.yaml`, and add entries keyed `punarvasu`, `vishakha` and `purva-bhadrapada`. Then run `npm run content -w @vedic/interpretations` and `npm test -w @vedic/interpretations`. See [content/README.md](packages/interpretations/content/README.md) and [STYLE.md](packages/interpretations/content/STYLE.md).\n\nYour own words, please: no text from books, sites or other programs. Add your name under `credit:` to be on the credits page."
+  },
+  {
+    "title": "Verify the Pancha Mahapurusha yoga citations",
+    "labels": [
+      "good first issue",
+      "research"
+    ],
+    "body": "`packages/interpretations/content/yogas.yaml` cites Ruchaka, Bhadra, Hamsa, Malavya and Sasa to Brihat Parashara Hora Shastra, with Phaladeepika ch. 6 and Saravali as further sources, all marked `verified: false`.\n\nIf you own a printed translation (for example R. Santhanam's BPHS), check the chapter and verse, put it in `ref`, set `verified: true`, and fill in `edition` (translator, publisher, year) and `verifiedBy`. If our rule in `src/yogas.ts` disagrees with the text, say so in the pull request: that matters more than the citation.\n\nRun `npm run content -w @vedic/interpretations` before committing; `COVERAGE.md` will show the new count."
+  },
+  {
+    "title": "Verify the lunar yoga citations in Brihat Jataka",
+    "labels": [
+      "good first issue",
+      "research"
+    ],
+    "body": "Sunapha, Anapha, Durudhara and Kemadruma are cited to Brihat Jataka ch. 13 (Chandra yogas), unverified, in `packages/interpretations/content/yogas.yaml`. Check them against a printed translation (B. Suryanarain Rao's or V. Subrahmanya Sastri's, for example), add verse numbers to `ref`, set `verified: true` and name the `edition`.\n\nAlso check our Kemadruma cancellation (any planet in a kendra from the Moon or the ascendant) against the text, and say in the pull request if the text is stricter or looser."
+  },
+  {
+    "title": "Verify the Nabhasa (Sankhya) yoga citations",
+    "labels": [
+      "good first issue",
+      "research"
+    ],
+    "body": "The seven Sankhya yogas (Gola to Veena) are cited to Brihat Jataka ch. 12, unverified. Check them in a printed translation, add verse numbers, and set `verified: true` with the `edition`. If the text says when a Sankhya yoga is overridden by another Nabhasa yoga, note it in the `cancellation` field."
+  },
+  {
+    "title": "Verify the Phaladeepika ch. 6 yoga citations",
+    "labels": [
+      "good first issue",
+      "research"
+    ],
+    "body": "About fifteen yogas in `packages/interpretations/content/yogas.yaml` cite Phaladeepika ch. 6 (Gaja Kesari, Chandra-Mangala, Lakshmi, the three Viparita and three Parivartana yogas, Vesi, Vasi, Ubhayachari, Adhi, Amala, Saraswati, Vasumati, Shakata), all unverified. Pick any of them, check the verse in a printed translation (G. S. Kapoor's or V. Subrahmanya Sastri's, for example), and set `verified: true` with the `edition`. Partial pull requests are welcome."
+  },
+  {
+    "title": "Find a classical source for Shubha and Papa Kartari",
+    "labels": [
+      "good first issue",
+      "research"
+    ],
+    "body": "Shubha Kartari and Papa Kartari are cited as \"Classical, widely cited, source to be confirmed\". Find where the rule is stated (a text, chapter and verse), and update `citation` in `packages/interpretations/content/yogas.yaml`. If it is a later or modern formulation, say that instead, as we do for Guru-Chandala."
+  },
+  {
+    "title": "Simplify the ten hardest readings",
+    "labels": [
+      "good first issue",
+      "readings"
+    ],
+    "body": "The bottom of [COVERAGE.md](packages/interpretations/content/COVERAGE.md) lists the ten English readings with the highest grade level. Rewrite one or more so they read more easily, without losing meaning: shorter sentences, shorter words, terms glossed in brackets. See the readability section of STYLE.md.\n\nThe composed nakshatra readings near the top are built from phrases in `src/i18n/phrases.ts`; a better phrase there improves 243 readings at once."
+  },
+  {
+    "title": "Gloss the Sanskrit terms in the yoga readings",
+    "labels": [
+      "good first issue",
+      "readings"
+    ],
+    "body": "Some yoga readings use terms like kendra, trikona, dusthana and yogakaraka without explaining them (see `yoga:yogakaraka` and `yoga:dainya-parivartana`, the two densest). Add a short gloss in brackets the first time a term appears, for example \"a kendra (one of the four angular houses)\". The readability check in `test/readability.test.ts` stops counting a term once it is glossed this way.\n\nThe yoga text is in `packages/interpretations/src/yogas.ts`; the Hindi translations in `src/locales/hi/yogas.ts` do not need to change."
+  },
+  {
+    "title": "Add near-miss test charts for the Mahapurusha yogas",
+    "labels": [
+      "good first issue",
+      "tests"
+    ],
+    "body": "Every yoga has a chart that forms it in `packages/interpretations/test/fixtures/yoga-charts.json`. Add the opposite: for each of the five Mahapurusha yogas, a chart that *almost* forms it (the planet in its own sign but not in a kendra, or in a kendra but not dignified) and a test that it is **not** found. Put them in a new `test/fixtures/yoga-near-misses.json` and a short test beside `test/yoga-lint.test.ts`. `test/fixtures/chart.ts` explains the fixture format."
+  },
+  {
+    "title": "Start a Spanish reading pack with the Sun and Moon in each sign",
+    "labels": [
+      "good first issue",
+      "translation"
+    ],
+    "body": "Spanish (`es`) is one of seven languages with no readings yet; everything falls back to English. A pack can start small. Create `packages/interpretations/src/locales/es/` modelled on `src/locales/hi/`, with only `planetInSign` for the Sun and Moon (24 readings), and register it in `src/i18n/context.ts` next to `hi`.\n\nTranslate the meaning, not word for word, and keep the tone of [STYLE.md](packages/interpretations/content/STYLE.md). COVERAGE.md will show your progress once `npm run content -w @vedic/interpretations` is run."
+  },
+  {
+    "title": "Do a clean build on your machine and report it",
+    "labels": [
+      "good first issue",
+      "infrastructure"
+    ],
+    "body": "We have never had someone other than the maintainer build the project from scratch. On a clean clone, run:\n\n```bash\nnpm ci\nnpm run typecheck\nnpm run content:check\nnpm run verify:ephemeris\nnpm test\nnpm run build:pages\nnpx playwright install chromium\nnpm run smoke\n```\n\nComment here with your OS, Node version and the result (pass, or the first error). If something fails, a pull request that fixes the instructions is even better. You will be added to the credits either way."
+  }
+]

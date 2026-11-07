@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../schema/planet-in-sign.schema.json
+planet: mars
+readings:
+  aries:
+    summary: "Mars in Aries: raw courage and direct action."
+    detail: Mars rules Aries and is in its moolatrikona here. Energy is strong, competitive and decisive. You are a natural fighter, athlete or entrepreneur. Patience and anger management are the lessons.
+    strengths: [courage, initiative, stamina, leadership]
+    challenges: [aggression, impatience, accidents]
+
+  taurus:
+    summary: "Mars in Taurus: slow-burning, persistent drive."
+    detail: Mars in Venus’ earth sign works steadily toward material goals. You are determined and sensual, and once moving you are hard to stop. Anger builds slowly but can be explosive. Property, finance and building suit this energy.
+    strengths: [persistence, endurance, practical drive, determination]
+    challenges: [stubbornness, possessiveness, slow to start]
+
+  gemini:
+    summary: "Mars in Gemini: a sharp, argumentative mind."
+    detail: Energy flows into ideas, debate and skilled hands. You are mentally quick and enjoy competition of wits. Mars dislikes Mercury’s sign, so energy can scatter or turn into sharp words.
+    strengths: [mental agility, debating skill, technical aptitude, versatility]
+    challenges: [argumentativeness, scattered effort, nervous energy]
+
+  cancer:
+    summary: "Debilitated Mars: energy driven by emotion."
+    detail: Mars is weakest in Cancer. Action depends on mood, and anger may be suppressed and then released suddenly. There can be conflict at home or with the mother. On the positive side, this gives fierce protectiveness and emotional courage. Neecha-bhanga can make it very powerful.
+    strengths: [protectiveness, emotional courage, intuitive action, devotion]
+    challenges: [passive aggression, domestic conflict, inconsistent drive]
+
+  leo:
+    summary: "Mars in Leo: proud, dramatic and commanding energy."
+    detail: Mars is friendly with the Sun and acts boldly in Leo. You lead from the front with courage and flair. Pride and a need to dominate can cause clashes.
+    strengths: [courage, leadership, confidence, loyalty]
+    challenges: [arrogance, domineering, hot temper]
+
+  virgo:
+    summary: "Mars in Virgo: precise, methodical energy."
+    detail: Energy is channelled into detail, technique and service. You are an efficient worker, good with tools, data or medicine. Critical speech and nervous tension are the shadow.
+    strengths: [technical skill, efficiency, analytical drive, diligence]
+    challenges: [criticism, worry, irritability]
+
+  libra:
+    summary: "Mars in Libra: energy directed through partnership."
+    detail: Mars in Venus’ air sign seeks balance and partnership. You fight for fairness and are attracted to passion in relationships. Indecision and conflict within partnerships are possible.
+    strengths: [sense of justice, charm, diplomatic drive, passion]
+    challenges: [indecision, relationship conflict, passive aggression]
+
+  scorpio:
+    summary: "Mars in Scorpio: deep, strategic and powerful."
+    detail: Mars rules Scorpio and works here with intensity and focus. You are strategic, resilient and fearless in crisis. Research, surgery, investigation and finance suit you. Secrecy and vindictiveness are the risks.
+    strengths: [strategic power, resilience, determination, investigative skill]
+    challenges: [vindictiveness, secrecy, jealousy]
+
+  sagittarius:
+    summary: "Mars in Sagittarius: energy driven by belief."
+    detail: You fight for causes and principles. Mars is friendly with Jupiter, and the result is enthusiastic, adventurous and often righteous energy. Sports, law, travel and teaching suit this placement.
+    strengths: [idealism, enthusiasm, adventurousness, moral courage]
+    challenges: [self-righteousness, recklessness, bluntness]
+
+  capricorn:
+    summary: "Exalted Mars: disciplined, strategic power."
+    detail: Mars is exalted in Capricorn. Energy is controlled, purposeful and highly effective. You are ambitious and capable of sustained effort, and you get results. This is excellent for engineering, management, the military and any long-term undertaking.
+    strengths: [discipline, efficiency, ambition, endurance]
+    challenges: [ruthlessness, workaholism, coldness]
+
+  aquarius:
+    summary: "Mars in Aquarius: energy for causes and innovation."
+    detail: Energy is directed toward groups, technology and reform. You can be a passionate activist or inventor. Mars and Saturn are uneasy together, so frustration and rebellion can arise.
+    strengths: [innovation, reforming zeal, independence, technical aptitude]
+    challenges: [rebelliousness, detachment, frustration]
+
+  pisces:
+    summary: "Mars in Pisces: compassionate but diffuse energy."
+    detail: Mars in Jupiter’s water sign acts through intuition and compassion. You may fight for the underdog or channel energy into spiritual or artistic work. Motivation can fade without a meaningful purpose.
+    strengths: [compassion, intuitive action, spiritual drive, imagination]
+    challenges: [lack of direction, passivity, escapism]

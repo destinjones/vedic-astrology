@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "yogas.schema.json",
+  "title": "Audit notes for each yoga",
+  "type": "object",
+  "additionalProperties": {
+    "type": "object",
+    "required": ["citation", "cancellation"],
+    "additionalProperties": false,
+    "properties": {
+      "citation": {
+        "type": "object",
+        "required": ["source", "verified"],
+        "additionalProperties": false,
+        "properties": {
+          "source": { "type": "string", "minLength": 3, "description": "The text, e.g. Phaladeepika." },
+          "ref": { "type": "string", "description": "Chapter and verse, or the chapter name." },
+          "verified": { "type": "boolean", "description": "True once someone has checked the reference against a printed translation." },
+          "edition": { "type": "string", "description": "Translation used to verify, e.g. 'G. S. Kapoor, Ranjan 2004'." },
+          "verifiedBy": { "type": "string" }
+        }
+      },
+      "also": { "type": "array", "items": { "type": "string" } },
+      "cancellation": { "type": "string", "minLength": 20, "description": "What weakens or cancels the yoga, and whether the detector checks it." }
+    }
+  }
+}

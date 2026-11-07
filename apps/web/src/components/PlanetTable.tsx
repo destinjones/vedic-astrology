@@ -4,6 +4,9 @@ import { PLANET_BY_ID, signInfo } from '../data/constants';
 import { DIGNITY_KEY, dignityOf, dignityTone, formatDeg } from '../lib/astro';
 import { useI18n } from '../i18n';
 
+/** The raw sidereal longitude, 0 to 360 from 0° Aries, to four decimals (about a third of an arc second) */
+const rawLon = (lon: number) => `${lon.toFixed(4)}°`;
+
 interface Props { chart: Chart; selection: Selection | null; onSelect: (s: Selection) => void }
 
 export function PlanetTable({ chart, selection, onSelect }: Props) {
@@ -13,13 +16,14 @@ export function PlanetTable({ chart, selection, onSelect }: Props) {
     <div className="table-wrap">
       <table className="planet-table">
         <thead>
-          <tr><th>{t('table.body')}</th><th>{t('table.sign')}</th><th>{t('table.degree')}</th><th>{t('table.nakshatra')}</th><th>{t('table.pada')}</th><th>{t('table.house')}</th><th>{t('table.dignity')}</th><th>{t('table.state')}</th></tr>
+          <tr><th>{t('table.body')}</th><th>{t('table.sign')}</th><th>{t('table.degree')}</th><th title={t('table.longitudeHint')}>{t('table.longitude')}</th><th>{t('table.nakshatra')}</th><th>{t('table.pada')}</th><th>{t('table.house')}</th><th>{t('table.dignity')}</th><th>{t('table.state')}</th></tr>
         </thead>
         <tbody>
           <tr className={selection?.kind === 'asc' ? 'is-selected' : ''} onClick={() => onSelect({ kind: 'asc' })}>
             <td><span className="pt-glyph" style={{ color: 'var(--accent)' }}>↑</span>{t('table.ascendant')}</td>
             <td>{signInfo(a.sign).glyph} {v.signs[a.sign - 1]}</td>
             <td className="mono">{formatDeg(a.degreeInSign)}</td>
+            <td className="mono raw-lon">{rawLon(a.longitude)}</td>
             <td>{v.nakshatras[a.nakshatra - 1]}</td>
             <td>{a.pada}</td><td>1</td><td>—</td><td>—</td>
           </tr>
@@ -32,6 +36,7 @@ export function PlanetTable({ chart, selection, onSelect }: Props) {
                 <td><span className="pt-glyph" style={{ color: info.color }}>{info.glyph}</span>{v.planets[p.id].name}</td>
                 <td>{signInfo(p.sign).glyph} {v.signs[p.sign - 1]}</td>
                 <td className="mono">{formatDeg(p.degreeInSign)}</td>
+                <td className="mono raw-lon">{rawLon(p.longitude)}</td>
                 <td>
                   <button className="text-link" onClick={(e) => { e.stopPropagation(); onSelect({ kind: 'nakshatra', num: p.nakshatra }); }}>
                     {v.nakshatras[p.nakshatra - 1]}

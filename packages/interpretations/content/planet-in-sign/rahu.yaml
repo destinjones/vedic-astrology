@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../schema/planet-in-sign.schema.json
+planet: rahu
+readings:
+  aries:
+    summary: "Rahu in Aries: hunger to lead and pioneer."
+    detail: Rahu amplifies Aries’ drive. You crave independence, recognition and new beginnings, and you may take bold risks to get them. Impatience and recklessness are the risks.
+    strengths: [boldness, innovation, drive, independence]
+    challenges: [recklessness, impatience, ego clashes]
+
+  taurus:
+    summary: "Rahu in Taurus: craving for wealth and comfort."
+    detail: Rahu is considered exalted in Taurus in many traditions. You can accumulate wealth and enjoy luxuries, often through unconventional means. Obsession with possessions is the risk.
+    strengths: [wealth accumulation, determination, magnetism, material success]
+    challenges: [materialism, possessiveness, over-indulgence]
+
+  gemini:
+    summary: "Rahu in Gemini: hunger for information and connection."
+    detail: Rahu is comfortable in Mercury’s sign. You are curious, clever and drawn to media, technology and communication. Restlessness and information overload can arise.
+    strengths: [intelligence, communication, adaptability, technical skill]
+    challenges: [restlessness, manipulation, nervous exhaustion]
+
+  cancer:
+    summary: "Rahu in Cancer: craving for emotional security."
+    detail: Rahu in the Moon’s sign stirs restlessness around home and family. You may seek security in unusual ways or move far from your roots. Emotional ups and downs are likely.
+    strengths: [intuition, adaptability, protectiveness, emotional depth]
+    challenges: [insecurity, moodiness, family complications]
+
+  leo:
+    summary: "Rahu in Leo: hunger for recognition."
+    detail: Rahu in the Sun’s sign craves fame and authority. You may rise to prominence through bold self-expression, but ego and pride can cause trouble.
+    strengths: [charisma, ambition, creativity, leadership]
+    challenges: [arrogance, attention-seeking, conflict with authority]
+
+  virgo:
+    summary: "Rahu in Virgo: obsession with detail and improvement."
+    detail: Rahu in Mercury’s sign is analytical and service-oriented. You may excel in medicine, technology or problem-solving. Anxiety and over-analysis are the risks.
+    strengths: [analytical skill, problem-solving, diligence, health awareness]
+    challenges: [anxiety, perfectionism, health worries]
+
+  libra:
+    summary: "Rahu in Libra: craving for partnership and balance."
+    detail: Rahu in Venus’ sign seeks relationships, beauty and social status. Unconventional partnerships or cross-cultural marriage are possible. Dependence on others is the risk.
+    strengths: [charm, diplomacy, social success, artistic taste]
+    challenges: [relationship confusion, dependence, superficiality]
+
+  scorpio:
+    summary: "Rahu in Scorpio: intense hunger for depth and power."
+    detail: Rahu is considered debilitated in Scorpio. Desires are intense and secretive, with interest in the occult, research or hidden power. Crisis and transformation are likely, but so is breakthrough insight.
+    strengths: [investigative power, resilience, occult insight, strategic thinking]
+    challenges: [obsession, secrecy, sudden upheavals]
+
+  sagittarius:
+    summary: "Rahu in Sagittarius: hunger for meaning and adventure."
+    detail: Rahu in Jupiter’s fire sign seeks unconventional beliefs, travel and higher learning. You may question tradition or follow foreign philosophies. Dogmatism or false gurus are the risks.
+    strengths: [open-mindedness, adventurousness, philosophical curiosity, teaching]
+    challenges: [dogmatism, misplaced faith, restlessness]
+
+  capricorn:
+    summary: "Rahu in Capricorn: hunger for status and achievement."
+    detail: Rahu in Saturn’s sign drives ambition and career success, often through unconventional paths. You may climb quickly but must guard against ruthlessness.
+    strengths: [ambition, strategic thinking, career success, discipline]
+    challenges: [ruthlessness, workaholism, materialism]
+
+  aquarius:
+    summary: "Rahu in Aquarius: visionary, unconventional ambition."
+    detail: Rahu is comfortable in Aquarius, its co-ruled sign. You are drawn to technology, innovation and social change. Gains through networks and groups are likely. Eccentricity and detachment are the risks.
+    strengths: [innovation, networking, vision, humanitarian drive]
+    challenges: [eccentricity, detachment, rebelliousness]
+
+  pisces:
+    summary: "Rahu in Pisces: hunger for transcendence."
+    detail: Rahu in Jupiter’s water sign seeks spiritual experience, imagination or escape. You may be drawn to mysticism, art or foreign lands. Confusion and escapism are the risks.
+    strengths: [imagination, spiritual seeking, compassion, creativity]
+    challenges: [confusion, escapism, addiction]

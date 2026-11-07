@@ -9,6 +9,9 @@ The "when" layer on top of `@vedic/engine`: which periods of life are supportive
 - **Ashtakavarga**: all seven BAV tables (Parashara), SAV (always 337), prastara contributors per sign.
 - **Life weather**: a combined dasha + transit series and automatically detected favourable and challenging windows with their drivers.
 - **Transit search**: "When does Saturn next hit my Moon?", "next Jupiter return", "Jupiter into my 10th house", "next Mercury retrograde". `parseTransitQuestion` understands a fixed set of question patterns (English and Sanskrit planet and sign names, year limits such as "after 2030"), with no AI involved. `searchTransits` finds every exact pass (retrograde loops are grouped, up to three passes), the window within 1°, sign ingresses and stations, decades ahead. Vedic aspects are degree-exact: the 7th for every graha, plus Mars 4th/8th, Jupiter and the nodes 5th/9th, Saturn 3rd/10th.
+- **Sookshma and prana**: `childrenOf`, `deepChainAt` and `splitPeriod` build levels 4–5 on demand for one period, so the full 60,000-period tree is never needed.
+- **Prediction record**: `pastWindows` finds past windows on a fixed weekly grid (stable ids), `markWindow` snapshots the rules behind a window with the user's "happened / didn't", and `predictionRecord` gives hit rates overall, per tone and per rule with a Wilson interval.
+- **Calendar export**: `windowsToIcs` / `buildIcs` write RFC 5545 all-day events with stable UIDs, folding and escaping, and an optional reminder.
 - **UI**: `TimingDashboard` (React, plain SVG): life weather chart with dasha / Sade Sati / retrograde lanes and hover inspection, a transit search box (type a question or use the dropdowns; results are listed and marked on the timeline), drill-down dasha map, transit table for any date, ashtakavarga heatmap, and a detail panel explaining every score.
 
 ## Use
