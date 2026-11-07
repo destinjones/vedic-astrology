@@ -38,7 +38,8 @@ export default defineConfig({
   projects: [
     { name: 'visual', testMatch: /visual\.spec/, use: { ...devices['Desktop Chrome'], launchOptions: chromium } },
     { name: 'chromium', testMatch: /browsers\.spec/, use: { ...devices['Desktop Chrome'], launchOptions: chromium } },
-    { name: 'firefox', testMatch: /browsers\.spec/, use: { ...devices['Desktop Firefox'] } },
+    // headless Firefox turns WebGL off without a GPU; force Mesa's software renderer so three.js is really tested
+    { name: 'firefox', testMatch: /browsers\.spec/, use: { ...devices['Desktop Firefox'], launchOptions: { firefoxUserPrefs: { 'webgl.force-enabled': true, 'webgl.disabled': false } } } },
     { name: 'webkit', testMatch: /browsers\.spec/, use: { ...devices['Desktop Safari'] } },
     { name: 'mobile-safari', testMatch: /browsers\.spec/, use: { ...devices['iPhone 15'] } },
   ],

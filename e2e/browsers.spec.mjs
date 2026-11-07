@@ -34,10 +34,21 @@ test('sample chart calculates with the Swiss Ephemeris', async ({ page }) => {
   await expect(page.locator('.varga-caption')).toContainText('Navamsha');
 });
 
-test('3D sky draws with WebGL', async ({ page }) => {
+test('3D sky draws with WebGL, or says plainly that it cannot', async ({ page }) => {
   await page.goto('app/#sample');
   await page.waitForSelector('.summary-strip', { timeout: 60_000 });
+  // CI machines have no GPU; a browser that refuses WebGL there must get the app's message, not a blank box
+  const hasWebgl = await page.evaluate(() => {
+    const c = document.createElement('canvas');
+    return Boolean(c.getContext('webgl2') || c.getContext('webgl'));
+  });
   await page.locator('.sky-card').scrollIntoViewIfNeeded();
+  if (!hasWebgl) {
+    test.info().annotations.push({ type: 'note', description: 'this browser has no WebGL here; checked the fallback message' });
+    await expect(page.locator('.sky-card .sky-overlay')).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator('.sky-card .sky-spinner')).toHaveCount(0);
+    return;
+  }
   const canvas = page.locator('.sky-card canvas');
   await expect(canvas).toBeVisible({ timeout: 60_000 });
   const box = await canvas.boundingBox();
