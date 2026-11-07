@@ -61,7 +61,7 @@ try {
   // wait for the list to filter before choosing, so a slow machine does not pick the old top result
   await page.locator('.qs-list [role=option]').first().filter({ hasText: 'Dashamsha' }).waitFor({ timeout: 10000 }).catch(() => {});
   await page.keyboard.press('Enter');
-  await page.waitForTimeout(300);
+  await page.locator('.varga-caption', { hasText: 'Dashamsha' }).waitFor({ timeout: 5000 }).catch(() => {});
   if (!(await page.locator('.varga-caption').innerText()).includes('Dashamsha')) problems.push('quick switch: "dashamsha" + Enter did not open the D10');
   await page.locator('#varshaphal').scrollIntoViewIfNeeded();
   await page.waitForSelector('#varshaphal .vp-moment', { timeout: 60000 });
