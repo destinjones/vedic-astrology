@@ -23,6 +23,12 @@ try {
   brokenImages.forEach((s) => problems.push(`broken image: ${s}`));
   if (offsite.size) problems.push(`landing page called other sites: ${[...offsite].join(', ')}`);
 
+  // the other pages render (a page error is recorded by the handler above)
+  for (const p of ['compare/', 'match/', 'tools/']) {
+    await page.goto(`${url}${BASE}${p}`, { waitUntil: 'networkidle' });
+    if (!(await page.locator('#root').innerText()).trim()) problems.push(`${p}: page is blank`);
+  }
+
   await page.goto(`${url}${BASE}app/#sample`);
   await page.waitForSelector('.summary-strip', { timeout: 60000 });
   await page.waitForSelector('#yogas', { timeout: 60000 });
@@ -52,6 +58,8 @@ try {
   if (!(await page.locator('.varga-caption').innerText()).includes('Navamsha')) problems.push('keyboard: 9 did not open the Navamsha');
   await page.keyboard.press('ControlOrMeta+k');
   await page.locator('.qs-input').fill('dashamsha');
+  // wait for the list to filter before choosing, so a slow machine does not pick the old top result
+  await page.locator('.qs-list [role=option]').first().filter({ hasText: 'Dashamsha' }).waitFor({ timeout: 10000 }).catch(() => {});
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   if (!(await page.locator('.varga-caption').innerText()).includes('Dashamsha')) problems.push('quick switch: "dashamsha" + Enter did not open the D10');
@@ -97,4 +105,4 @@ if (problems.length) {
   console.error(`Site check failed:\n- ${problems.join('\n- ')}`);
   process.exit(1);
 }
-console.log('Site check passed: landing page, engine, readings, timeline, sky view, saved charts and share links all work.');
+console.log('Site check passed: landing page, engine, readings, Jaimini, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, saved charts and share links all work.');
