@@ -12,6 +12,7 @@ import { conjunctionKey } from './data/conditions';
 import { PLANET_PROFILES } from './data/planets';
 import { detectDoshas } from './doshas';
 import { localizer, type LocaleOptions } from './i18n/context';
+import { READING_SOURCES } from './sources';
 import type { ChartInput, Dignity, DoshaResult, PlanetId, Reading, Tone, YogaResult } from './types';
 import { PLANETS } from './types';
 import { detectYogas } from './yogas';
@@ -54,6 +55,7 @@ export function getPlanetInSign(planet: PlanetId, sign: number, dignity?: Dignit
     keywords: [...s.themes.slice(0, 2), ...pr.significations.slice(0, 2), dig],
     tone: toneOf(score),
     score,
+    source: READING_SOURCES.planetInSign,
   };
 }
 
@@ -77,6 +79,7 @@ export function getPlanetInHouse(planet: PlanetId, house: number, opts?: LocaleO
     keywords: [h.label, ...h.groups, pr.name.toLowerCase()],
     tone: toneOf(score),
     score,
+    source: READING_SOURCES.planetInHouse,
   };
 }
 
@@ -117,6 +120,7 @@ export function getPlanetInNakshatra(planet: PlanetId, nakshatra: number, pada?:
     keywords: [...n.keywords, n.gana, n.motivation],
     tone: toneOf(score),
     score,
+    source: READING_SOURCES.nakshatra,
   };
 }
 
@@ -136,13 +140,14 @@ export function getHouseLordIn(lordOf: number, placedIn: number, planet?: Planet
     keywords: [a.label, b.label],
     tone: toneOf(score),
     score,
+    source: READING_SOURCES.houseLord,
   };
 }
 
 export function getRetrograde(planet: PlanetId, opts?: LocaleOptions): Reading {
   const L = localizer(opts?.locale);
   const t = L.retrograde(planet);
-  return { id: `retro:${planet}`, title: L.ph.retroTitle(L.planetName(planet)), summary: t.summary, detail: [t.detail], strengths: t.strengths, challenges: t.challenges, keywords: L.ph.keywords.retrograde, tone: 'mixed', score: 0 };
+  return { id: `retro:${planet}`, title: L.ph.retroTitle(L.planetName(planet)), summary: t.summary, detail: [t.detail], strengths: t.strengths, challenges: t.challenges, keywords: L.ph.keywords.retrograde, tone: 'mixed', score: 0, source: READING_SOURCES.retrograde };
 }
 
 export function getConjunction(a: PlanetId, b: PlanetId, opts?: LocaleOptions): Reading | null {
@@ -150,7 +155,7 @@ export function getConjunction(a: PlanetId, b: PlanetId, opts?: LocaleOptions): 
   const k = conjunctionKey(a, b);
   const c = L.conjunction(k);
   if (!c) return null;
-  return { id: `conj:${k}`, title: L.ph.conjTitle(L.planetName(a), L.planetName(b)), summary: c[0], detail: [c[1]], strengths: [], challenges: [], keywords: L.ph.keywords.conjunction, tone: toneOf(c[2]), score: c[2] };
+  return { id: `conj:${k}`, title: L.ph.conjTitle(L.planetName(a), L.planetName(b)), summary: c[0], detail: [c[1]], strengths: [], challenges: [], keywords: L.ph.keywords.conjunction, tone: toneOf(c[2]), score: c[2], source: READING_SOURCES.conjunction };
 }
 
 export function getAspect(planet: PlanetId, distance: number, targetHouse: number, opts?: LocaleOptions): Reading {
@@ -170,6 +175,7 @@ export function getAspect(planet: PlanetId, distance: number, targetHouse: numbe
     keywords: L.ph.keywords.aspect,
     tone: toneOf(benefic),
     score: benefic,
+    source: READING_SOURCES.aspect,
   };
 }
 
