@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   EVENT_DEFS,
   SCORED_KINDS,
+  diffCandidates,
   rectify,
   type Candidate,
+  type CandidateDiff,
   type EventGroup,
   type LifeEvent,
   type LifeEventKind,
@@ -35,9 +37,11 @@ const load = (): Saved => {
  * Birth time finder. Takes the date and place of the current chart, a window
  * of possible times and dated life events, and ranks candidate times.
  */
-export default function RectificationSection({ context, onApply }: {
+export default function RectificationSection({ context, onApply, savedEvents = [] }: {
   context: NonNullable<Chart['engineContext']>;
   onApply: (date: string, time: string) => void;
+  /** Events already recorded in the life event checker for this person */
+  savedEvents?: { kind: LifeEventKind; date: string; precision?: Precision }[];
 }) {
   const { engine, chart } = context;
   const input = chart.meta.input;
@@ -62,6 +66,17 @@ export default function RectificationSection({ context, onApply }: {
   const update = (id: number, patch: Partial<Row>) => setRows((r) => r.map((x) => (x.id === id ? { ...x, ...patch } : x)));
   const remove = (id: number) => setRows((r) => r.filter((x) => x.id !== id));
   const ready = rows.filter(valid);
+  const rowKey = (r: { kind: string; date: string }) => `${r.kind}|${r.date}`;
+  const have = new Set(rows.filter(valid).map((r) => rowKey({ kind: r.kind, date: fullDate(r) })));
+  const importable = savedEvents.filter((e) => e.kind !== 'other' && !have.has(rowKey(e)));
+  const importSaved = () => setRows((r) => [
+    ...r,
+    ...importable.map((e, i) => ({ id: Date.now() + i + Math.random(), kind: e.kind, precision: e.precision ?? 'day', date: e.precision === 'year' ? e.date.slice(0, 4) : e.precision === 'month' ? e.date.slice(0, 7) : e.date })),
+  ]);
+  const [ranWith, setRanWith] = useState<LifeEvent[]>([]);
+  const compare = useCallback((a: Candidate, b: Candidate): CandidateDiff => diffCandidates(engine, a.jd, b.jd, input.place, {
+    ayanamsa: chart.meta.ayanamsa, nodeType: chart.meta.nodeType, events: ranWith,
+  }), [engine, input.place, chart.meta.ayanamsa, chart.meta.nodeType, ranWith]);
 
   const run = () => {
     setBusy(true);
@@ -82,6 +97,7 @@ export default function RectificationSection({ context, onApply }: {
           likely: useLikely && likely ? { time: likely, plusMinusMinutes: plusMinus } : undefined,
         });
         setResult(res);
+        setRanWith(events);
         setOpen(1);
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
@@ -120,7 +136,12 @@ export default function RectificationSection({ context, onApply }: {
 
         <div className="rect-step">
           <h4><span className="rect-num">2</span> What has happened in your life?</h4>
-          <p className="muted">Add events you know the date of. Three or more, of different kinds, work best. A month is enough; a year still helps.</p>
+          <p className="muted">Add events you know the date of. Three or more, of different kinds, work best. A month is enough; a year still helps. An exact day is also checked against the sookshma, the fourth dasha level.</p>
+          {importable.length > 0 && (
+            <button type="button" className="btn-ghost sm rect-import" onClick={importSaved}>
+              Use {importable.length} event{importable.length > 1 ? 's' : ''} from the life event checker
+            </button>
+          )}
           <div className="rect-chips">
             {GROUPS.map((g) => (
               <div key={g} className="rect-chip-group">
@@ -164,7 +185,7 @@ export default function RectificationSection({ context, onApply }: {
         {error && <p className="form-error" role="alert">{error}</p>}
       </div>
 
-      {result && <Results result={result} current={`${input.date} ${input.time.slice(0, 5)}`} open={open} setOpen={setOpen} onApply={onApply} />}
+      {result && <Results result={result} current={`${input.date} ${input.time.slice(0, 5)}`} open={open} setOpen={setOpen} onApply={onApply} compare={compare} />}
 
       <details className="rect-method">
         <summary>How the birth time finder works</summary>
@@ -177,12 +198,13 @@ export default function RectificationSection({ context, onApply }: {
   );
 }
 
-function Results({ result, current, open, setOpen, onApply }: {
+function Results({ result, current, open, setOpen, onApply, compare }: {
   result: RectifyResult;
   current: string;
   open: number;
   setOpen: (n: number) => void;
   onApply: (date: string, time: string) => void;
+  compare: (a: Candidate, b: Candidate) => CandidateDiff;
 }) {
   const hasEvents = result.candidates[0]?.events.length > 0;
   const conf = {
@@ -207,6 +229,9 @@ function Results({ result, current, open, setOpen, onApply }: {
           ))}
         </ol>
       )}
+
+      {hasEvents && result.candidates.length > 1 && <FitMatrix candidates={result.candidates} />}
+      {result.candidates.length > 1 && <DiffView candidates={result.candidates} compare={compare} />}
 
       <details className="rect-changes" open={!hasEvents}>
         <summary>Change points in your window ({changes.length} below, plus {d60Count} D60 changes)</summary>
@@ -268,7 +293,7 @@ function CandidateCard({ c, open, onToggle, onApply }: { c: Candidate; open: boo
               <ul className="rect-reasons">
                 {e.dasha.parts.map((p) => (
                   <li key={p.level}>
-                    <b>{['Mahadasha', 'Antardasha', 'Pratyantardasha'][p.level - 1]} {p.lord}</b>: {p.reasons.length ? p.reasons.join('; ') : 'no link to this event'}
+                    <b>{['Mahadasha', 'Antardasha', 'Pratyantardasha', 'Sookshma'][p.level - 1]} {p.lord}</b>: {p.reasons.length ? p.reasons.join('; ') : 'no link to this event'}
                   </li>
                 ))}
                 {e.transits.map((t) => <li key={t}><b>Transit</b>: {t}</li>)}
@@ -278,6 +303,90 @@ function CandidateCard({ c, open, onToggle, onApply }: { c: Candidate; open: boo
         </ul>
       )}
     </li>
+  );
+}
+
+/** Every event against every candidate: which time explains which event best. */
+function FitMatrix({ candidates }: { candidates: Candidate[] }) {
+  const events = candidates[0].events;
+  return (
+    <details className="rect-matrix" open>
+      <summary>Event fit across the candidates</summary>
+      <div className="rect-table-wrap">
+        <table>
+          <thead>
+            <tr><th>Event</th>{candidates.map((c) => <th key={c.jd}>#{c.rank} {c.localTime}</th>)}</tr>
+          </thead>
+          <tbody>
+            {events.map((e, i) => {
+              const scores = candidates.map((c) => c.events[i]?.score ?? 0);
+              const max = Math.max(...scores);
+              return (
+                <tr key={i}>
+                  <td><b>{e.label}</b> <small className="muted">{e.event.precision === 'year' ? e.event.date.slice(0, 4) : e.event.precision === 'month' ? e.event.date.slice(0, 7) : e.event.date}</small></td>
+                  {candidates.map((c, k) => (
+                    <td key={c.jd} className={scores[k] >= max - 0.05 ? 'is-best' : ''} title={c.events[i]?.dasha.chain}>
+                      {Math.round(scores[k])}<small className="muted"> {c.events[i]?.dasha.chain}</small>
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="muted rect-note">Each cell is how well that time explains the event (0–100) and the dasha chain running then. The highlighted cell is the best time for that event. A time that wins most rows, not just the total, is the stronger lead.</p>
+    </details>
+  );
+}
+
+/** Two candidates side by side: what choosing one over the other changes. */
+function DiffView({ candidates, compare }: { candidates: Candidate[]; compare: (a: Candidate, b: Candidate) => CandidateDiff }) {
+  const [ai, setAi] = useState(0);
+  const [bi, setBi] = useState(1);
+  const [all, setAll] = useState(false);
+  const a = candidates[ai], b = candidates[bi];
+  const diff = useMemo(() => (a && b && a !== b ? compare(a, b) : null), [a, b, compare]);
+  const pick = (v: number, set: (n: number) => void) => (
+    <select value={v} onChange={(e) => set(Number(e.target.value))}>
+      {candidates.map((c, i) => <option key={c.jd} value={i}>#{c.rank} {c.localTime} ({c.lagna.name}, D9 {c.navamsa.name})</option>)}
+    </select>
+  );
+  const rows = diff ? diff.rows.filter((r) => all || r.changed) : [];
+  const groups = [...new Set(rows.map((r) => r.group))];
+  return (
+    <details className="rect-diff" open>
+      <summary>Compare two times</summary>
+      <div className="rect-row rect-diff-pick">
+        <label className="field"><span>Time A</span>{pick(ai, setAi)}</label>
+        <label className="field"><span>Time B</span>{pick(bi, setBi)}</label>
+        <label className="rect-check"><input type="checkbox" checked={all} onChange={(e) => setAll(e.target.checked)} /><span>Show what stays the same</span></label>
+      </div>
+      {!diff && <p className="muted">Pick two different times.</p>}
+      {diff && (
+        <>
+          <p className="rect-summary">{diff.summary}</p>
+          <div className="rect-table-wrap">
+            <table>
+              <thead><tr><th /><th>A · {a.localTime}</th><th>B · {b.localTime}</th></tr></thead>
+              {groups.map((g) => (
+                <tbody key={g}>
+                  <tr className="rect-diff-group"><th colSpan={3}>{g}</th></tr>
+                  {rows.filter((r) => r.group === g).map((r) => (
+                    <tr key={r.label} className={r.changed ? 'is-changed' : ''}>
+                      <td>{r.label}</td>
+                      <td>{r.a}{r.scoreA !== undefined && <small className="muted"> · fit {Math.round(r.scoreA)}</small>}</td>
+                      <td>{r.b}{r.scoreB !== undefined && <small className={`muted${(r.scoreB ?? 0) > (r.scoreA ?? 0) + 2 ? ' good' : (r.scoreA ?? 0) > (r.scoreB ?? 0) + 2 ? ' bad' : ''}`}> · fit {Math.round(r.scoreB)}</small>}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              ))}
+            </table>
+          </div>
+          {!rows.length && <p className="muted">Nothing differs between these two times.</p>}
+        </>
+      )}
+    </details>
   );
 }
 

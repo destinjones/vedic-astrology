@@ -88,6 +88,10 @@ export type {
   KpOptions,
 } from './kp';
 export { castPrashna, PRASHNA_TOPICS } from './prashna';
+export { prashnaTiming, lordVerdicts } from './prashnaTiming';
+export { castEventChart, contactsBetween } from './eventChart';
+export type { EventChartReading, EventContact, ContactKind } from './eventChart';
+export type { PrashnaTiming, PrashnaTimingWindow, LordVerdict } from './prashnaTiming';
 export type { PrashnaTopic, PrashnaTopicDef, PrashnaInput, PrashnaFactor, PrashnaVerdict, PrashnaResult } from './prashna';
 export { findMuhurtas, MUHURTA_ACTIVITIES, MUHURTA_WEIGHTS, NAKSHATRA_GROUPS } from './muhurta';
 export type {
