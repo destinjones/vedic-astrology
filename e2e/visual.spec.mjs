@@ -10,6 +10,11 @@ const STYLES = { north: 'North', south: 'South' };
 // checked, make every PNG several times larger, and dither differently across GPUs.
 const FLAT = 'body, .card { background: #17142f !important; backdrop-filter: none !important; box-shadow: none !important; }';
 
+// The drifting starfield behind this long page repaints every frame, which a software GPU manages
+// at about two frames a second; Playwright's stable-element checks then time out on CI. Reduced
+// motion stops it (as the site does for visitors who ask) and leaves the chart itself unchanged.
+test.use({ reducedMotion: 'reduce' });
+
 for (const [size, viewport] of Object.entries(BREAKPOINTS)) {
   for (const [style, label] of Object.entries(STYLES)) {
     test(`chart ${style} ${size}`, async ({ page }) => {
