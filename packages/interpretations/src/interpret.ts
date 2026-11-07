@@ -208,21 +208,31 @@ export interface ChartInterpretation {
   highlights: { strengths: Reading[]; challenges: Reading[] };
 }
 
-export function interpretChart(chart: ChartInput, opts?: LocaleOptions): ChartInterpretation {
+export interface InterpretOptions extends LocaleOptions {
+  /**
+   * Bhava chalit houses: when given, planet-in-house and house-lord placement
+   * readings follow the bhava a planet occupies instead of its whole-sign house.
+   * Yogas and doshas stay sign-based, as the classical rules are written.
+   */
+  bhavaHouses?: Partial<Record<PlanetId, number>>;
+}
+
+export function interpretChart(chart: ChartInput, opts?: InterpretOptions): ChartInterpretation {
   const L = localizer(opts?.locale);
+  const placedIn = (p: PlanetId) => opts?.bhavaHouses?.[p] ?? houseOf(chart, p);
   const planets = {} as Record<PlanetId, PlanetReport>;
   const placements: Reading[] = [];
   const houseLords: Reading[] = [];
 
   for (let h = 1; h <= 12; h++) {
     const lord = lordOfHouse(chart, h);
-    houseLords.push(getHouseLordIn(h, houseOf(chart, lord), lord, opts));
+    houseLords.push(getHouseLordIn(h, placedIn(lord), lord, opts));
   }
 
   for (const p of PLANETS) {
     const pos = chart.planets[p];
     const dignity = dignityOf(chart, p);
-    const house = houseOf(chart, p);
+    const house = placedIn(p);
     const sign = getPlanetInSign(p, pos.sign, dignity, opts);
     const houseR = getPlanetInHouse(p, house, opts);
     const nak = getPlanetInNakshatra(p, pos.nakshatra, pos.pada, opts);

@@ -7,6 +7,7 @@ import type { ChartStyle } from '../types/ui';
 import type { LifeEvent } from '@vedic/timing';
 import { sanitizeInput } from './profiles';
 import { loadEvents, sanitizeEvents } from './lifeEvents';
+import { parseAnnotations, type Annotation } from './annotations';
 
 export type EntryKind = 'question' | 'prediction' | 'note';
 export type Outcome = 'open' | 'came-true' | 'partly' | 'did-not';
@@ -39,6 +40,8 @@ export interface Tab {
   varga?: VargaId;
   /** true once the person renamed the tab, so later charts keep their label */
   named?: boolean;
+  /** Notes pinned to houses and planets of this chart. */
+  annotations?: Annotation[];
 }
 
 export interface Workspace {
@@ -51,7 +54,7 @@ export interface Workspace {
 
 export const MAX_ARCHIVED = 500;
 /** A tab worth keeping when it is closed. */
-export const hasContent = (t: Tab) => !!t.input || !!t.notes.trim() || t.log.length > 0 || t.events.length > 0;
+export const hasContent = (t: Tab) => !!t.input || !!t.notes.trim() || t.log.length > 0 || t.events.length > 0 || !!t.annotations?.length;
 
 const KEY = 'vedic.tabs.v1';
 export const MAX_TABS = 24;
@@ -100,6 +103,7 @@ export function parseTab(t: unknown, n: number): Tab | null {
     style: r.style === 'south' ? 'south' : r.style === 'north' ? 'north' : undefined,
     varga: typeof r.varga === 'string' && /^D\d{1,2}$/.test(r.varga) ? (r.varga as VargaId) : undefined,
     named: r.named === true,
+    annotations: Array.isArray(r.annotations) && r.annotations.length ? parseAnnotations(r.annotations) : undefined,
   };
 }
 

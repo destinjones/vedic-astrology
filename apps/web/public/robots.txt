@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://destinjones.github.io/vedic-astrology/sitemap.xml
+Sitemap: https://destinjones.github.io/vedic-astrology/learn/sitemap.xml

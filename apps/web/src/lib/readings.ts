@@ -11,9 +11,10 @@ export interface Knowledge {
 }
 
 /** The reading library is large, so it loads as its own chunk after the chart appears; each language pack is another chunk. */
-export async function loadKnowledge(chart: EngineChart, locale = 'en'): Promise<Knowledge> {
+/** bhavaHouses: bhava chalit houses, so placement readings follow the bhava instead of the sign. */
+export async function loadKnowledge(chart: EngineChart, locale = 'en', bhavaHouses?: Partial<Record<string, number>>): Promise<Knowledge> {
   const m = await import('@vedic/interpretations');
   const loaded = m.hasReadings(locale) ? await m.loadLocale(locale) : 'en';
   const L = m.localizer(loaded);
-  return { report: m.interpretChart(m.fromEngineChart(chart), { locale: loaded }), getNakshatra: (n) => L.nakshatra(n), locale: loaded };
+  return { report: m.interpretChart(m.fromEngineChart(chart), { locale: loaded, bhavaHouses }), getNakshatra: (n) => L.nakshatra(n), locale: loaded };
 }

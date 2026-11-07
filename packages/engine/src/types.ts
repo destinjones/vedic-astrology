@@ -352,6 +352,11 @@ export interface ChartMeta {
   utcOffsetMinutes: number;
   /** Birth was before standard time in the zone: the place's own Local Mean Time was used */
   localMeanTime: boolean;
+  /**
+   * Notes on how the birth time was resolved: LMT, DST gaps and overlaps, and
+   * periods where local clocks differed from the tz database (see TZ_HISTORY).
+   */
+  timeWarnings?: import('./timezoneHistory').TimeWarning[];
   /** Birth instant, ISO UTC */
   utc: string;
   /** Julian day (UT) */
@@ -382,6 +387,8 @@ export interface Chart {
   /** Yogini, Ashtottari and Kalachakra dashas, same depth and year length as `dasha` */
   dashas: OtherDashas;
   panchanga: Panchanga;
+  /** Bhava chalit (house) chart by the Sripati and equal-house methods, whatever houseSystem is */
+  bhavaChalit: { sripati: import('./bhava').BhavaChalit; equal: import('./bhava').BhavaChalit };
   /** Shadbala for the seven grahas and Bhava Bala for the twelve houses (absent when options.strength is false) */
   strength?: import('./strength').ChartStrength;
 }
