@@ -1,5 +1,6 @@
 export * from './types';
 export * from './astro';
+export * from './classical';
 export * from './dasha';
 export * from './ashtakavarga';
 export * from './events';
