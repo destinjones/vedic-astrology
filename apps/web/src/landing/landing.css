@@ -29,6 +29,7 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.04; mar
 .nav { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 22px clamp(16px, 5vw, 64px); font-size: 15px; }
 .nav a { color: var(--text); text-decoration: none; opacity: .85; }
 .nav a:hover { opacity: 1; text-decoration: underline; }
+.nav-links { display: flex; gap: 20px; flex-wrap: wrap; justify-content: flex-end; }
 .wordmark { font: 600 22px var(--serif); }
 .wordmark span { color: var(--gold); }
 .hero-copy { margin-block: auto; padding: 24px clamp(16px, 5vw, 64px) 72px; max-width: 920px; }

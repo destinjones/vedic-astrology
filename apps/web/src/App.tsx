@@ -29,6 +29,8 @@ import { compareHash } from './compare/sources';
 import { YogaDoshaCard } from './components/YogaDoshaCard';
 import { StrengthSection } from './components/StrengthSection';
 import { ReportActions } from './components/ReportActions';
+import { FamousCharts } from './components/FamousCharts';
+import { FAMOUS_CHARTS, famousChartById, RODDEN_MEANING } from './data/famousCharts';
 import { loadKnowledge, type Knowledge } from './lib/readings';
 
 const SkyView = lazy(() => import('./components/SkyView'));
@@ -86,11 +88,14 @@ export default function App() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [ws, setWs] = useState<Workspace>(loadWorkspace);
   const [presenting, setPresenting] = useState(false);
+  const [showFamous, setShowFamous] = useState(false);
   // worked-out charts per tab, so switching tabs is instant
   const charts = useRef(new Map<string, Chart>());
   const wsRef = useRef(ws);
   wsRef.current = ws;
   const activeTab = ws.tabs.find((t) => t.id === ws.activeId) ?? ws.tabs[0];
+  // a chart from the famous charts library shows where its birth data comes from
+  const famous = chart ? FAMOUS_CHARTS.find((f) => sameBirth(f.input, chart.input)) ?? null : null;
 
   useEffect(() => { storeWorkspace(ws); }, [ws]);
   const patchTab = (id: string, patch: Partial<Tab>) =>
@@ -140,7 +145,11 @@ export default function App() {
       setChart(c);
       setEditing(false);
       setSelection({ kind: 'asc' });
-      try { localStorage.setItem(STORE_KEY, JSON.stringify(i)); } catch { /* ignore */ }
+      setShowFamous(false);
+      // a famous chart never replaces the visitor's own saved details
+      if (!FAMOUS_CHARTS.some((f) => sameBirth(f.input, i))) {
+        try { localStorage.setItem(STORE_KEY, JSON.stringify(i)); } catch { /* ignore */ }
+      }
     } finally {
       setBusy(false);
     }
@@ -159,7 +168,11 @@ export default function App() {
   // and a share link (/app/#d=…&t=…) opens the chart it carries.
   useEffect(() => {
     const open = () => {
-      const linked = location.hash === '#sample' ? DEFAULT_INPUT : parseShareHash(location.hash);
+      // /app/#famous opens the famous charts library, /app/#famous=<id> opens one chart
+      const fm = /^#famous(?:=([\w-]+))?$/.exec(location.hash);
+      const famousLinked = fm?.[1] ? famousChartById(fm[1])?.input : undefined;
+      if (fm && !famousLinked) { setShowFamous(true); history.replaceState(null, '', location.pathname + location.search); }
+      const linked = famousLinked ?? (location.hash === '#sample' ? DEFAULT_INPUT : parseShareHash(location.hash));
       if (linked) {
         openInTab(linked);
         // the tab remembers it now; a reload should show the tabs as they were left
@@ -351,6 +364,7 @@ export default function App() {
         </a>
         <div className="topbar-actions">
           <QuickSwitch commands={commands} />
+          <button className="btn-ghost" aria-expanded={showFamous} onClick={() => setShowFamous((v) => !v)}>Famous charts</button>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`}>Compare charts</a>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}match/`}>Compatibility</a>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}tools/`}>KP · Prashna · Muhurta</a>
@@ -385,7 +399,11 @@ export default function App() {
         <div className="card tab-loading" role="status">Opening {activeTab.label}'s chart…</div>
       )}
 
-      {(editing || !chart) && !(busy && !chart && activeTab.input) && (
+      {showFamous && (
+        <FamousCharts busy={busy} onOpen={(c) => openInTab(c.input)} onClose={() => setShowFamous(false)} />
+      )}
+
+      {(editing || !chart) && !showFamous && !(busy && !chart && activeTab.input) && (
         <section id="intake" className={`intake ${chart ? 'intake-compact' : ''}`}>
           {!chart && (
             <div className="intake-copy">
@@ -445,6 +463,17 @@ export default function App() {
               <small>{chart.input.name || 'Birth'}</small>
               <b>{chart.input.date} · {chart.input.time} · {chart.input.place}</b>
             </div>
+            {famous && (
+              <div className="summary-item">
+                <small>Rodden rating</small>
+                <b title={RODDEN_MEANING[famous.rodden]}>
+                  {famous.rodden}{' '}
+                  {famous.sourceUrl
+                    ? <a className="muted" href={famous.sourceUrl} target="_blank" rel="noopener noreferrer">{famous.source}</a>
+                    : <span className="muted">{famous.source}</span>}
+                </b>
+              </div>
+            )}
           </section>
 
           <div className="explorer-grid">

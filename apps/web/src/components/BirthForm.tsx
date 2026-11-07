@@ -21,7 +21,13 @@ const ZONES: string[] = (() => {
 export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel = 'Reveal my chart' }: Props) {
   const [f, setF] = useState<BirthInput>(initial);
   const [error, setError] = useState<string | null>(null);
-  const set = <K extends keyof BirthInput>(k: K, v: BirthInput[K]) => setF((s) => ({ ...s, [k]: v }));
+  // A fixed UTC offset (from the famous charts library) only fits the birth it came with,
+  // so editing the date, time or place drops it and the zone's own rules apply again.
+  const set = <K extends keyof BirthInput>(k: K, v: BirthInput[K]) => setF((s) => {
+    const next = { ...s, [k]: v };
+    if (k !== 'name' && k !== 'ayanamsa') delete next.utcOffsetMinutes;
+    return next;
+  });
 
   const [showMatches, setShowMatches] = useState(false);
   const [remote, setRemote] = useState<City[]>([]);
