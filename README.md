@@ -27,12 +27,15 @@ There is no second page and no price. Click any planet, house or nakshatra and t
 | **Ashtakavarga** | All seven tables, the SAV and who gave each point |
 | **Varshaphal** | The Tajika annual chart for any year, cast for the second the Sun returns: Muntha, year lord, Tajika yogas, 20 Sahams and the Mudda dasha |
 | **Four ayanamsas** | Lahiri, True Chitra, Raman and Krishnamurti |
+| **Eclipses and Sankrantis** | Every eclipse with its shadow path, whether your place sees it and which chart points it lands on; the twelve Sankranti ingress charts of any year, and national charts |
+| **Real stars** | Swap the 3D view's painted backdrop for the real stars and constellations, or show the sky tonight |
+| **Your data, your way** | Rodden rating per chart, CSV, JSON and AAF export, bulk paste, imports from Astro-Databank, AAF and Jagannatha Hora, a batch view of every saved chart, and encrypted sync with no account |
 
 ## Hold your birth sky in your hands
 
 <a href="https://destinjones.github.io/vedic-astrology/app/#sample"><img src="apps/web/public/media/sky.gif" width="680" alt="A 3D view rotating: nine rendered planets stand on a gold wheel of signs and nakshatras, each tethered to its longitude."></a>
 
-Nine planets rendered in Blender, each tethered to its exact sidereal degree. Spin it, zoom it, click a planet to read it. Planet longitudes are calculated from your birth data. The starry backdrop is artwork, not a map of real stars.
+Nine planets rendered in Blender, each tethered to its exact sidereal degree. Spin it, zoom it, click a planet to read it. Planet longitudes are calculated from your birth data. The painted backdrop is artwork; press **Real stars** for the actual stars and constellations at their sidereal positions.
 
 ## See your whole life as weather
 
@@ -41,8 +44,8 @@ Nine planets rendered in Blender, each tethered to its exact sidereal degree. Sp
 ## Why you can check all of it
 
 - **Real ephemeris.** Positions come from the [Swiss Ephemeris](https://www.astro.com/swisseph/), compiled to WebAssembly.
-- **Tested against real events.** The suite checks the Mercury stations of April 2024, Saturn entering sidereal Pisces on 2025-03-29, Jupiter entering Gemini on 2025-05-14, published Sade Sati dates and ashtakavarga totals (SAV = 337). `npm test` runs all 75 tests.
-- **Your birth data stays home.** The chart is worked out and saved in your browser. The only thing sent anywhere is the text you type in the place box, to a city lookup, and you can skip that by entering coordinates by hand. Fonts and art are served from this site. There is no analytics.
+- **Tested against real events.** The suite checks the Mercury stations of April 2024, Saturn entering sidereal Pisces on 2025-03-29, Jupiter entering Gemini on 2025-05-14, published Sade Sati dates and ashtakavarga totals (SAV = 337). `npm test` runs every package's tests. The [accuracy page](https://destinjones.github.io/vedic-astrology/accuracy/) measures every position source against the Swiss Ephemeris files, and [known limitations](https://destinjones.github.io/vedic-astrology/limitations/) lists what is approximate.
+- **Your birth data stays home.** The chart is worked out and saved in your browser. Place search runs on a built-in list of 25,506 places; the only thing that can be sent anywhere is the text you type in the place box, to a city lookup for small towns, and one switch turns that off. Sync between devices is encrypted in the browser with your passphrase and goes only to a server you choose. Fonts and art are served from this site. There is no analytics.
 - **Every rule is public.** Read how a yoga is detected in [`packages/interpretations`](packages/interpretations/src/yogas.ts). Disagree with one? Open an issue.
 
 ## Keep your feet on the ground
@@ -67,6 +70,7 @@ Then open <http://localhost:5173/>. The chart itself is at `/app/`.
 | [`packages/timing`](packages/timing) | Dasha scoring, transits, Sade Sati, retrogrades, ashtakavarga, timeline UI |
 | [`packages/interpretations`](packages/interpretations) | The readings and the yoga and dosha detectors |
 | [`packages/tajika`](packages/tajika) | Varshaphal: the Tajika annual chart and its readings |
+| [`packages/sky`](packages/sky) | Eclipses, Sankranti ingresses and the real star catalogue |
 | [`blender`](blender), [`assets/3d`](assets/3d) | The scripts that render the art, and the renders |
 | [`tools`](tools) | The site check that guards each deploy, and the recorder for these GIFs |
 

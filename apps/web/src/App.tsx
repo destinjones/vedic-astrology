@@ -47,6 +47,7 @@ const EventChecker = lazy(() => import('./components/EventChecker'));
 const JaiminiSection = lazy(() => import('./components/JaiminiSection'));
 const RectificationSection = lazy(() => import('./components/RectificationSection'));
 const VarshaphalSection = lazy(() => import('./components/VarshaphalSection'));
+const SkyEvents = lazy(() => import('./components/SkyEvents'));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
 function WhenVisible({ children, minHeight }: { children: React.ReactNode; minHeight: number }) {
@@ -254,12 +255,13 @@ export default function App() {
   };
   const forgetTab = (tab: Tab) => setWs((w) => ({ ...w, archived: w.archived.filter((t) => t.id !== tab.id) }));
   const backup = () => downloadText(exportAll(wsRef.current, profiles), backupFileName());
-  const restore = (text: string) => {
+  const restore = (text: string, sync = false) => {
     try {
-      const r = restoreAll(wsRef.current, profiles, text);
+      const r = restoreAll(wsRef.current, profiles, text, { mergeExisting: sync });
       wsRef.current = r.ws;
       setWs(r.ws);
       saveProfiles(r.profiles);
+      if (sync) return `Merged ${r.tabsAdded} new tab${r.tabsAdded === 1 ? '' : 's'} and ${r.chartsAdded} new saved chart${r.chartsAdded === 1 ? '' : 's'}, and joined notes and history on the rest.`;
       if (!r.tabsAdded && !r.chartsAdded) return 'Everything in that backup is already here.';
       return `Restored ${r.tabsAdded} tab${r.tabsAdded === 1 ? '' : 's'} and ${r.chartsAdded} saved chart${r.chartsAdded === 1 ? '' : 's'}.`;
     } catch {
@@ -495,6 +497,7 @@ export default function App() {
               onForget={forgetTab}
               onBackup={backup}
               onRestore={restore}
+              onSyncMerge={(text) => restore(text, true)}
               backupText={() => exportAll(wsRef.current, profiles)}
               onImport={importMany}
               onBatch={() => { setShowBatch(true); requestAnimationFrame(() => document.getElementById('batch')?.scrollIntoView({ behavior: 'smooth', block: 'start' })); }}
@@ -690,6 +693,17 @@ export default function App() {
               <WhenVisible minHeight={600}>
                 <Suspense fallback={<div className="sky-overlay static">Casting your annual chart…</div>}>
                   <VarshaphalSection key={chart.engineContext.chart.meta.utc} context={chart.engineContext} chart={chart} style={style} />
+                </Suspense>
+              </WhenVisible>
+            </section>
+          )}
+
+          {chart.engineContext && (
+            <section className="card" id="eclipses">
+              <div className="card-head"><h3>Eclipses and Sankrantis</h3><span className="muted">where the shadows fall, on Earth and on this chart</span></div>
+              <WhenVisible minHeight={420}>
+                <Suspense fallback={<div className="sky-overlay static">Finding eclipses…</div>}>
+                  <SkyEvents key={chart.engineContext.chart.meta.utc} context={chart.engineContext} input={chart.input} profiles={profiles} onOpen={(i) => { openInTab(i); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
                 </Suspense>
               </WhenVisible>
             </section>

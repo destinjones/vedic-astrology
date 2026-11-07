@@ -201,6 +201,25 @@ const ROWS: Row[] = [
   { id: 'prince-harry', label: 'Prince Harry, Duke of Sussex', country: 'GB', field: 'Member of the royal family',
     date: '1984-09-15', time: '16:20', place: 'Paddington, London, England', lat: 51.5167, lon: -0.172, tz: 'Europe/London',
     rodden: 'A', source: NEWS, collector: 'Dana Holliday', sourceUrl: AT('Prince_Harry,_Duke_of_Sussex') },
+
+  // ── Nations (mundane charts) ───────────────────────────
+  // A country's chart is cast for the moment its founding act took effect.
+  { id: 'india-1947', label: 'India (independence)', country: 'IN', field: 'Nation: the Indian Independence Act took effect at midnight',
+    date: '1947-08-15', time: '00:00', place: 'New Delhi, India', lat: 28.6139, lon: 77.209, tz: 'Asia/Kolkata',
+    rodden: 'AA', source: 'Indian Independence Act 1947, effective from the start of 15 August 1947',
+    note: 'The chart most Indian astrologers use for the nation: Taurus lagna, five planets in Cancer.' },
+  { id: 'india-republic-1950', label: 'India (republic)', country: 'IN', field: 'Nation: the Constitution came into force',
+    date: '1950-01-26', time: '10:18', place: 'New Delhi, India', lat: 28.6139, lon: 77.209, tz: 'Asia/Kolkata',
+    rodden: 'B', source: 'The widely cited time of the proclamation of the Republic by C. Rajagopalachari, 10:18 a.m.',
+    note: 'Some astrologers use this chart for the Indian state rather than the 1947 chart.' },
+  { id: 'usa-1776', label: 'United States (Sibly chart)', country: 'US', field: 'Nation: the Declaration of Independence',
+    date: '1776-07-04', time: '17:10', place: 'Philadelphia, Pennsylvania, USA', lat: 39.9526, lon: -75.1652, tz: 'America/New_York',
+    rodden: 'C', source: 'Ebenezer Sibly, 1787; the hour of signing was not recorded, so the time is a tradition, not a record',
+    note: 'Local mean time of Philadelphia. Several other times are in use; this is the most common.' },
+  { id: 'uk-1801', label: 'United Kingdom', country: 'GB', field: 'Nation: the Acts of Union 1800 took effect',
+    date: '1801-01-01', time: '00:00', place: 'London, England', lat: 51.5074, lon: -0.1278, tz: 'Europe/London',
+    rodden: 'AA', source: 'Union with Ireland Act 1800, effective from 1 January 1801',
+    note: 'Local mean time of London (Greenwich time was not yet standard).' },
 ];
 
 export const FAMOUS_CHARTS: FamousChart[] = ROWS.map(({ date, time, place, lat, lon, tz, utcOffsetMinutes, ...rest }) => ({

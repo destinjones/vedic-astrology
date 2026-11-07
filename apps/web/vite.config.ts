@@ -74,6 +74,9 @@ export default defineConfig({
   plugins: [react(), swissEphAssets(), cosmosAssets()],
   build: {
     rollupOptions: {
+      // reading a property of an imported constant (astronomy-engine's Body enum) has no side effect;
+      // without this the timing package's fallback ephemeris drags astronomy-engine into the first load
+      treeshake: { propertyReadSideEffects: false },
       input: { landing: join(here, 'index.html'), app: join(here, 'app/index.html'), compare: join(here, 'compare/index.html'), match: join(here, 'match/index.html'), tools: join(here, 'tools/index.html') },
     },
   },

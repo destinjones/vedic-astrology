@@ -15,7 +15,8 @@
     "build:pages": "node tools/build-pages.mjs",
     "smoke": "node tools/smoke.mjs",
     "demos": "node tools/record-demos.mjs",
-    "build:gazetteer": "node tools/build-gazetteer.mjs"
+    "build:gazetteer": "node tools/build-gazetteer.mjs",
+    "accuracy": "tsx tools/accuracy.mts"
   },
   "engines": {
     "node": ">=20"

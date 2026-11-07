@@ -25,6 +25,7 @@
     "@vedic/interpretations": "*",
     "@vedic/jaimini": "*",
     "@vedic/rectification": "*",
+    "@vedic/sky": "*",
     "@vedic/tajika": "*",
     "@vedic/timing": "*",
     "harfbuzzjs": "^1.6.4",

@@ -28,11 +28,13 @@ interface ListProps {
   onRestore: (text: string) => string;
   /** Full backup text, for encrypted sync */
   backupText: () => string;
+  /** Merges another device's synced data, joining tabs both sides have */
+  onSyncMerge: (text: string) => string;
   onImport: (items: { label: string; input: BirthInput }[]) => number;
   onBatch: () => void;
 }
 
-export function SavedCharts({ profiles, current, busy, onOpen, onEdit, onDelete, closed, onReopen, onForget, onBackup, onRestore, backupText, onImport, onBatch }: ListProps) {
+export function SavedCharts({ profiles, current, busy, onOpen, onEdit, onDelete, closed, onReopen, onForget, onBackup, onRestore, backupText, onSyncMerge, onImport, onBatch }: ListProps) {
   const [note, setNote] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -108,7 +110,7 @@ export function SavedCharts({ profiles, current, busy, onOpen, onEdit, onDelete,
         </details>
       )}
       {note && <p className="muted saved-note" role="status">{note}</p>}
-      <DataTools profiles={profiles} onImport={onImport} backupText={backupText} onMerge={onRestore} />
+      <DataTools profiles={profiles} onImport={onImport} backupText={backupText} onMerge={onSyncMerge} />
     </div>
   );
 }
