@@ -17,7 +17,7 @@ import { findRetrogrades, RETRO_MEANING, RETRO_PLANETS, retroStatusAt } from './
 // ---------------------------------------------------------------- event model
 
 export type LifeEventKind =
-  | 'marriage' | 'relationship' | 'separation' | 'childbirth'
+  | 'marriage' | 'relationship' | 'separation' | 'childbirth' | 'sibling-birth'
   | 'job' | 'promotion' | 'job-loss' | 'business'
   | 'education' | 'relocation' | 'foreign-travel' | 'property'
   | 'wealth' | 'financial-loss' | 'illness' | 'accident'
@@ -54,6 +54,7 @@ export const EVENT_SIGNIFICATIONS: Record<LifeEventKind, EventSignification> = {
   relationship: { label: 'Relationship began', group: 'Relationships', houses: [7, 5, 11], karakas: ['Venus'], rule: '5th of romance, 7th of partnership, 11th of desires fulfilled; Venus as karaka' },
   separation: { label: 'Separation or divorce', group: 'Relationships', houses: [7, 6, 8, 12], karakas: ['Venus'], rule: 'the 7th afflicted, with the 6th (disputes), 8th (breaks) and 12th (loss)' },
   childbirth: { label: 'Birth of a child', group: 'Relationships', houses: [5, 9, 2], karakas: ['Jupiter'], rule: '5th of children (9th is the 5th from the 5th), 2nd of family growth; Jupiter as putra karaka' },
+  'sibling-birth': { label: 'Birth of a sibling', group: 'Relationships', houses: [3, 11], karakas: ['Mars'], rule: '3rd of younger and 11th of elder siblings; Mars as bhratru karaka' },
   job: { label: 'New job', group: 'Career and money', houses: [10, 6, 2, 11], karakas: ['Sun', 'Saturn', 'Mercury'], rule: '10th of career, 6th of service, 2nd and 11th of income' },
   promotion: { label: 'Promotion or recognition', group: 'Career and money', houses: [10, 11, 9, 1], karakas: ['Sun', 'Jupiter'], rule: '10th of status, 11th of gains, 9th of fortune' },
   'job-loss': { label: 'Lost a job', group: 'Career and money', houses: [12, 8, 9, 6], karakas: ['Saturn'], rule: '12th of loss, 8th of disruption, 9th (12th from the 10th) ends the post' },

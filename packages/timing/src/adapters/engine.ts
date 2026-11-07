@@ -101,12 +101,19 @@ export function dashaSystemsFromChart(chart: Chart): DashaSystemInput[] {
   return out;
 }
 
-/** Check one or more life events against the chart with the engine's ephemeris and every dasha system it carries. */
-export function checkLifeEventsForChart(engine: Engine, chart: Chart, events: LifeEvent[]): EventCheck[] {
+/** Everything needed to check events for one chart, built once (the lifetime baseline is the slow part). */
+export function lifeEventContext(engine: Engine, chart: Chart) {
   const natal = natalFromChart(chart);
   const eph = engineEphemeris(engine, { ayanamsa: chart.meta.ayanamsa, nodeType: chart.meta.nodeType });
   const systems = dashaSystemsFromChart(chart);
   const saturn = lifetimeSaturn(eph, natal);
-  const baseline = eventBaseline(eph, natal, systems, saturn, new Date(Math.min(Date.now(), natal.birth.getTime() + 80 * 365.25 * 86_400_000)));
-  return events.map((e) => checkLifeEvent(eph, natal, e, { systems, saturn, baseline }));
+  const to = new Date(Math.min(Date.now(), natal.birth.getTime() + 80 * 365.25 * 86_400_000));
+  const baseline = eventBaseline(eph, natal, systems, saturn, to);
+  return { natal, eph, systems, check: (e: LifeEvent): EventCheck => checkLifeEvent(eph, natal, e, { systems, saturn, baseline }) };
+}
+
+/** Check one or more life events against the chart with the engine's ephemeris and every dasha system it carries. */
+export function checkLifeEventsForChart(engine: Engine, chart: Chart, events: LifeEvent[]): EventCheck[] {
+  const ctx = lifeEventContext(engine, chart);
+  return events.map(ctx.check);
 }

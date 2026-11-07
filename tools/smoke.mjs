@@ -32,6 +32,8 @@ try {
 
   await page.locator('#timing').scrollIntoViewIfNeeded();
   await page.waitForSelector('#timing .vt-card', { timeout: 60000 });
+  await page.locator('#events').scrollIntoViewIfNeeded();
+  await page.waitForSelector('#events .ev-form', { timeout: 60000 });
   await page.locator('.sky-card').scrollIntoViewIfNeeded();
   await page.waitForSelector('.sky-card canvas', { timeout: 60000 });
   await page.waitForTimeout(1500);

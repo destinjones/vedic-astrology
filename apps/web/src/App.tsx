@@ -19,6 +19,7 @@ import { loadKnowledge, type Knowledge } from './lib/readings';
 
 const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
+const EventChecker = lazy(() => import('./components/EventChecker'));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
 function WhenVisible({ children, minHeight }: { children: React.ReactNode; minHeight: number }) {
@@ -243,6 +244,17 @@ export default function App() {
               <WhenVisible minHeight={600}>
                 <Suspense fallback={<div className="sky-overlay static">Working out your timeline…</div>}>
                   <TimingSection key={chart.engineContext.chart.meta.utc} context={chart.engineContext} name={chart.input.name} />
+                </Suspense>
+              </WhenVisible>
+            </section>
+          )}
+
+          {chart.engineContext && (
+            <section className="card events-card" id="events">
+              <div className="card-head"><h3>Life event checker</h3><span className="muted">what was running when something happened</span></div>
+              <WhenVisible minHeight={260}>
+                <Suspense fallback={<div className="sky-overlay static">Loading…</div>}>
+                  <EventChecker key={chart.engineContext.chart.meta.utc} context={chart.engineContext} input={chart.input} />
                 </Suspense>
               </WhenVisible>
             </section>
