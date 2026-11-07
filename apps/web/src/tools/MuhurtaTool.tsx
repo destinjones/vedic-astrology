@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import {
   MUHURTA_ACTIVITIES, findMuhurtas, localToUtc,
-  type Engine, type MuhurtaActivity, type MuhurtaNatal, type MuhurtaResult, type MuhurtaWindow,
+  type Direction, type Engine, type MuhurtaActivity, type MuhurtaNatal, type MuhurtaResult, type MuhurtaWindow,
 } from '@vedic/engine';
 import { NAKSHATRAS, SIGNS } from '../data/constants';
+import { MUHURTA_CAVEAT } from '../lib/muhurtaCaveat';
 import { PlaceField, fmtLocal, loadPlace, loadSavedBirth, localParts, savePlace, type Place } from './shared';
 
 type NatalMode = 'none' | 'saved' | 'manual';
@@ -16,6 +17,7 @@ export function MuhurtaTool({ engine }: { engine: Engine }) {
   const [from, setFrom] = useState(() => localParts(new Date(), place.timezone).date);
   const [days, setDays] = useState(30);
   const [daytimeOnly, setDaytimeOnly] = useState(false);
+  const [direction, setDirection] = useState<Direction | ''>('');
   const [natalMode, setNatalMode] = useState<NatalMode>(saved ? 'saved' : 'none');
   const [manNak, setManNak] = useState(1);
   const [manSign, setManSign] = useState(1);
@@ -42,7 +44,7 @@ export function MuhurtaTool({ engine }: { engine: Engine }) {
         const start = localToUtc(from, '00:00', place.timezone).utc;
         const end = new Date(start.getTime() + days * 86400000);
         const natal = natalMode === 'saved' ? savedNatal ?? undefined : natalMode === 'manual' ? { moonNakshatra: manNak, moonSign: manSign } : undefined;
-        const r = findMuhurtas(engine, { activity, start, end, latitude: place.latitude, longitude: place.longitude, timezone: place.timezone, natal, daytimeOnly, limit: 15 });
+        const r = findMuhurtas(engine, { activity, start, end, latitude: place.latitude, longitude: place.longitude, timezone: place.timezone, natal, daytimeOnly, limit: 15, direction: activity === 'travel' && direction ? direction : undefined });
         setRes(r);
         setDay(r.days.findIndex((d) => d.bestIndex >= 0 && r.best[0] && r.windows[d.bestIndex] === r.best[0]));
         setOpen(null);
@@ -95,6 +97,14 @@ export function MuhurtaTool({ engine }: { engine: Engine }) {
               </label>
             </>
           )}
+          {activity === 'travel' && (
+            <label className="field span-2"><span>Direction of travel (for disha shoola)</span>
+              <select value={direction} onChange={(e) => setDirection(e.target.value as Direction | '')}>
+                <option value="">Not set</option>
+                {(['east', 'south', 'west', 'north'] as Direction[]).map((d) => <option key={d} value={d}>{d[0].toUpperCase() + d.slice(1)}</option>)}
+              </select>
+            </label>
+          )}
           <label className="field span-2 check">
             <input type="checkbox" checked={daytimeOnly} onChange={(e) => setDaytimeOnly(e.target.checked)} />
             <span>Daytime only (sunrise to sunset)</span>
@@ -105,6 +115,7 @@ export function MuhurtaTool({ engine }: { engine: Engine }) {
         <details className="kp-explain">
           <summary>What is checked</summary>
           <p><b>Panchanga:</b> the tithi (Rikta and new Moon tithis are avoided), weekday, nakshatra (each activity has its own list), yoga (Vyatipata and Vaidhriti are rejected) and karana (Vishti, also called Bhadra, is rejected).</p>
+          <p><b>Muhurta classes:</b> each star faces up (Urdhva mukha, for building and raising), down (Adho mukha, for digging and surgery) or sideways (Tiryak mukha, for travel and vehicles). Dhanishta panchaka, the days the Moon spends in Aquarius and Pisces, is avoided for building, house-warming and journeys, and the panchaka rahita remainder of tithi, weekday, star and lagna is checked for every window. Bhadra is weighed by where she dwells, from the Moon’s sign. For travel, the weekday and star that spear your direction (disha shoola) are rejected. Weddings and house-warmings also wait while Jupiter or Venus is combust and during Kharmas.</p>
           <p><b>Rising sign:</b> fixed signs for lasting things, movable signs for travel. Benefics in angles and trines help; the 8th house should be empty.</p>
           <p><b>Day periods:</b> Rahu kalam and Yamaganda are rejected, Gulika is marked down, and Abhijit muhurta around local noon gets a bonus.</p>
           <p><b>Your Moon:</b> Tara bala counts from your birth star to the day's star in groups of nine; the 3rd, 5th and 7th are harmful. Chandra bala counts from your Moon sign; the 8th (Chandrashtama) is rejected.</p>
@@ -168,6 +179,7 @@ function MuhurtaResults({ res, day, setDay, open, setOpen }: { res: MuhurtaResul
 
   return (
     <>
+      <p className="muhurta-caveat span-all" role="note">{MUHURTA_CAVEAT}</p>
       <section className="card span-all">
         <div className="card-head"><h3>Best times for {res.activity.label.toLowerCase()}</h3><span className="muted">times are local to the place ({tz})</span></div>
         {res.best.length === 0 ? (

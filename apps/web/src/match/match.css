@@ -123,3 +123,47 @@
   .moon-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .manglik-head { flex-direction: column; text-align: center; }
 }
+
+/* three traditions, porutham, jaimini, wedding dates */
+.traditions { list-style: none; margin: 0 0 12px; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.tradition a { display: grid; gap: 4px; padding: 12px 14px; border: 1px solid var(--line-soft); border-radius: 12px; color: inherit; text-decoration: none; background: rgba(11,10,26,.4); height: 100%; }
+.tradition a:hover { border-color: var(--line); }
+.tradition .chip { justify-self: start; text-transform: none; }
+.porutham-list { display: grid; gap: 6px; margin: 10px 0; }
+.porutham { border: 1px solid var(--line-soft); border-radius: 10px; background: rgba(11,10,26,.4); }
+.porutham > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: minmax(130px, 1fr) minmax(0, 1.4fr) auto; gap: 12px; align-items: center; padding: 10px 14px; }
+.porutham > summary::-webkit-details-marker { display: none; }
+.porutham .chip { text-transform: none; }
+.porutham .essential { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); margin-left: 6px; }
+.porutham-body { padding: 0 14px 12px; }
+.porutham-body p { margin: 0 0 6px; }
+.jm-col header { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.jm-col .chip { text-transform: none; }
+.jm-links { margin: 6px 0 14px; padding-left: 18px; }
+.muhurta-caveat { border: 1px solid rgba(242,193,78,.45); background: rgba(242,193,78,.08); border-radius: 10px; padding: 10px 14px; font-size: 14px; margin: 12px 0; }
+.wedding-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 8px 0; }
+.wedding-form .field { min-width: 160px; }
+.wedding-list { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 8px; }
+.wd { border: 1px solid var(--line-soft); border-radius: 12px; background: rgba(11,10,26,.4); }
+.wd-head { all: unset; box-sizing: border-box; cursor: pointer; width: 100%; display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 14px; }
+.wd-head:focus-visible { outline: 2px solid var(--accent); border-radius: 12px; }
+.wd-score { font: 600 22px var(--serif); text-align: center; color: var(--good); }
+.wd-fair .wd-score, .wd-poor .wd-score { color: var(--mid); }
+.wd-when { display: grid; gap: 2px; }
+.wd-tags { display: flex; flex-wrap: wrap; gap: 4px; justify-content: end; }
+.wd-tags .chip { text-transform: none; }
+.wd-factors { list-style: none; margin: 0; padding: 0 14px 12px 74px; display: grid; gap: 6px; font-size: 13.5px; }
+.wd-factors .f-pos b { color: var(--good); }
+.wd-factors .f-neg b { color: var(--bad); }
+@media (max-width: 720px) {
+  .traditions { grid-template-columns: 1fr; }
+  .porutham > summary { grid-template-columns: 1fr auto; }
+  .porutham > summary > small { display: none; }
+  .wd-head { grid-template-columns: 40px 1fr; }
+  .wd-tags { grid-column: 1 / -1; justify-content: start; }
+  .wd-factors { padding-left: 14px; }
+}
+.chip.chip-good { color: var(--good); border-color: rgba(62,207,142,.45); background: rgba(62,207,142,.1); }
+.chip.chip-mid { color: var(--mid); border-color: rgba(242,193,78,.45); background: rgba(242,193,78,.1); }
+.chip.chip-bad { color: var(--bad); border-color: rgba(255,107,107,.45); background: rgba(255,107,107,.1); }
+@media (min-width: 721px) { .porutham > summary { grid-template-columns: 190px minmax(0, 1fr) auto; } }

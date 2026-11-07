@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Matching: the South Indian ten poruthams (Dashakoota) beside Ashtakoota, the Jaimini marriage reading (Upapada, the 2nd from it, Darakaraka and the 7th from Karakamsa, with cross-links between the two charts), a three-tradition summary, and wedding dates found from both partners' birth Moons.
+- Muhurta: nakshatra mukha (Urdhva, Adho, Tiryak), Dhanishta panchaka and the panchaka rahita check, Bhadra's dwelling, disha shoola for journeys, Guru and Shukra asta, Kharmas, and Tara and Chandra bala for several people at once. A caveat now sits on every muhurta result.
+- Panchanga calendar: a month view with tithi and nakshatra at sunrise, and for each day sunrise, sunset, Rahu kalam, Yamaganda, Gulika kalam, Abhijit, the 24 horas, Bhadra, Panchaka and every limb change (`panchangaDay`, `panchangaMonth`).
+- Sarvatobhadra chakra: the 9 × 9 transit board with vedha lines and strikes on natal points (`sarvatobhadra`).
 - Remedies (`@vedic/remedies`): for each afflicted graha, a scored list of why, then mantra with japa count, gemstone only where the planet's lordship makes it safe, yantra, charity and fasting day, each with its source; plus the Ishta devata from the 12th from the Karakamsa. Shown in a new Remedies card with disclaimers.
 - Annotated case studies on four famous charts (Indira Gandhi, Rajiv Gandhi, John F. Kennedy, Martin Luther King Jr.): what the rules engine finds, what the classical texts say about it, where a practitioner would push back, and the dashas running at well-documented public events. A test checks every annotation against the engine.
 - Classical citations on every yoga, dosha and reading family: a nullable `source` field with text, chapter and verse (BPHS, Phaladeepika, Saravali), shown as a superscript link, plus notes where the texts disagree with each other or with how the app reads them. Rules with no verified classical source say so instead of guessing.
