@@ -1,0 +1,8 @@
+{
+  "$comment": "People credited on /credits/. Add yourself in your first pull request: name as you want it shown, optional GitHub login or site, and what you did. Roles: maintainer, code, readings, translation, review, research, design, practitioner.",
+  "people": [
+    { "name": "Destin Jones", "github": "destinjones", "roles": ["maintainer", "code", "readings", "design"], "for": "Started the project and maintains it." }
+  ],
+  "practitioners": [],
+  "translators": []
+}

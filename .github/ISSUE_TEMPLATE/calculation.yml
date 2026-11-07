@@ -1,0 +1,23 @@
+name: A position or rule looks wrong
+description: A planet position, house, dasha or yoga that disagrees with another program or a classical source.
+labels: [accuracy]
+body:
+  - type: markdown
+    attributes:
+      value: Please use a sample or public chart, not someone's private birth details.
+  - type: input
+    id: birth
+    attributes: { label: Birth data, description: "Date, time, place (or latitude and longitude) and time zone", placeholder: "1869-10-02 07:11, Porbandar (21.64 N, 69.63 E), LMT" }
+    validations: { required: true }
+  - type: dropdown
+    id: ayanamsa
+    attributes: { label: Ayanamsa, options: [Lahiri, True Chitra, Raman, Krishnamurti, Other] }
+    validations: { required: true }
+  - type: textarea
+    id: ours
+    attributes: { label: What we show }
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes: { label: What you expected, and from where, description: "Another program and version, or a text with chapter and verse." }
+    validations: { required: true }

@@ -10,8 +10,9 @@ import { createEngine, type Chart } from '@vedic/engine';
 import { fromEngineChart, interpretChart, loadLocale } from '../src';
 import { renderReading } from './render-reading';
 
-// Mohandas K. Gandhi, 2 October 1869, 07:11 local mean time, Porbandar. A public chart
-// with a well-known rectified time; Libra rising. Same chart as interpretations.test.ts.
+// Mohandas K. Gandhi, 2 October 1869, Porbandar: a public chart with Libra rising, and the
+// same birth data as interpretations.test.ts. Do not change it: the snapshot is only useful
+// if the chart stays fixed.
 const GANDHI = { date: '1869-10-02', time: '07:11', place: { name: 'Porbandar', latitude: 21.6417, longitude: 69.6293 } };
 
 describe('reading snapshots', () => {

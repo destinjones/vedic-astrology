@@ -13,7 +13,9 @@
   },
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "pack": "node scripts/pack.mjs",
+    "docs": "typedoc"
   },
   "dependencies": {
     "luxon": "^3.7.2",
@@ -24,7 +26,9 @@
     "@types/luxon": "^3.7.6",
     "@types/node": "^22.10.0",
     "astronomy-engine": "^2.1.19",
+    "esbuild": "^0.28.2",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
-  }
+  },
+  "license": "AGPL-3.0-or-later"
 }

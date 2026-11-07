@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Credits: Jyotisha Explorer</title>
+    <meta name="description" content="Everyone who built, wrote, translated and checked Jyotisha Explorer, and the classical texts and open-source work it stands on." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href="https://destinjones.github.io/vedic-astrology/credits/" />
+    <meta name="theme-color" content="#0b0a1a" />
+    <script type="module" src="/src/credits/credits.ts"></script>
+  </head>
+  <body>
+    <nav class="nav">
+      <a class="wordmark" href="../"><span aria-hidden="true">✦</span> Jyotisha Explorer</a>
+      <span class="nav-links"><a href="../app/">Open the app</a> <a href="https://github.com/destinjones/vedic-astrology">Source on GitHub</a></span>
+    </nav>
+    <main class="credits">
+      <p class="eyebrow">Credits</p>
+      <h1>The people behind your chart</h1>
+      <p class="lede">Everyone who has written, translated or checked something on this site is named here. If you helped and are missing, that is our mistake: <a href="https://github.com/destinjones/vedic-astrology/edit/main/apps/web/src/credits/people.json">add yourself</a>.</p>
+
+      <section aria-labelledby="h-people">
+        <h2 id="h-people">Contributors</h2>
+        <ul class="people" id="people"></ul>
+      </section>
+
+      <section aria-labelledby="h-readings">
+        <h2 id="h-readings">Reading authors</h2>
+        <p>Named in the <code>credit</code> line of each reading they wrote.</p>
+        <ul class="people" id="reading-authors"></ul>
+      </section>
+
+      <section aria-labelledby="h-practitioners">
+        <h2 id="h-practitioners">Practitioners who checked our work</h2>
+        <p>Astrologers who compared our calculations or rules against their own, and said what they found.</p>
+        <ul class="people" id="practitioners"></ul>
+      </section>
+
+      <section aria-labelledby="h-translators">
+        <h2 id="h-translators">Translators</h2>
+        <ul class="people" id="translators"></ul>
+      </section>
+
+      <section aria-labelledby="h-texts">
+        <h2 id="h-texts">The classical texts</h2>
+        <p>The rules come from these works. The reading text on this site is our own writing, not a translation of them.</p>
+        <ul class="plain">
+          <li><b>Brihat Parashara Hora Shastra</b>, attributed to the sage Parashara: dignities, aspects, divisional charts, yogas, Vimshottari dasha.</li>
+          <li><b>Brihat Jataka</b> of Varahamihira: lunar yogas, Nabhasa yogas, Pravrajya.</li>
+          <li><b>Phaladeepika</b> of Mantreswara: most of the named yogas and their cancellations.</li>
+          <li><b>Saravali</b> of Kalyanavarma: the Mahapurusha yogas and much else.</li>
+          <li><b>Graha and Bhava Balas</b> by B. V. Raman: the worked Shadbala example our strength calculations are tested against.</li>
+          <li><b>Tajika Neelakanthi</b> of Neelakantha: the annual chart.</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="h-software">
+        <h2 id="h-software">Built on</h2>
+        <ul class="plain">
+          <li><a href="https://www.astro.com/swisseph/">Swiss Ephemeris</a> by Dieter Koch and Alois Treindl, Astrodienst AG, and its WebAssembly build <a href="https://github.com/prolaxu/swisseph-wasm">swisseph-wasm</a>.</li>
+          <li>Place search by <a href="https://open-meteo.com/">Open-Meteo</a>, built on <a href="https://www.geonames.org/">GeoNames</a> data (CC BY 4.0).</li>
+          <li><a href="https://threejs.org/">three.js</a>, <a href="https://react.dev/">React</a>, <a href="https://moment.github.io/luxon/">Luxon</a>, <a href="https://github.com/cosinekitty/astronomy">astronomy-engine</a>, <a href="https://github.com/darkskyapp/tz-lookup">tz-lookup</a> and <a href="https://www.blender.org/">Blender</a>.</li>
+          <li>Inter and Cormorant Garamond, through <a href="https://fontsource.org/">Fontsource</a>.</li>
+        </ul>
+        <p class="fine">Full licence details are in <a href="https://github.com/destinjones/vedic-astrology/blob/main/NOTICE">NOTICE</a>.</p>
+      </section>
+    </main>
+    <footer class="foot">
+      <p><a href="https://github.com/destinjones/vedic-astrology">Source</a> · <a href="https://github.com/destinjones/vedic-astrology/blob/main/CONTRIBUTING.md">How to contribute</a> · <a href="https://github.com/destinjones/vedic-astrology/blob/main/LICENSE">AGPL-3.0</a></p>
+    </footer>
+  </body>
+</html>
