@@ -3,6 +3,7 @@ import type { Selection } from '../types/ui';
 import { HOUSES, NAKSHATRAS, PLANET_BY_ID, PLANETS, signInfo, VARGAS } from '../data/constants';
 import { addSigns, aspectedHouses, dignityOf, dignityTone, formatDeg, housesRuledBy, ordinal } from '../lib/astro';
 import { planetReading } from '../lib/insights';
+import { grahaArt, nakshatraArt, rashiArt } from '../data/art';
 
 interface Props {
   chart: Chart;
@@ -45,7 +46,7 @@ function PlanetDetail({ chart, varga, id, onSelect }: { chart: Chart; varga: Var
   return (
     <>
       <header className="detail-head" style={{ '--c': info.color } as React.CSSProperties}>
-        <div className="detail-glyph">{info.glyph}</div>
+        <img className="detail-art" src={grahaArt(id).image} alt="" style={{ '--glow': grahaArt(id).glow } as React.CSSProperties} />
         <div>
           <h2>{info.name} <span className="muted">· {info.sanskrit}</span></h2>
           <p className="muted">{info.karaka}</p>
@@ -119,7 +120,10 @@ function HouseDetail({ varga, num, onSelect }: { varga: VargaChart; num: number;
   return (
     <>
       <header className="detail-head" style={{ '--c': 'var(--accent)' } as React.CSSProperties}>
-        <div className="detail-glyph house-glyph">{num}</div>
+        <div className="detail-medal">
+          <img src={rashiArt(sign.num)} alt="" />
+          <span className="medal-badge">{num}</span>
+        </div>
         <div>
           <h2>{ordinal(num)} house <span className="muted">· {h.bhava} Bhava</span></h2>
           <p className="muted">{h.themes}</p>
@@ -164,7 +168,7 @@ function NakshatraDetail({ chart, num, onSelect }: { chart: Chart; num: number; 
   return (
     <>
       <header className="detail-head" style={{ '--c': PLANET_BY_ID[n.lord].color } as React.CSSProperties}>
-        <div className="detail-glyph house-glyph">{num}</div>
+        <div className="detail-medal"><img src={nakshatraArt(num)} alt="" /></div>
         <div>
           <h2>{n.name}</h2>
           <p className="muted">{n.theme}</p>
@@ -198,7 +202,7 @@ function AscDetail({ chart, onSelect }: { chart: Chart; onSelect: Props['onSelec
   return (
     <>
       <header className="detail-head" style={{ '--c': 'var(--accent)' } as React.CSSProperties}>
-        <div className="detail-glyph">{sign.glyph}</div>
+        <div className="detail-medal"><img src={rashiArt(sign.num)} alt="" /></div>
         <div>
           <h2>Ascendant <span className="muted">· Lagna</span></h2>
           <p className="muted">{sign.name} rising, the lens for the whole chart</p>
