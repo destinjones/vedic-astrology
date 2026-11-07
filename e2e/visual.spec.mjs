@@ -24,6 +24,9 @@ for (const [size, viewport] of Object.entries(BREAKPOINTS)) {
       await page.goto('app/#sample');
       await page.waitForSelector('.summary-strip', { timeout: 60_000 });
       await expect(page.locator('.preview-banner'), 'the Swiss Ephemeris should load, not the preview calculator').toHaveCount(0);
+      // Take the 3D sky off the page: a software GPU draws it a frame or two a second, which can
+      // outlast the stable-element wait before each picture. It is not part of these pictures.
+      await page.addStyleTag({ content: '#sky { display: none !important; }' });
       const card = page.locator('#chart');
       await card.scrollIntoViewIfNeeded();
       await card.getByRole('radio', { name: label, exact: true }).click();
