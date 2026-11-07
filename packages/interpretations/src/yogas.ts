@@ -24,6 +24,7 @@ import {
 import { PLANET_PROFILES } from './data/planets';
 import { signLord } from './data/signs';
 import type { ChartInput, HouseNumber, PlanetId, Reading, Strength, Tone, YogaCategory, YogaDefinition, YogaResult } from './types';
+import { localizer, type LocaleOptions, type Localizer } from './i18n/context';
 import { PLANETS, SEVEN_PLANETS } from './types';
 
 const reading = (
@@ -221,12 +222,29 @@ const result = (
   reason: string,
   nameOverride?: string,
 ): YogaResult => {
-  const d = YOGA_DEFINITIONS[id];
+  const d = localizedYoga(id, L);
   return { id, name: nameOverride ?? d.name, category: d.category, present: true, strength, involved, houses, reason, reading: d.reading };
 };
 
-const nameOf = (p: PlanetId) => PLANET_PROFILES[p].name;
-const ord = (n: number) => `${n}${n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th'}`;
+/** A yoga definition with its name, rule and reading in the given language (English where untranslated). */
+export function localizedYoga(id: string, loc: Localizer = localizer('en')): YogaDefinition {
+  const d = YOGA_DEFINITIONS[id];
+  const t = loc.yogaText(id);
+  if (!t) return d;
+  const name = t.name ?? d.name;
+  return {
+    ...d,
+    name,
+    rule: t.rule ?? d.rule,
+    reading: { ...d.reading, title: name, summary: t.summary ?? d.reading.summary, detail: t.detail ?? d.reading.detail, strengths: t.strengths ?? d.reading.strengths, challenges: t.challenges ?? d.reading.challenges },
+  };
+}
+
+// Detection runs synchronously, so the active language is held here for the duration of one detectYogas call.
+let L: Localizer = localizer('en');
+const nameOf = (p: PlanetId) => L.planetName(p);
+const names = (ps: PlanetId[]) => L.ph.names(ps.map(nameOf));
+const ord = (n: number) => L.ord(n);
 
 const strengthFrom = (chart: ChartInput, ps: PlanetId[]): Strength => {
   const strong = ps.filter((p) => isStrong(chart, p)).length;
@@ -253,7 +271,7 @@ function detectMahapurusha(chart: ChartInput): YogaResult[] {
     const h = houseOf(chart, p);
     if (dignified && KENDRA.includes(h)) {
       const st: Strength = chart.planets[p].combust ? 'moderate' : 'strong';
-      out.push(result(id, st, [p], [h], `${nameOf(p)} is ${pr.exaltation?.sign === s ? 'exalted' : 'in its own sign'} in the ${ord(h)} house, a kendra.`));
+      out.push(result(id, st, [p], [h], L.ph.mahapurusha(nameOf(p), pr.exaltation?.sign === s, ord(h))));
     }
   }
   return out;
@@ -264,48 +282,48 @@ function detectLunarSolar(chart: ChartInput): YogaResult[] {
   // Gaja Kesari
   const jFromMoon = houseFromPlanet(chart, 'moon', 'jupiter');
   if (KENDRA.includes(jFromMoon)) {
-    out.push(result('gaja-kesari', strengthFrom(chart, ['jupiter', 'moon']), ['jupiter', 'moon'], [houseOf(chart, 'jupiter'), houseOf(chart, 'moon')], `Jupiter is in the ${ord(jFromMoon)} from the Moon.`));
+    out.push(result('gaja-kesari', strengthFrom(chart, ['jupiter', 'moon']), ['jupiter', 'moon'], [houseOf(chart, 'jupiter'), houseOf(chart, 'moon')], L.ph.gajaKesari(ord(jFromMoon))));
   }
   // Budha-Aditya
   if (sameSign(chart, 'sun', 'mercury')) {
     const sep = Math.abs(((chart.planets.mercury.longitude - chart.planets.sun.longitude + 540) % 360) - 180);
     const st: Strength = sep < 4 ? 'weak' : chart.planets.mercury.combust ? 'moderate' : 'strong';
-    out.push(result('budha-aditya', st, ['sun', 'mercury'], [houseOf(chart, 'sun')], `The Sun and Mercury share the ${ord(houseOf(chart, 'sun'))} house (${sep.toFixed(1)}° apart).`));
+    out.push(result('budha-aditya', st, ['sun', 'mercury'], [houseOf(chart, 'sun')], L.ph.budhaAditya(ord(houseOf(chart, 'sun')), sep.toFixed(1))));
   }
   // Chandra-Mangala
   if (sameSign(chart, 'moon', 'mars') || houseFromPlanet(chart, 'moon', 'mars') === 7) {
-    out.push(result('chandra-mangala', strengthFrom(chart, ['moon', 'mars']), ['moon', 'mars'], [houseOf(chart, 'moon'), houseOf(chart, 'mars')], sameSign(chart, 'moon', 'mars') ? 'The Moon and Mars are conjunct.' : 'The Moon and Mars face each other across the 7th.'));
+    out.push(result('chandra-mangala', strengthFrom(chart, ['moon', 'mars']), ['moon', 'mars'], [houseOf(chart, 'moon'), houseOf(chart, 'mars')], sameSign(chart, 'moon', 'mars') ? L.ph.chandraMangalaConj : L.ph.chandraMangalaOpp));
   }
   // Moon-based: Sunapha / Anapha / Durudhara / Kemadruma
   const eligibleMoon = SEVEN_PLANETS.filter((p) => p !== 'sun' && p !== 'moon') as PlanetId[];
   const in2 = eligibleMoon.filter((p) => houseFromPlanet(chart, 'moon', p) === 2);
   const in12 = eligibleMoon.filter((p) => houseFromPlanet(chart, 'moon', p) === 12);
-  if (in2.length && in12.length) out.push(result('durudhara', strengthFrom(chart, [...in2, ...in12]), [...in2, ...in12, 'moon'], [houseOf(chart, 'moon')], `${in2.map(nameOf).join(', ')} in the 2nd and ${in12.map(nameOf).join(', ')} in the 12th from the Moon.`));
-  else if (in2.length) out.push(result('sunapha', strengthFrom(chart, in2), [...in2, 'moon'], [houseOf(chart, 'moon')], `${in2.map(nameOf).join(', ')} in the 2nd from the Moon.`));
-  else if (in12.length) out.push(result('anapha', strengthFrom(chart, in12), [...in12, 'moon'], [houseOf(chart, 'moon')], `${in12.map(nameOf).join(', ')} in the 12th from the Moon.`));
+  if (in2.length && in12.length) out.push(result('durudhara', strengthFrom(chart, [...in2, ...in12]), [...in2, ...in12, 'moon'], [houseOf(chart, 'moon')], L.ph.durudhara(names(in2), names(in12))));
+  else if (in2.length) out.push(result('sunapha', strengthFrom(chart, in2), [...in2, 'moon'], [houseOf(chart, 'moon')], L.ph.sunapha(names(in2))));
+  else if (in12.length) out.push(result('anapha', strengthFrom(chart, in12), [...in12, 'moon'], [houseOf(chart, 'moon')], L.ph.anapha(names(in12))));
   else {
     const kendraFromMoon = eligibleMoon.some((p) => KENDRA.includes(houseFromPlanet(chart, 'moon', p)));
     const kendraFromLagna = eligibleMoon.some((p) => KENDRA.includes(houseOf(chart, p)));
     if (!kendraFromMoon && !kendraFromLagna) {
-      out.push(result('kemadruma', 'strong', ['moon'], [houseOf(chart, 'moon')], 'No planets in the 2nd or 12th from the Moon, and no planets in kendras from the Moon or ascendant to cancel it.'));
+      out.push(result('kemadruma', 'strong', ['moon'], [houseOf(chart, 'moon')], L.ph.kemadrumaYoga));
     }
   }
   // Sun-based: Vesi / Vasi / Ubhayachari
   const eligibleSun = SEVEN_PLANETS.filter((p) => p !== 'sun' && p !== 'moon') as PlanetId[];
   const s2 = eligibleSun.filter((p) => houseFromPlanet(chart, 'sun', p) === 2);
   const s12 = eligibleSun.filter((p) => houseFromPlanet(chart, 'sun', p) === 12);
-  if (s2.length && s12.length) out.push(result('ubhayachari', strengthFrom(chart, [...s2, ...s12]), [...s2, ...s12, 'sun'], [houseOf(chart, 'sun')], `${s2.map(nameOf).join(', ')} in the 2nd and ${s12.map(nameOf).join(', ')} in the 12th from the Sun.`));
-  else if (s2.length) out.push(result('vesi', strengthFrom(chart, s2), [...s2, 'sun'], [houseOf(chart, 'sun')], `${s2.map(nameOf).join(', ')} in the 2nd from the Sun.`));
-  else if (s12.length) out.push(result('vasi', strengthFrom(chart, s12), [...s12, 'sun'], [houseOf(chart, 'sun')], `${s12.map(nameOf).join(', ')} in the 12th from the Sun.`));
+  if (s2.length && s12.length) out.push(result('ubhayachari', strengthFrom(chart, [...s2, ...s12]), [...s2, ...s12, 'sun'], [houseOf(chart, 'sun')], L.ph.ubhayachari(names(s2), names(s12))));
+  else if (s2.length) out.push(result('vesi', strengthFrom(chart, s2), [...s2, 'sun'], [houseOf(chart, 'sun')], L.ph.vesi(names(s2))));
+  else if (s12.length) out.push(result('vasi', strengthFrom(chart, s12), [...s12, 'sun'], [houseOf(chart, 'sun')], L.ph.vasi(names(s12))));
   // Adhi
   const adhiPlanets = (['mercury', 'jupiter', 'venus'] as PlanetId[]).filter((p) => [6, 7, 8].includes(houseFromPlanet(chart, 'moon', p)));
   if (adhiPlanets.length >= 2) {
-    out.push(result('adhi', adhiPlanets.length === 3 ? 'strong' : 'moderate', adhiPlanets, adhiPlanets.map((p) => houseOf(chart, p)), `${adhiPlanets.map(nameOf).join(', ')} in the 6th–8th from the Moon.`));
+    out.push(result('adhi', adhiPlanets.length === 3 ? 'strong' : 'moderate', adhiPlanets, adhiPlanets.map((p) => houseOf(chart, p)), L.ph.adhi(names(adhiPlanets))));
   }
   // Shakata
   const mFromJ = houseFromPlanet(chart, 'jupiter', 'moon');
   if ([6, 8, 12].includes(mFromJ) && !KENDRA.includes(houseOf(chart, 'moon'))) {
-    out.push(result('shakata', 'moderate', ['moon', 'jupiter'], [houseOf(chart, 'moon')], `The Moon is in the ${ord(mFromJ)} from Jupiter and not in a kendra from the ascendant.`));
+    out.push(result('shakata', 'moderate', ['moon', 'jupiter'], [houseOf(chart, 'moon')], L.ph.shakata(ord(mFromJ))));
   }
   return out;
 }
@@ -319,7 +337,7 @@ function detectRaja(chart: ChartInput): YogaResult[] {
     const k = ruled.filter((h) => [4, 7, 10].includes(h));
     const t = ruled.filter((h) => [5, 9].includes(h));
     if (k.length && t.length) {
-      out.push(result('yogakaraka', isWeak(chart, p) ? 'weak' : isStrong(chart, p) ? 'strong' : 'moderate', [p], [...k, ...t], `${nameOf(p)} rules the ${ord(k[0])} (kendra) and ${ord(t[0])} (trikona) for this ascendant.`));
+      out.push(result('yogakaraka', isWeak(chart, p) ? 'weak' : isStrong(chart, p) ? 'strong' : 'moderate', [p], [...k, ...t], L.ph.yogakaraka(nameOf(p), ord(k[0]), ord(t[0]))));
     }
   }
   // Kendra–trikona lords
@@ -337,14 +355,14 @@ function detectRaja(chart: ChartInput): YogaResult[] {
       const dusthanaTaint = [...housesRuledBy(chart, a), ...housesRuledBy(chart, b)].some((h) => DUSTHANA.includes(h));
       let st = strengthFrom(chart, [a, b]);
       if (dusthanaTaint && st === 'strong') st = 'moderate';
-      out.push(result('raja', st, [a, b], [kh as HouseNumber, th as HouseNumber], `${nameOf(a)} (lord of ${ord(kh)}) and ${nameOf(b)} (lord of ${ord(th)}) are linked by ${rel}.`));
+      out.push(result('raja', st, [a, b], [kh as HouseNumber, th as HouseNumber], L.ph.rajaLink({ a: nameOf(a), aOrd: ord(kh), b: nameOf(b), bOrd: ord(th), rel: L.ph.relation(rel) })));
     }
   }
   // Dharma-Karmadhipati
   const l9 = lordOfHouse(chart, 9);
   const l10 = lordOfHouse(chart, 10);
   const rel = l9 === l10 ? 'the same planet' : related(chart, l9, l10);
-  if (rel) out.push(result('dharma-karmadhipati', strengthFrom(chart, [l9, l10]), l9 === l10 ? [l9] : [l9, l10], [9, 10], `The 9th lord ${nameOf(l9)} and 10th lord ${nameOf(l10)} are linked by ${rel}.`));
+  if (rel) out.push(result('dharma-karmadhipati', strengthFrom(chart, [l9, l10]), l9 === l10 ? [l9] : [l9, l10], [9, 10], L.ph.dharmaKarma(nameOf(l9), nameOf(l10), L.ph.relation(rel))));
   return out;
 }
 
@@ -364,7 +382,7 @@ function detectDhana(chart: ChartInput): YogaResult[] {
       const key = [a, b].sort().join('|');
       if (seen.has(key)) continue;
       seen.add(key);
-      out.push(result('dhana', strengthFrom(chart, [a, b]), [a, b], [houses[i] as HouseNumber, houses[j] as HouseNumber], `${nameOf(a)} (lord of ${ord(houses[i])}) and ${nameOf(b)} (lord of ${ord(houses[j])}) are linked by ${rel}.`));
+      out.push(result('dhana', strengthFrom(chart, [a, b]), [a, b], [houses[i] as HouseNumber, houses[j] as HouseNumber], L.ph.rajaLink({ a: nameOf(a), aOrd: ord(houses[i]), b: nameOf(b), bOrd: ord(houses[j]), rel: L.ph.relation(rel) })));
     }
   }
   // Lakshmi
@@ -372,12 +390,12 @@ function detectDhana(chart: ChartInput): YogaResult[] {
   const l1 = lordOfHouse(chart, 1);
   const h9 = houseOf(chart, l9);
   if (isStrong(chart, l9) && (KENDRA.includes(h9) || TRIKONA.includes(h9)) && !isWeak(chart, l1) && (isStrong(chart, l1) || KENDRA.includes(houseOf(chart, l1)) || TRIKONA.includes(houseOf(chart, l1)))) {
-    out.push(result('lakshmi', isStrong(chart, l1) ? 'strong' : 'moderate', [l9, l1], [9, h9], `The 9th lord ${nameOf(l9)} is ${dignityOf(chart, l9)} in the ${ord(h9)}, and the ascendant lord ${nameOf(l1)} is well placed.`));
+    out.push(result('lakshmi', isStrong(chart, l1) ? 'strong' : 'moderate', [l9, l1], [9, h9], L.ph.lakshmi({ l9: nameOf(l9), dignity: L.locale === 'en' ? dignityOf(chart, l9) : L.dignityName(dignityOf(chart, l9)), ord: ord(h9), l1: nameOf(l1) })));
   }
   // Vasumati
   const benefics = (['mercury', 'jupiter', 'venus'] as PlanetId[]);
   if (benefics.every((p) => UPACHAYA.includes(houseOf(chart, p))) || benefics.every((p) => UPACHAYA.includes(houseFromPlanet(chart, 'moon', p)))) {
-    out.push(result('vasumati', strengthFrom(chart, benefics), benefics, benefics.map((p) => houseOf(chart, p)), 'Mercury, Jupiter and Venus all occupy upachaya houses (3, 6, 10, 11).'));
+    out.push(result('vasumati', strengthFrom(chart, benefics), benefics, benefics.map((p) => houseOf(chart, p)), L.ph.vasumati));
   }
   return out;
 }
@@ -390,7 +408,7 @@ function detectViparita(chart: ChartInput): YogaResult[] {
     const pos = houseOf(chart, l);
     if (DUSTHANA.includes(pos)) {
       // Weakened if the lord is conjunct a lord of a good house that is not itself dusthana-ruled.
-      out.push(result(id, isWeak(chart, l) ? 'moderate' : 'strong', [l], [h as HouseNumber, pos], `${nameOf(l)}, lord of the ${ord(h)}, sits in the ${ord(pos)}.`));
+      out.push(result(id, isWeak(chart, l) ? 'moderate' : 'strong', [l], [h as HouseNumber, pos], L.ph.viparita(nameOf(l), ord(h), ord(pos))));
     }
   }
   return out;
@@ -408,15 +426,15 @@ function detectNeechaBhanga(chart: ChartInput): YogaResult[] {
     // Which planet gets exalted in the debilitation sign?
     const exaltedHere = SEVEN_PLANETS.find((q) => PLANET_PROFILES[q].exaltation?.sign === chart.planets[p].sign);
     const kendraFromLagnaOrMoon = (q: PlanetId) => KENDRA.includes(houseOf(chart, q)) || KENDRA.includes(houseFromPlanet(chart, 'moon', q));
-    if (debLord !== p && kendraFromLagnaOrMoon(debLord)) reasons.push(`its dispositor ${nameOf(debLord)} is in a kendra from the ascendant or Moon`);
-    if (exLord !== p && kendraFromLagnaOrMoon(exLord)) reasons.push(`the lord of its exaltation sign, ${nameOf(exLord)}, is in a kendra from the ascendant or Moon`);
-    if (exaltedHere && exaltedHere !== p && kendraFromLagnaOrMoon(exaltedHere)) reasons.push(`${nameOf(exaltedHere)}, which is exalted in this sign, is in a kendra`);
-    if (debLord !== p && (aspectsPlanet(chart, debLord, p) || sameSign(chart, debLord, p))) reasons.push(`its dispositor ${nameOf(debLord)} aspects or joins it`);
-    if (debLord !== p && exchange(chart, p, debLord)) reasons.push(`it exchanges signs with ${nameOf(debLord)}`);
-    if (KENDRA.includes(houseOf(chart, p))) reasons.push('it sits in a kendra from the ascendant');
-    if (chart.planets[p].retrograde) reasons.push('it is retrograde (a view held by some astrologers)');
+    if (debLord !== p && kendraFromLagnaOrMoon(debLord)) reasons.push(L.ph.nbDispositorKendra(nameOf(debLord)));
+    if (exLord !== p && kendraFromLagnaOrMoon(exLord)) reasons.push(L.ph.nbExaltLordKendra(nameOf(exLord)));
+    if (exaltedHere && exaltedHere !== p && kendraFromLagnaOrMoon(exaltedHere)) reasons.push(L.ph.nbExaltedHereKendra(nameOf(exaltedHere)));
+    if (debLord !== p && (aspectsPlanet(chart, debLord, p) || sameSign(chart, debLord, p))) reasons.push(L.ph.nbDispositorAspects(nameOf(debLord)));
+    if (debLord !== p && exchange(chart, p, debLord)) reasons.push(L.ph.nbExchange(nameOf(debLord)));
+    if (KENDRA.includes(houseOf(chart, p))) reasons.push(L.ph.nbKendra);
+    if (chart.planets[p].retrograde) reasons.push(L.ph.nbRetro);
     if (reasons.length) {
-      out.push(result('neecha-bhanga', reasons.length >= 3 ? 'strong' : reasons.length === 2 ? 'moderate' : 'weak', [p], [houseOf(chart, p)], `${nameOf(p)} is debilitated, but ${reasons.join('; ')}.`, `Neecha Bhanga of ${nameOf(p)}`));
+      out.push(result('neecha-bhanga', reasons.length >= 3 ? 'strong' : reasons.length === 2 ? 'moderate' : 'weak', [p], [houseOf(chart, p)], L.ph.neechaBhanga(nameOf(p), reasons), L.ph.neechaBhangaName(nameOf(p))));
     }
   }
   return out;
@@ -433,7 +451,7 @@ function detectParivartana(chart: ChartInput): YogaResult[] {
       const hb = houseOf(chart, b);
       const hs = [ha, hb];
       const id = hs.some((h) => DUSTHANA.includes(h)) ? 'dainya-parivartana' : hs.includes(3) ? 'khala-parivartana' : 'maha-parivartana';
-      out.push(result(id, id === 'maha-parivartana' ? 'strong' : 'moderate', [a, b], [ha, hb], `${nameOf(a)} (in the ${ord(ha)}) and ${nameOf(b)} (in the ${ord(hb)}) occupy each other’s signs, linking the ${ord(ha)} and ${ord(hb)} houses.`));
+      out.push(result(id, id === 'maha-parivartana' ? 'strong' : 'moderate', [a, b], [ha, hb], L.ph.parivartana({ a: nameOf(a), aOrd: ord(ha), b: nameOf(b), bOrd: ord(hb) })));
     }
   }
   return out;
@@ -446,37 +464,47 @@ function detectOther(chart: ChartInput): YogaResult[] {
   const amalaM = (['jupiter', 'venus', 'mercury'] as PlanetId[]).filter((p) => houseFromPlanet(chart, 'moon', p) === 10 && isBenefic(chart, p));
   if (amalaL.length || amalaM.length) {
     const ps = [...new Set([...amalaL, ...amalaM])];
-    out.push(result('amala', amalaL.length ? 'strong' : 'moderate', ps, [10], `${ps.map(nameOf).join(', ')} in the 10th from the ${amalaL.length ? 'ascendant' : 'Moon'}.`));
+    out.push(result('amala', amalaL.length ? 'strong' : 'moderate', ps, [10], L.ph.amala(names(ps), amalaL.length > 0)));
   }
   // Saraswati
   const sGood = [1, 2, 4, 5, 7, 9, 10];
   const sPl: PlanetId[] = ['jupiter', 'venus', 'mercury'];
   if (sPl.every((p) => sGood.includes(houseOf(chart, p))) && !['debilitated', 'enemy', 'great_enemy'].includes(dignityOf(chart, 'jupiter'))) {
-    out.push(result('saraswati', strengthFrom(chart, sPl), sPl, sPl.map((p) => houseOf(chart, p)), 'Jupiter, Venus and Mercury all occupy kendras, trikonas or the 2nd, with Jupiter in reasonable dignity.'));
+    out.push(result('saraswati', strengthFrom(chart, sPl), sPl, sPl.map((p) => houseOf(chart, p)), L.ph.saraswati));
   }
   // Kartari on lagna
   const in2 = PLANETS.filter((p) => houseOf(chart, p) === 2);
   const in12 = PLANETS.filter((p) => houseOf(chart, p) === 12);
   if (in2.length && in12.length) {
-    if (in2.every((p) => isBenefic(chart, p)) && in12.every((p) => isBenefic(chart, p))) out.push(result('shubha-kartari', 'moderate', [...in2, ...in12], [2, 12], 'Only benefics occupy the houses on either side of the ascendant.'));
-    else if (in2.every((p) => !isBenefic(chart, p)) && in12.every((p) => !isBenefic(chart, p))) out.push(result('papa-kartari', isStrong(chart, lordOfHouse(chart, 1)) ? 'weak' : 'moderate', [...in2, ...in12], [2, 12], 'Only malefics occupy the houses on either side of the ascendant.'));
+    if (in2.every((p) => isBenefic(chart, p)) && in12.every((p) => isBenefic(chart, p))) out.push(result('shubha-kartari', 'moderate', [...in2, ...in12], [2, 12], L.ph.shubhaKartari));
+    else if (in2.every((p) => !isBenefic(chart, p)) && in12.every((p) => !isBenefic(chart, p))) out.push(result('papa-kartari', isStrong(chart, lordOfHouse(chart, 1)) ? 'weak' : 'moderate', [...in2, ...in12], [2, 12], L.ph.papaKartari));
   }
   // Pravrajya
   const bySign = new Map<number, PlanetId[]>();
   for (const p of SEVEN_PLANETS) bySign.set(chart.planets[p].sign, [...(bySign.get(chart.planets[p].sign) ?? []), p]);
-  for (const [, ps] of bySign) if (ps.length >= 4) out.push(result('pravrajya', ps.length >= 5 ? 'strong' : 'moderate', ps, [houseOf(chart, ps[0])], `${ps.map(nameOf).join(', ')} share one sign.`));
+  for (const [, ps] of bySign) if (ps.length >= 4) out.push(result('pravrajya', ps.length >= 5 ? 'strong' : 'moderate', ps, [houseOf(chart, ps[0])], L.ph.pravrajya(names(ps))));
   // Sankhya nabhasa
   const ids = ['', 'sankhya-gola', 'sankhya-yuga', 'sankhya-shoola', 'sankhya-kedara', 'sankhya-pasha', 'sankhya-dama', 'sankhya-veena'];
   const n = bySign.size;
-  out.push(result(ids[n], 'moderate', [...SEVEN_PLANETS], [...bySign.keys()].map((s) => signDistance(chart.ascendantSign, s) as HouseNumber), `The seven planets occupy ${n} sign${n === 1 ? '' : 's'}.`));
+  out.push(result(ids[n], 'moderate', [...SEVEN_PLANETS], [...bySign.keys()].map((s) => signDistance(chart.ascendantSign, s) as HouseNumber), L.ph.sankhya(n)));
   // Malefic node conjunctions
-  if (sameSign(chart, 'jupiter', 'rahu')) out.push(result('guru-chandala', isStrong(chart, 'jupiter') ? 'weak' : 'moderate', ['jupiter', 'rahu'], [houseOf(chart, 'jupiter')], 'Jupiter shares a sign with Rahu.'));
-  if (sameSign(chart, 'mars', 'rahu')) out.push(result('angaraka', 'moderate', ['mars', 'rahu'], [houseOf(chart, 'mars')], 'Mars shares a sign with Rahu.'));
+  if (sameSign(chart, 'jupiter', 'rahu')) out.push(result('guru-chandala', isStrong(chart, 'jupiter') ? 'weak' : 'moderate', ['jupiter', 'rahu'], [houseOf(chart, 'jupiter')], L.ph.guruChandala));
+  if (sameSign(chart, 'mars', 'rahu')) out.push(result('angaraka', 'moderate', ['mars', 'rahu'], [houseOf(chart, 'mars')], L.ph.angaraka));
   return out;
 }
 
 /** Detect all supported yogas present in the chart. */
-export function detectYogas(chart: ChartInput): YogaResult[] {
+export function detectYogas(chart: ChartInput, opts?: LocaleOptions): YogaResult[] {
+  const prev = L;
+  L = localizer(opts?.locale);
+  try {
+    return detectAll(chart);
+  } finally {
+    L = prev;
+  }
+}
+
+function detectAll(chart: ChartInput): YogaResult[] {
   return [
     ...detectMahapurusha(chart),
     ...detectRaja(chart),

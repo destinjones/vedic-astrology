@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react';
 import type { DashaPeriod } from '../types/chart';
 import { PLANET_BY_ID } from '../data/constants';
+import { useI18n } from '../i18n';
 
 interface Props { dasha: DashaPeriod[] }
 
-const fmt = (iso: string) => new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
 
 export function DashaTimeline({ dasha }: Props) {
+  const { t, v, date } = useI18n();
+  const fmt = (iso: string) => date(iso, { year: 'numeric', month: 'short' });
   const now = Date.now();
   const currentIdx = useMemo(() => dasha.findIndex((d) => +new Date(d.start) <= now && now < +new Date(d.end)), [dasha, now]);
   const [open, setOpen] = useState<number>(currentIdx >= 0 ? currentIdx : 0);
@@ -24,17 +26,17 @@ export function DashaTimeline({ dasha }: Props) {
           return (
             <button key={i} className={`dasha-seg${i === open ? ' is-open' : ''}${i === currentIdx ? ' is-now' : ''}`}
               style={{ width: `${w}%`, '--c': p.color } as React.CSSProperties}
-              onClick={() => setOpen(i)} title={`${p.name} mahadasha · ${fmt(d.start)} – ${fmt(d.end)}`}>
-              <span>{p.abbr}</span>
+              onClick={() => setOpen(i)} title={`${t('dasha.mahadasha', { planet: v.planets[d.lord].name })} · ${fmt(d.start)} – ${fmt(d.end)}`}>
+              <span>{v.planets[d.lord].short}</span>
             </button>
           );
         })}
-        {now > t0 && now < t1 && <div className="dasha-now" style={{ left: `${pct(now)}%` }}><span>Now</span></div>}
+        {now > t0 && now < t1 && <div className="dasha-now" style={{ left: `${pct(now)}%` }}><span>{t('dasha.now')}</span></div>}
       </div>
       <div className="dasha-detail">
         <h4>
           <span style={{ color: PLANET_BY_ID[active.lord].color }}>{PLANET_BY_ID[active.lord].glyph}</span>{' '}
-          {PLANET_BY_ID[active.lord].name} mahadasha <span className="muted">{fmt(active.start)} – {fmt(active.end)}</span>
+          {t('dasha.mahadasha', { planet: v.planets[active.lord].name })} <span className="muted">{fmt(active.start)} – {fmt(active.end)}</span>
         </h4>
         <div className="antar-grid">
           {active.sub?.map((s, i) => {
@@ -42,7 +44,7 @@ export function DashaTimeline({ dasha }: Props) {
             const p = PLANET_BY_ID[s.lord];
             return (
               <div key={i} className={`antar${isNow ? ' is-now' : ''}`} style={{ '--c': p.color } as React.CSSProperties}>
-                <b>{PLANET_BY_ID[active.lord].abbr}–{p.abbr}</b>
+                <b>{v.planets[active.lord].short}–{v.planets[s.lord].short}</b>
                 <small>{fmt(s.start)} → {fmt(s.end)}</small>
               </div>
             );
