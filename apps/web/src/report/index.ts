@@ -1,11 +1,12 @@
 import { jsPDF } from 'jspdf';
-import { interpretChart, fromEngineChart, getNakshatra } from '@vedic/interpretations';
+import { interpretChart, fromEngineChart, hasReadings, loadLocale, localizer } from '@vedic/interpretations';
 import { natalFromChart, scoredDashasFromChart, engineEphemeris } from '@vedic/timing/engine';
 import { buildTimeline } from '@vedic/timing';
 import type { Chart } from '../types/chart';
 import { loadArt } from './assets';
 import { ReportDoc } from './doc';
 import { registerFonts } from './fonts';
+import { LOCALE_SCRIPT, scriptsIn } from './indic';
 import { registeredSections, FULL_REPORT } from './registry';
 import { roman } from './theme';
 import { longDate } from './format';
@@ -44,6 +45,8 @@ export interface ReportOptions {
   /** Personal note printed after the cover. */
   note?: string;
   onProgress?: (message: string) => void;
+  /** The app's language: readings are printed in it where a translation exists, and its script's fonts are embedded. */
+  locale?: string;
 }
 
 const tick = () => new Promise((r) => setTimeout(r, 0));
@@ -56,7 +59,10 @@ export async function generateReport(chart: Chart, opts: ReportOptions = {}): Pr
 
   say('Reading your chart…');
   await tick();
-  const report = interpretChart(fromEngineChart(ec));
+  const locale = opts.locale && hasReadings(opts.locale) ? await loadLocale(opts.locale) : 'en';
+  const report = interpretChart(fromEngineChart(ec), { locale });
+  const L = localizer(locale);
+  const getNakshatra = (n: number) => L.nakshatra(n);
   const natal = natalFromChart(ec);
   const dashas = scoredDashasFromChart(ec, natal);
   const wanted = new Set(opts.sections ?? FULL_REPORT());
@@ -77,14 +83,18 @@ export async function generateReport(chart: Chart, opts: ReportOptions = {}): Pr
 
   say('Preparing the artwork…');
   const pdf = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
-  const [art] = await Promise.all([loadArt(chart.ascendant.longitude), registerFonts(pdf)]);
+  // fonts for the language's script, and for any other script in what the person typed
+  const scripts = scriptsIn(chart.input.name, chart.input.place, opts.note, opts.brand?.name, opts.brand?.tagline, opts.brand?.contact);
+  const own = opts.locale ? LOCALE_SCRIPT[opts.locale] : undefined;
+  if (own) scripts.add(own);
+  const [art, indic] = await Promise.all([loadArt(chart.ascendant.longitude), registerFonts(pdf, scripts)]);
 
   const name = chart.input.name?.trim() || longDate(chart.input.date);
   const ctx: ReportContext = {
     chart, engine, engineChart: ec, report, getNakshatra, dashas, timeline, art, now, name,
     brand: opts.brand?.name ? opts.brand : undefined, note: opts.note, glossary: new Map(),
   };
-  const doc = new ReportDoc(pdf, ctx.brand ? `${ctx.brand.name}  ·  for ${name}` : `${chart.input.name?.trim() ? name : 'Birth chart'}  ·  Vedic birth chart`);
+  const doc = new ReportDoc(pdf, ctx.brand ? `${ctx.brand.name}  ·  for ${name}` : `${chart.input.name?.trim() ? name : 'Birth chart'}  ·  Vedic birth chart`, indic);
 
   say('Laying out the pages…');
   await cover(doc, ctx);
