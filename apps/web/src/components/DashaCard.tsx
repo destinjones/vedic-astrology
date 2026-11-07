@@ -22,7 +22,7 @@ export function DashaCard({ chart }: { chart: Chart }) {
   const title = SYSTEMS.find((s) => s.id === shown)!.title;
 
   return (
-    <section className="card">
+    <section className="card" id="dasha">
       <div className="card-head">
         <h3>{title}</h3>
         {available.length > 1 ? (
