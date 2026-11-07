@@ -17,6 +17,7 @@ import {
 } from './constants';
 import { DEFAULT_DASHA_YEAR_DAYS, vimshottari } from './dasha';
 import { ashtottari, ashtottariApplies, kalachakra, yogini } from './dashas';
+import { DEFAULT_AYANAMSA, parseAyanamsa } from './ayanamsa';
 import { dateToJd, jdToDate, jdToIso, localToUtc, timezoneAt } from './time';
 import type {
   AyanamsaId,
@@ -165,8 +166,8 @@ function toJd(when: Date | string | number): number {
 function makeEngine(swe: SwissEph): Engine {
   let currentSid = -1;
   const setSid = (a: AyanamsaId) => {
-    const code = AYANAMSA_CODES[a];
-    if (code === undefined) throw new Error(`Unknown ayanamsa "${a}"`);
+    // the type says AyanamsaId, but JS callers and URLs can pass anything
+    const code = AYANAMSA_CODES[parseAyanamsa(a)];
     if (code !== currentSid) {
       swe.set_sid_mode(code, 0, 0);
       currentSid = code;
@@ -231,7 +232,7 @@ function makeEngine(swe: SwissEph): Engine {
 
   function computeChart(input: BirthInput, options: ChartOptions = {}): Chart {
     const opts = {
-      ayanamsa: options.ayanamsa ?? 'lahiri',
+      ayanamsa: options.ayanamsa === undefined ? DEFAULT_AYANAMSA : parseAyanamsa(options.ayanamsa),
       houseSystem: options.houseSystem ?? 'whole_sign',
       nodeType: options.nodeType ?? 'mean',
       includeOuterPlanets: options.includeOuterPlanets ?? false,
@@ -245,7 +246,7 @@ function makeEngine(swe: SwissEph): Engine {
     if (!(latitude >= -90 && latitude <= 90)) throw new Error('Latitude must be between -90 and 90');
     if (!(longitude >= -180 && longitude <= 180)) throw new Error('Longitude must be between -180 and 180');
     const timezone = input.place.timezone ?? timezoneAt(latitude, longitude);
-    const t = localToUtc(input.date, input.time, timezone, input.utcOffsetMinutes, longitude);
+    const t = localToUtc(input.date, input.time, timezone, input.utcOffsetMinutes, longitude, latitude);
     const jd = dateToJd(t.utc);
     const jdEt = jd + swe.deltat(jd);
     setSid(opts.ayanamsa);
@@ -423,6 +424,7 @@ function makeEngine(swe: SwissEph): Engine {
         timezone,
         utcOffsetMinutes: t.utcOffsetMinutes,
         localMeanTime: t.localMeanTime,
+        timeWarnings: t.warnings,
         utc: t.utc.toISOString(),
         jdUt: jd,
         jdEt,

@@ -31,6 +31,28 @@ export {
 } from './zodiac';
 export { dateToJd, jdToDate, jdToIso, timezoneAt, localToUtc } from './time';
 export type { ResolvedTime } from './time';
+export { TZ_HISTORY, historyFor, lmtOffsetMinutes } from './timezoneHistory';
+export type { TimeWarning, TimeWarningCode, TzHistoryEntry } from './timezoneHistory';
+export {
+  Ayanamsa,
+  AYANAMSA_IDS,
+  DEFAULT_AYANAMSA,
+  isAyanamsaId,
+  parseAyanamsa,
+  toAyanamsa,
+  UnknownAyanamsaError,
+} from './ayanamsa';
+export type { AyanamsaName } from './ayanamsa';
+export {
+  DEGREE_DECIMALS,
+  DEGREE_EPSILON,
+  roundDegree,
+  normDegree,
+  degreeDelta,
+  sameDegree,
+  arcminutesBetween,
+} from './precision';
+export * from './request';
 export {
   computeStrength,
   drishtiValue,

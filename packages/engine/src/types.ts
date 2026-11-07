@@ -352,6 +352,11 @@ export interface ChartMeta {
   utcOffsetMinutes: number;
   /** Birth was before standard time in the zone: the place's own Local Mean Time was used */
   localMeanTime: boolean;
+  /**
+   * Notes on how the birth time was resolved: LMT, DST gaps and overlaps, and
+   * periods where local clocks differed from the tz database (see TZ_HISTORY).
+   */
+  timeWarnings?: import('./timezoneHistory').TimeWarning[];
   /** Birth instant, ISO UTC */
   utc: string;
   /** Julian day (UT) */
