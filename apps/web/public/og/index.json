@@ -1,0 +1,371 @@
+[
+ {
+  "id": "jawaharlal-nehru",
+  "label": "Jawaharlal Nehru",
+  "field": "First Prime Minister of India",
+  "date": "1889-11-14",
+  "time": "23:30",
+  "place": "Allahabad (Prayagraj), India",
+  "rodden": "A"
+ },
+ {
+  "id": "indira-gandhi",
+  "label": "Indira Gandhi",
+  "field": "Prime Minister of India",
+  "date": "1917-11-19",
+  "time": "23:11",
+  "place": "Allahabad (Prayagraj), India",
+  "rodden": "A"
+ },
+ {
+  "id": "rajiv-gandhi",
+  "label": "Rajiv Gandhi",
+  "field": "Prime Minister of India",
+  "date": "1944-08-20",
+  "time": "06:34",
+  "place": "Mumbai, India",
+  "rodden": "AA"
+ },
+ {
+  "id": "subhas-chandra-bose",
+  "label": "Subhas Chandra Bose",
+  "field": "Independence leader",
+  "date": "1897-01-23",
+  "time": "12:00",
+  "place": "Cuttack, India",
+  "rodden": "AA"
+ },
+ {
+  "id": "mahatma-gandhi",
+  "label": "Mahatma Gandhi",
+  "field": "Leader of Indian independence",
+  "date": "1869-10-02",
+  "time": "07:08",
+  "place": "Porbandar, India",
+  "rodden": "C"
+ },
+ {
+  "id": "b-r-ambedkar",
+  "label": "B. R. Ambedkar",
+  "field": "Architect of the Indian Constitution",
+  "date": "1891-04-14",
+  "time": "12:00",
+  "place": "Mhow, India",
+  "rodden": "B"
+ },
+ {
+  "id": "swami-vivekananda",
+  "label": "Swami Vivekananda",
+  "field": "Monk and philosopher",
+  "date": "1863-01-12",
+  "time": "06:33",
+  "place": "Kolkata, India",
+  "rodden": "AA"
+ },
+ {
+  "id": "sri-aurobindo",
+  "label": "Sri Aurobindo",
+  "field": "Yogi, poet and freedom fighter",
+  "date": "1872-08-15",
+  "time": "05:00",
+  "place": "Kolkata, India",
+  "rodden": "B"
+ },
+ {
+  "id": "ramana-maharshi",
+  "label": "Ramana Maharshi",
+  "field": "Sage of Arunachala",
+  "date": "1879-12-30",
+  "time": "01:00",
+  "place": "Tiruchuli, near Aruppukkottai, India",
+  "rodden": "B"
+ },
+ {
+  "id": "jiddu-krishnamurti",
+  "label": "Jiddu Krishnamurti",
+  "field": "Philosopher and teacher",
+  "date": "1895-05-12",
+  "time": "00:30",
+  "place": "Madanapalle, India",
+  "rodden": "B"
+ },
+ {
+  "id": "srinivasa-ramanujan",
+  "label": "Srinivasa Ramanujan",
+  "field": "Mathematician",
+  "date": "1887-12-22",
+  "time": "18:00",
+  "place": "Erode, India",
+  "rodden": "B"
+ },
+ {
+  "id": "lata-mangeshkar",
+  "label": "Lata Mangeshkar",
+  "field": "Playback singer",
+  "date": "1929-09-28",
+  "time": "22:30",
+  "place": "Indore, India",
+  "rodden": "B"
+ },
+ {
+  "id": "sachin-tendulkar",
+  "label": "Sachin Tendulkar",
+  "field": "Cricketer",
+  "date": "1973-04-24",
+  "time": "13:00",
+  "place": "Mumbai, India",
+  "rodden": "A"
+ },
+ {
+  "id": "abraham-lincoln",
+  "label": "Abraham Lincoln",
+  "field": "16th US President",
+  "date": "1809-02-12",
+  "time": "06:54",
+  "place": "Hodgenville, Kentucky, USA",
+  "rodden": "B"
+ },
+ {
+  "id": "franklin-d-roosevelt",
+  "label": "Franklin D. Roosevelt",
+  "field": "32nd US President",
+  "date": "1882-01-30",
+  "time": "20:45",
+  "place": "Hyde Park, New York, USA",
+  "rodden": "AA"
+ },
+ {
+  "id": "john-f-kennedy",
+  "label": "John F. Kennedy",
+  "field": "35th US President",
+  "date": "1917-05-29",
+  "time": "15:00",
+  "place": "Brookline, Massachusetts, USA",
+  "rodden": "A"
+ },
+ {
+  "id": "martin-luther-king-jr",
+  "label": "Martin Luther King Jr.",
+  "field": "Civil rights leader",
+  "date": "1929-01-15",
+  "time": "12:00",
+  "place": "Atlanta, Georgia, USA",
+  "rodden": "A"
+ },
+ {
+  "id": "marilyn-monroe",
+  "label": "Marilyn Monroe",
+  "field": "Actress",
+  "date": "1926-06-01",
+  "time": "09:30",
+  "place": "Los Angeles, California, USA",
+  "rodden": "AA"
+ },
+ {
+  "id": "elvis-presley",
+  "label": "Elvis Presley",
+  "field": "Singer",
+  "date": "1935-01-08",
+  "time": "04:35",
+  "place": "Tupelo, Mississippi, USA",
+  "rodden": "AA"
+ },
+ {
+  "id": "bob-dylan",
+  "label": "Bob Dylan",
+  "field": "Singer-songwriter",
+  "date": "1941-05-24",
+  "time": "21:05",
+  "place": "Duluth, Minnesota, USA",
+  "rodden": "AA"
+ },
+ {
+  "id": "muhammad-ali",
+  "label": "Muhammad Ali",
+  "field": "Boxer",
+  "date": "1942-01-17",
+  "time": "18:35",
+  "place": "Louisville, Kentucky, USA",
+  "rodden": "AA"
+ },
+ {
+  "id": "joe-biden",
+  "label": "Joe Biden",
+  "field": "46th US President",
+  "date": "1942-11-20",
+  "time": "08:30",
+  "place": "Scranton, Pennsylvania, USA",
+  "rodden": "A"
+ },
+ {
+  "id": "donald-trump",
+  "label": "Donald Trump",
+  "field": "45th and 47th US President",
+  "date": "1946-06-14",
+  "time": "10:54",
+  "place": "Jamaica, Queens, New York, USA",
+  "rodden": "AA"
+ },
+ {
+  "id": "bill-clinton",
+  "label": "Bill Clinton",
+  "field": "42nd US President",
+  "date": "1946-08-19",
+  "time": "08:51",
+  "place": "Hope, Arkansas, USA",
+  "rodden": "A"
+ },
+ {
+  "id": "oprah-winfrey",
+  "label": "Oprah Winfrey",
+  "field": "Broadcaster",
+  "date": "1954-01-29",
+  "time": "04:30",
+  "place": "Kosciusko, Mississippi, USA",
+  "rodden": "A"
+ },
+ {
+  "id": "steve-jobs",
+  "label": "Steve Jobs",
+  "field": "Co-founder of Apple",
+  "date": "1955-02-24",
+  "time": "19:15",
+  "place": "San Francisco, California, USA",
+  "rodden": "AA"
+ },
+ {
+  "id": "madonna",
+  "label": "Madonna",
+  "field": "Singer",
+  "date": "1958-08-16",
+  "time": "07:05",
+  "place": "Bay City, Michigan, USA",
+  "rodden": "AA"
+ },
+ {
+  "id": "michael-jackson",
+  "label": "Michael Jackson",
+  "field": "Singer",
+  "date": "1958-08-29",
+  "time": "19:33",
+  "place": "Gary, Indiana, USA",
+  "rodden": "A"
+ },
+ {
+  "id": "barack-obama",
+  "label": "Barack Obama",
+  "field": "44th US President",
+  "date": "1961-08-04",
+  "time": "19:24",
+  "place": "Honolulu, Hawaii, USA",
+  "rodden": "AA"
+ },
+ {
+  "id": "kamala-harris",
+  "label": "Kamala Harris",
+  "field": "49th US Vice President",
+  "date": "1964-10-20",
+  "time": "21:28",
+  "place": "Oakland, California, USA",
+  "rodden": "AA"
+ },
+ {
+  "id": "winston-churchill",
+  "label": "Winston Churchill",
+  "field": "Prime Minister of the UK",
+  "date": "1874-11-30",
+  "time": "01:30",
+  "place": "Blenheim Palace, Woodstock, England",
+  "rodden": "A"
+ },
+ {
+  "id": "margaret-thatcher",
+  "label": "Margaret Thatcher",
+  "field": "Prime Minister of the UK",
+  "date": "1925-10-13",
+  "time": "09:00",
+  "place": "Grantham, England",
+  "rodden": "A"
+ },
+ {
+  "id": "queen-elizabeth-ii",
+  "label": "Queen Elizabeth II",
+  "field": "Queen of the United Kingdom",
+  "date": "1926-04-21",
+  "time": "02:40",
+  "place": "Mayfair, London, England",
+  "rodden": "AA"
+ },
+ {
+  "id": "paul-mccartney",
+  "label": "Paul McCartney",
+  "field": "Musician, The Beatles",
+  "date": "1942-06-18",
+  "time": "14:00",
+  "place": "Liverpool, England",
+  "rodden": "A"
+ },
+ {
+  "id": "mick-jagger",
+  "label": "Mick Jagger",
+  "field": "Singer, The Rolling Stones",
+  "date": "1943-07-26",
+  "time": "02:30",
+  "place": "Dartford, England",
+  "rodden": "A"
+ },
+ {
+  "id": "david-bowie",
+  "label": "David Bowie",
+  "field": "Musician",
+  "date": "1947-01-08",
+  "time": "09:00",
+  "place": "Brixton, London, England",
+  "rodden": "A"
+ },
+ {
+  "id": "king-charles-iii",
+  "label": "King Charles III",
+  "field": "King of the United Kingdom",
+  "date": "1948-11-14",
+  "time": "21:14",
+  "place": "Buckingham Palace, London, England",
+  "rodden": "A"
+ },
+ {
+  "id": "tony-blair",
+  "label": "Tony Blair",
+  "field": "Prime Minister of the UK",
+  "date": "1953-05-06",
+  "time": "06:10",
+  "place": "Edinburgh, Scotland",
+  "rodden": "AA"
+ },
+ {
+  "id": "diana-princess-of-wales",
+  "label": "Diana, Princess of Wales",
+  "field": "Princess of Wales",
+  "date": "1961-07-01",
+  "time": "19:45",
+  "place": "Sandringham, England",
+  "rodden": "A"
+ },
+ {
+  "id": "prince-william",
+  "label": "William, Prince of Wales",
+  "field": "Heir to the throne",
+  "date": "1982-06-21",
+  "time": "21:03",
+  "place": "Paddington, London, England",
+  "rodden": "AA"
+ },
+ {
+  "id": "prince-harry",
+  "label": "Prince Harry, Duke of Sussex",
+  "field": "Member of the royal family",
+  "date": "1984-09-15",
+  "time": "16:20",
+  "place": "Paddington, London, England",
+  "rodden": "A"
+ }
+]

@@ -7,6 +7,8 @@ import type { Chart, PlanetId } from '../types/chart';
 import type { Selection } from '../types/ui';
 import { PLANET_BY_ID } from '../data/constants';
 import { ART, grahaArt } from '../data/art';
+import type { SkyCapture, SkyLabel } from '../export/skyPoster';
+import { SkyExport } from './SkyExport';
 
 interface Props {
   chart: Chart;
@@ -26,6 +28,7 @@ const onWheel = (lonDeg: number, r: number, h: number) => {
 };
 
 import { useI18n } from '../i18n';
+import { reducedMotion, useReducedMotion } from '../lib/display';
 import type { Vocab } from '@vedic/i18n';
 import type { PlanetPosition } from '../types/chart';
 
@@ -43,8 +46,13 @@ export default function SkyView({ chart, selection, onSelect }: Props) {
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
-  const [spin, setSpin] = useState(true);
+  // reduced motion (the system setting or ours) starts the sky still; the button can still turn it
+  const calm = useReducedMotion();
+  const [spin, setSpin] = useState(() => !reducedMotion());
+  useEffect(() => { if (calm) setSpin(false); }, [calm]);
   const controlsRef = useRef<OrbitControls | null>(null);
+  const captureRef = useRef<SkyCapture | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     const host = hostRef.current!;
@@ -223,11 +231,61 @@ export default function SkyView({ chart, selection, onSelect }: Props) {
     labels.domElement.addEventListener('pointerdown', onDown);
     labels.domElement.addEventListener('pointerup', onUp);
 
+    // Poster and wallpaper export: render the current view at any size, tile by tile,
+    // so it can go past the GPU's largest canvas, and say where each label falls.
+    captureRef.current = async (W, H) => {
+      const cam = camera.clone();
+      cam.aspect = W / H;
+      // pull back so the wheel still fits across a narrow (portrait) frame
+      const off = cam.position.clone().sub(controls.target);
+      const fitFor = (a: number) => (a >= 1 ? 1 : Math.min(3, 1.2 / a));
+      cam.position.copy(controls.target).add(off.multiplyScalar(fitFor(W / H) / fitFor(camera.aspect)));
+      cam.lookAt(controls.target);
+      const gl = renderer.getContext();
+      const tile = Math.min(2048, gl.getParameter(gl.MAX_RENDERBUFFER_SIZE) as number, gl.getParameter(gl.MAX_VIEWPORT_DIMS)[0] as number);
+      const out = document.createElement('canvas');
+      out.width = W; out.height = H;
+      const ctx = out.getContext('2d')!;
+      const prevSize = renderer.getSize(new THREE.Vector2());
+      const prevRatio = renderer.getPixelRatio();
+      renderer.setAnimationLoop(null);
+      renderer.setPixelRatio(1);
+      try {
+        for (let y = 0; y < H; y += tile) {
+          for (let x = 0; x < W; x += tile) {
+            const w = Math.min(tile, W - x), h = Math.min(tile, H - y);
+            renderer.setSize(w, h, false);
+            cam.setViewOffset(W, H, x, y, w, h);
+            renderer.render(scene, cam);
+            ctx.drawImage(renderer.domElement, 0, 0, w, h, x, y, w, h);
+            // let the page breathe between tiles on slow machines
+            await new Promise((r) => setTimeout(r, 0));
+          }
+        }
+      } finally {
+        cam.clearViewOffset();
+        renderer.setPixelRatio(prevRatio);
+        renderer.setSize(prevSize.x, prevSize.y);
+        renderer.setAnimationLoop(frame);
+      }
+      const labels: SkyLabel[] = [];
+      const at = (v: THREE.Vector3) => { const p = v.clone().project(cam); return { x: (p.x + 1) / 2 * W, y: (1 - p.y) / 2 * H }; };
+      for (const n of nodesRef.current) {
+        const p = chart.planets.find((q) => q.id === n.id)!;
+        const top = n.group.position.clone().add(new THREE.Vector3(0, SIZE[n.id] * (n.id === 'saturn' ? 1.2 : 1) + 0.45, 0));
+        labels.push({ id: n.id, text: skyName(namesRef.current.v, p), color: PLANET_BY_ID[n.id].color, ...at(top) });
+      }
+      labels.push({ id: 'asc', text: namesRef.current.lagna, color: '#b48cff', ...at(onWheel(chart.ascendant.longitude, ART.radii.rim - 0.3, 4.3)) });
+      return { canvas: out, labels };
+    };
+
     const clock = new THREE.Clock();
     const frame = () => {
       const dt = clock.getDelta();
-      for (const s of spinners) s.rotation.y += dt * 0.25;
-      for (const n of nodesRef.current) if (n.halo.visible) n.halo.rotation.z += dt * 0.8;
+      if (!reducedMotion()) {
+        for (const s of spinners) s.rotation.y += dt * 0.25;
+        for (const n of nodesRef.current) if (n.halo.visible) n.halo.rotation.z += dt * 0.8;
+      }
       controls.update();
       renderer.render(scene, camera);
       labels.render(scene, camera);
@@ -243,6 +301,7 @@ export default function SkyView({ chart, selection, onSelect }: Props) {
 
     return () => {
       disposed = true;
+      captureRef.current = null;
       io.disconnect();
       renderer.setAnimationLoop(null);
       ro.disconnect();
@@ -286,7 +345,9 @@ export default function SkyView({ chart, selection, onSelect }: Props) {
       {status === 'error' && <div className="sky-overlay">{t('sky.noWebgl')}</div>}
       <div className="sky-controls">
         <button className="btn-ghost sm" onClick={() => setSpin((s) => !s)}>{spin ? t('sky.pause') : t('sky.rotate')}</button>
+        {status === 'ready' && <button className="btn-ghost sm" onClick={() => { setSpin(false); setExporting(true); }}>Poster · wallpaper</button>}
       </div>
+      {exporting && <SkyExport chart={chart} capture={(w, h) => { if (!captureRef.current) throw new Error('The 3D view is not ready'); return captureRef.current(w, h); }} onClose={() => setExporting(false)} />}
       <p className="sky-note">{t('sky.note')}</p>
     </div>
   );

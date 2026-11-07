@@ -8,6 +8,8 @@
  *  - Nakshatras are numbers 1–27 (1 = Ashwini … 27 = Revati).
  */
 
+import type { RuleSource } from './sources';
+
 export const PLANETS = [
   'sun',
   'moon',
@@ -60,6 +62,8 @@ export interface Reading {
   score: number;
   /** Optional practical suggestions (remedial or behavioural). */
   remedies?: string[];
+  /** Classical source for the rule behind this reading; null when none has been checked yet. */
+  source?: RuleSource | null;
 }
 
 /** Minimal per-planet data the detectors need. */
@@ -110,6 +114,8 @@ export interface YogaDefinition {
   category: YogaCategory;
   /** Plain-language statement of the rule, for display. */
   rule: string;
+  /** Classical source (text, chapter, verse); null when none has been checked yet. */
+  source: RuleSource | null;
   reading: Reading;
 }
 
@@ -131,6 +137,8 @@ export interface DoshaDefinition {
   name: string;
   aka?: string[];
   rule: string;
+  /** Classical source (text, chapter, verse); null when none has been checked yet. */
+  source: RuleSource | null;
   reading: Reading;
 }
 

@@ -27,8 +27,19 @@ Everything a person enters stays in `localStorage`; there are no accounts and no
 | `vedic.profiles.v1` | Saved charts, `Profile[]`. |
 | `vedic.lifeEvents.v1` | Legacy, read only: life events keyed by birth details, from before they moved onto `Tab.events`. A tab with no `events` field picks its events up from here once. |
 | `vedic.lastInput` | The last birth details entered, to prefill the form. |
+| `va.first`, `va.ret` | Only when the visit counter is on (below): the day of this browser's first counted visit and of its last counted return. Never sent. |
 
 Share links look like `app/#n=Asha&d=1985-03-02&t=14:20&p=Pondicherry&lat=11.9416&lon=79.8083&tz=Asia/Kolkata` (`ay=` only when not Lahiri). Opening one opens or switches to its tab, then clears the fragment.
+
+## Learn pages
+
+`src/learn/pages.ts` turns the readings in `@vedic/interpretations` into about 340 static pages under `/learn/`: 27 nakshatras, 12 signs, 9 grahas, 12 houses, every planet in every sign and house, 44 yogas, 9 doshas and a glossary (`src/learn/terms.ts`, shared with the PDF report). The `learn-pages` plugin in `vite.config.ts` writes them into `dist/learn/` with their own `learn/sitemap.xml` (listed in `robots.txt`) and renders them on request in `npm run dev`. They load one stylesheet (`src/learn/learn.css`) and no JavaScript. Edit the reading data and the pages follow.
+
+## Visit counter
+
+`src/lib/analytics.ts` counts one funnel with [GoatCounter](https://www.goatcounter.com/), which sets no cookies and stores no IP addresses: landing page view, app view, `chart-submit`, `first-planet-click` and `return-7d` (a later day within seven days of the first visit). It sends the page path only, never the `#` fragment that holds birth details, and nothing at all under Do Not Track or Global Privacy Control.
+
+It is off unless the build sets `VITE_GOATCOUNTER`. To turn it on: create a site at goatcounter.com (the code is the subdomain, e.g. `jyotisha` for `jyotisha.goatcounter.com`), then add a repository variable `GOATCOUNTER_CODE` with that code under Settings > Secrets and variables > Actions > Variables. The Pages workflow passes it to the build. The site check answers counter requests itself, so CI never counts.
 
 ## Layout
 

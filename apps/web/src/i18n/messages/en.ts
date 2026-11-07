@@ -70,8 +70,9 @@ const en = {
   footer: {
     system: 'Sidereal zodiac · whole-sign houses · {ayanamsa} ayanamsa',
     disclaimer: 'Astrology is a traditional practice, not a science. Readings are for reflection, and nothing here is medical, legal or financial advice. Planet positions are calculated. The starry artwork is decorative and does not show real star positions.',
-    privacy: 'Your birth details stay in this browser. Only the text you type in the place box is sent, to {openMeteo} (data {geonames}, {ccby}). Positions by {swisseph}. Free software under {agpl}: {source}.',
+    privacy: 'Your birth details stay in this browser. The text you type in the place box is sent to {openMeteo} (data {geonames}, {ccby}). Positions by {swisseph}. Free software under {agpl}: {source}.',
     getSource: 'get the source',
+    mapTiles: 'Once you pick a place, the small map loads its tiles from {osm}, so OpenStreetMap can tell roughly which area you looked at.',
   },
   form: {
     name: 'Name',
@@ -101,6 +102,8 @@ const en = {
     body: 'Body',
     sign: 'Sign',
     degree: 'Degree',
+    longitude: 'Sidereal °',
+    longitudeHint: 'Raw sidereal longitude, 0 to 360 counted from 0° Aries, to four decimals. Compare it with any other program; the Check page does the arithmetic.',
     nakshatra: 'Nakshatra',
     pada: 'Pada',
     house: 'House',
@@ -111,6 +114,11 @@ const en = {
     retrograde: 'Retrograde',
     combustShort: 'Comb.',
     combust: 'Combust',
+  },
+  cite: {
+    sources: 'Classical sources',
+    disagreement: 'Where the texts differ:',
+    noClassical: 'not classical',
   },
   dasha: {
     mahadasha: '{planet} mahadasha',

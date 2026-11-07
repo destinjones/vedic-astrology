@@ -6,7 +6,7 @@
 .small { font-size: 13px; }
 
 .match-intro { max-width: 760px; margin: 18px auto 26px; text-align: center; }
-.match-intro h2 {
+.match-intro h1 {
   font: 600 clamp(32px, 5vw, 52px)/1.05 var(--serif); margin: 0 0 12px;
   background: linear-gradient(120deg, #fff 10%, #f6d48f 60%, var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
