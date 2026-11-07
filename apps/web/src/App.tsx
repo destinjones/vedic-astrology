@@ -34,6 +34,7 @@ const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
 const EventChecker = lazy(() => import('./components/EventChecker'));
 const JaiminiSection = lazy(() => import('./components/JaiminiSection'));
+const RectificationSection = lazy(() => import('./components/RectificationSection'));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
 function WhenVisible({ children, minHeight }: { children: React.ReactNode; minHeight: number }) {
@@ -534,6 +535,21 @@ export default function App() {
               </WhenVisible>
             </section>
           )}
+          {chart.engineContext && (
+            <section className="card rect-host" id="rectify">
+              <div className="card-head"><h3>Birth time finder</h3><span className="muted">not sure of your exact time? narrow it down from your life events</span></div>
+              <WhenVisible minHeight={420}>
+                <Suspense fallback={<div className="sky-overlay static">Loading the birth time finder…</div>}>
+                  <RectificationSection
+                    key={`${chart.input.date}|${chart.input.latitude}|${chart.input.longitude}`}
+                    context={chart.engineContext}
+                    onApply={(date, time) => { void run({ ...chart.input, date, time }); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  />
+                </Suspense>
+              </WhenVisible>
+            </section>
+          )}
+
           <ClientHistory
             tab={activeTab}
             onNotes={(notes) => patchTab(activeTab.id, { notes })}
