@@ -30,6 +30,7 @@ There is no second page and no price. Click any planet, house or nakshatra and t
 | **Ashtakavarga** | All seven tables, the SAV and who gave each point |
 | **Varshaphal** | The Tajika annual chart for any year, cast for the second the Sun returns: Muntha, year lord, Tajika yogas, 20 Sahams and the Mudda dasha |
 | **Four ayanamsas** | Lahiri, True Chitra, Raman and Krishnamurti |
+| **Export and share** | PNG and SVG of any chart with your pinned notes, share cards sized for WhatsApp and Telegram, an embed code for blogs, link previews for every famous chart, an A2 poster or lock screen of the 3D sky, a graha sticker pack, and the chart read aloud |
 
 ## Hold your birth sky in your hands
 
@@ -71,9 +72,9 @@ Then open <http://localhost:5173/>. The chart itself is at `/app/`.
 | [`packages/interpretations`](packages/interpretations) | The readings and the yoga and dosha detectors |
 | [`packages/tajika`](packages/tajika) | Varshaphal: the Tajika annual chart and its readings |
 | [`blender`](blender), [`assets/3d`](assets/3d) | The scripts that render the art, and the renders |
-| [`tools`](tools) | The site check that guards each deploy, and the recorder for these GIFs |
+| [`tools`](tools) | The site check that guards each deploy, the recorder for these GIFs, and the link-preview renderer |
 
-`npm run build:pages && npm run smoke` builds the site as GitHub Pages serves it and checks it in a real browser. `npm run demos` records the GIFs again from that build.
+`npm run build:pages && npm run smoke` builds the site as GitHub Pages serves it and checks it in a real browser. `npm run demos` records the GIFs again from that build, and `npm run og` renders the famous charts' link-preview cards into `apps/web/public/og/` (build again afterwards so their `/c/<id>/` pages are made).
 
 ## License
 

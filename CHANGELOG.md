@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Export and sharing: a standalone SVG chart renderer behind PNG/SVG download of any chart and varga; chart notes pinned to houses and planets, kept with the tab and drawn into exports; share cards (1200×630, 1080×1080, 1080×1920) for WhatsApp and Telegram with the system share sheet where the browser has one; an `/embed/` widget and iframe snippet; `/c/<id>/` link-preview pages with pre-rendered og:images for the famous charts; A2 poster (PDF or JPEG, 150 or 300 dpi), lock-screen and 4K wallpaper renders of the 3D sky; a graha sticker pack (PNG and WebP) from the Blender art; and audio narration of the walkthrough and readings with the browser's own voices.
 - Bhava chalit chart beside the rashi chart (Sripati and equal-house methods). Switching to it moves planets into their bhava and the house readings follow; lordship and yogas stay sign-based.
 - Panchanga on the chart page for the birth moment and any date, with when each tithi, nakshatra, yoga and karana ends (`panchangaAt` in the engine).
 - Planet condition: Baladi, Jagradadi and Deeptadi avasthas; gandanta, abhukta mula, graha yuddha, mrityu bhaga, pushkara navamsa and pushkara bhaga flags with their sources; ayurdaya (Pindayu, Amsayu, Nisargayu) behind a caveat.

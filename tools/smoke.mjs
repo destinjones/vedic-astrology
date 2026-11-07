@@ -1,10 +1,12 @@
 // Refuses to publish a broken site. Serves the built site under the Pages path and
 // checks in a real browser that the engine, art, readings and timeline all load.
+import { readFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 import { serveDist, BASE } from './serve-dist.mjs';
 
 const { url, close } = await serveDist();
 const browser = await chromium.launch({
+  executablePath: process.env.CHROMIUM_PATH || undefined,
   args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
 });
 const problems = [];
@@ -120,10 +122,28 @@ try {
     page.getByRole('button', { name: 'Download PDF report' }).click(),
   ]);
   const pdfPath = await download.path();
-  const { readFileSync } = await import('node:fs');
   const pdf = readFileSync(pdfPath);
   if (pdf.subarray(0, 5).toString() !== '%PDF-') problems.push('PDF report: download is not a PDF');
   else if (pdf.length < 300_000) problems.push(`PDF report: suspiciously small (${pdf.length} bytes)`);
+
+  // chart export: a note pinned to the chart goes into the PNG and SVG
+  await page.locator('#chart').scrollIntoViewIfNeeded();
+  await page.getByRole('button', { name: /Notes/ }).click();
+  await page.locator('.annot-form textarea').fill('Smoke test note');
+  await page.getByRole('button', { name: 'Add note' }).click();
+  if ((await page.locator('#chart .annot-pin').count()) !== 1) problems.push('chart notes: the pin did not appear on the chart');
+  await page.getByRole('button', { name: /^⤓ Export$/ }).click();
+  const [png] = await Promise.all([page.waitForEvent('download', { timeout: 30000 }), page.locator('.export-dialog').getByRole('button', { name: 'Download PNG' }).click()]);
+  const pngBytes = readFileSync(await png.path());
+  if (pngBytes.subarray(1, 4).toString() !== 'PNG' || pngBytes.length < 50_000) problems.push(`chart export: PNG looks wrong (${pngBytes.length} bytes)`);
+  const [svg] = await Promise.all([page.waitForEvent('download', { timeout: 30000 }), page.locator('.export-dialog').getByRole('button', { name: 'Download SVG' }).click()]);
+  const svgText = readFileSync(await svg.path(), 'utf8');
+  if (!svgText.startsWith('<svg') || !svgText.includes('Smoke test note')) problems.push('chart export: SVG is missing or lacks the note');
+  await page.getByRole('tab', { name: 'Stickers' }).click();
+  const [zip] = await Promise.all([page.waitForEvent('download', { timeout: 60000 }), page.getByRole('button', { name: /sticker pack/ }).click()]);
+  const zipBytes = readFileSync(await zip.path());
+  if (zipBytes.readUInt32LE(0) !== 0x04034b50 || zipBytes.length < 300_000) problems.push(`sticker pack: not a zip of stickers (${zipBytes.length} bytes)`);
+  await page.keyboard.press('Escape');
 
   const away = [...offsite];
   if (away.length) problems.push(`opening a chart called other sites: ${away.join(', ')}`);
@@ -143,6 +163,17 @@ try {
   await fresh.waitForSelector('.summary-strip', { timeout: 60000 });
   const sharedLagna = await fresh.locator('.summary-item').first().innerText();
   if (!sharedLagna.includes('Leo')) problems.push(`share link should reopen the Leo lagna sample, got: ${sharedLagna}`);
+
+  // the embed widget works out a chart on its own, and famous charts have link-preview pages
+  const embed = await browser.newPage({ viewport: { width: 420, height: 560 } });
+  embed.on('pageerror', (e) => problems.push(`embed page error: ${e.message}`));
+  await embed.goto(`${link.replace('/app/#', '/embed/#')}&s=south`);
+  await embed.waitForSelector('body[data-ready=true] #embed svg', { timeout: 60000 }).catch(() => problems.push('embed widget: no chart drawn'));
+  const ogPage = await (await fetch(`${url}${BASE}c/indira-gandhi/`)).text();
+  const ogImage = /property="og:image" content="[^"]*\/og\/indira-gandhi\.jpg"/.test(ogPage);
+  if (!ogImage) problems.push('link preview page: /c/indira-gandhi/ has no og:image');
+  const ogJpg = await fetch(`${url}${BASE}og/indira-gandhi.jpg`);
+  if (!ogJpg.ok) problems.push('link preview image og/indira-gandhi.jpg is missing');
 } finally {
   await browser.close();
   await close();
@@ -152,4 +183,4 @@ if (problems.length) {
   console.error(`Site check failed:\n- ${problems.join('\n- ')}`);
   process.exit(1);
 }
-console.log('Site check passed: landing page, engine, readings, panchanga, bhava chalit, planet condition, dasha junctions, Jaimini, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, saved charts and share links all work.');
+console.log('Site check passed: landing page, engine, readings, panchanga, bhava chalit, planet condition, dasha junctions, Jaimini, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, chart notes and export, sticker pack, saved charts, share links, embed widget, link previews, study and learn pages all work.');
