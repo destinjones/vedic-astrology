@@ -37,6 +37,9 @@ try {
 
   await page.locator('#timing').scrollIntoViewIfNeeded();
   await page.waitForSelector('#timing .vt-card', { timeout: 60000 });
+  await page.fill('#vt-transit-search input[type=search]', 'Next Jupiter return');
+  await page.click('#vt-transit-search .vt-ask button');
+  await page.waitForSelector('#vt-transit-search .vt-results .vt-item', { timeout: 30000 }).catch(() => problems.push('transit search returned no results'));
   await page.locator('#events').scrollIntoViewIfNeeded();
   await page.waitForSelector('#events .ev-form', { timeout: 60000 });
   await page.locator('.sky-card').scrollIntoViewIfNeeded();
