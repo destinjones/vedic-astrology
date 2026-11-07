@@ -67,18 +67,36 @@ export async function geocode(query: string, opts: GeocodeOptions = {}): Promise
   const res = await f(url, { signal: opts.signal, headers: { Accept: 'application/json' } });
   if (!res.ok) throw new Error(`Geocoding failed (${res.status})`);
   const list = (await res.json()) as any[];
-  return list.map((r) => {
-    const latitude = Number(r.lat);
-    const longitude = Number(r.lon);
-    return {
-      name: r.display_name,
-      latitude,
-      longitude,
-      timezone: safeTz(latitude, longitude) ?? 'UTC',
-      country: r.address?.country,
-      admin1: r.address?.state,
-    };
-  });
+  if (!Array.isArray(list)) return [];
+  return list
+    .filter((r) => r && typeof r === 'object')
+    .map((r) => {
+      const latitude = Number(r.lat);
+      const longitude = Number(r.lon);
+      return {
+        name: typeof r.display_name === 'string' ? r.display_name : '',
+        latitude,
+        longitude,
+        timezone: safeTz(latitude, longitude) ?? 'UTC',
+        country: r.address?.country,
+        admin1: r.address?.state,
+      };
+    })
+    .filter(isUsable);
+}
+
+/** A result the birth form can use: a name and real coordinates. APIs do return junk. */
+function isUsable(r: GeoResult): boolean {
+  return (
+    typeof r.name === 'string' &&
+    r.name.trim() !== '' &&
+    Number.isFinite(r.latitude) &&
+    Number.isFinite(r.longitude) &&
+    Math.abs(r.latitude) <= 90 &&
+    Math.abs(r.longitude) <= 180 &&
+    typeof r.timezone === 'string' &&
+    r.timezone !== ''
+  );
 }
 
 async function openMeteo(
@@ -94,8 +112,11 @@ async function openMeteo(
     )}&count=${count}&language=${language}&format=json`;
     const res = await f(url, { signal });
     if (!res.ok) return [];
-    const json = (await res.json()) as { results?: any[] };
-    return (json.results ?? []).map((r) => ({
+    const json = (await res.json()) as { results?: any[] } | null;
+    const list = json && Array.isArray(json.results) ? json.results : [];
+    return list
+      .filter((r) => r && typeof r === 'object')
+      .map((r) => ({
       name: [r.name, r.admin1, r.country].filter(Boolean).join(', '),
       latitude: r.latitude,
       longitude: r.longitude,
@@ -104,7 +125,8 @@ async function openMeteo(
       admin1: r.admin1,
       population: r.population,
       elevation: r.elevation,
-    }));
+    }))
+      .filter(isUsable);
   } catch (e) {
     if ((e as Error).name === 'AbortError') throw e;
     return [];

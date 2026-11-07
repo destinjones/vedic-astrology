@@ -1,0 +1,186 @@
+{
+  "id": "delhi-1990-raman",
+  "about": "Modern IST birth, Raman ayanamsa, true nodes",
+  "input": {
+    "date": "1990-08-15",
+    "time": "06:30",
+    "place": {
+      "name": "New Delhi",
+      "latitude": 28.6139,
+      "longitude": 77.209,
+      "timezone": "Asia/Kolkata"
+    }
+  },
+  "options": {
+    "ayanamsa": "raman",
+    "nodeType": "true"
+  },
+  "sha256": "33c700090bc691ad4c7295ff86b7f597b5cab21309a40e688a5ecdd489022390",
+  "digest": {
+    "meta": {
+      "utc": "1990-08-15T01:00:00.000Z",
+      "timezone": "Asia/Kolkata",
+      "utcOffsetMinutes": 330,
+      "localMeanTime": false,
+      "ayanamsa": "raman",
+      "ayanamsaValue": 22.2797,
+      "houseSystem": "whole_sign",
+      "nodeType": "true",
+      "timeWarnings": []
+    },
+    "ascendant": {
+      "lon": 127.4229,
+      "sign": 5,
+      "nak": 10,
+      "pada": 3
+    },
+    "midheaven": 35.3798,
+    "cusps": [
+      120,
+      150,
+      180,
+      210,
+      240,
+      270,
+      300,
+      330,
+      0,
+      30,
+      60,
+      90
+    ],
+    "planets": {
+      "sun": {
+        "lon": 119.6811,
+        "sign": 4,
+        "house": 12,
+        "nak": 9,
+        "pada": 4,
+        "retro": false,
+        "combust": false
+      },
+      "moon": {
+        "lon": 47.9991,
+        "sign": 2,
+        "house": 10,
+        "nak": 4,
+        "pada": 3,
+        "retro": false,
+        "combust": false
+      },
+      "mars": {
+        "lon": 28.837,
+        "sign": 1,
+        "house": 9,
+        "nak": 3,
+        "pada": 1,
+        "retro": false,
+        "combust": false
+      },
+      "mercury": {
+        "lon": 146.762,
+        "sign": 5,
+        "house": 1,
+        "nak": 12,
+        "pada": 1,
+        "retro": false,
+        "combust": false
+      },
+      "jupiter": {
+        "lon": 97.0172,
+        "sign": 4,
+        "house": 12,
+        "nak": 8,
+        "pada": 2,
+        "retro": false,
+        "combust": false
+      },
+      "venus": {
+        "lon": 99.0853,
+        "sign": 4,
+        "house": 12,
+        "nak": 8,
+        "pada": 2,
+        "retro": false,
+        "combust": false
+      },
+      "saturn": {
+        "lon": 267.6036,
+        "sign": 9,
+        "house": 5,
+        "nak": 21,
+        "pada": 1,
+        "retro": true,
+        "combust": false
+      },
+      "rahu": {
+        "lon": 284.9474,
+        "sign": 10,
+        "house": 6,
+        "nak": 22,
+        "pada": 2,
+        "retro": false,
+        "combust": false
+      },
+      "ketu": {
+        "lon": 104.9474,
+        "sign": 4,
+        "house": 12,
+        "nak": 8,
+        "pada": 4,
+        "retro": false,
+        "combust": false
+      }
+    },
+    "vargas": {
+      "D1": "5 4 2 1 5 4 4 9 10 4",
+      "D2": "5 5 5 4 4 4 4 4 4 4",
+      "D3": "5 12 6 9 1 4 4 5 2 8",
+      "D4": "5 1 8 10 2 4 7 6 1 7",
+      "D5": "11 8 12 7 7 6 6 7 12 12",
+      "D6": "2 12 10 6 6 8 8 6 9 9",
+      "D7": "6 4 12 7 11 11 12 3 7 1",
+      "D8": "10 8 1 8 4 2 3 12 4 4",
+      "D9": "3 12 3 9 9 6 6 9 2 8",
+      "D10": "7 9 3 10 1 2 3 6 10 4",
+      "D11": "11 8 6 11 6 12 1 3 9 3",
+      "D12": "7 3 9 12 3 6 7 8 3 9",
+      "D16": "8 4 2 4 7 4 5 11 8 8",
+      "D20": "1 8 8 8 2 5 7 11 10 10",
+      "D24": "10 3 6 4 2 9 11 3 3 3",
+      "D27": "7 12 8 2 1 4 6 1 5 11",
+      "D30": "11 8 12 7 7 6 6 7 12 12",
+      "D40": "10 10 6 3 12 4 7 1 2 2",
+      "D45": "4 9 7 8 9 11 2 2 11 11",
+      "D60": "7 3 1 10 10 6 10 4 3 9"
+    },
+    "dasha": [
+      "moon 1984-08-14T20:08",
+      "mars 1994-08-15T06:20",
+      "rahu 2001-08-14T23:05",
+      "jupiter 2019-08-15T07:50",
+      "saturn 2035-08-15T04:57",
+      "mercury 2054-08-14T19:32",
+      "ketu 2071-08-14T22:29",
+      "venus 2078-08-14T15:13",
+      "sun 2098-08-14T11:37"
+    ],
+    "panchanga": {
+      "tithi": 25,
+      "vara": 3,
+      "nakshatra": 4,
+      "yoga": 13,
+      "karana": 49,
+      "sunrise": "1990-08-15T00:20"
+    },
+    "shadbala": {
+      "sun": 387.21,
+      "moon": 439.07,
+      "mars": 454.52,
+      "mercury": 654.6,
+      "jupiter": 423.12,
+      "venus": 336.19,
+      "saturn": 358.79
+    }
+  }
+}

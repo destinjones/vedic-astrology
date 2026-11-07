@@ -1,0 +1,214 @@
+{
+  "id": "santiago-2001-kp",
+  "about": "Southern and western hemisphere, Krishnamurti ayanamsa, Placidus cusps, outer planets",
+  "input": {
+    "date": "2001-02-28",
+    "time": "23:59",
+    "place": {
+      "name": "Santiago",
+      "latitude": -33.45,
+      "longitude": -70.66667,
+      "timezone": "America/Santiago"
+    }
+  },
+  "options": {
+    "ayanamsa": "krishnamurti",
+    "houseSystem": "placidus",
+    "includeOuterPlanets": true
+  },
+  "sha256": "90af8350ba313f737aa2d4d26095a1b3ba0a2b1c5331e272259621b8264c7387",
+  "digest": {
+    "meta": {
+      "utc": "2001-03-01T02:59:00.000Z",
+      "timezone": "America/Santiago",
+      "utcOffsetMinutes": -180,
+      "localMeanTime": false,
+      "ayanamsa": "krishnamurti",
+      "ayanamsaValue": 23.7765,
+      "houseSystem": "placidus",
+      "nodeType": "mean",
+      "timeWarnings": []
+    },
+    "ascendant": {
+      "lon": 215.4042,
+      "sign": 8,
+      "nak": 17,
+      "pada": 1
+    },
+    "midheaven": 106.8463,
+    "cusps": [
+      215.4042,
+      240.8162,
+      263.1338,
+      286.8463,
+      315.9936,
+      353.7001,
+      35.4042,
+      60.8162,
+      83.1338,
+      106.8463,
+      135.9936,
+      173.7001
+    ],
+    "planets": {
+      "sun": {
+        "lon": 316.8184,
+        "sign": 11,
+        "house": 5,
+        "nak": 24,
+        "pada": 4,
+        "retro": false,
+        "combust": false
+      },
+      "moon": {
+        "lon": 22.7541,
+        "sign": 1,
+        "house": 6,
+        "nak": 2,
+        "pada": 3,
+        "retro": false,
+        "combust": false
+      },
+      "mars": {
+        "lon": 223.4834,
+        "sign": 8,
+        "house": 1,
+        "nak": 17,
+        "pada": 4,
+        "retro": false,
+        "combust": false
+      },
+      "mercury": {
+        "lon": 292.2675,
+        "sign": 10,
+        "house": 4,
+        "nak": 22,
+        "pada": 4,
+        "retro": false,
+        "combust": false
+      },
+      "jupiter": {
+        "lon": 39.3857,
+        "sign": 2,
+        "house": 7,
+        "nak": 3,
+        "pada": 4,
+        "retro": false,
+        "combust": false
+      },
+      "venus": {
+        "lon": 352.7374,
+        "sign": 12,
+        "house": 5,
+        "nak": 27,
+        "pada": 2,
+        "retro": false,
+        "combust": false
+      },
+      "saturn": {
+        "lon": 31.4186,
+        "sign": 2,
+        "house": 6,
+        "nak": 3,
+        "pada": 2,
+        "retro": false,
+        "combust": false
+      },
+      "rahu": {
+        "lon": 78.7826,
+        "sign": 3,
+        "house": 8,
+        "nak": 6,
+        "pada": 4,
+        "retro": true,
+        "combust": false
+      },
+      "ketu": {
+        "lon": 258.7826,
+        "sign": 9,
+        "house": 2,
+        "nak": 20,
+        "pada": 2,
+        "retro": true,
+        "combust": false
+      },
+      "uranus": {
+        "lon": 298.1679,
+        "sign": 10,
+        "house": 4,
+        "nak": 23,
+        "pada": 2,
+        "retro": false,
+        "combust": false
+      },
+      "neptune": {
+        "lon": 283.7216,
+        "sign": 10,
+        "house": 3,
+        "nak": 22,
+        "pada": 2,
+        "retro": false,
+        "combust": false
+      },
+      "pluto": {
+        "lon": 231.4257,
+        "sign": 8,
+        "house": 1,
+        "nak": 18,
+        "pada": 2,
+        "retro": false,
+        "combust": false
+      }
+    },
+    "vargas": {
+      "D1": "8 11 1 8 10 2 12 2 3 9",
+      "D2": "4 4 4 4 5 4 5 4 4 4",
+      "D3": "8 3 9 12 6 2 8 2 7 1",
+      "D4": "8 5 10 11 4 5 9 2 9 3",
+      "D5": "2 9 3 12 10 6 10 2 3 3",
+      "D6": "8 4 5 9 11 8 11 7 4 4",
+      "D7": "3 2 6 5 9 10 11 8 7 1",
+      "D8": "10 1 7 12 6 11 11 9 10 10",
+      "D9": "5 12 7 8 4 12 10 10 12 6",
+      "D10": "5 4 8 8 1 1 3 10 9 3",
+      "D11": "7 9 9 10 12 3 10 12 5 11",
+      "D12": "10 5 10 1 6 5 9 2 10 4",
+      "D16": "7 1 1 12 12 10 9 5 7 7",
+      "D20": "12 8 4 5 3 3 8 9 5 5",
+      "D24": "8 6 11 2 9 11 10 5 8 8",
+      "D27": "2 10 9 10 12 12 6 5 11 5",
+      "D30": "6 9 3 12 10 6 10 2 3 3",
+      "D40": "2 11 7 12 12 7 1 8 2 2",
+      "D45": "1 6 11 1 10 7 7 7 1 1",
+      "D60": "6 8 10 10 6 8 9 4 4 10"
+    },
+    "dasha": [
+      "venus 1987-01-12T19:28",
+      "sun 2007-01-12T15:52",
+      "moon 2013-01-12T02:47",
+      "mars 2023-01-12T12:59",
+      "rahu 2030-01-12T05:43",
+      "jupiter 2048-01-12T14:29",
+      "saturn 2064-01-12T11:36",
+      "mercury 2083-01-12T02:11",
+      "ketu 2100-01-12T05:07"
+    ],
+    "panchanga": {
+      "tithi": 6,
+      "vara": 3,
+      "nakshatra": 2,
+      "yoga": 26,
+      "karana": 11,
+      "sunrise": "2001-02-28T10:30"
+    },
+    "shadbala": {
+      "sun": 409.37,
+      "moon": 454.43,
+      "mars": 416.34,
+      "mercury": 416.95,
+      "jupiter": 413.57,
+      "venus": 438.88,
+      "saturn": 450.64
+    }
+  }
+}

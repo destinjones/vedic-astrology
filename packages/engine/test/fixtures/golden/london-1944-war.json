@@ -1,0 +1,185 @@
+{
+  "id": "london-1944-war",
+  "about": "British Double Summer Time",
+  "input": {
+    "date": "1944-06-06",
+    "time": "12:00",
+    "place": {
+      "name": "London",
+      "latitude": 51.5074,
+      "longitude": -0.1278,
+      "timezone": "Europe/London"
+    }
+  },
+  "options": {},
+  "sha256": "21f8f99c785246a5035eb234e85db9639df02b320fe76592359a3b68ebfc62af",
+  "digest": {
+    "meta": {
+      "utc": "1944-06-06T10:00:00.000Z",
+      "timezone": "Europe/London",
+      "utcOffsetMinutes": 120,
+      "localMeanTime": false,
+      "ayanamsa": "lahiri",
+      "ayanamsaValue": 23.0809,
+      "houseSystem": "whole_sign",
+      "nodeType": "mean",
+      "timeWarnings": [
+        "uk-double-summer"
+      ]
+    },
+    "ascendant": {
+      "lon": 125.0104,
+      "sign": 5,
+      "nak": 10,
+      "pada": 2
+    },
+    "midheaven": 23.9524,
+    "cusps": [
+      120,
+      150,
+      180,
+      210,
+      240,
+      270,
+      300,
+      330,
+      0,
+      30,
+      60,
+      90
+    ],
+    "planets": {
+      "sun": {
+        "lon": 52.4742,
+        "sign": 2,
+        "house": 10,
+        "nak": 4,
+        "pada": 4,
+        "retro": false,
+        "combust": false
+      },
+      "moon": {
+        "lon": 227.7892,
+        "sign": 8,
+        "house": 4,
+        "nak": 18,
+        "pada": 1,
+        "retro": false,
+        "combust": false
+      },
+      "mars": {
+        "lon": 105.538,
+        "sign": 4,
+        "house": 12,
+        "nak": 8,
+        "pada": 4,
+        "retro": false,
+        "combust": false
+      },
+      "mercury": {
+        "lon": 29.4835,
+        "sign": 1,
+        "house": 9,
+        "nak": 3,
+        "pada": 1,
+        "retro": false,
+        "combust": false
+      },
+      "jupiter": {
+        "lon": 118.1131,
+        "sign": 4,
+        "house": 12,
+        "nak": 9,
+        "pada": 4,
+        "retro": false,
+        "combust": false
+      },
+      "venus": {
+        "lon": 46.8086,
+        "sign": 2,
+        "house": 10,
+        "nak": 4,
+        "pada": 3,
+        "retro": false,
+        "combust": true
+      },
+      "saturn": {
+        "lon": 65.124,
+        "sign": 3,
+        "house": 11,
+        "nak": 5,
+        "pada": 4,
+        "retro": false,
+        "combust": true
+      },
+      "rahu": {
+        "lon": 96.7713,
+        "sign": 4,
+        "house": 12,
+        "nak": 8,
+        "pada": 2,
+        "retro": true,
+        "combust": false
+      },
+      "ketu": {
+        "lon": 276.7713,
+        "sign": 10,
+        "house": 6,
+        "nak": 21,
+        "pada": 4,
+        "retro": true,
+        "combust": false
+      }
+    },
+    "vargas": {
+      "D1": "5 2 8 4 1 4 2 3 4 10",
+      "D2": "5 5 5 5 4 5 5 5 4 4",
+      "D3": "5 10 12 8 9 12 6 3 4 10",
+      "D4": "5 8 2 10 10 1 8 3 4 10",
+      "D5": "1 10 12 12 7 8 12 1 6 6",
+      "D6": "2 11 10 10 6 12 10 2 8 8",
+      "D7": "6 1 6 1 7 4 11 4 11 5",
+      "D8": "10 2 1 5 8 8 1 6 2 2",
+      "D9": "2 4 9 8 9 12 3 8 6 12",
+      "D10": "6 5 9 5 10 9 3 4 2 8",
+      "D11": "10 8 12 3 11 8 6 12 12 6",
+      "D12": "7 10 3 10 12 3 8 5 6 12",
+      "D16": "7 4 2 9 4 3 1 11 4 4",
+      "D20": "12 11 8 11 8 7 8 8 5 5",
+      "D24": "9 9 6 4 4 2 5 9 9 9",
+      "D27": "5 12 2 11 3 11 7 11 4 10",
+      "D30": "11 10 12 12 7 8 12 11 6 6",
+      "D40": "7 12 6 3 4 8 5 7 4 4",
+      "D45": "12 2 7 12 9 7 6 4 11 11",
+      "D60": "3 10 7 11 11 12 11 1 5 11"
+    },
+    "dasha": [
+      "mercury 1942-12-31T16:09",
+      "ketu 1959-12-31T19:05",
+      "venus 1966-12-31T11:49",
+      "sun 1986-12-31T08:13",
+      "moon 1992-12-30T19:09",
+      "mars 2002-12-31T05:21",
+      "rahu 2009-12-30T22:05",
+      "jupiter 2027-12-31T06:51",
+      "saturn 2043-12-31T03:58"
+    ],
+    "panchanga": {
+      "tithi": 15,
+      "vara": 2,
+      "nakshatra": 18,
+      "yoga": 22,
+      "karana": 30,
+      "sunrise": "1944-06-06T03:45"
+    },
+    "shadbala": {
+      "sun": 559.11,
+      "moon": 415.75,
+      "mars": 358.21,
+      "mercury": 432.19,
+      "jupiter": 587.54,
+      "venus": 483.71,
+      "saturn": 248.14
+    }
+  }
+}
