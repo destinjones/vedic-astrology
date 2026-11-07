@@ -83,6 +83,9 @@ try {
 
   // keyboard: a number key switches the divisional chart, and the quick switcher finds and opens one
   // back at the chart, so the 3D view pauses (it only animates on screen, and without a GPU it is slow)
+  // jump there without waiting for frames: with the 3D view on screen a software GPU can drop to a couple of
+  // frames a second, too slow for Playwright's stable-element wait
+  await page.evaluate(() => window.scrollTo(0, document.getElementById('chart').getBoundingClientRect().top + window.scrollY - 20));
   await page.locator('#chart').scrollIntoViewIfNeeded();
   await page.locator('body').click({ position: { x: 2, y: 2 } });
   // the chart re-renders after each switch, which can take a while on a slow machine, so wait for the caption
@@ -128,6 +131,9 @@ try {
   await fresh.waitForSelector('.summary-strip', { timeout: 60000 });
   const sharedLagna = await fresh.locator('.summary-item').first().innerText();
   if (!sharedLagna.includes('Leo')) problems.push(`share link should reopen the Leo lagna sample, got: ${sharedLagna}`);
+} catch (e) {
+  // a step that throws still reports what went wrong before it
+  problems.push(`stopped: ${e.message.split('\n')[0]}`);
 } finally {
   await browser.close();
   await close();
