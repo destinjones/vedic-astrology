@@ -593,3 +593,4 @@ kbd {
   .qs-hint { display: none; }
 }
 @media (hover: none) { .quick-open .keys { display: none; } }
+.topbar-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }

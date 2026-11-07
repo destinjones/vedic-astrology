@@ -10,6 +10,18 @@ export interface ChartViewProps {
   hoverPlanet: PlanetId | null;
   onSelect: (s: Selection) => void;
   onHoverPlanet: (id: PlanetId | null) => void;
+  /** Another person's planets drawn in this chart's houses (synastry). */
+  overlay?: ChartOverlay;
+}
+
+export interface ChartOverlay {
+  chart: Chart;
+  /** Overlay planets grouped by the host chart's house. */
+  houses: Record<number, PlanetId[]>;
+  /** Shown in tooltips, e.g. "Ravi". */
+  label: string;
+  selected?: PlanetId | null;
+  onSelect: (id: PlanetId) => void;
 }
 
 /** Houses to highlight because the hovered/selected planet aspects them */
@@ -29,11 +41,14 @@ interface PlanetGlyphsProps extends ChartViewProps {
   /** max items per column */
   perCol?: number;
   showAsc?: boolean;
+  /** Overlay planets for this house. */
+  extra?: PlanetId[];
 }
 
 /** Stack of planet labels centered at (cx, cy) */
-export function PlanetGlyphs({ ids, cx, cy, perCol = 3, chart, varga, selection, onSelect, onHoverPlanet, showAsc }: PlanetGlyphsProps) {
-  const items: (PlanetId | 'asc')[] = showAsc ? ['asc', ...ids] : ids;
+export function PlanetGlyphs({ ids, cx, cy, perCol = 3, chart, varga, selection, onSelect, onHoverPlanet, showAsc, extra = [], overlay }: PlanetGlyphsProps) {
+  const own: (PlanetId | 'asc')[] = showAsc ? ['asc', ...ids] : ids;
+  const items: (PlanetId | 'asc' | `x:${PlanetId}`)[] = [...own, ...extra.map((id) => `x:${id}` as const)];
   const cols = Math.ceil(items.length / perCol) || 1;
   const rows = Math.min(items.length, perCol);
   const lh = 16;
@@ -54,9 +69,25 @@ export function PlanetGlyphs({ ids, cx, cy, perCol = 3, chart, varga, selection,
             </text>
           );
         }
-        const info = PLANET_BY_ID[id];
-        const pos = chart.planets.find((p) => p.id === id)!;
-        const selected = selection?.kind === 'planet' && selection.id === id;
+        if (id.startsWith('x:') && overlay) {
+          const oid = id.slice(2) as PlanetId;
+          const oinfo = PLANET_BY_ID[oid];
+          const opos = overlay.chart.planets.find((p) => p.id === oid)!;
+          return (
+            <text key={id} x={x} y={y} textAnchor="middle" fill={oinfo.color}
+              className={`chart-planet is-overlay${overlay.selected === oid ? ' is-selected' : ''}`}
+              onClick={(e) => { e.stopPropagation(); overlay.onSelect(oid); }}>
+              <title>{`${overlay.label}'s ${oinfo.name}${opos.retrograde && oid !== 'rahu' && oid !== 'ketu' ? ' (retrograde)' : ''}`}</title>
+              {oinfo.abbr}
+              <tspan className="chart-deg"> {Math.floor(opos.degreeInSign)}°</tspan>
+            </text>
+          );
+        }
+        if (id.startsWith('x:')) return null;
+        const pid = id as PlanetId;
+        const info = PLANET_BY_ID[pid];
+        const pos = chart.planets.find((p) => p.id === pid)!;
+        const selected = selection?.kind === 'planet' && selection.id === pid;
         return (
           <text
             key={id}
@@ -65,15 +96,15 @@ export function PlanetGlyphs({ ids, cx, cy, perCol = 3, chart, varga, selection,
             textAnchor="middle"
             fill={info.color}
             className={`chart-planet${selected ? ' is-selected' : ''}`}
-            onMouseEnter={() => onHoverPlanet(id)}
+            onMouseEnter={() => onHoverPlanet(pid)}
             onMouseLeave={() => onHoverPlanet(null)}
-            onClick={(e) => { e.stopPropagation(); onSelect({ kind: 'planet', id }); }}
+            onClick={(e) => { e.stopPropagation(); onSelect({ kind: 'planet', id: pid }); }}
           >
             <title>{`${info.name}${pos.retrograde ? ' (retrograde)' : ''}${pos.combust ? ' (combust)' : ''}`}</title>
             {info.abbr}
             {isD1 && <tspan className="chart-deg"> {Math.floor(pos.degreeInSign)}°</tspan>}
-            {pos.retrograde && id !== 'rahu' && id !== 'ketu' && <tspan className="chart-flag" dy={-5}>R</tspan>}
-            {pos.combust && <tspan className="chart-flag" dy={pos.retrograde && id !== 'rahu' && id !== 'ketu' ? 0 : -5}>c</tspan>}
+            {pos.retrograde && pid !== 'rahu' && pid !== 'ketu' && <tspan className="chart-flag" dy={-5}>R</tspan>}
+            {pos.combust && <tspan className="chart-flag" dy={pos.retrograde && pid !== 'rahu' && pid !== 'ketu' ? 0 : -5}>c</tspan>}
           </text>
         );
       })}

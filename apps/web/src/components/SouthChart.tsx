@@ -39,7 +39,7 @@ export function SouthChart(props: ChartViewProps) {
             {house === 1 && <line x1={x} y1={y + 22} x2={x + 22} y2={y} className="lagna-mark" />}
             <text x={x + C - 6} y={y + 14} textAnchor="end" className="chart-signname">{signInfo(sign).short}</text>
             <text x={x + 6} y={y + C - 7} className="chart-housenum">{house}</text>
-            <PlanetGlyphs {...props} ids={occ[house]} cx={x + C / 2} cy={y + C / 2 + 4} perCol={4} showAsc={house === 1} />
+            <PlanetGlyphs {...props} ids={occ[house]} cx={x + C / 2} cy={y + C / 2 + 4} perCol={4} showAsc={house === 1} extra={props.overlay?.houses[house]} />
           </g>
         );
       })}

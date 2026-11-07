@@ -72,7 +72,7 @@ export function NorthChart(props: ChartViewProps) {
               <title>{`${signInfo(sign).name} · House ${house}`}</title>
               {sign}
             </text>
-            <PlanetGlyphs {...props} ids={occ[house]} cx={px} cy={py} perCol={pts.length === 4 ? 4 : 3} showAsc={house === 1} />
+            <PlanetGlyphs {...props} ids={occ[house]} cx={px} cy={py} perCol={pts.length === 4 ? 4 : 3} showAsc={house === 1} extra={props.overlay?.houses[house]} />
           </g>
         );
       })}

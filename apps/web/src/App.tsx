@@ -24,6 +24,7 @@ import { ART } from './data/art';
 import { QuickSwitch } from './components/QuickSwitch';
 import { chartCommands, jumpTo } from './lib/chartCommands';
 import type { Command } from './lib/commands';
+import { compareHash } from './compare/sources';
 
 import { YogaDoshaCard } from './components/YogaDoshaCard';
 import { StrengthSection } from './components/StrengthSection';
@@ -345,6 +346,7 @@ export default function App() {
         </a>
         <div className="topbar-actions">
           <QuickSwitch commands={commands} />
+          <a className="btn-ghost" href={`${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`}>Compare charts</a>
           {chart && (
             <>
               <button className="btn-ghost" onClick={startPresent} title="Full screen walkthrough for a client, a screen share or a recording">▶ Present</button>
