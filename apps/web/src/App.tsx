@@ -13,6 +13,9 @@ import { VargaSwitcher } from './components/VargaSwitcher';
 import { NAKSHATRAS, PLANET_BY_ID, signInfo } from './data/constants';
 import { getVarga } from './lib/astro';
 import { ART } from './data/art';
+import { QuickSwitch } from './components/QuickSwitch';
+import { chartCommands, jumpTo } from './lib/chartCommands';
+import type { Command } from './lib/commands';
 
 import { YogaDoshaCard } from './components/YogaDoshaCard';
 import { loadKnowledge, type Knowledge } from './lib/readings';
@@ -97,6 +100,16 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  const editBirth = () => {
+    setEditing(true);
+    requestAnimationFrame(() => document.querySelector<HTMLInputElement>('.birth-form input')?.focus());
+  };
+  // Keyboard and quick-switch commands. Other features (client tabs, saved charts) add theirs here.
+  const commands: Command[] = chart
+    ? chartCommands({ chart, vargaId, setVargaId, style, setStyle, selection, setSelection, wheelMode, setWheelMode, editBirth })
+    : [{ id: 'sample', group: 'Chart', title: 'Open the sample chart', keywords: 'example demo', run: () => void run(DEFAULT_INPUT) },
+       { id: 'birth.focus', group: 'Chart', title: 'Enter birth details', shortcut: 'e', keywords: 'form new chart', run: () => { jumpTo('intake'); editBirth(); } }];
+
   const varga = chart ? getVarga(chart, vargaId) : null;
   const moon = chart?.planets.find((p) => p.id === 'moon');
   const sun = chart?.planets.find((p) => p.id === 'sun');
@@ -120,9 +133,12 @@ export default function App() {
             <p>Vedic birth chart, every placement, every varga</p>
           </div>
         </a>
-        {chart && !editing && (
-          <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>
-        )}
+        <div className="topbar-keys">
+          <QuickSwitch commands={commands} />
+          {chart && !editing && (
+            <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>
+          )}
+        </div>
       </header>
 
       {chart?.meta.source === 'mock' && (
@@ -132,7 +148,7 @@ export default function App() {
       )}
 
       {(editing || !chart) && (
-        <section className={`intake ${chart ? 'intake-compact' : ''}`}>
+        <section id="intake" className={`intake ${chart ? 'intake-compact' : ''}`}>
           {!chart && (
             <div className="intake-copy">
               <h2>Your sky at the moment you arrived</h2>
@@ -175,7 +191,7 @@ export default function App() {
           </section>
 
           <div className="explorer-grid">
-            <section className="card chart-card">
+            <section className="card chart-card" id="chart">
               <div className="card-head">
                 <h3>Birth chart</h3>
                 <div className="seg" role="radiogroup" aria-label="Chart style">
@@ -194,14 +210,14 @@ export default function App() {
               <p className="legend muted">R retrograde · c combust · highlighted houses show the aspects of the planet under your cursor</p>
             </section>
 
-            <aside className="card detail-card" aria-live="polite">
+            <aside className="card detail-card" id="details" aria-live="polite">
               <DetailPanel chart={chart} varga={varga} selection={selection} onSelect={setSelection} knowledge={knowledge} />
             </aside>
           </div>
 
           {knowledge && <YogaDoshaCard report={knowledge.report} />}
 
-          <section className="card sky-card">
+          <section className="card sky-card" id="sky">
             <div className="card-head">
               <h3>Sky view</h3>
               <span className="muted">your grahas in 3D, placed by sidereal longitude</span>
@@ -214,7 +230,7 @@ export default function App() {
           </section>
 
           <div className="explorer-grid lower">
-            <section className="card wheel-card">
+            <section className="card wheel-card" id="wheel">
               <div className="card-head">
                 <h3>Nakshatra wheel</h3>
                 <div className="seg" role="radiogroup" aria-label="Wheel style">
@@ -224,14 +240,14 @@ export default function App() {
               </div>
               <NakshatraWheel mode={wheelMode} chart={chart} selection={selection} onSelect={setSelection} onHoverPlanet={setHoverPlanet} />
             </section>
-            <section className="card">
+            <section className="card" id="planets">
               <div className="card-head"><h3>Planetary positions</h3></div>
               <PlanetTable chart={chart} selection={selection} onSelect={setSelection} />
             </section>
           </div>
 
           {chart.dasha && (
-            <section className="card">
+            <section className="card" id="dasha">
               <div className="card-head"><h3>Vimshottari dasha</h3><span className="muted">click a period to see its sub-periods</span></div>
               <DashaTimeline dasha={chart.dasha} />
             </section>
