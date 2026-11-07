@@ -146,6 +146,7 @@ function planetPages(doc: ReportDoc, ctx: ReportContext, id: PlanetId, index: nu
   if (remedies.length) {
     doc.callout({ label: 'Traditional supports', body: 'Practices the tradition associates with this planet. Treat them as reflection and habit, not as guarantees.', bullets: remedies, edge: C.good, tint: C.goodPale });
   }
+  ctx.annotate?.(doc, `graha:${id}`);
   return page;
 }
 

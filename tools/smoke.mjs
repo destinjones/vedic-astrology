@@ -168,6 +168,18 @@ try {
   if (pdf.subarray(0, 5).toString() !== '%PDF-') problems.push('PDF report: download is not a PDF');
   else if (pdf.length < 300_000) problems.push(`PDF report: suspiciously small (${pdf.length} bytes)`);
 
+  // the Life Chart Book: a separate, longer book from its own editor
+  await page.getByRole('button', { name: 'Life Chart Book' }).click();
+  const [bookDl] = await Promise.all([
+    page.waitForEvent('download', { timeout: 300000 }),
+    page.locator('.book-dialog').getByRole('button', { name: /^Export/ }).click(),
+  ]);
+  const book = readFileSync(await bookDl.path());
+  const bookPages = (book.toString('latin1').match(/\/Type\s*\/Page[^s]/g) ?? []).length;
+  if (book.subarray(0, 5).toString() !== '%PDF-') problems.push('Life Chart Book: download is not a PDF');
+  else if (bookPages < 60) problems.push(`Life Chart Book: only ${bookPages} pages`);
+  await page.locator('.book-dialog').getByRole('button', { name: 'Close' }).click();
+
   // chart export: a note pinned to the chart goes into the PNG and SVG
   await page.locator('#chart').scrollIntoViewIfNeeded();
   await page.getByRole('button', { name: /Notes/ }).click();
@@ -230,4 +242,4 @@ if (problems.length) {
   console.error(`Site check failed:\n- ${problems.join('\n- ')}`);
   process.exit(1);
 }
-console.log('Site check passed: landing page, engine, readings, panchanga, bhava chalit, planet condition, dasha junctions, Jaimini, remedies, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, chart notes and export, sticker pack, saved charts, share links, embed widget, link previews, study and learn pages, accessibility and the personal features (today brief, Sade Sati, birth-time slider, story, beginner view, ayanamsa diff, calendar feeds) all work.');
+console.log('Site check passed: landing page, engine, readings, panchanga, bhava chalit, planet condition, dasha junctions, Jaimini, remedies, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, Life Chart Book, chart notes and export, sticker pack, saved charts, share links, embed widget, link previews, study and learn pages, accessibility and the personal features (today brief, Sade Sati, birth-time slider, story, beginner view, ayanamsa diff, calendar feeds) all work.');

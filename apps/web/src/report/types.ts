@@ -29,6 +29,11 @@ export interface ReportContext {
   note?: string;
   /** Glossary terms any section can add; the glossary chapter prints them all. */
   glossary: Map<string, string>;
+  /**
+   * Set by the Life Chart Book: prints the astrologer's own note for a key
+   * ("graha:mars", "house:7", "yoga:gaja-kesari"…) where it has one. Sections call it after each item.
+   */
+  annotate?: (doc: ReportDoc, key: string) => void;
 }
 
 export interface Brand {

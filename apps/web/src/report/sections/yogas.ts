@@ -46,6 +46,7 @@ export function yogas(doc: ReportDoc, ctx: ReportContext, h: SectionHelpers) {
         ...sourceLine(y.reading.source),
       ],
     });
+    ctx.annotate?.(doc, `yoga:${y.id}`);
   });
 
   doc.h2('Doshas to understand', { toc: true });
@@ -60,6 +61,7 @@ export function yogas(doc: ReportDoc, ctx: ReportContext, h: SectionHelpers) {
       tint: d.severity === 'cancelled' || d.severity === 'low' ? C.mixedPale : C.badPale,
       bullets: [...(d.reading.remedies?.slice(0, 4) ?? []), ...sourceLine(d.reading.source)],
     });
+    ctx.annotate?.(doc, `dosha:${d.id}`);
   });
   if (clear.length) {
     doc.h3('Checked and clear', { keep: 40 });

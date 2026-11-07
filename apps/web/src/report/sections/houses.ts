@@ -72,5 +72,6 @@ export function houses(doc: ReportDoc, ctx: ReportContext, h: SectionHelpers) {
     ];
     bits.forEach((b) => doc.para(b, { size: 9, x: fx + 34, color: C.body }));
     doc.stroke(toneColor(lr.score), 1.4).pdf.line(fx + 26, top + 2, fx + 26, Math.min(doc.y - 6, doc.bottom));
+    ctx.annotate?.(doc, `house:${n}`);
   }
 }

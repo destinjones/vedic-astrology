@@ -60,11 +60,29 @@ export class ReportDoc {
   private cols: { n: number; i: number; gap: number; top: number } = { n: 1, i: 0, gap: 0, top: MARGIN.top };
   readonly owner: string;
   private readonly indic?: IndicFonts;
+  /**
+   * Print bleed in points. The jsPDF page must then be PAGE plus twice the bleed:
+   * every page is shifted by the bleed, so all layout keeps its trim coordinates,
+   * and full-page backgrounds run past the trim edge.
+   */
+  readonly bleed: number;
+  /** Book mode: chapter openers always start on a right-hand (odd) page. */
+  readonly recto: boolean;
+  /** Fills the left-hand page left over before a recto chapter (a notes page, say). It must add exactly one page. Blank when unset. */
+  filler?: (doc: ReportDoc) => void;
 
-  constructor(pdf: jsPDF, owner: string, indic?: IndicFonts) {
+  constructor(pdf: jsPDF, owner: string, indic?: IndicFonts, o: { bleed?: number; recto?: boolean } = {}) {
     this.pdf = pdf;
     this.owner = owner;
     this.indic = indic;
+    this.bleed = o.bleed ?? 0;
+    this.recto = !!o.recto;
+    if (this.bleed) this.shift();
+  }
+
+  /** Move the page origin to the trim corner (PDF space is bottom-up, so down is negative). */
+  private shift() {
+    (this.pdf as unknown as { internal: { write: (s: string) => void } }).internal.write(`1 0 0 1 ${this.bleed.toFixed(3)} ${(-this.bleed).toFixed(3)} cm`);
   }
 
   // ------------------------------------------------------------------ basics
@@ -210,10 +228,14 @@ export class ReportDoc {
   // ------------------------------------------------------------------ pages
 
   private startPage(kind: PageKind, bg: string) {
-    if (this.pageKinds.length) this.pdf.addPage();
+    if (this.pageKinds.length) {
+      this.pdf.addPage();
+      if (this.bleed) this.shift();
+    }
     this.pageKinds.push(kind);
     this.running.push(this.runningNow);
-    this.fill(bg).pdf.rect(0, 0, PAGE.w, PAGE.h, 'F');
+    const b = this.bleed;
+    this.fill(bg).pdf.rect(-b, -b, PAGE.w + 2 * b, PAGE.h + 2 * b, 'F');
     this.y = MARGIN.top;
     this.cols = { n: 1, i: 0, gap: 0, top: MARGIN.top };
     this.frame = { x: MARGIN.left, w: CONTENT_W };
@@ -222,6 +244,15 @@ export class ReportDoc {
   coverPage() { this.startPage('cover', C.night); }
   fullPage(bg: string = C.paper) { this.startPage('full', bg); }
   newPage() { this.startPage('interior', C.paper); }
+  /** A page with no running head or folio (blank versos, notes pages, dedications). */
+  plainPage(bg: string = C.paper) { this.startPage('full', bg); this.setRunning(''); }
+
+  /** In book mode, make sure the next page starts on the right: fill the left-hand page if needed. */
+  toRecto() {
+    if (!this.recto || this.page % 2 === 0) return;
+    if (this.filler) this.filler(this);
+    else this.plainPage();
+  }
 
   setRunning(title: string) { this.runningNow = title; this.running[this.running.length - 1] = title; }
 
@@ -435,22 +466,24 @@ export class ReportDoc {
 
   /** A chapter opener: dark band with art, numeral, title and a short lesson. */
   chapter(o: { numeral: string; title: string; kicker: string; intro: string; art?: { data: string; w: number; h: number; alias: string } }) {
+    this.toRecto();
     this.runningNow = o.title;
     this.newPage();
     this.pageKinds[this.pageKinds.length - 1] = 'opener';
     const bandH = 300;
-    this.fill(C.night).pdf.rect(0, 0, PAGE.w, bandH, 'F');
+    const b = this.bleed;
+    this.fill(C.night).pdf.rect(-b, -b, PAGE.w + 2 * b, bandH + b, 'F');
     if (o.art) {
       // cover-fit the art into the band
-      const s = Math.max(PAGE.w / o.art.w, bandH / o.art.h);
+      const s = Math.max((PAGE.w + 2 * b) / o.art.w, (bandH + b) / o.art.h);
       const w = o.art.w * s;
       const h = o.art.h * s;
-      this.pdf.addImage(o.art.data, 'JPEG', (PAGE.w - w) / 2, (bandH - h) / 2, w, h, o.art.alias, 'FAST');
-      this.fill(C.night).opacity(0.45).pdf.rect(0, 0, PAGE.w, bandH, 'F');
+      this.pdf.addImage(o.art.data, 'JPEG', (PAGE.w - w) / 2, (bandH - b - h) / 2, w, h, o.art.alias, 'FAST');
+      this.fill(C.night).opacity(0.45).pdf.rect(-b, -b, PAGE.w + 2 * b, bandH + b, 'F');
       this.opacity(1);
     }
     this.stars(0, 0, PAGE.w, bandH, 90, C.starlight, o.title.length * 31);
-    this.fill(C.gold).pdf.rect(0, bandH, PAGE.w, 2, 'F');
+    this.fill(C.gold).pdf.rect(-b, bandH, PAGE.w + 2 * b, 2, 'F');
     this.line(o.kicker.toUpperCase(), PAGE.w / 2, 104, { font: F.sansBold, size: 7.5, color: C.goldLight, charSpace: 2.2, align: 'center' });
     this.line(o.numeral, PAGE.w / 2, 124, { font: F.serif, size: 30, color: C.goldLight, align: 'center' });
     const titleLines = this.wrap(o.title, PAGE.w - 140, F.serifBold, 38);

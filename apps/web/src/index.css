@@ -720,6 +720,19 @@ kbd {
 .consult-section span { display: flex; flex-direction: column; }
 .consult-section small { font-size: 12px; }
 .consult-dialog footer { display: flex; justify-content: flex-end; align-items: center; gap: 10px; flex-wrap: wrap; }
+.book-dialog { width: min(920px, calc(100vw - 32px)); }
+.book-dialog form { max-height: calc(100vh - 34px); }
+.book-tabs { display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid var(--line-soft); padding-bottom: 10px; }
+.book-tabs button { background: none; border: 1px solid var(--line-soft); border-radius: 999px; padding: 6px 12px; color: var(--muted); font: inherit; font-size: 13px; cursor: pointer; }
+.book-tabs button.on { color: var(--text); border-color: var(--accent); background: var(--bg-2); }
+.book-panel { overflow-y: auto; min-height: 240px; max-height: min(58vh, 620px); padding-right: 4px; }
+.book-panel p.muted { margin: 0; font-size: 13px; }
+.book-dialog select, .book-dialog input[type='number'] { background: var(--bg-2); border: 1px solid var(--line-soft); border-radius: 8px; padding: 6px 8px; color: var(--text); font: inherit; font-size: 14px; }
+.book-chapter { display: flex; flex-direction: column; gap: 6px; }
+.book-two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.book-two > div { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+@media (max-width: 720px) { .book-two { grid-template-columns: 1fr; } }
+.book-files { display: flex; gap: 6px; margin-right: auto; flex-wrap: wrap; }
 /* Indian scripts have tall vowel signs; give lines a little more room. */
 html:not([data-script='latin']) body { line-height: 1.7; }
 html:not([data-script='latin']) .chart-planet, html:not([data-script='latin']) .chart-asc { font-size: 12px; }
