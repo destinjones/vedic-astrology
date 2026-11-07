@@ -61,6 +61,7 @@ const JaiminiSection = lazy(() => import('./components/JaiminiSection'));
 const RemediesSection = lazy(() => import('./components/RemediesSection'));
 const RectificationSection = lazy(() => import('./components/RectificationSection'));
 const VarshaphalSection = lazy(() => import('./components/VarshaphalSection'));
+const Personal = lazy(() => import('./personal/Personal'));
 const ClassicalTiming = lazy(() => import('./components/ClassicalTiming').then((m) => ({ default: m.ClassicalTiming })));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
@@ -579,6 +580,12 @@ export default function App() {
             )}
           </section>
 
+          {chart.engineContext && (
+            <Suspense fallback={null}>
+              <Personal part="today" chart={chart} report={knowledge?.report} />
+            </Suspense>
+          )}
+
           <div className="explorer-grid">
             <section className="card chart-card" id="chart">
               <div className="card-head">
@@ -624,7 +631,21 @@ export default function App() {
 
           {caseStudyFor(famous?.id) && <CaseStudyCard study={caseStudyFor(famous?.id)!} report={knowledge?.report} />}
 
+          {chart.engineContext && (
+            <WhenVisible minHeight={560}>
+              <Suspense fallback={null}>
+                <Personal part="slider" chart={chart} style={style} onApplyTime={(date, time) => { void run({ ...chart.input, date, time }); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
+              </Suspense>
+            </WhenVisible>
+          )}
+
           {knowledge && <YogaDoshaCard report={knowledge.report} />}
+
+          {knowledge && chart.engineContext && (
+            <Suspense fallback={null}>
+              <Personal part="story" chart={chart} report={knowledge.report} onSelect={setSelection} />
+            </Suspense>
+          )}
 
           {chart.engineContext && (
             <PanchangaCard key={chart.engineContext.chart.meta.utc} engine={chart.engineContext.engine} chart={chart.engineContext.chart} />
@@ -633,6 +654,14 @@ export default function App() {
           {chart.engineContext && <ConditionCard key={`c${chart.engineContext.chart.meta.utc}`} chart={chart.engineContext.chart} />}
 
           {chart.engineContext?.chart.strength && <StrengthSection strength={chart.engineContext.chart.strength} />}
+
+          {chart.engineContext && (
+            <WhenVisible minHeight={480}>
+              <Suspense fallback={null}>
+                <Personal part="ayanamsa" chart={chart} />
+              </Suspense>
+            </WhenVisible>
+          )}
 
           <section className="card sky-card" id="sky">
             <div className="card-head">
@@ -750,6 +779,14 @@ export default function App() {
                 </Suspense>
               </WhenVisible>
             </section>
+          )}
+
+          {chart.engineContext && (
+            <WhenVisible minHeight={520}>
+              <Suspense fallback={null}>
+                <Personal part="keepsakes" chart={chart} />
+              </Suspense>
+            </WhenVisible>
           )}
 
           <ClientHistory

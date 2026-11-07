@@ -25,6 +25,7 @@
     "@vedic/i18n": "*",
     "@vedic/interpretations": "*",
     "@vedic/jaimini": "*",
+    "@vedic/personal": "*",
     "@vedic/rectification": "*",
     "@vedic/remedies": "*",
     "@vedic/tajika": "*",

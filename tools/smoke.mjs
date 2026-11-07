@@ -89,6 +89,35 @@ try {
   await page.locator('#junctions').scrollIntoViewIfNeeded();
   await page.waitForSelector('#junctions .dt-table', { timeout: 60000 });
 
+  // personal features: today brief, Sade Sati countdown, rarity, the birth-time slider, story, ayanamsa diff, calendar feeds
+  await page.waitForSelector('#today .fy-tiles', { timeout: 60000 }).catch(() => problems.push('today brief did not appear'));
+  if (!/\d/.test(await page.locator('#sade-sati .fy-count b').innerText().catch(() => ''))) problems.push('Sade Sati countdown shows no number');
+  await page.waitForSelector('#rarity .fy-count b', { timeout: 60000 }).catch(() => problems.push('rarity percentile did not appear'));
+  const reach = async (sel) => {
+    for (let i = 0; i < 60 && !(await page.locator(sel).count()); i++) { await page.mouse.wheel(0, 600); await page.waitForTimeout(100); }
+    return page.locator(sel).first().scrollIntoViewIfNeeded().then(() => true, () => false);
+  };
+  if (await reach('#birth-time input[type=range]')) {
+    const lagnaBefore = await page.locator('#birth-time .bts-facts li').first().innerText();
+    await page.locator('#birth-time input[type=range]').focus();
+    await page.keyboard.press('End'); // three hours later: a new sign has risen
+    await page.waitForSelector('#birth-time .bts-facts li.is-moved', { timeout: 10000 }).catch(() => problems.push('birth-time slider: nothing moved three hours later'));
+    if ((await page.locator('#birth-time .bts-facts li').first().innerText()) === lagnaBefore) problems.push('birth-time slider: the lagna did not change');
+    await page.keyboard.press('Home');
+  } else problems.push('birth-time slider missing');
+  if (!(await reach('#story .story-ch'))) problems.push('chart story missing');
+  else if (!(await page.locator('#story h4').first().innerText()).includes('Leo')) problems.push('chart story: first chapter should be about Leo rising');
+  await page.locator('#yogas .yd-beginner input').check();
+  if (await page.locator('#yogas .yd-grid > div').count() > 5) problems.push('beginner view shows more than five findings');
+  await page.locator('#yogas .yd-beginner input').uncheck();
+  if (!(await reach('#ayanamsa-diff .ayd-table'))) problems.push('ayanamsa diff missing');
+  else if ((await page.locator('#ayanamsa-diff .ayd-table tbody tr').count()) !== 11) problems.push('ayanamsa diff: expected 10 bodies and the dasha row');
+  for (const f of ['feeds/index.json', 'feeds/panchanga-new-delhi.ics']) {
+    const r = await page.request.get(`${url}${BASE}${f}`);
+    if (!r.ok()) problems.push(`${f}: ${r.status()}`);
+    else if (f.endsWith('.ics') && !(await r.text()).startsWith('BEGIN:VCALENDAR')) problems.push(`${f} is not a calendar`);
+  }
+
   await page.locator('#jaimini').scrollIntoViewIfNeeded();
   await page.waitForSelector('#jaimini .jm-karakas', { timeout: 60000 });
   if ((await page.locator('#jaimini .jm-karakas tbody tr').count()) !== 8) problems.push('Jaimini: expected 8 chara karakas');
@@ -111,7 +140,9 @@ try {
 
   // keyboard: a number key switches the divisional chart, and the quick switcher finds and opens one
   // back at the chart, so the 3D view pauses (it only animates on screen, and without a GPU it is slow)
-  await page.locator('#chart').scrollIntoViewIfNeeded();
+  // jump there without waiting for frames: with the 3D view on screen a software GPU can drop to a couple of
+  // frames a second, too slow for Playwright's stable-element wait
+  await page.evaluate(() => window.scrollTo(0, document.getElementById('chart').getBoundingClientRect().top + window.scrollY - 20));
   await page.locator('body').click({ position: { x: 2, y: 2 } });
   // the chart re-renders after each switch, which can take a while on a slow machine, so wait for the caption
   const captionShows = (name) => page.locator('.varga-caption', { hasText: name }).waitFor({ timeout: 15000 }).then(() => true, () => false);
@@ -187,6 +218,9 @@ try {
   if (!ogJpg.ok) problems.push('link preview image og/indira-gandhi.jpg is missing');
   // axe-core on every page, with every section of the chart opened (see tools/a11y.mjs)
   problems.push(...(await checkA11y(browser, url, BASE)).problems);
+} catch (e) {
+  // a step that throws still reports what went wrong before it
+  problems.push(`stopped: ${e.message.split('\n')[0]}`);
 } finally {
   await browser.close();
   await close();
@@ -196,4 +230,4 @@ if (problems.length) {
   console.error(`Site check failed:\n- ${problems.join('\n- ')}`);
   process.exit(1);
 }
-console.log('Site check passed: landing page, engine, readings, panchanga, bhava chalit, planet condition, dasha junctions, Jaimini, remedies, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, chart notes and export, sticker pack, saved charts, share links, embed widget, link previews, study and learn pages and accessibility all work.');
+console.log('Site check passed: landing page, engine, readings, panchanga, bhava chalit, planet condition, dasha junctions, Jaimini, remedies, timeline, transit search, event checker, sky view, keyboard, annual chart, PDF report, chart notes and export, sticker pack, saved charts, share links, embed widget, link previews, study and learn pages, accessibility and the personal features (today brief, Sade Sati, birth-time slider, story, beginner view, ayanamsa diff, calendar feeds) all work.');

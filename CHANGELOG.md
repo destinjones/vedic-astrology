@@ -10,6 +10,7 @@ The entries below predate that.
 
 ## Unreleased
 
+- Personal features (`@vedic/personal`): a "today for you" brief (tithi, Tara bala, Chandrashtama), a Sade Sati countdown, a live birth-time slider, the chart under four ayanamsas side by side, a chart story, severity levels and a beginner view for yogas and doshas, rarity from 10,000 random charts, a blind test against a control chart, time capsules, a generative chart poster and panchanga calendar feeds.
 - Timing: Vimshottari down to sookshma and prana (levels 4–5), built on demand, in the dasha card and the dashboard's dasha map.
 - Timing: "Did it happen?" record. Mark past favourable and challenging windows as happened or not and see hit rates per rule (dasha lords, dignity, placement, lordship, period pairs, transits), with a Wilson interval so thin samples read as unsure.
 - Timing: export upcoming windows as an `.ics` calendar, print a year's timeline as a PDF, and opt-in local notifications on the first day of a favourable window (service worker, nothing leaves the browser).
