@@ -13,6 +13,7 @@ import { VargaSwitcher } from './components/VargaSwitcher';
 import { NAKSHATRAS, PLANET_BY_ID, signInfo } from './data/constants';
 import { getVarga } from './lib/astro';
 import { ART } from './data/art';
+import { compareHash } from './compare/sources';
 
 import { YogaDoshaCard } from './components/YogaDoshaCard';
 import { loadKnowledge, type Knowledge } from './lib/readings';
@@ -120,9 +121,12 @@ export default function App() {
             <p>Vedic birth chart, every placement, every varga</p>
           </div>
         </a>
-        {chart && !editing && (
-          <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>
-        )}
+        <div className="topbar-actions">
+          <a className="btn-ghost" href={`${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`}>Compare charts</a>
+          {chart && !editing && (
+            <button className="btn-ghost" onClick={() => setEditing(true)}>Edit birth details</button>
+          )}
+        </div>
       </header>
 
       {chart?.meta.source === 'mock' && (

@@ -356,3 +356,4 @@ html .app .timing-host .vt-root {
   --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500; --series-5: #d55181;
   background: transparent; min-width: 0;
 }
+.topbar-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }

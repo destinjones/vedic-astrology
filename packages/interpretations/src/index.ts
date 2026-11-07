@@ -16,3 +16,5 @@ export { YOGA_DEFINITIONS, detectYogas } from './yogas';
 export { DOSHA_DEFINITIONS, detectDoshas, detectManglik, detectKaalSarp } from './doshas';
 export * from './interpret';
 export { fromEngineChart } from './adapter';
+export { synastry } from './synastry';
+export type { SynastryPerson, SynastryReport, HouseOverlay, CrossContact, ContactKind, SignRelation } from './synastry';
