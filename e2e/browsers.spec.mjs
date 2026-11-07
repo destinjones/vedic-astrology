@@ -14,7 +14,7 @@ const test = base.extend({
 
 test('landing page renders', async ({ page }) => {
   await page.goto('./');
-  await expect(page.locator('h1')).toContainText('Your entire sky');
+  await expect(page.locator('h1')).toContainText('Your birth chart');
 });
 
 for (const p of ['compare/', 'match/', 'tools/']) {
