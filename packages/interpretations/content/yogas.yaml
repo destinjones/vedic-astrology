@@ -1,0 +1,164 @@
+# yaml-language-server: $schema=./schema/yogas.schema.json
+#
+# Audit notes for every yoga the detector can find. CI fails unless each yoga in
+# src/yogas.ts has an entry here with a citation and a cancellation note, and a
+# positive test chart in test/fixtures/yoga-charts.json.
+#
+# citation.verified is false until someone has checked the reference against a
+# printed translation. Say which edition you used in `edition` when you flip it.
+# See content/STYLE.md for how to write the cancellation note.
+
+ruchaka:
+  citation: { source: Brihat Parashara Hora Shastra, ref: Pancha Mahapurusha yogas, verified: false }
+  also: [Phaladeepika ch. 6, Saravali]
+  cancellation: Weakened when Mars is combust or heavily afflicted. Some authors withhold the full result when the Moon is weak or Mars sits in the 7th from a malefic ascendant. The detector downgrades to moderate when Mars is combust.
+bhadra:
+  citation: { source: Brihat Parashara Hora Shastra, ref: Pancha Mahapurusha yogas, verified: false }
+  also: [Phaladeepika ch. 6, Saravali]
+  cancellation: Mercury is often combust because it never strays far from the Sun, which weakens the yoga. The detector downgrades to moderate when Mercury is combust.
+hamsa:
+  citation: { source: Brihat Parashara Hora Shastra, ref: Pancha Mahapurusha yogas, verified: false }
+  also: [Phaladeepika ch. 6, Saravali]
+  cancellation: Weakened when Jupiter is combust, retrograde in a difficult house, or joined by Rahu (Guru-Chandala). The detector downgrades to moderate when Jupiter is combust.
+malavya:
+  citation: { source: Brihat Parashara Hora Shastra, ref: Pancha Mahapurusha yogas, verified: false }
+  also: [Phaladeepika ch. 6, Saravali]
+  cancellation: Weakened when Venus is combust or hemmed between malefics. The detector downgrades to moderate when Venus is combust.
+sasa:
+  citation: { source: Brihat Parashara Hora Shastra, ref: Pancha Mahapurusha yogas, verified: false }
+  also: [Phaladeepika ch. 6, Saravali]
+  cancellation: Weakened when Saturn is combust or when the ascendant lord is weak. The detector downgrades to moderate when Saturn is combust.
+gaja-kesari:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  also: [Brihat Parashara Hora Shastra]
+  cancellation: Gives good intentions but weak results when Jupiter or the Moon is debilitated, combust or in a dusthana, or when the Moon is dark (near new Moon). The detector grades it by the dignity of both.
+budha-aditya:
+  citation: { source: Later popular tradition, ref: also called Nipuna yoga, verified: false }
+  cancellation: Very common because Mercury stays close to the Sun. When Mercury is within a few degrees of the Sun it is deeply combust and the yoga is treated as weak; the detector marks it weak under 4 degrees.
+chandra-mangala:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  cancellation: Results lean towards hard-won or questionable earnings when either planet is debilitated or the pair falls in a dusthana. Graded by the dignity of the Moon and Mars.
+raja:
+  citation: { source: Brihat Parashara Hora Shastra, ref: Raja yoga chapter, verified: false }
+  cancellation: A relationship formed in the 6th, 8th or 12th house, or by a lord that also rules a dusthana, gives mixed results. Debilitated or combust lords weaken it. Graded by the strength of the lords.
+yogakaraka:
+  citation: { source: Brihat Parashara Hora Shastra, ref: Yogakaraka chapter, verified: false }
+  cancellation: The yogakaraka still needs strength to deliver. Placed in a dusthana, debilitated or combust, it promises more than it gives.
+dharma-karmadhipati:
+  citation: { source: Brihat Parashara Hora Shastra, ref: Raja yoga chapter, verified: false }
+  cancellation: Weakened when the 9th and 10th lords meet in a dusthana or either is debilitated or combust.
+dhana:
+  citation: { source: Brihat Parashara Hora Shastra, ref: Dhana yoga chapter, verified: false }
+  cancellation: Undermined when the wealth lords are linked to the 6th, 8th or 12th lord, or when they are debilitated or combust.
+lakshmi:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  cancellation: Needs a supported ascendant lord as part of the rule. The detector does not report it when the ascendant lord is weak, and grades it moderate unless that lord is also strong.
+harsha:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  cancellation: Viparita yogas work best when the dusthana lord is otherwise unconnected. If it also rules a kendra or trikona, or joins the ascendant lord, the result is mixed.
+sarala:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  cancellation: Mixed when the 8th lord also rules a good house or is joined with the ascendant lord or other benefic lords.
+vimala:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  cancellation: Mixed when the 12th lord also rules a good house or is joined with the ascendant lord or other benefic lords.
+neecha-bhanga:
+  citation: { source: Phaladeepika, ref: ch. 7, verified: false }
+  also: [Brihat Parashara Hora Shastra]
+  cancellation: This yoga is itself a cancellation. It does not fully restore a debilitated planet that is also combust or in a dusthana, and many authors say the rise comes only after early struggle.
+maha-parivartana:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  cancellation: Excludes any exchange involving the 3rd, 6th, 8th or 12th lord, which are judged as Khala or Dainya instead. Weakened when either planet is combust.
+khala-parivartana:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  cancellation: Excludes exchanges with the 6th, 8th or 12th lord, which become Dainya. Results swing between fortune and setback.
+dainya-parivartana:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  cancellation: Softened when the other planet in the exchange is strong and rules a kendra or trikona. Some read it as a Viparita-style rise after loss.
+sunapha:
+  citation: { source: Brihat Jataka, ref: ch. 13 (Chandra yogas), verified: false }
+  also: [Phaladeepika ch. 6]
+  cancellation: Excludes the Sun and the nodes by rule. The quality depends on which planet forms it; a malefic in the 2nd from the Moon gives harsher results.
+anapha:
+  citation: { source: Brihat Jataka, ref: ch. 13 (Chandra yogas), verified: false }
+  also: [Phaladeepika ch. 6]
+  cancellation: Excludes the Sun and the nodes by rule. The quality depends on which planet forms it.
+durudhara:
+  citation: { source: Brihat Jataka, ref: ch. 13 (Chandra yogas), verified: false }
+  also: [Phaladeepika ch. 6]
+  cancellation: Excludes the Sun and the nodes by rule. Malefics on both sides give a pressured rather than supported mind.
+kemadruma:
+  citation: { source: Brihat Jataka, ref: ch. 13 (Chandra yogas), verified: false }
+  also: [Phaladeepika ch. 6]
+  cancellation: Cancelled when any planet occupies a kendra from the Moon or the ascendant, which the detector checks. Many authors also cancel it when the Moon is aspected by Jupiter or is bright and strong.
+vesi:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  also: [Brihat Parashara Hora Shastra]
+  cancellation: Excludes the Moon and the nodes by rule. A malefic forming it gives effort and pressure rather than support.
+vasi:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  also: [Brihat Parashara Hora Shastra]
+  cancellation: Excludes the Moon and the nodes by rule. A malefic forming it gives effort and pressure rather than support.
+ubhayachari:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  also: [Brihat Parashara Hora Shastra]
+  cancellation: Excludes the Moon and the nodes by rule. Malefics on both sides of the Sun hem it in rather than support it.
+adhi:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  also: [Brihat Jataka ch. 13]
+  cancellation: Weakened when the benefics forming it are combust or debilitated, or joined by malefics.
+amala:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  cancellation: Weakened when the benefic in the 10th is combust, debilitated or joined by a malefic.
+saraswati:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  cancellation: Requires Jupiter in good dignity as part of the rule. Combust Mercury or Venus reduces it.
+vasumati:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  cancellation: Weakened when the benefics are combust or debilitated. Judged from either the ascendant or the Moon, so it is stronger when both qualify.
+shubha-kartari:
+  citation: { source: "Classical, widely cited", ref: source to be confirmed, verified: false }
+  cancellation: Diluted when a malefic also sits in the 2nd or 12th, or aspects the ascendant strongly.
+papa-kartari:
+  citation: { source: "Classical, widely cited", ref: source to be confirmed, verified: false }
+  cancellation: Relieved when a benefic occupies or aspects the ascendant, or when the ascendant lord is strong.
+shakata:
+  citation: { source: Phaladeepika, ref: ch. 6, verified: false }
+  cancellation: Cancelled when the Moon is in a kendra from the ascendant, which the detector checks. Some authors also cancel it when Jupiter is strong.
+pravrajya:
+  citation: { source: Brihat Jataka, ref: ch. 15 (Pravrajya yoga), verified: false }
+  cancellation: Classical authors require the strongest planet of the group not to be combust or defeated, or the renunciation is incomplete or abandoned. The detector does not yet check this.
+sankhya-gola:
+  citation: { source: Brihat Jataka, ref: ch. 12 (Nabhasa yogas), verified: false }
+  also: [Brihat Parashara Hora Shastra]
+  cancellation: Sankhya yogas count only the seven visible grahas and apply only when no other Nabhasa yoga takes precedence. Their effects are general and modest.
+sankhya-yuga:
+  citation: { source: Brihat Jataka, ref: ch. 12 (Nabhasa yogas), verified: false }
+  also: [Brihat Parashara Hora Shastra]
+  cancellation: Applies only when no other Nabhasa yoga takes precedence. Effects are general and modest.
+sankhya-shoola:
+  citation: { source: Brihat Jataka, ref: ch. 12 (Nabhasa yogas), verified: false }
+  also: [Brihat Parashara Hora Shastra]
+  cancellation: Applies only when no other Nabhasa yoga takes precedence. Effects are general and modest.
+sankhya-kedara:
+  citation: { source: Brihat Jataka, ref: ch. 12 (Nabhasa yogas), verified: false }
+  also: [Brihat Parashara Hora Shastra]
+  cancellation: Applies only when no other Nabhasa yoga takes precedence. Effects are general and modest.
+sankhya-pasha:
+  citation: { source: Brihat Jataka, ref: ch. 12 (Nabhasa yogas), verified: false }
+  also: [Brihat Parashara Hora Shastra]
+  cancellation: Applies only when no other Nabhasa yoga takes precedence. Effects are general and modest.
+sankhya-dama:
+  citation: { source: Brihat Jataka, ref: ch. 12 (Nabhasa yogas), verified: false }
+  also: [Brihat Parashara Hora Shastra]
+  cancellation: Applies only when no other Nabhasa yoga takes precedence. Effects are general and modest.
+sankhya-veena:
+  citation: { source: Brihat Jataka, ref: ch. 12 (Nabhasa yogas), verified: false }
+  also: [Brihat Parashara Hora Shastra]
+  cancellation: Applies only when no other Nabhasa yoga takes precedence. Effects are general and modest.
+guru-chandala:
+  citation: { source: Later tradition, ref: not among the classical named yogas, verified: false }
+  cancellation: The detector grades it weak when Jupiter is strong. Many modern authors reduce it when Jupiter is in its own sign or exaltation, or when Rahu is in a friendly sign. The Ketu variant is disputed, and the detector follows Rahu only.
+angaraka:
+  citation: { source: Later tradition, ref: not among the classical named yogas, verified: false }
+  cancellation: Softened when Mars is in its own sign or exaltation, or receives Jupiter's aspect.

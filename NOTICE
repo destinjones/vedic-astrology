@@ -15,6 +15,8 @@ THIRD-PARTY SOFTWARE AND DATA
   https://github.com/prolaxu/swisseph-wasm
 - three.js, MIT. React, MIT. Luxon, MIT. astronomy-engine, MIT. tz-lookup, CC0-1.0.
 - Inter and Cormorant Garamond fonts, SIL Open Font License 1.1, through Fontsource.
+- OpenDyslexic and Atkinson Hyperlegible fonts (optional reading fonts), SIL Open Font License 1.1,
+  through Fontsource.
 
 ONLINE SERVICES
 - Place search: Open-Meteo Geocoding API, https://open-meteo.com/ , free for non-commercial

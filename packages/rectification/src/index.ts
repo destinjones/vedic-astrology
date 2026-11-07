@@ -7,3 +7,5 @@ export { candidateChart, dashaChain, vargaView, aspects, housesRuled } from './c
 export type { CandidateChart, Place, ChartSettings } from './chart';
 export { shashtiamsaOf } from './shashtiamsa';
 export type { Shashtiamsa } from './shashtiamsa';
+export { diffCandidates } from './diff';
+export type { CandidateDiff, DiffRow, DiffGroup } from './diff';

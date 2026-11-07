@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../schema/planet-in-sign.schema.json
+planet: jupiter
+readings:
+  aries:
+    summary: "Jupiter in Aries: enthusiastic, pioneering wisdom."
+    detail: Jupiter is friendly with Mars and acts with confidence here. You are optimistic, courageous and eager to lead others toward growth. Wisdom comes through action, though patience and humility take time.
+    strengths: [enthusiasm, leadership, courage, optimism]
+    challenges: [impatience, overconfidence, preachiness]
+
+  taurus:
+    summary: "Jupiter in Taurus: wisdom expressed through stability and wealth."
+    detail: Jupiter in Venus’ sign blesses resources and pleasures. You value comfort, quality and steady growth. Finance and teaching are favoured. Over-indulgence is the risk.
+    strengths: [financial wisdom, stability, generosity, patience]
+    challenges: [materialism, over-indulgence, complacency]
+
+  gemini:
+    summary: "Jupiter in Gemini: wisdom through learning and communication."
+    detail: Jupiter in Mercury’s sign is curious and well informed. You are a good student and communicator, though depth of conviction may be lacking. Teaching, writing and publishing suit you.
+    strengths: [learning, communication, versatility, curiosity]
+    challenges: [superficiality, scattered knowledge, indecision]
+
+  cancer:
+    summary: "Exalted Jupiter: deep wisdom and compassion."
+    detail: Jupiter is exalted in Cancer, one of the most auspicious placements in astrology. You are kind, wise, protective and generous. Family, teaching, counselling and spiritual life are blessed. You may be overly protective or idealistic.
+    strengths: [wisdom, compassion, generosity, good fortune]
+    challenges: [over-protectiveness, idealism, emotional over-involvement]
+
+  leo:
+    summary: "Jupiter in Leo: generous, dignified leadership."
+    detail: Jupiter is friendly with the Sun and expresses grandly in Leo. You are generous, principled and inspiring, often found in leadership, teaching or creative roles. Pride can creep in.
+    strengths: [generosity, leadership, creativity, integrity]
+    challenges: [pride, extravagance, need for status]
+
+  virgo:
+    summary: "Jupiter in Virgo: practical wisdom and service."
+    detail: Jupiter in Mercury’s earth sign is analytical and service-minded. You are helpful, health-conscious and good with detail. Faith can be hard to reconcile with doubt.
+    strengths: [practicality, service, analytical wisdom, diligence]
+    challenges: [over-criticism, worry, narrow focus]
+
+  libra:
+    summary: "Jupiter in Libra: wisdom expressed through fairness."
+    detail: Jupiter in Venus’ air sign values justice, partnership and refinement. You are diplomatic and well liked. Indecision and dependence on others are the risks.
+    strengths: [fairness, diplomacy, social grace, artistic sense]
+    challenges: [indecision, people-pleasing, superficiality]
+
+  scorpio:
+    summary: "Jupiter in Scorpio: deep, transformative wisdom."
+    detail: Jupiter in Mars’ water sign seeks hidden truth. You are drawn to research, the occult, psychology and shared resources. You can be a powerful healer or strategist.
+    strengths: [depth, research ability, resilience, spiritual insight]
+    challenges: [secrecy, obsessiveness, power struggles]
+
+  sagittarius:
+    summary: "Jupiter in Sagittarius: philosophical, principled and fortunate."
+    detail: Jupiter rules Sagittarius and is in its moolatrikona. You are a natural teacher, advisor or seeker, with strong ethics and good fortune. Dogmatism is the shadow.
+    strengths: [wisdom, ethics, optimism, teaching]
+    challenges: [dogmatism, self-righteousness, excess]
+
+  capricorn:
+    summary: "Debilitated Jupiter: wisdom tested through practicality."
+    detail: Jupiter is weakest in Capricorn. Faith and optimism can be limited by materialism or pessimism, and teachers or children may bring lessons. Yet this placement gives realistic, grounded wisdom and the discipline to build lasting value. Neecha-bhanga is common.
+    strengths: [practical wisdom, discipline, realism, responsibility]
+    challenges: [pessimism, materialism, lack of faith]
+
+  aquarius:
+    summary: "Jupiter in Aquarius: humanitarian wisdom."
+    detail: Jupiter in Saturn’s air sign values progress and social good. You are idealistic, broad-minded and drawn to science, networks and causes. You may be detached from personal emotion.
+    strengths: [humanitarian spirit, broad-mindedness, innovation, service]
+    challenges: [detachment, idealism, impersonality]
+
+  pisces:
+    summary: "Jupiter in Pisces: compassionate, spiritual wisdom."
+    detail: Jupiter rules Pisces and expresses its spiritual side here. You are kind, intuitive and drawn to devotion, healing and service. You may be overly trusting or escapist.
+    strengths: [compassion, spiritual depth, intuition, generosity]
+    challenges: [naivety, escapism, weak boundaries]

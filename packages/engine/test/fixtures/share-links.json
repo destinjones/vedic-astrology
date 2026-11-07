@@ -1,0 +1,56 @@
+{
+  "_comment": "Frozen share-link payloads, one per format version. These are links already out in the wild: never edit or delete an entry. When the format changes, ADD the old payloads here and keep every expectation passing.",
+  "links": [
+    {
+      "id": "v0-explorer-full",
+      "version": 0,
+      "about": "Explorer share link as written by apps/web shareHash() before versioning, with a name and a non-default ayanamsa",
+      "hash": "#n=Asha&d=1990-08-15&t=06%3A30&p=New+Delhi%2C+India&lat=28.6139&lon=77.209&tz=Asia%2FKolkata&ay=raman",
+      "expect": { "name": "Asha", "date": "1990-08-15", "time": "06:30", "place": { "name": "New Delhi, India", "latitude": 28.6139, "longitude": 77.209, "timezone": "Asia/Kolkata" }, "ayanamsa": "raman" }
+    },
+    {
+      "id": "v0-explorer-no-name",
+      "version": 0,
+      "about": "Share link with 'include name' unticked and the default (Lahiri) ayanamsa left out",
+      "hash": "#d=1869-10-02&t=07%3A11&p=Porbandar%2C+India&lat=21.6417&lon=69.6293&tz=Asia%2FKolkata",
+      "expect": { "date": "1869-10-02", "time": "07:11", "place": { "name": "Porbandar, India", "latitude": 21.6417, "longitude": 69.6293, "timezone": "Asia/Kolkata" }, "ayanamsa": "lahiri" }
+    },
+    {
+      "id": "v0-explorer-seconds-west",
+      "version": 0,
+      "about": "Seconds in the time, western and southern coordinates, and an unescaped colon as some chat apps rewrite it",
+      "hash": "#d=1961-08-04&t=19:24:00&p=Honolulu&lat=21.30694&lon=-157.85833&tz=Pacific/Honolulu&ay=krishnamurti",
+      "expect": { "date": "1961-08-04", "time": "19:24:00", "place": { "name": "Honolulu", "latitude": 21.30694, "longitude": -157.85833, "timezone": "Pacific/Honolulu" }, "ayanamsa": "krishnamurti" }
+    },
+    {
+      "id": "v0-explorer-true-chitra-south",
+      "version": 0,
+      "about": "Southern hemisphere, true_chitra",
+      "hash": "#n=R%C3%A9mi&d=2001-02-28&t=23%3A59&p=Santiago%2C+Chile&lat=-33.45&lon=-70.66667&tz=America%2FSantiago&ay=true_chitra",
+      "expect": { "name": "Rémi", "date": "2001-02-28", "time": "23:59", "place": { "name": "Santiago, Chile", "latitude": -33.45, "longitude": -70.66667, "timezone": "America/Santiago" }, "ayanamsa": "true_chitra" }
+    },
+    {
+      "id": "v1-with-offset",
+      "version": 1,
+      "about": "Version 1 carries the manual UTC offset (here US war time written as CST) that v0 dropped",
+      "hash": "#v=1&n=Martin&d=1929-01-15&t=12%3A00&p=Atlanta%2C+Georgia%2C+USA&lat=33.749&lon=-84.388&tz=America%2FNew_York&off=-360",
+      "expect": { "name": "Martin", "date": "1929-01-15", "time": "12:00", "place": { "name": "Atlanta, Georgia, USA", "latitude": 33.749, "longitude": -84.388, "timezone": "America/New_York" }, "utcOffsetMinutes": -360, "ayanamsa": "lahiri" }
+    },
+    {
+      "id": "v1-lmt-offset",
+      "version": 1,
+      "about": "A fractional LMT offset survives the round trip",
+      "hash": "#v=1&d=1880-03-14&t=11%3A30&p=Ulm&lat=48.4&lon=9.98333&tz=Europe%2FBerlin&off=39.93332&ay=fagan_bradley",
+      "expect": { "date": "1880-03-14", "time": "11:30", "place": { "name": "Ulm", "latitude": 48.4, "longitude": 9.98333, "timezone": "Europe/Berlin" }, "utcOffsetMinutes": 39.93332, "ayanamsa": "fagan_bradley" }
+    }
+  ],
+  "compare": [
+    {
+      "id": "v0-compare-two",
+      "version": 0,
+      "about": "Compare page link as written by compareHash(): one c= per chart, each holding a v0 payload",
+      "hash": "#c=n%3DA%26d%3D1990-08-15%26t%3D06%253A30%26p%3DDelhi%26lat%3D28.6139%26lon%3D77.209%26tz%3DAsia%252FKolkata&c=n%3DB%26d%3D1992-01-02%26t%3D18%253A05%26p%3DPune%26lat%3D18.5204%26lon%3D73.8567%26tz%3DAsia%252FKolkata%26ay%3Draman",
+      "expectNames": ["A", "B"]
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import { rarityOf } from '@vedic/personal/rarity';
 import { ReadingBlock } from './ReadingBlock';
 import { useI18n } from '../i18n';
 import './yogaLevels.css';
+import { Glossed } from './Gloss';
 
 const BEGINNER_KEY = 'vedic.beginner';
 const loadBeginner = () => { try { return localStorage.getItem(BEGINNER_KEY) === '1'; } catch { return false; } };
@@ -56,7 +57,7 @@ export function YogaDoshaCard({ report }: { report: ChartInterpretation }) {
             <div key={f.key}>
               <Level f={f} />
               <ReadingBlock reading={{ ...y.reading, title: `${y.name} (${v.strength[y.strength]})` }} />
-              <p className="yd-reason">{y.reason}</p>
+              <p className="yd-reason"><Glossed text={y.reason} /></p>
             </div>
           );
         })}
@@ -73,7 +74,7 @@ export function YogaDoshaCard({ report }: { report: ChartInterpretation }) {
                 <div key={f.key}>
                   <Level f={f} />
                   <ReadingBlock reading={{ ...d.reading, title: `${d.name} (${v.severity[d.severity]})` }} />
-                  <p className="yd-reason">{d.reason}</p>
+                  <p className="yd-reason"><Glossed text={d.reason} /></p>
                   {d.cancellations.length > 0 && <p className="yd-reason">{t('yd.softened', { list: d.cancellations.join('; ') })}</p>}
                 </div>
               );

@@ -7,3 +7,7 @@ coverage/
 *.blend1
 blender/.logs/
 __pycache__/
+.lighthouseci/
+test-results/
+playwright-report/
+dist-pkg/

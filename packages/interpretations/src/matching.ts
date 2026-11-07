@@ -198,7 +198,7 @@ export const YONI_TABLE: number[][] = [
   [2, 2, 3, 0, 1, 2, 1, 2, 2, 2, 2, 3, 4, 2],
   [1, 0, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 2, 4],
 ];
-const YONI_ENEMY: Partial<Record<Yoni, Yoni>> = {
+export const YONI_ENEMY: Partial<Record<Yoni, Yoni>> = {
   Horse: 'Buffalo', Buffalo: 'Horse', Elephant: 'Lion', Lion: 'Elephant', Sheep: 'Monkey', Monkey: 'Sheep',
   Serpent: 'Mongoose', Mongoose: 'Serpent', Dog: 'Deer', Deer: 'Dog', Cat: 'Rat', Rat: 'Cat', Cow: 'Tiger', Tiger: 'Cow',
 };
@@ -225,8 +225,8 @@ const TARA_MEANING = ['birth star', 'wealth', 'danger', 'well-being', 'obstacles
 export const taraOf = (from: number, to: number): number => ((((to - from) % 27) + 27) % 27) % 9 + 1;
 const taraGood = (t: number) => t !== 3 && t !== 5 && t !== 7;
 
-type Rel = 'friend' | 'neutral' | 'enemy';
-const relation = (of: PlanetId, toward: PlanetId): Rel => {
+export type Rel = 'friend' | 'neutral' | 'enemy';
+export const relation = (of: PlanetId, toward: PlanetId): Rel => {
   if (of === toward) return 'friend';
   const p = PLANET_PROFILES[of];
   if (p.friends.includes(toward)) return 'friend';

@@ -1,0 +1,74 @@
+# yaml-language-server: $schema=../schema/planet-in-sign.schema.json
+planet: saturn
+readings:
+  aries:
+    summary: "Debilitated Saturn: discipline learned the hard way."
+    detail: Saturn is weakest in Aries, where its patience clashes with Mars’ impulsiveness. Early life can bring frustration, conflict or setbacks, and there may be impatience with slow progress. Over time this placement builds tremendous resilience and independent strength. Look for neecha-bhanga.
+    strengths: [resilience, independence, courage under pressure, self-reliance]
+    challenges: [frustration, impulsive decisions, conflict with authority]
+
+  taurus:
+    summary: "Saturn in Taurus: patient, practical and wealth-building."
+    detail: Saturn is friendly with Venus and works steadily here. You are disciplined with money and resources and build security slowly but surely. You may be overly cautious or rigid.
+    strengths: [financial discipline, patience, reliability, practicality]
+    challenges: [rigidity, stinginess, resistance to change]
+
+  gemini:
+    summary: "Saturn in Gemini: disciplined, structured thinking."
+    detail: Saturn is friendly with Mercury and gives a serious, methodical mind. You are good at research, writing and technical work. Communication may be cautious or anxious.
+    strengths: [focus, methodical thinking, writing skill, technical ability]
+    challenges: [anxiety, cautious speech, pessimism]
+
+  cancer:
+    summary: "Saturn in Cancer: emotional discipline and family duty."
+    detail: Saturn in the Moon’s sign can bring emotional restraint, family responsibility or a sense of not being fully nurtured. You may become the responsible one in the family. Healing old wounds is key.
+    strengths: [responsibility, protectiveness, emotional endurance, loyalty]
+    challenges: [emotional coldness, insecurity, family burdens]
+
+  leo:
+    summary: "Saturn in Leo: discipline versus ego."
+    detail: Saturn is in the Sun’s sign, its enemy. There can be tension with authority, the father or one’s own pride. Recognition comes through persistence and humility. Leadership is earned slowly.
+    strengths: [perseverance, earned authority, responsibility, integrity]
+    challenges: [conflict with authority, ego struggles, lack of recognition]
+
+  virgo:
+    summary: "Saturn in Virgo: precise, diligent work."
+    detail: Saturn is friendly with Mercury and works hard in Virgo. You are meticulous, practical and service-minded. Health and work are major themes. Worry and perfectionism are the risks.
+    strengths: [diligence, precision, service, practicality]
+    challenges: [worry, perfectionism, health anxiety]
+
+  libra:
+    summary: "Exalted Saturn: justice, balance and lasting success."
+    detail: Saturn is exalted in Libra. You have a strong sense of fairness, patience and responsibility, and you build success that lasts. Law, diplomacy, public service and partnership are favoured.
+    strengths: [fairness, discipline, diplomacy, enduring success]
+    challenges: [rigidity, coldness in relationships, over-seriousness]
+
+  scorpio:
+    summary: "Saturn in Scorpio: endurance through crisis."
+    detail: Saturn in Mars’ water sign faces intense transformations. You are resilient, strategic and capable of handling crisis and hidden matters. Chronic stress or secrecy can be issues.
+    strengths: [resilience, strategic thinking, depth, endurance]
+    challenges: [secrecy, suspicion, chronic stress]
+
+  sagittarius:
+    summary: "Saturn in Sagittarius: disciplined belief."
+    detail: Saturn in Jupiter’s fire sign brings seriousness to philosophy, religion and law. You may question beliefs deeply before committing. Teachers may be strict or absent.
+    strengths: [principled discipline, depth of belief, ethical focus, patience]
+    challenges: [dogmatism, doubt, conflict with teachers]
+
+  capricorn:
+    summary: "Saturn in Capricorn: ambitious, disciplined and practical."
+    detail: Saturn rules Capricorn and works efficiently here. You are ambitious, responsible and focused on long-term success. Coldness and over-work are the risks.
+    strengths: [ambition, discipline, organisation, endurance]
+    challenges: [coldness, workaholism, pessimism]
+
+  aquarius:
+    summary: "Saturn in Aquarius: visionary discipline."
+    detail: Saturn rules Aquarius and is in its moolatrikona. You are principled, innovative and devoted to groups or causes. Science, technology and social reform are favoured. Detachment can be an issue.
+    strengths: [vision, principle, innovation, service to society]
+    challenges: [detachment, rigidity, loneliness]
+
+  pisces:
+    summary: "Saturn in Pisces: spiritual discipline."
+    detail: Saturn in Jupiter’s water sign seeks meaning through service and spiritual practice. You may feel the weight of others’ suffering. Retreat, meditation and charity are supportive.
+    strengths: [compassion, spiritual discipline, service, patience]
+    challenges: [melancholy, escapism, fear of the unknown]

@@ -31,3 +31,9 @@ export function serveDist(port = 0) {
     }));
   });
 }
+
+// `node tools/serve-dist.mjs [port]` serves the build on its own, for Playwright and Lighthouse.
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  const { url } = await serveDist(Number(process.argv[2] ?? 4173));
+  console.log(`Serving apps/web/dist at ${url}${BASE}`);
+}

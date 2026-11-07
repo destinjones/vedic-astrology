@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../schema/planet-in-house.schema.json
+planet: venus
+readings:
+  "1":
+    summary: "Venus in the 1st: charm, beauty and grace."
+    detail: Venus on the ascendant gives attractiveness, artistic sense and charm. You enjoy pleasure and comfort and are well liked.
+    strengths: [charm, beauty, artistic talent, popularity]
+    challenges: [vanity, over-indulgence, laziness]
+    score: 2
+
+  "2":
+    summary: "Venus in the 2nd: wealth, pleasant speech and good food."
+    detail: Venus in the 2nd brings wealth, a sweet voice and love of fine food. Family life is pleasant.
+    strengths: [wealth, sweet speech, family harmony, artistic voice]
+    challenges: [over-indulgence, spending on luxury]
+    score: 3
+
+  "3":
+    summary: "Venus in the 3rd: artistic communication."
+    detail: You have a talent for writing, music or art. Siblings are pleasant. Short travel brings enjoyment.
+    strengths: [artistic talent, pleasant communication, charm, creative hobbies]
+    challenges: [lack of drive, over-indulgence in leisure]
+    score: 1
+
+  "4":
+    summary: "Venus in the 4th: a beautiful home and comforts."
+    detail: Venus has directional strength in the 4th. You enjoy a comfortable home, vehicles and emotional contentment. The mother is caring.
+    strengths: [comfortable home, vehicles, contentment, artistic home]
+    challenges: [over-attachment to comfort, laziness]
+    score: 3
+
+  "5":
+    summary: "Venus in the 5th: romance, creativity and joy."
+    detail: Venus in the 5th is excellent for romance, creativity, entertainment and the arts. Children are pleasant.
+    strengths: [romance, creativity, entertainment, artistic intelligence]
+    challenges: [romantic drama, speculation losses]
+    score: 2
+
+  "6":
+    summary: "Venus in the 6th: service in the arts or health."
+    detail: Venus is weak in the 6th. Relationships may face obstacles or conflicts, and health issues related to excess are possible. You may serve in beauty, health or hospitality.
+    strengths: [service, diplomacy at work, artistic work]
+    challenges: [relationship problems, health issues from excess, debts]
+    score: -1
+
+  "7":
+    summary: "Venus in the 7th: a loving, attractive partner."
+    detail: Venus is the natural significator of the 7th. You attract charming partners and enjoy partnership. Some texts warn that Venus alone here can over-emphasise desire.
+    strengths: [loving marriage, charm, business partnerships, diplomacy]
+    challenges: [over-dependence on partner, indulgence]
+    score: 1
+
+  "8":
+    summary: "Venus in the 8th: hidden pleasures and joint wealth."
+    detail: Venus in the 8th can bring wealth through partner or inheritance and an interest in the occult. Relationships may be intense or secretive.
+    strengths: [inheritance, partner’s wealth, occult interest, sensuality]
+    challenges: [secret affairs, health issues, emotional intensity]
+    score: 0
+
+  "9":
+    summary: "Venus in the 9th: fortune through grace."
+    detail: Venus in the 9th brings luck through women, the arts or partnership, and a love of travel and culture.
+    strengths: [fortune, love of culture, travel, artistic beliefs]
+    challenges: [over-indulgence in pleasures, superficial faith]
+    score: 2
+
+  "10":
+    summary: "Venus in the 10th: a career in beauty, arts or diplomacy."
+    detail: Venus in the 10th gives success in the arts, fashion, entertainment, diplomacy or luxury industries.
+    strengths: [artistic career, popularity, diplomacy, pleasant work environment]
+    challenges: [vanity, lack of ambition]
+    score: 2
+
+  "11":
+    summary: "Venus in the 11th: gains through charm and networks."
+    detail: Venus in the 11th gives excellent gains, social success and fulfilled desires. Friends are artistic or wealthy.
+    strengths: [gains, social success, artistic friends, luxury]
+    challenges: [over-spending on social life]
+    score: 3
+
+  "12":
+    summary: "Venus in the 12th: pleasure, comfort and spiritual love."
+    detail: Venus is well placed in the 12th, giving bed pleasures, comforts and spiritual devotion. Foreign travel and charity are favoured.
+    strengths: [comfort, spiritual love, foreign connections, charity]
+    challenges: [expenses, secret relationships]
+    score: 2

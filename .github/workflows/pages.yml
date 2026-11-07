@@ -32,7 +32,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - run: npm run build:pages
+      - name: Build reproducibly, with a hash of every file at /SHA256SUMS
+        run: |
+          export SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
+          npm run build:pages
+          npm run verify:build
+        env:
+          # Optional cookieless visit counter. Leave the repository variable unset to build without it.
+          VITE_GOATCOUNTER: ${{ vars.GOATCOUNTER_CODE }}
       - run: npx playwright install --with-deps chromium
       - name: Check the site before publishing it
         run: npm run smoke

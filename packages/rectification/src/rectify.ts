@@ -197,7 +197,9 @@ export function rectify(engine: Engine, input: RectifyInput): RectifyResult {
       const t: TransitPositions = { jupiter: p.jupiter.longitude, saturn: p.saturn.longitude, rahu: p.rahu.longitude, ketu: p.ketu.longitude, mars: p.mars.longitude };
       return { jd, date: d, t };
     });
-    return { ev, def, precision: span.precision, samples, weight: ev.weight ?? 1 };
+    // an exact day is worth checking down to the sookshma, which runs for days to weeks
+    const levels = WEIGHTS.levels[span.precision].length;
+    return { ev, def, precision: span.precision, samples, weight: ev.weight ?? 1, levels };
   });
   const totalWeight = prepared.reduce((s, p) => s + p.weight, 0);
 
@@ -205,7 +207,7 @@ export function rectify(engine: Engine, input: RectifyInput): RectifyResult {
   const evaluate = (c: CandidateChart, p: (typeof prepared)[number]): Eval => {
     let best = { value: -1, sample: 0 };
     p.samples.forEach((s, i) => {
-      const chain = dashaChain(c, s.jd);
+      const chain = dashaChain(c, s.jd, p.levels);
       const v = WEIGHTS.dasha * dashaMatch(c, chain, p.def, p.precision).value + WEIGHTS.transit * transitMatch(c, s.t, p.def).value;
       if (v > best.value) best = { value: v, sample: i };
     });
@@ -327,7 +329,7 @@ export function rectify(engine: Engine, input: RectifyInput): RectifyResult {
 
   function explain(c: CandidateChart, p: (typeof prepared)[number], e: Eval, best: number): EventFit {
     const s = p.samples[e.sample];
-    const chain = dashaChain(c, s.jd);
+    const chain = dashaChain(c, s.jd, p.levels);
     const dm = dashaMatch(c, chain, p.def, p.precision);
     const tm = transitMatch(c, s.t, p.def);
     const chainLabel = chain.map((g) => PLANET_LABEL[g]).join('–');

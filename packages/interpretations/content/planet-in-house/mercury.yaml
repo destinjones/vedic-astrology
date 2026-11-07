@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../schema/planet-in-house.schema.json
+planet: mercury
+readings:
+  "1":
+    summary: "Mercury in the 1st: a youthful, clever personality."
+    detail: Mercury has directional strength (dig bala) on the ascendant. You are witty, articulate and curious, often looking younger than your age. Learning, writing and business suit you. Nervousness is a risk.
+    strengths: [intelligence, wit, youthfulness, communication]
+    challenges: [nervousness, restlessness, indecision]
+    score: 2
+
+  "2":
+    summary: "Mercury in the 2nd: eloquent speech and business sense."
+    detail: Mercury in the 2nd gives a gift for speech, writing and earning through intellect or trade. Family values education.
+    strengths: [eloquence, business skill, good memory, financial intelligence]
+    challenges: [talkativeness, cunning speech, over-thinking money]
+    score: 2
+
+  "3":
+    summary: "Mercury in the 3rd: skilled communication and writing."
+    detail: Mercury is excellent in the 3rd. You are a strong writer, speaker or media professional. Siblings are communicative. Short travel is frequent.
+    strengths: [writing, media skill, communication, adaptability]
+    challenges: [scattered efforts, nervousness, superficiality]
+    score: 2
+
+  "4":
+    summary: "Mercury in the 4th: an educated, comfortable home."
+    detail: Home is a place of learning and conversation. Education is strong. You may work from home or in real estate.
+    strengths: [education, intellectual home life, property, communication with family]
+    challenges: [restlessness at home, over-thinking emotions]
+    score: 1
+
+  "5":
+    summary: "Mercury in the 5th: a sharp, creative intellect."
+    detail: You are intelligent, witty and creative. Writing, teaching, speculation and strategy suit you. Children are clever.
+    strengths: [intelligence, creativity, wit, skill in strategy]
+    challenges: [nervousness, over-speculation, romantic indecision]
+    score: 2
+
+  "6":
+    summary: "Mercury in the 6th: analytical problem-solving."
+    detail: You are excellent at analysis, service, health care or law. You can out-think competitors. Worry about health is common.
+    strengths: [analytical skill, problem-solving, service, legal acumen]
+    challenges: [worry, nervous health, disputes]
+    score: 1
+
+  "7":
+    summary: "Mercury in the 7th: intellectual partnerships."
+    detail: You seek a partner who is clever and communicative. Business partnerships, negotiation and trade are favoured.
+    strengths: [communication in relationships, business partnerships, negotiation, youthful partner]
+    challenges: [indecision in marriage, superficial relationships]
+    score: 1
+
+  "8":
+    summary: "Mercury in the 8th: a research-oriented mind."
+    detail: You are drawn to investigation, the occult, psychology and hidden knowledge. Longevity is often good. Nervous health needs care.
+    strengths: [research, investigation, occult knowledge, longevity]
+    challenges: [anxiety, secrecy, nervous issues]
+    score: 0
+
+  "9":
+    summary: "Mercury in the 9th: philosophical intelligence."
+    detail: You are drawn to higher learning, writing, teaching and travel. You question beliefs and enjoy debate.
+    strengths: [higher learning, teaching, publishing, philosophical thinking]
+    challenges: [doubt, over-intellectualising faith]
+    score: 2
+
+  "10":
+    summary: "Mercury in the 10th: a career in communication or commerce."
+    detail: Mercury in the 10th gives a career in writing, business, IT, teaching or administration.
+    strengths: [career in communication, business success, versatility, reputation for intelligence]
+    challenges: [frequent job changes, nervous stress]
+    score: 2
+
+  "11":
+    summary: "Mercury in the 11th: gains through intellect and networks."
+    detail: Income comes through communication, trade, writing or technology. Friends are clever and helpful.
+    strengths: [gains, networking, business success, clever friends]
+    challenges: [superficial friendships, over-commitment]
+    score: 3
+
+  "12":
+    summary: "Mercury in the 12th: an imaginative, private mind."
+    detail: You think in images and intuition. Writing, research, foreign work or spiritual study suit you. Expenses on learning or travel are possible.
+    strengths: [imagination, research, spiritual study, foreign connections]
+    challenges: [confusion, secrecy, nervous exhaustion]
+    score: -1

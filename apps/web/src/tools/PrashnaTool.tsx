@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { PRASHNA_TOPICS, castPrashna, localToUtc, type Engine, type PrashnaResult, type PrashnaTopic, type PrashnaVerdict } from '@vedic/engine';
+import { useMemo, useState } from 'react';
+import { PRASHNA_TOPICS, castPrashna, localToUtc, prashnaTiming, type Engine, type PrashnaResult, type PrashnaTopic, type PrashnaVerdict } from '@vedic/engine';
 import { KpCuspTable, KpSignificationTable, KpWheel, PlaceField, Planet, RulingPlanets, fmtLocal, loadPlace, localParts, ordinal, pname, savePlace, signDeg, type Place } from './shared';
 
 const VERDICT: Record<PrashnaVerdict, { label: string; cls: string }> = {
@@ -100,6 +100,8 @@ export function PrashnaTool({ engine }: { engine: Engine }) {
 function PrashnaAnswer({ res, tz, placeName }: { res: PrashnaResult; tz: string; placeName: string }) {
   const v = VERDICT[res.verdict];
   const pct = (res.score + 100) / 2;
+  const timing = useMemo(() => prashnaTiming(res), [res]);
+  const day = (iso: string) => fmtLocal(iso, tz, { dateStyle: 'medium' });
   return (
     <>
       <section className="card prashna-verdict" id="prashna-result">
@@ -128,8 +130,28 @@ function PrashnaAnswer({ res, tz, placeName }: { res: PrashnaResult; tz: string;
       </section>
 
       <section className="card">
-        <div className="card-head"><h3>When</h3></div>
-        <p>{res.timingNote}</p>
+        <div className="card-head"><h3>When</h3><span className="muted">the dasha of the question</span></div>
+        <p><b>{timing.summary}</b></p>
+        {timing.windows.length > 0 && (
+          <div className="table-wrap">
+          <table className="kp-table prashna-timing">
+            <thead><tr><th>From</th><th>To</th><th>Dasha – bhukti – antara</th></tr></thead>
+            <tbody>
+              {timing.windows.map((w, i) => (
+                <tr key={w.start} className={i === 0 ? 'is-first' : ''} title={w.why}>
+                  <td>{day(w.start)}</td>
+                  <td>{day(w.end)}</td>
+                  <td>{w.path.map(pname).join(' – ')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          </div>
+        )}
+        {timing.first?.sookshma && timing.first.sookshma.length > 0 && (
+          <p className="muted kp-note">Inside the first period, the sookshmas of {timing.first.sookshma.map((s) => `${pname(s.lord)} (${day(s.start)})`).join(', ')} agree as well.</p>
+        )}
+        <p className="muted kp-note">KP times a horary answer from a Vimshottari dasha started at the Moon of the moment you asked: the matter comes in the first period whose bhukti and antara lords both signify houses {res.topic.favourable.join(', ')}. {res.timingNote}</p>
         {res.fruitful.length > 0 && <div className="kp-plist">{res.fruitful.map((g) => <Planet key={g} id={g} />)}</div>}
         <h4>Ruling planets of the moment</h4>
         <RulingPlanets chart={res.chart} />

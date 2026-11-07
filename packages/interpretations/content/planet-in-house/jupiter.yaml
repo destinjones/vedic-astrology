@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=../schema/planet-in-house.schema.json
+planet: jupiter
+readings:
+  "1":
+    summary: "Jupiter in the 1st: wisdom, optimism and protection."
+    detail: Jupiter has directional strength in the 1st. You are wise, generous and well respected, with natural protection from many difficulties. Weight gain can be an issue.
+    strengths: [wisdom, optimism, protection, respect]
+    challenges: [weight gain, complacency, preachiness]
+    score: 3
+
+  "2":
+    summary: "Jupiter in the 2nd: wealth, good speech and family values."
+    detail: Jupiter in the 2nd is excellent for wealth, speech and family harmony. You speak wisely and accumulate resources.
+    strengths: [wealth, wise speech, family harmony, good food]
+    challenges: [over-indulgence, overspending on family]
+    score: 3
+
+  "3":
+    summary: "Jupiter in the 3rd: wise communication but restrained effort."
+    detail: Jupiter in the 3rd gives wisdom in writing and communication but can reduce raw courage or initiative. Siblings may be wise or fortunate.
+    strengths: [wise communication, writing, teaching, supportive siblings]
+    challenges: [lack of initiative, over-caution]
+    score: 0
+
+  "4":
+    summary: "Jupiter in the 4th: happiness at home and education."
+    detail: Jupiter in the 4th gives a happy, comfortable home, property and good education. The mother is wise and supportive.
+    strengths: [happy home, property, education, contentment]
+    challenges: [complacency, over-attachment to comfort]
+    score: 2
+
+  "5":
+    summary: "Jupiter in the 5th: intelligence, children and merit."
+    detail: Jupiter is the natural significator of the 5th. You are wise, intelligent and blessed with good children and past-life merit. Teaching, advising and spirituality are favoured. Some texts note that too much Jupiter here can delay children.
+    strengths: [intelligence, children, merit, spiritual wisdom]
+    challenges: [delay in children (in some cases), over-idealism]
+    score: 3
+
+  "6":
+    summary: "Jupiter in the 6th: service and resilience."
+    detail: Jupiter in the 6th helps you overcome illness and enemies through wisdom and service. You may work in healing, law or teaching. Weight or liver issues need watching.
+    strengths: [service, healing, overcoming obstacles, ethics at work]
+    challenges: [liver issues, over-trust, weight gain]
+    score: 0
+
+  "7":
+    summary: "Jupiter in the 7th: a wise and fortunate partner."
+    detail: Jupiter in the 7th gives a good, wise or prosperous spouse and success in partnerships and public dealings.
+    strengths: [good marriage, wise partner, business partnerships, public respect]
+    challenges: [over-idealising partners, complacency in relationships]
+    score: 2
+
+  "8":
+    summary: "Jupiter in the 8th: protection and occult wisdom."
+    detail: Jupiter in the 8th protects longevity and gives interest in the occult, research and spiritual mysteries. Inheritance is possible.
+    strengths: [longevity, occult wisdom, inheritance, research]
+    challenges: [hidden expenses, delayed rewards]
+    score: 0
+
+  "9":
+    summary: "Jupiter in the 9th: fortune, faith and good teachers."
+    detail: Jupiter in the 9th is one of its best placements. You are fortunate, ethical and devoted to learning or spirituality. Teachers and the father support you.
+    strengths: [fortune, faith, higher learning, good teachers]
+    challenges: [dogmatism, self-righteousness]
+    score: 3
+
+  "10":
+    summary: "Jupiter in the 10th: respected career and ethics."
+    detail: Jupiter in the 10th gives a respected career in teaching, law, finance, advising or management. Reputation is built on integrity.
+    strengths: [respected career, ethics, leadership, success]
+    challenges: [over-commitment, complacency]
+    score: 2
+
+  "11":
+    summary: "Jupiter in the 11th: abundant gains and good friends."
+    detail: Jupiter in the 11th gives great gains, fulfilled desires and supportive friends. Elder siblings are helpful.
+    strengths: [gains, fulfilled desires, good friends, prosperity]
+    challenges: [over-reliance on luck, over-expansion]
+    score: 3
+
+  "12":
+    summary: "Jupiter in the 12th: spiritual wisdom and generosity."
+    detail: Jupiter in the 12th favours spiritual practice, charity and foreign travel. Expenses may be for good causes.
+    strengths: [spirituality, generosity, foreign connections, liberation]
+    challenges: [expenses, lack of material focus]
+    score: 0

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "@vedic/engine",
+  "entryPoints": ["src/index.ts"],
+  "tsconfig": "tsconfig.json",
+  "readme": "README.md",
+  "favicon": "../../apps/web/public/favicon.svg",
+  "out": "../../apps/web/dist/docs/engine",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "githubPages": false,
+  "sourceLinkTemplate": "https://github.com/destinjones/vedic-astrology/blob/main/{path}#L{line}",
+  "navigationLinks": {
+    "Jyotisha Explorer": "https://destinjones.github.io/vedic-astrology/",
+    "GitHub": "https://github.com/destinjones/vedic-astrology"
+  },
+  "validation": { "notExported": false, "invalidLink": true, "notDocumented": false }
+}

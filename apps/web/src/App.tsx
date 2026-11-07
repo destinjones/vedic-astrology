@@ -28,23 +28,41 @@ import type { Command } from './lib/commands';
 import { compareHash } from './compare/sources';
 
 import { YogaDoshaCard } from './components/YogaDoshaCard';
+import { CaseStudyCard } from './components/CaseStudyCard';
+import { caseStudyFor } from './data/caseStudies';
+import { ChalitControl } from './components/ChalitControl';
+import { chalitHouses, withChalit, type HouseMode } from './lib/chalit';
+import { PanchangaCard } from './components/PanchangaCard';
+import { ConditionCard } from './components/ConditionCard';
 import { StrengthSection } from './components/StrengthSection';
 import { ReportActions } from './components/ReportActions';
 import { FamousCharts } from './components/FamousCharts';
-import { FAMOUS_CHARTS, famousChartById, RODDEN_MEANING } from './data/famousCharts';
+import { FAMOUS_CHARTS, famousChartById, famousErrorReportUrl, RODDEN_MEANING } from './data/famousCharts';
 import { loadKnowledge, type Knowledge } from './lib/readings';
 import { useI18n } from './i18n';
 import { ayanamsaName } from './i18n/names';
 import { LOCALE_BY_CODE } from '@vedic/i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { ExportDialog, type ExportTab } from './components/ExportDialog';
+import { AnnotationPanel, AnnotationPins } from './components/Annotations';
+import { Narrator } from './components/Narrator';
+import { speechSupported } from './lib/narration';
+import type { Annotation } from './lib/annotations';
+import { DisplaySettings } from './components/DisplaySettings';
+import { ChartTable } from './components/ChartTable';
+import { setDisplay, useDisplay } from './lib/display';
+import { trackEvent, trackOnce } from './lib/analytics';
+import { TrustFooter } from './trust/TrustFooter';
 
 const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
 const EventChecker = lazy(() => import('./components/EventChecker'));
 const JaiminiSection = lazy(() => import('./components/JaiminiSection'));
+const RemediesSection = lazy(() => import('./components/RemediesSection'));
 const RectificationSection = lazy(() => import('./components/RectificationSection'));
 const VarshaphalSection = lazy(() => import('./components/VarshaphalSection'));
 const Personal = lazy(() => import('./personal/Personal'));
+const ClassicalTiming = lazy(() => import('./components/ClassicalTiming').then((m) => ({ default: m.ClassicalTiming })));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
 function WhenVisible({ children, minHeight }: { children: React.ReactNode; minHeight: number }) {
@@ -84,8 +102,19 @@ export default function App() {
   const [style, setStyle] = useState<ChartStyle>('north');
   const [vargaId, setVargaId] = useState<VargaId>('D1');
   const [selection, setSelection] = useState<Selection | null>(null);
+  // a click on the chart, wheel, table or sky; the first planet click is a step in the visit counter's funnel
+  const pick = (s: Selection | null) => {
+    if (s?.kind === 'planet') trackOnce('first-planet-click');
+    setSelection(s);
+  };
   const [hoverPlanet, setHoverPlanet] = useState<PlanetId | null>(null);
   const [wheelMode, setWheelMode] = useState<WheelMode>('art');
+  // rashi (whole sign) or a bhava chalit chart; readings follow whichever is shown
+  const [houseMode, setHouseMode] = useState<HouseMode>(() => {
+    try { const m = localStorage.getItem('vedic.houseMode'); if (m === 'sripati' || m === 'equal') return m; } catch { /* ignore */ }
+    return 'rashi';
+  });
+  useEffect(() => { try { localStorage.setItem('vedic.houseMode', houseMode); } catch { /* ignore */ } }, [houseMode]);
   const [knowledge, setKnowledge] = useState<Knowledge | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>(loadProfiles);
   // bumped to remount the form with new initial values (editing a saved chart)
@@ -95,6 +124,10 @@ export default function App() {
   const [ws, setWs] = useState<Workspace>(loadWorkspace);
   const [presenting, setPresenting] = useState(false);
   const [showFamous, setShowFamous] = useState(false);
+  const [exportTab, setExportTab] = useState<ExportTab | null>(null);
+  const [annotating, setAnnotating] = useState(false);
+  const [focusNote, setFocusNote] = useState<string | null>(null);
+  const [narrating, setNarrating] = useState(false);
   // worked-out charts per tab, so switching tabs is instant
   const charts = useRef(new Map<string, Chart>());
   const wsRef = useRef(ws);
@@ -103,10 +136,14 @@ export default function App() {
   // a chart from the famous charts library shows where its birth data comes from
   const famous = chart ? FAMOUS_CHARTS.find((f) => sameBirth(f.input, chart.input)) ?? null : null;
   const { t, rich, v, locale } = useI18n();
+  const display = useDisplay();
 
   useEffect(() => { storeWorkspace(ws); }, [ws]);
   const patchTab = (id: string, patch: Partial<Tab>) =>
     setWs((w) => ({ ...w, tabs: w.tabs.map((t) => (t.id === id ? { ...t, ...patch } : t)) }));
+  // notes pinned to this tab's chart
+  const notes = activeTab.annotations ?? [];
+  const setNotes = (list: Annotation[]) => patchTab(activeTab.id, { annotations: list.length ? list : undefined });
 
   // the chart style and varga are remembered per tab
   useEffect(() => {
@@ -167,9 +204,10 @@ export default function App() {
     setKnowledge(null);
     if (!chart?.engineContext) return;
     let live = true;
-    loadKnowledge(chart.engineContext.chart, locale).then((k) => { if (live) setKnowledge(k); }).catch((e) => console.error('Readings unavailable', e));
+    const bhava = houseMode === 'rashi' ? undefined : chalitHouses(chart.engineContext.chart.bhavaChalit[houseMode]);
+    loadKnowledge(chart.engineContext.chart, locale, bhava).then((k) => { if (live) setKnowledge(k); }).catch((e) => console.error('Readings unavailable', e));
     return () => { live = false; };
-  }, [chart, locale]);
+  }, [chart, locale, houseMode]);
 
   // /app/#sample opens the sample chart straight away (the landing page links here),
   // and a share link (/app/#d=…&t=…) opens the chart it carries.
@@ -377,6 +415,14 @@ export default function App() {
     { id: 'famous', group: 'Tools', title: 'Famous charts library', keywords: 'celebrity public figures india america britain', run: () => { setShowFamous(true); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
     { id: 'compare', group: 'Tools', title: 'Compare charts side by side', keywords: 'side by side two charts compatibility', run: () => { location.href = `${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`; } },
     ...(chart ? [{ id: 'present', group: 'Tools', title: 'Present this chart', keywords: 'full screen walkthrough screen share recording', run: startPresent }] : []),
+    ...(chart ? [
+      { id: 'export.image', group: 'Tools', title: 'Export chart image (PNG or SVG)', keywords: 'download picture png svg print', run: () => setExportTab('image') },
+      { id: 'export.card', group: 'Tools', title: 'Share card for WhatsApp or Telegram', keywords: 'share image whatsapp telegram social', run: () => setExportTab('card') },
+      { id: 'export.embed', group: 'Tools', title: 'Embed this chart on a website', keywords: 'iframe blog widget', run: () => setExportTab('embed') },
+      { id: 'export.stickers', group: 'Tools', title: 'Graha sticker pack', keywords: 'stickers whatsapp telegram planets', run: () => setExportTab('stickers') },
+      { id: 'notes', group: 'Tools', title: 'Pin notes to the chart', keywords: 'annotate annotation note house planet', run: () => { setAnnotating(true); jumpTo('chart'); } },
+      ...(speechSupported() ? [{ id: 'listen', group: 'Tools', title: 'Listen to this chart read aloud', keywords: 'audio narration speak voice read', run: () => setNarrating(true) }] : []),
+    ] : []),
     { id: 'backup', group: 'Tools', title: 'Back up all tabs and charts', keywords: 'export download file save', run: backup },
   ];
   const commands: Command[] = [
@@ -387,12 +433,14 @@ export default function App() {
          { id: 'birth.focus', group: 'Chart', title: 'Enter birth details', shortcut: 'e', keywords: 'form new chart', run: () => { jumpTo('intake'); editBirth(); } }]),
   ];
 
-  const varga = chart ? getVarga(chart, vargaId) : null;
+  const chalit = chart?.engineContext && houseMode !== 'rashi' ? chart.engineContext.chart.bhavaChalit[houseMode] : null;
+  const varga = chart ? withChalit(getVarga(chart, vargaId), vargaId === 'D1' ? chalit : null) : null;
   const moon = chart?.planets.find((p) => p.id === 'moon');
   const sun = chart?.planets.find((p) => p.id === 'sun');
 
   return (
     <div className={`app ${presenting ? 'is-presenting' : ''}`}>
+      <a className="skip-link" href={chart ? '#chart' : '#intake'}>{chart ? 'Skip to the chart' : 'Skip to the birth details'}</a>
       <div
         className={`backdrop ${chart ? 'backdrop-cosmos' : 'backdrop-hero'}`}
         aria-hidden
@@ -413,6 +461,8 @@ export default function App() {
         <div className="topbar-actions">
           <QuickSwitch commands={commands} />
           <LanguageSwitcher />
+          <DisplaySettings />
+          <a className="btn-ghost" href={`${import.meta.env.BASE_URL}study/`}>Study</a>
           <button className="btn-ghost" aria-expanded={showFamous} onClick={() => setShowFamous((v) => !v)}>Famous charts</button>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`}>Compare charts</a>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}match/`}>Compatibility</a>
@@ -420,8 +470,9 @@ export default function App() {
           {chart && (
             <>
               <button className="btn-ghost" onClick={startPresent} title="Full screen walkthrough for a client, a screen share or a recording">▶ Present</button>
+              {speechSupported() && <button className="btn-ghost" aria-pressed={narrating} onClick={() => setNarrating((x) => !x)} title="Read the chart aloud, moving through it as it goes">🔊 Listen</button>}
               <ReportActions chart={chart} />
-              <ChartActions input={chart.input} profiles={profiles} onSave={saveCurrent} onShowSaved={showSaved} />
+              <ChartActions input={chart.input} profiles={profiles} onSave={saveCurrent} onShowSaved={showSaved} famousId={famous?.id} onExport={() => setExportTab('card')} />
               {!editing && <button className="btn-ghost" onClick={() => setEditing(true)}>{t('app.editBirth')}</button>}
             </>
           )}
@@ -480,7 +531,7 @@ export default function App() {
                 <button type="button" className="link-btn" onClick={() => setEditingId(null)}>Leave the saved chart as it is</button>
               </p>
             )}
-            <BirthForm key={formKey} initial={input} busy={busy} onSubmit={(i) => run(i)} onSample={() => openInTab(DEFAULT_INPUT)} />
+            <BirthForm key={formKey} initial={input} busy={busy} onSubmit={(i) => { trackEvent('chart-submit'); void run(i); }} onSample={() => openInTab(DEFAULT_INPUT)} />
           </div>
         </section>
       )}
@@ -521,6 +572,10 @@ export default function App() {
                     ? <a className="muted" href={famous.sourceUrl} target="_blank" rel="noopener noreferrer">{famous.source}</a>
                     : <span className="muted">{famous.source}</span>}
                 </b>
+                <span className="summary-sub muted">
+                  {famous.field}, as of {famous.asOf} ·{' '}
+                  <a href={famousErrorReportUrl(famous)} target="_blank" rel="noopener noreferrer">Report an error</a>
+                </span>
               </div>
             )}
           </section>
@@ -539,23 +594,42 @@ export default function App() {
                   <button role="radio" aria-checked={style === 'north'} className={style === 'north' ? 'is-active' : ''} onClick={() => setStyle('north')}>{t('chart.north')}</button>
                   <button role="radio" aria-checked={style === 'south'} className={style === 'south' ? 'is-active' : ''} onClick={() => setStyle('south')}>{t('chart.south')}</button>
                 </div>
+                <div className="chart-tools">
+                  <button className="btn-ghost sm" aria-pressed={annotating} onClick={() => setAnnotating((x) => !x)} title="Pin notes to houses and planets">✎ Notes{notes.length ? ` (${notes.length})` : ''}</button>
+                  <button className="btn-ghost sm" onClick={() => setExportTab('image')} title="PNG or SVG of this chart, a share card, embed code or stickers">⤓ Export</button>
+                </div>
               </div>
               <VargaSwitcher value={vargaId} onChange={setVargaId} />
+              {chart.engineContext && vargaId === 'D1' && <ChalitControl mode={houseMode} onChange={setHouseMode} chalit={chalit} />}
+              {display.chartTable ? (
+                <ChartTable chart={chart} varga={varga} selection={selection} onSelect={pick} />
+              ) : (
               <div className="chart-stage" onMouseLeave={() => setHoverPlanet(null)}>
                 {style === 'north' ? (
-                  <NorthChart chart={chart} varga={varga} selection={selection} hoverPlanet={hoverPlanet} onSelect={setSelection} onHoverPlanet={setHoverPlanet} />
+                  <NorthChart chart={chart} varga={varga} selection={selection} hoverPlanet={hoverPlanet} onSelect={pick} onHoverPlanet={setHoverPlanet} />
                 ) : (
-                  <SouthChart chart={chart} varga={varga} selection={selection} hoverPlanet={hoverPlanet} onSelect={setSelection} onHoverPlanet={setHoverPlanet} />
+                  <SouthChart chart={chart} varga={varga} selection={selection} hoverPlanet={hoverPlanet} onSelect={pick} onHoverPlanet={setHoverPlanet} />
                 )}
+                <AnnotationPins chart={chart} varga={varga} style={style} notes={notes} onPick={(a) => { setAnnotating(true); setFocusNote(a.id); }} />
               </div>
+              )}
+              {annotating && <AnnotationPanel notes={notes} selection={selection} onChange={setNotes} onClose={() => { setAnnotating(false); setFocusNote(null); }} focusId={focusNote} />}
               <p className="legend muted">{t('chart.legend')}</p>
+              <p className="chart-keys">
+                {!display.chartTable && <>Keyboard: <kbd>Tab</kbd> into the chart, arrows move between houses (<kbd>Page Down</kbd> goes in number order), <kbd>Enter</kbd> opens, <kbd>Tab</kbd> again reaches the planets. </>}
+                <button type="button" className="link-btn" onClick={() => setDisplay({ chartTable: !display.chartTable })}>
+                  {display.chartTable ? 'Show the chart drawing' : 'Show as a table'}
+                </button>
+              </p>
             </section>
 
             <aside className="card detail-card" id="details" aria-live="polite">
               {knowledge && knowledge.locale !== locale && <p className="reading-note">{t('app.readingsLanguageNote', { language: LOCALE_BY_CODE[locale].native })}</p>}
-              <DetailPanel chart={chart} varga={varga} selection={selection} onSelect={setSelection} knowledge={knowledge} />
+              <DetailPanel chart={chart} varga={varga} selection={selection} onSelect={pick} knowledge={knowledge} />
             </aside>
           </div>
+
+          {caseStudyFor(famous?.id) && <CaseStudyCard study={caseStudyFor(famous?.id)!} report={knowledge?.report} />}
 
           {chart.engineContext && (
             <WhenVisible minHeight={560}>
@@ -572,6 +646,12 @@ export default function App() {
               <Personal part="story" chart={chart} report={knowledge.report} onSelect={setSelection} />
             </Suspense>
           )}
+
+          {chart.engineContext && (
+            <PanchangaCard key={chart.engineContext.chart.meta.utc} engine={chart.engineContext.engine} chart={chart.engineContext.chart} />
+          )}
+
+          {chart.engineContext && <ConditionCard key={`c${chart.engineContext.chart.meta.utc}`} chart={chart.engineContext.chart} />}
 
           {chart.engineContext?.chart.strength && <StrengthSection strength={chart.engineContext.chart.strength} />}
 
@@ -590,7 +670,7 @@ export default function App() {
             </div>
             <WhenVisible minHeight={520}>
               <Suspense fallback={<div className="sky-overlay static">{t('sections.skyLoading')}</div>}>
-                <SkyView chart={chart} selection={selection} onSelect={setSelection} />
+                <SkyView chart={chart} selection={selection} onSelect={pick} />
               </Suspense>
             </WhenVisible>
           </section>
@@ -604,15 +684,26 @@ export default function App() {
                   <button role="radio" aria-checked={wheelMode === 'diagram'} className={wheelMode === 'diagram' ? 'is-active' : ''} onClick={() => setWheelMode('diagram')}>{t('sections.diagram')}</button>
                 </div>
               </div>
-              <NakshatraWheel mode={wheelMode} chart={chart} selection={selection} onSelect={setSelection} onHoverPlanet={setHoverPlanet} />
+              <NakshatraWheel mode={wheelMode} chart={chart} selection={selection} onSelect={pick} onHoverPlanet={setHoverPlanet} />
             </section>
             <section className="card" id="planets">
               <div className="card-head"><h3>{t('sections.positions')}</h3></div>
-              <PlanetTable chart={chart} selection={selection} onSelect={setSelection} />
+              <PlanetTable chart={chart} selection={selection} onSelect={pick} />
             </section>
           </div>
 
           {chart.dasha && <DashaCard chart={chart} />}
+
+          {chart.engineContext && (
+            <section className="card" id="junctions">
+              <div className="card-head"><h3>Dasha junctions and double transits</h3><span className="muted">sandhi, chidra and Jupiter with Saturn on each house</span></div>
+              <WhenVisible minHeight={260}>
+                <Suspense fallback={<div className="sky-overlay static">Finding the junctions…</div>}>
+                  <ClassicalTiming key={chart.engineContext.chart.meta.utc} engine={chart.engineContext.engine} chart={chart.engineContext.chart} />
+                </Suspense>
+              </WhenVisible>
+            </section>
+          )}
 
           {chart.engineContext && (
             <section className="card" id="jaimini">
@@ -626,11 +717,22 @@ export default function App() {
           )}
 
           {chart.engineContext && (
+            <section className="card" id="remedies">
+              <div className="card-head"><h3>Remedies</h3><span className="muted">what the tradition prescribes for each afflicted graha, with sources</span></div>
+              <WhenVisible minHeight={500}>
+                <Suspense fallback={<div className="sky-overlay static">Working out the remedies…</div>}>
+                  <RemediesSection key={chart.engineContext.chart.meta.utc} chart={chart.engineContext.chart} />
+                </Suspense>
+              </WhenVisible>
+            </section>
+          )}
+
+          {chart.engineContext && (
             <section className="card timing-host" id="timing">
               <div className="card-head"><h3>{t('sections.timing')}</h3><span className="muted">{t('sections.timingSub')}</span></div>
               <WhenVisible minHeight={600}>
                 <Suspense fallback={<div className="sky-overlay static">{t('sections.timingLoading')}</div>}>
-                  <TimingSection key={chart.engineContext.chart.meta.utc} context={chart.engineContext} name={chart.input.name} />
+                  <TimingSection key={chart.engineContext.chart.meta.utc} context={chart.engineContext} name={chart.input.name} input={chart.input} />
                 </Suspense>
               </WhenVisible>
             </section>
@@ -660,6 +762,7 @@ export default function App() {
                   <RectificationSection
                     key={`${chart.input.date}|${chart.input.latitude}|${chart.input.longitude}`}
                     context={chart.engineContext}
+                    savedEvents={activeTab.events}
                     onApply={(date, time) => { void run({ ...chart.input, date, time }); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                   />
                 </Suspense>
@@ -695,6 +798,13 @@ export default function App() {
       )}
 
       {presenting && chart && <Presenter key={activeTab.id} steps={steps} onStep={showStep} onExit={stopPresent} />}
+      {narrating && chart && !presenting && (
+        <Narrator key={activeTab.id} steps={steps} knowledge={knowledge} onStep={showStep}
+          onClose={() => { setNarrating(false); document.querySelectorAll('.present-focus').forEach((n) => n.classList.remove('present-focus')); }} />
+      )}
+      {exportTab && chart && varga && (
+        <ExportDialog chart={chart} varga={varga} style={style} notes={notes} knowledge={knowledge} initialTab={exportTab} onClose={() => setExportTab(null)} />
+      )}
 
       <footer className="foot muted">
         <p>{t('footer.system', { ayanamsa: ayanamsaName(t, input.ayanamsa) })}</p>
@@ -707,6 +817,8 @@ export default function App() {
           agpl: <a href="https://github.com/destinjones/vedic-astrology/blob/main/LICENSE">AGPL-3.0</a>,
           source: <a href="https://github.com/destinjones/vedic-astrology">{t('footer.getSource')}</a>,
         })}</p>
+        <p>{rich('footer.mapTiles', { osm: <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> })}</p>
+        <TrustFooter />
       </footer>
     </div>
   );

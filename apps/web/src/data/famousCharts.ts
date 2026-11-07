@@ -37,6 +37,36 @@ export interface FamousChart {
   collector?: string;
   sourceUrl?: string;
   note?: string;
+  /**
+   * The day the birth data and the `field` line were last checked against the
+   * source, YYYY-MM-DD. Roles change (a president's term, a new title), so the
+   * card shows this date beside them.
+   */
+  asOf: string;
+}
+
+/** When the whole list was last checked against its sources. A row can carry a later `asOf` of its own. */
+export const FAMOUS_CHECKED = '2026-11-07';
+
+/**
+ * A pre-filled GitHub issue for a wrong birth time, place, source or role.
+ * It names the chart and its current data so the report can be checked.
+ */
+export function famousErrorReportUrl(c: FamousChart): string {
+  const title = `Famous chart correction: ${c.label}`;
+  const body = [
+    `Chart: ${c.label} (${c.id})`,
+    `Data shown: ${c.input.date} ${c.input.time}, ${c.input.place}, Rodden ${c.rodden}`,
+    `Role shown: ${c.field} (as of ${c.asOf})`,
+    `Source shown: ${c.sourceUrl ?? c.source}`,
+    '',
+    'What is wrong:',
+    '',
+    'What it should be, and a link to the source:',
+    '',
+  ].join('\n');
+  const q = new URLSearchParams({ title, body, labels: 'famous-charts' });
+  return `https://github.com/destinjones/vedic-astrology/issues/new?${q}`;
 }
 
 export const COUNTRY_NAMES: Record<FamousCountry, string> = {
@@ -59,7 +89,7 @@ const MEM = 'From the person or their family';
 const NEWS = 'Official announcement reported in the news';
 const BIO = 'Biography';
 
-type Row = Omit<FamousChart, 'input'> & {
+type Row = Omit<FamousChart, 'input' | 'asOf'> & { asOf?: string } & {
   date: string; time: string; place: string; lat: number; lon: number; tz: string; utcOffsetMinutes?: number;
 };
 
@@ -203,8 +233,9 @@ const ROWS: Row[] = [
     rodden: 'A', source: NEWS, collector: 'Dana Holliday', sourceUrl: AT('Prince_Harry,_Duke_of_Sussex') },
 ];
 
-export const FAMOUS_CHARTS: FamousChart[] = ROWS.map(({ date, time, place, lat, lon, tz, utcOffsetMinutes, ...rest }) => ({
+export const FAMOUS_CHARTS: FamousChart[] = ROWS.map(({ date, time, place, lat, lon, tz, utcOffsetMinutes, asOf, ...rest }) => ({
   ...rest,
+  asOf: asOf ?? FAMOUS_CHECKED,
   input: {
     name: rest.label, date, time, place, latitude: lat, longitude: lon, timezone: tz, ayanamsa: 'lahiri',
     ...(utcOffsetMinutes !== undefined ? { utcOffsetMinutes } : {}),

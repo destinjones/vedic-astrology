@@ -96,3 +96,18 @@
   .rect-event-label { grid-column: span 3; }
   .rect-changes { overflow-x: auto; }
 }
+
+/* Saved events, fit matrix and diff view */
+.rect-import { margin: 4px 0 10px; }
+.rect-matrix, .rect-diff { margin-top: 16px; }
+.rect-matrix summary, .rect-diff summary { cursor: pointer; font-weight: 600; }
+.rect-table-wrap { overflow-x: auto; margin-top: 8px; }
+.rect-table-wrap table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.rect-table-wrap th, .rect-table-wrap td { padding: 6px 8px; border-bottom: 1px solid var(--line-soft); text-align: left; vertical-align: top; }
+.rect-table-wrap td.is-best { background: rgba(232, 182, 90, .14); font-weight: 600; }
+.rect-diff-pick { align-items: flex-end; flex-wrap: wrap; }
+.rect-diff-group th { padding-top: 12px; color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.rect-diff tr.is-changed td:not(:first-child) { color: var(--text, inherit); font-weight: 600; }
+.rect-diff tr:not(.is-changed) td { opacity: .65; }
+.rect-diff .good { color: #7fd1a0; }
+.rect-diff .bad { color: #f08a7a; }

@@ -146,7 +146,7 @@ export function QuickSwitch({ commands }: Props) {
 
   return (
     <>
-      <button type="button" className="btn-ghost quick-open" onClick={openPalette} aria-label="Quick switch (Ctrl or Cmd K)" title="Jump to any chart, view or person">
+      <button type="button" className="btn-ghost quick-open" onClick={openPalette} aria-keyshortcuts="Control+K Meta+K" title="Jump to any chart, view or person (Ctrl or Cmd K)">
         <span>Quick switch</span> <Keys shortcut="Mod+K" />
       </button>
 
