@@ -39,6 +39,7 @@ import type {
   VargaPlacement,
 } from './types';
 import { VARGAS, VARGA_IDS, vargaDegree } from './vargas';
+import { SHADBALA_PLANETS, computeStrength, type ShadbalaPlanet, type StrengthPlanetInput } from './strength';
 import {
   addSigns,
   angularDistance,
@@ -96,6 +97,10 @@ const SEFLG_SWIEPH = 2;
 const SEFLG_MOSEPH = 4;
 const SEFLG_SPEED = 256;
 const SEFLG_SIDEREAL = 65536;
+const SEFLG_HELCTR = 8;
+const SEFLG_EQUATORIAL = 2048;
+/** Mean obliquity of the ecliptic (J2000), radians: classical kranti uses a fixed value */
+const OBLIQUITY = (23.4393 * Math.PI) / 180;
 const SE_CALC_RISE = 1;
 const SE_CALC_SET = 2;
 
@@ -231,6 +236,7 @@ function makeEngine(swe: SwissEph): Engine {
       vargas: options.vargas ?? VARGA_IDS,
       dashaLevels: options.dashaLevels ?? 3,
       dashaYearDays: options.dashaYearDays ?? DEFAULT_DASHA_YEAR_DAYS,
+      strength: options.strength ?? true,
     } satisfies ChartMeta_Options;
 
     const { latitude, longitude } = input.place;
@@ -356,6 +362,43 @@ function makeEngine(swe: SwissEph): Engine {
 
     const panchanga = computePanchanga(jd, planets.sun.longitude, planets.moon.longitude, latitude, longitude, timezone, t.utcOffsetMinutes);
 
+    let strength: Chart['strength'];
+    if (opts.strength) {
+      setSid(opts.ayanamsa);
+      const flag = epheFlag(jd) | SEFLG_SPEED;
+      const sunEq = swe.calc_ut(jd, SE_IDS.sun, flag | SEFLG_EQUATORIAL);
+      // Local apparent solar time from the Sun's hour angle
+      const hourAngle = swe.sidtime(jd) * 15 + longitude - sunEq[0];
+      const apparentSolarHours = norm360(hourAngle + 180) / 15;
+      const day = vedicDay(jd, latitude, longitude, apparentSolarHours);
+      const inputs = {} as Record<ShadbalaPlanet, StrengthPlanetInput>;
+      for (const g of SHADBALA_PLANETS) {
+        const trop = planets[g].tropicalLongitude;
+        inputs[g] = {
+          longitude: planets[g].longitude,
+          latitude: planets[g].latitude,
+          tropicalLongitude: trop,
+          declination: (Math.asin(Math.sin(OBLIQUITY) * Math.sin((trop * Math.PI) / 180)) * 180) / Math.PI,
+          helioLongitude:
+            g === 'sun' || g === 'moon' ? undefined : norm360(swe.calc_ut(jd, SE_IDS[g], flag | SEFLG_HELCTR | SEFLG_SIDEREAL)[0]),
+        };
+      }
+      const equalMadhya = opts.houseSystem === 'whole_sign' || opts.houseSystem === 'equal';
+      strength = computeStrength({
+        planets: inputs,
+        nodeSigns: [planets.rahu.sign, planets.ketu.sign],
+        ascendant: hd.asc,
+        midheaven: hd.mc,
+        bhavaMadhya: houses.map((h, i) => (equalMadhya ? norm360(hd.asc + 30 * i) : hd.cusps[i])),
+        houseSigns: houses.map((h) => h.sign),
+        jdUt: jd,
+        ...day,
+        apparentSolarHours,
+        // Civil date (at the birthplace) of the sunrise that opened the Vedic day
+        vedicDayNumber: Math.floor(day.sunrise + 0.5 + t.utcOffsetMinutes / 1440),
+      });
+    }
+
     return {
       meta: {
         name: input.name,
@@ -382,7 +425,38 @@ function makeEngine(swe: SwissEph): Engine {
       vargas,
       dasha,
       panchanga,
+      ...(strength ? { strength } : {}),
     };
+  }
+
+  /**
+   * Sunrise that opened the Vedic day containing jd, the sunset after it and
+   * the next sunrise. Where the Sun does not rise or set (polar day or night),
+   * 06:00 and 18:00 local apparent time stand in.
+   */
+  function vedicDay(jd: number, lat: number, lon: number, apparentHours: number): { sunrise: number; sunset: number; nextSunrise: number } {
+    const approx = jd - (apparentHours - 6) / 24;
+    const fallback = {
+      sunrise: apparentHours >= 6 ? approx : approx - 1,
+      sunset: (apparentHours >= 6 ? approx : approx - 1) + 0.5,
+      nextSunrise: (apparentHours >= 6 ? approx : approx - 1) + 1,
+    };
+    try {
+      const first = sunriseSunset(jd - 1.2, lat, lon).sunrise;
+      if (first === null) return fallback;
+      let sunrise: number = first;
+      for (let i = 0; i < 3; i++) {
+        const next: number | null = sunriseSunset(sunrise + 0.01, lat, lon).sunrise;
+        if (next === null || next > jd) break;
+        sunrise = next;
+      }
+      if (sunrise > jd) return fallback;
+      const after = sunriseSunset(sunrise + 0.01, lat, lon);
+      if (after.sunset === null || after.sunrise === null) return fallback;
+      return { sunrise, sunset: after.sunset, nextSunrise: after.sunrise };
+    } catch {
+      return fallback;
+    }
   }
 
   function computePanchanga(

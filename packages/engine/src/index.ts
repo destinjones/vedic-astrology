@@ -19,6 +19,30 @@ export {
 } from './zodiac';
 export { dateToJd, jdToDate, jdToIso, timezoneAt, localToUtc } from './time';
 export type { ResolvedTime } from './time';
+export {
+  computeStrength,
+  drishtiValue,
+  SHADBALA_PLANETS,
+  SHADBALA_REQUIRED_RUPAS,
+  SHADBALA_COMPONENT_MINIMUMS,
+  NAISARGIKA_BALA,
+  SAPTAVARGA,
+  KALI_EPOCH_JDN,
+} from './strength';
+export type {
+  ShadbalaPlanet,
+  ShadbalaEntry,
+  Shadbala,
+  ShadbalaContext,
+  SthanaBala,
+  KalaBala,
+  BhavaBalaEntry,
+  ChartStrength,
+  StrengthInput,
+  StrengthPlanetInput,
+  SaptavargaId,
+  VargaRelation,
+} from './strength';
 export { geocode } from './geocode';
 export type { GeocodeOptions } from './geocode';
 export * from './constants';
