@@ -4,7 +4,7 @@
  * here is lost and running a restore twice adds nothing new.
  */
 import { importProfiles, type Profile } from './profiles';
-import { MAX_ARCHIVED, MAX_TABS, parseTabs, type Tab, type Workspace } from './tabs';
+import { hasContent, MAX_ARCHIVED, MAX_TABS, parseTabs, type Tab, type Workspace } from './tabs';
 
 export const BACKUP_VERSION = 2;
 
@@ -47,7 +47,7 @@ export function restoreAll(ws: Workspace, profiles: Profile[], text: string): Re
   const incomingClosed = fresh(parseTabs(data.workspace?.archived, MAX_ARCHIVED));
 
   // empty placeholder tabs here make way for restored ones
-  const keep = ws.tabs.filter((t) => t.input || t.notes.trim() || t.log.length);
+  const keep = ws.tabs.filter(hasContent);
   const room = Math.max(0, MAX_TABS - keep.length);
   const open = [...keep, ...incomingOpen.slice(0, room)];
   const archived = [...incomingOpen.slice(room), ...incomingClosed, ...ws.archived].slice(0, MAX_ARCHIVED);

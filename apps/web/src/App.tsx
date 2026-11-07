@@ -7,6 +7,7 @@ import { ChartActions, SavedCharts } from './components/Profiles';
 import { TabBar } from './components/TabBar';
 import { Presenter } from './components/Presenter';
 import { buildSteps, type Step } from './lib/walkthrough';
+import { loadEvents } from './lib/lifeEvents';
 import { blankTab, hasContent, labelFor, loadWorkspace, MAX_ARCHIVED, MAX_TABS, storeWorkspace, type Tab, type Workspace } from './lib/tabs';
 import { backupFileName, downloadText, exportAll, restoreAll } from './lib/backup';
 import { ClientHistory } from './components/ClientHistory';
@@ -135,7 +136,7 @@ export default function App() {
     try {
       const c = await computeChart(i);
       charts.current.set(tabId, c);
-      setWs((w) => ({ ...w, tabs: w.tabs.map((t) => (t.id === tabId ? { ...t, input: i, label: t.named ? t.label : labelFor(i) } : t)) }));
+      setWs((w) => ({ ...w, tabs: w.tabs.map((t) => (t.id === tabId ? { ...t, input: i, label: t.named ? t.label : labelFor(i), events: t.events.length ? t.events : loadEvents(i) } : t)) }));
       // the person moved to another tab while this one was working
       if (tabId !== wsRef.current.activeId) return;
       // a share link in the address bar stays only while its own chart is open
@@ -570,7 +571,13 @@ export default function App() {
               <div className="card-head"><h3>Life event checker</h3><span className="muted">what was running when something happened</span></div>
               <WhenVisible minHeight={260}>
                 <Suspense fallback={<div className="sky-overlay static">Loading…</div>}>
-                  <EventChecker key={chart.engineContext.chart.meta.utc} context={chart.engineContext} input={chart.input} />
+                  <EventChecker
+                    key={chart.engineContext.chart.meta.utc}
+                    context={chart.engineContext}
+                    input={chart.input}
+                    events={activeTab.events}
+                    onChange={(events) => patchTab(activeTab.id, { events })}
+                  />
                 </Suspense>
               </WhenVisible>
             </section>

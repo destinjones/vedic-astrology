@@ -5,7 +5,7 @@ import {
 } from '@vedic/timing';
 import { lifeEventContext } from '@vedic/timing/engine';
 import type { BirthInput, Chart } from '../types/chart';
-import { loadEvents, newEventId, saveEvents, sortEvents } from '../lib/lifeEvents';
+import { newEventId, sortEvents } from '../lib/lifeEvents';
 
 type Ctx = ReturnType<typeof lifeEventContext>;
 
@@ -37,8 +37,15 @@ const toDraft = (e: LifeEvent): Draft => ({
   date: e.precision === 'year' ? e.date.slice(0, 4) : e.precision === 'month' ? e.date.slice(0, 7) : e.date,
 });
 
-export default function EventChecker({ context, input }: { context: NonNullable<Chart['engineContext']>; input: BirthInput }) {
-  const [events, setEvents] = useState<LifeEvent[]>(() => loadEvents(input));
+interface Props {
+  context: NonNullable<Chart['engineContext']>;
+  input: BirthInput;
+  /** This person's events, stored on their tab. */
+  events: LifeEvent[];
+  onChange: (events: LifeEvent[]) => void;
+}
+
+export default function EventChecker({ context, input, events, onChange }: Props) {
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [editing, setEditing] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
@@ -57,7 +64,7 @@ export default function EventChecker({ context, input }: { context: NonNullable<
   const birthDate = input.date;
   const today = new Date().toISOString().slice(0, 10);
 
-  const commit = (list: LifeEvent[]) => { const s = sortEvents(list); setEvents(s); saveEvents(input, s); };
+  const commit = (list: LifeEvent[]) => onChange(sortEvents(list));
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();

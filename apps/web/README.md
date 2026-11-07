@@ -23,8 +23,9 @@ Everything a person enters stays in `localStorage`; there are no accounts and no
 
 | Key | Holds |
 | --- | --- |
-| `vedic.tabs.v1` | `Workspace` from `src/lib/tabs.ts`: `{ tabs, activeId, archived }`. Each `Tab` carries its `input`, `notes`, `log`, and view settings. Read and write through `loadWorkspace` / `storeWorkspace` and add new per-person fields to `Tab` with a parser branch in `parseTab`. |
+| `vedic.tabs.v1` | `Workspace` from `src/lib/tabs.ts`: `{ tabs, activeId, archived }`. Each `Tab` carries its `input`, `notes`, `log`, `events` (life events for the event checker), and view settings. Read and write through `loadWorkspace` / `storeWorkspace` and add new per-person fields to `Tab` with a parser branch in `parseTab`. |
 | `vedic.profiles.v1` | Saved charts, `Profile[]`. |
+| `vedic.lifeEvents.v1` | Legacy, read only: life events keyed by birth details, from before they moved onto `Tab.events`. A tab with no `events` field picks its events up from here once. |
 | `vedic.lastInput` | The last birth details entered, to prefill the form. |
 
 Share links look like `app/#n=Asha&d=1985-03-02&t=14:20&p=Pondicherry&lat=11.9416&lon=79.8083&tz=Asia/Kolkata` (`ay=` only when not Lahiri). Opening one opens or switches to its tab, then clears the fragment.
