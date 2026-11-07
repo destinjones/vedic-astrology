@@ -10,6 +10,7 @@ import { VargaSwitcher } from '../components/VargaSwitcher';
 import type { ChartOverlay } from '../components/chartShared';
 import { NAKSHATRAS, PLANETS, PLANET_BY_ID, signInfo } from '../data/constants';
 import { dignityOf, dignityTone, getVarga, houseOf, ordinal } from '../lib/astro';
+import { TrustFooter } from '../trust/TrustFooter';
 import {
   COUNTRY_NAMES, birthParams, compareHash, famousCharts, parseCompareHash, parsePastedLink, sameBirth, savedCharts,
   toChartInput, type SourceChart,
@@ -197,6 +198,7 @@ export default function CompareApp() {
       <footer className="foot muted">
         <p>Sidereal zodiac · whole-sign houses. Synastry readings are for reflection, not a verdict on any relationship.</p>
         <p>Your birth details stay in this browser; the page link carries them in the part after #, which is never sent to a server. Free software under <a href="https://github.com/destinjones/vedic-astrology/blob/main/LICENSE">AGPL-3.0</a>: <a href="https://github.com/destinjones/vedic-astrology">get the source</a>.</p>
+        <TrustFooter />
       </footer>
     </div>
   );

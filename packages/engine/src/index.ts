@@ -101,3 +101,5 @@ export type {
   MuhurtaDay,
   MuhurtaResult,
 } from './muhurta';
+export { parseLongitude, parsePositionTable, deltaArcminutes } from './interop';
+export type { InteropBody, PastedPosition } from './interop';

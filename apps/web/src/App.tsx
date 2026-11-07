@@ -31,12 +31,13 @@ import { YogaDoshaCard } from './components/YogaDoshaCard';
 import { StrengthSection } from './components/StrengthSection';
 import { ReportActions } from './components/ReportActions';
 import { FamousCharts } from './components/FamousCharts';
-import { FAMOUS_CHARTS, famousChartById, RODDEN_MEANING } from './data/famousCharts';
+import { FAMOUS_CHARTS, famousChartById, famousErrorReportUrl, RODDEN_MEANING } from './data/famousCharts';
 import { loadKnowledge, type Knowledge } from './lib/readings';
 import { useI18n } from './i18n';
 import { ayanamsaName } from './i18n/names';
 import { LOCALE_BY_CODE } from '@vedic/i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { TrustFooter } from './trust/TrustFooter';
 
 const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
@@ -520,6 +521,10 @@ export default function App() {
                     ? <a className="muted" href={famous.sourceUrl} target="_blank" rel="noopener noreferrer">{famous.source}</a>
                     : <span className="muted">{famous.source}</span>}
                 </b>
+                <span className="summary-sub muted">
+                  {famous.field}, as of {famous.asOf} ·{' '}
+                  <a href={famousErrorReportUrl(famous)} target="_blank" rel="noopener noreferrer">Report an error</a>
+                </span>
               </div>
             )}
           </section>
@@ -670,6 +675,8 @@ export default function App() {
           agpl: <a href="https://github.com/destinjones/vedic-astrology/blob/main/LICENSE">AGPL-3.0</a>,
           source: <a href="https://github.com/destinjones/vedic-astrology">{t('footer.getSource')}</a>,
         })}</p>
+        <p>{rich('footer.mapTiles', { osm: <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> })}</p>
+        <TrustFooter />
       </footer>
     </div>
   );

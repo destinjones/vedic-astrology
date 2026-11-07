@@ -4,6 +4,7 @@ import type { BirthInput } from '../types/chart';
 import { BirthForm } from '../components/BirthForm';
 import { computeChart } from '../engine';
 import { ART, grahaArt } from '../data/art';
+import { TrustFooter } from '../trust/TrustFooter';
 
 type Seat = 'a' | 'b';
 
@@ -150,6 +151,7 @@ export default function MatchApp() {
         <p>Sidereal zodiac · {people.a?.ayanamsa ?? 'lahiri'} ayanamsa · North Indian Ashtakoota tables</p>
         <p>Matching is a traditional practice, not a science, and a score cannot tell you whether a relationship will work. Use it for reflection and conversation, never as the only reason for a decision.</p>
         <p>Both sets of birth details stay in this browser. Free software under <a href="https://github.com/destinjones/vedic-astrology/blob/main/LICENSE">AGPL-3.0</a>: <a href="https://github.com/destinjones/vedic-astrology">get the source</a>.</p>
+        <TrustFooter />
       </footer>
     </div>
   );
