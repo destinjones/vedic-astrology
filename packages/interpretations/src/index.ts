@@ -26,5 +26,6 @@ export type { LocaleOptions } from './i18n/context';
 export type { ContentPack, PlacementText, ReadingText } from './i18n/pack';
 export { EN_PHRASES } from './i18n/phrases';
 export type { Phrases } from './i18n/phrases';
+export * from './rule-builder';
 export { findingLedger, diffFindings, FINDING_ID_VERSION } from './findings';
 export type { Finding, FindingKind, FindingLedger, FindingDiff } from './findings';

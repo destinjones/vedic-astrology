@@ -41,6 +41,9 @@ import { useI18n } from './i18n';
 import { ayanamsaName } from './i18n/names';
 import { LOCALE_BY_CODE } from '@vedic/i18n';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { DisplaySettings } from './components/DisplaySettings';
+import { ChartTable } from './components/ChartTable';
+import { setDisplay, useDisplay } from './lib/display';
 import { trackEvent, trackOnce } from './lib/analytics';
 import { TrustFooter } from './trust/TrustFooter';
 
@@ -120,6 +123,7 @@ export default function App() {
   // a chart from the famous charts library shows where its birth data comes from
   const famous = chart ? FAMOUS_CHARTS.find((f) => sameBirth(f.input, chart.input)) ?? null : null;
   const { t, rich, v, locale } = useI18n();
+  const display = useDisplay();
 
   useEffect(() => { storeWorkspace(ws); }, [ws]);
   const patchTab = (id: string, patch: Partial<Tab>) =>
@@ -412,6 +416,7 @@ export default function App() {
 
   return (
     <div className={`app ${presenting ? 'is-presenting' : ''}`}>
+      <a className="skip-link" href={chart ? '#chart' : '#intake'}>{chart ? 'Skip to the chart' : 'Skip to the birth details'}</a>
       <div
         className={`backdrop ${chart ? 'backdrop-cosmos' : 'backdrop-hero'}`}
         aria-hidden
@@ -432,6 +437,8 @@ export default function App() {
         <div className="topbar-actions">
           <QuickSwitch commands={commands} />
           <LanguageSwitcher />
+          <DisplaySettings />
+          <a className="btn-ghost" href={`${import.meta.env.BASE_URL}study/`}>Study</a>
           <button className="btn-ghost" aria-expanded={showFamous} onClick={() => setShowFamous((v) => !v)}>Famous charts</button>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`}>Compare charts</a>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}match/`}>Compatibility</a>
@@ -559,6 +566,9 @@ export default function App() {
               </div>
               <VargaSwitcher value={vargaId} onChange={setVargaId} />
               {chart.engineContext && vargaId === 'D1' && <ChalitControl mode={houseMode} onChange={setHouseMode} chalit={chalit} />}
+              {display.chartTable ? (
+                <ChartTable chart={chart} varga={varga} selection={selection} onSelect={pick} />
+              ) : (
               <div className="chart-stage" onMouseLeave={() => setHoverPlanet(null)}>
                 {style === 'north' ? (
                   <NorthChart chart={chart} varga={varga} selection={selection} hoverPlanet={hoverPlanet} onSelect={pick} onHoverPlanet={setHoverPlanet} />
@@ -566,7 +576,14 @@ export default function App() {
                   <SouthChart chart={chart} varga={varga} selection={selection} hoverPlanet={hoverPlanet} onSelect={pick} onHoverPlanet={setHoverPlanet} />
                 )}
               </div>
+              )}
               <p className="legend muted">{t('chart.legend')}</p>
+              <p className="chart-keys">
+                {!display.chartTable && <>Keyboard: <kbd>Tab</kbd> into the chart, arrows move between houses (<kbd>Page Down</kbd> goes in number order), <kbd>Enter</kbd> opens, <kbd>Tab</kbd> again reaches the planets. </>}
+                <button type="button" className="link-btn" onClick={() => setDisplay({ chartTable: !display.chartTable })}>
+                  {display.chartTable ? 'Show the chart drawing' : 'Show as a table'}
+                </button>
+              </p>
             </section>
 
             <aside className="card detail-card" id="details" aria-live="polite">

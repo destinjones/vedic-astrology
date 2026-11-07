@@ -5,6 +5,7 @@ import { dirname, extname, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, runnerImport, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
+import { textScale } from './textScale.ts'
 
 const require = createRequire(import.meta.url)
 
@@ -156,11 +157,13 @@ export default defineConfig(async () => ({
   // GitHub Pages serves the site from /vedic-astrology/; the workflow sets VITE_BASE.
   base: process.env.VITE_BASE ?? '/',
   plugins: [react(), swissEphAssets(), cosmosAssets(), learnPagesPlugin()],
+  // the reader's text-size setting scales every font size (see textScale.ts)
+  css: { postcss: { plugins: [textScale()] } },
   build: {
     rollupOptions: {
       input: { landing: join(here, 'index.html'), app: join(here, 'app/index.html'), compare: join(here, 'compare/index.html'), match: join(here, 'match/index.html'), tools: join(here, 'tools/index.html'),
         privacy: join(here, 'privacy/index.html'), howItWorks: join(here, 'how-it-works/index.html'), check: join(here, 'check/index.html'),
-        learn: join(here, 'src/learn/style.ts'),
+        learn: join(here, 'src/learn/style.ts'), study: join(here, 'study/index.html'),
       },
     },
   },
