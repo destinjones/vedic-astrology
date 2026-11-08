@@ -10,6 +10,7 @@ import { buildSteps, type Step } from './lib/walkthrough';
 import { loadEvents } from './lib/lifeEvents';
 import { blankTab, hasContent, labelFor, loadWorkspace, MAX_ARCHIVED, MAX_TABS, storeWorkspace, type Tab, type Workspace } from './lib/tabs';
 import { backupFileName, downloadText, exportAll, restoreAll } from './lib/backup';
+import { storeLinks } from './lib/family';
 import { ClientHistory } from './components/ClientHistory';
 import { loadProfiles, parseShareHash, sameBirth, storeProfiles, upsertProfile, type Profile } from './lib/profiles';
 import { NorthChart } from './components/NorthChart';
@@ -293,6 +294,11 @@ export default function App() {
     switchTab(tab.id);
   };
   const forgetTab = (tab: Tab) => setWs((w) => ({ ...w, archived: w.archived.filter((t) => t.id !== tab.id) }));
+  /** The family page, opened on this chart when it is saved. */
+  const familyHref = () => {
+    const saved = chart && profiles.find((p) => sameBirth(p.input, chart.input));
+    return `${import.meta.env.BASE_URL}family/${saved ? `#p=${encodeURIComponent(saved.id)}` : ''}`;
+  };
   const backup = () => downloadText(exportAll(wsRef.current, profiles), backupFileName());
   const restore = (text: string, sync = false) => {
     try {
@@ -300,8 +306,9 @@ export default function App() {
       wsRef.current = r.ws;
       setWs(r.ws);
       saveProfiles(r.profiles);
+      storeLinks(r.family);
       if (sync) return `Merged ${r.tabsAdded} new tab${r.tabsAdded === 1 ? '' : 's'} and ${r.chartsAdded} new saved chart${r.chartsAdded === 1 ? '' : 's'}, and joined notes and history on the rest.`;
-      if (!r.tabsAdded && !r.chartsAdded) return 'Everything in that backup is already here.';
+      if (!r.tabsAdded && !r.chartsAdded && !r.linksAdded) return 'Everything in that backup is already here.';
       return `Restored ${r.tabsAdded} tab${r.tabsAdded === 1 ? '' : 's'} and ${r.chartsAdded} saved chart${r.chartsAdded === 1 ? '' : 's'}.`;
     } catch {
       return 'That file is not a Jyotisha Explorer backup.';
@@ -430,6 +437,7 @@ export default function App() {
       run: () => openInTab(pr.input),
     })),
     { id: 'famous', group: 'Tools', title: 'Famous charts library', keywords: 'celebrity public figures india america britain', run: () => { setShowFamous(true); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+    { id: 'family', group: 'Tools', title: 'Family charts: link spouse, children and parents', keywords: 'family relatives spouse children parents siblings linked', run: () => { location.href = familyHref(); } },
     { id: 'compare', group: 'Tools', title: 'Compare charts side by side', keywords: 'side by side two charts compatibility', run: () => { location.href = `${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`; } },
     ...(chart ? [{ id: 'present', group: 'Tools', title: 'Present this chart', keywords: 'full screen walkthrough screen share recording', run: startPresent }] : []),
     ...(chart ? [
@@ -487,6 +495,7 @@ export default function App() {
           <button className="btn-ghost" aria-expanded={showFamous} onClick={() => setShowFamous((v) => !v)}>Famous charts</button>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`}>Compare charts</a>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}match/`}>Compatibility</a>
+          <a className="btn-ghost" href={familyHref()}>Family charts</a>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}tools/`}>KP · Prashna · Muhurta</a>
           {chart && (
             <>
