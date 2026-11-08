@@ -10,7 +10,7 @@ import { LOCALE_SCRIPT, scriptsIn } from './indic';
 import { registeredSections, FULL_REPORT } from './registry';
 import { roman } from './theme';
 import { longDate } from './format';
-import type { Brand, ReportContext, ReportSection } from './types';
+import { brandFooter, type Brand, type ReportContext, type ReportSection } from './types';
 import { cover, drawContents, reserveContents, welcome } from './sections/front';
 import { glance } from './sections/glance';
 import { grahas } from './sections/grahas';
@@ -40,8 +40,10 @@ const BUILTIN: ReportSection[] = [
 export interface ReportOptions {
   /** Section ids to include, in any order. Defaults to the full report. */
   sections?: string[];
-  /** Consultation export: the astrologer's name and logo on the cover and every page. */
+  /** The astrologer's name, practice, contact and logo, on the cover and at the foot of every page. */
   brand?: Brand;
+  /** A consultation export: a short client summary, branded, with no general welcome page. */
+  consultation?: boolean;
   /** Personal note printed after the cover. */
   note?: string;
   onProgress?: (message: string) => void;
@@ -84,7 +86,7 @@ export async function generateReport(chart: Chart, opts: ReportOptions = {}): Pr
   say('Preparing the artwork…');
   const pdf = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
   // fonts for the language's script, and for any other script in what the person typed
-  const scripts = scriptsIn(chart.input.name, chart.input.place, opts.note, opts.brand?.name, opts.brand?.tagline, opts.brand?.contact);
+  const scripts = scriptsIn(chart.input.name, chart.input.place, opts.note, opts.brand?.name, opts.brand?.practice, opts.brand?.tagline, opts.brand?.contact);
   const own = opts.locale ? LOCALE_SCRIPT[opts.locale] : undefined;
   if (own) scripts.add(own);
   const [art, indic] = await Promise.all([loadArt(chart.ascendant.longitude), registerFonts(pdf, scripts)]);
@@ -92,15 +94,16 @@ export async function generateReport(chart: Chart, opts: ReportOptions = {}): Pr
   const name = chart.input.name?.trim() || longDate(chart.input.date);
   const ctx: ReportContext = {
     chart, engine, engineChart: ec, report, getNakshatra, dashas, timeline, art, now, name,
-    brand: opts.brand?.name ? opts.brand : undefined, note: opts.note, glossary: new Map(),
+    brand: opts.brand?.name?.trim() ? opts.brand : undefined, consultation: !!opts.consultation, note: opts.note, glossary: new Map(),
   };
-  const doc = new ReportDoc(pdf, ctx.brand ? `${ctx.brand.name}  ·  for ${name}` : `${chart.input.name?.trim() ? name : 'Birth chart'}  ·  Vedic birth chart`, indic);
+  const doc = new ReportDoc(pdf, ctx.brand ? `${ctx.brand.name}  ·  for ${name}` : `${chart.input.name?.trim() ? name : 'Birth chart'}  ·  Vedic birth chart`, indic,
+    { footer: ctx.brand ? brandFooter(ctx.brand) : undefined });
 
   say('Laying out the pages…');
   await cover(doc, ctx);
   const contentsPage = reserveContents(doc);
   if (ctx.note) note(doc, ctx);
-  else if (!ctx.brand) welcome(doc, ctx);
+  else if (!ctx.consultation) welcome(doc, ctx);
 
   const sections = [...BUILTIN, ...registeredSections()]
     .filter((s) => wanted.has(s.id) && (s.available?.(ctx) ?? true))
@@ -136,7 +139,7 @@ export function reportFileName(chart: Chart, kind: 'report' | 'consultation' = '
 }
 
 export async function downloadReport(chart: Chart, opts: ReportOptions & { kind?: 'report' | 'consultation' } = {}) {
-  const blob = await generateReport(chart, opts);
+  const blob = await generateReport(chart, { consultation: opts.kind === 'consultation', ...opts });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;

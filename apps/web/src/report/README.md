@@ -2,7 +2,7 @@
 
 The illustrated PDF behind **Download PDF report** and **Consultation export**. It is made entirely in the browser with jsPDF, as its own lazily loaded chunk, so nothing about a person's chart leaves their machine.
 
-- `index.ts`: `generateReport(chart, options)` and `downloadReport`. Options pick the sections, and for a consultation add the astrologer's `brand` (name, tagline, contact, logo) and a personal `note`.
+- `index.ts`: `generateReport(chart, options)` and `downloadReport`. Options pick the sections, add the astrologer's `brand` (name, practice, tagline, contact, logo) and, for a consultation, a personal `note`. The brand comes from the one "Your branding" setting in `src/lib/branding.ts`, which also feeds the yearly PDF (`yearTimeline.ts`) and the Life Chart Book (`book/`). A branded `ReportDoc` prints the name and contact details at the foot of every numbered page.
 - `doc.ts`: a small flow-layout layer (headings, wrapping paragraphs across pages and columns, callouts, tables, chapter openers, running heads and folios).
 - `charts.ts`: vector North and South Indian charts, the Blender wheel with each graha at its longitude, the life weather chart, dasha band and ashtakavarga bars.
 - `assets.ts`: loads the Blender art from `assets/3d` and flattens it to JPEG for the page it sits on.

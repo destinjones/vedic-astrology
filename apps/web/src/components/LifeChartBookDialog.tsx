@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { fromEngineChart, interpretChart } from '@vedic/interpretations';
 import type { Chart, PlanetId } from '../types/chart';
-import type { Brand } from '../report/types';
+import { toBrand, useBranding } from '../lib/branding';
+import { BrandingFields } from './Branding';
 import { BOOK_CHAPTERS, draftKey, emptyDraft, normaliseDraft, type BookDraft } from '../report/book/draft';
 import { PLANET_BY_ID, signInfo } from '../data/constants';
 import { useI18n } from '../i18n';
 
-const BRAND_KEY = 'vedic.consultBrand';
 const IDS: PlanetId[] = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn', 'rahu', 'ketu'];
 const ORD = (n: number) => `${n}${n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th'}`;
 
@@ -22,7 +22,7 @@ const writeJSON = (key: string, v: unknown) => { try { localStorage.setItem(key,
 export default function BookDialog({ chart, onClose }: { chart: Chart; onClose: () => void }) {
   const key = draftKey(chart.input);
   const [draft, setDraft] = useState<BookDraft>(() => normaliseDraft(readJSON(key) ?? emptyDraft()));
-  const [brand, setBrand] = useState<Brand>(() => ({ name: '', tagline: '', contact: '', ...(readJSON(BRAND_KEY) as Brand | null ?? {}) }));
+  const [branding] = useBranding();
   const [tab, setTab] = useState<Tab>('practice');
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +35,6 @@ export default function BookDialog({ chart, onClose }: { chart: Chart; onClose: 
 
   useEffect(() => { dialog.current?.showModal(); }, []);
   useEffect(() => { writeJSON(key, draft); }, [key, draft]);
-  useEffect(() => { writeJSON(BRAND_KEY, brand); }, [brand]);
 
   const set = <K extends keyof BookDraft>(k: K, v: BookDraft[K]) => setDraft((d) => ({ ...d, [k]: v }));
   const note = (k: string) => draft.notes[k] ?? '';
@@ -55,7 +54,7 @@ export default function BookDialog({ chart, onClose }: { chart: Chart; onClose: 
     setDone(null);
     try {
       const { downloadBook } = await import('../report/book');
-      const r = await downloadBook(chart, { draft, brand, locale, onProgress: setBusy });
+      const r = await downloadBook(chart, { draft, brand: toBrand(branding), locale, onProgress: setBusy });
       setDone(r.cover ? `Done: ${r.pages} interior pages and a cover with a ${r.spineMm} mm spine, in one zip.` : `Done: ${r.pages} pages.`);
     } catch (e) {
       console.error(e);
@@ -108,11 +107,8 @@ export default function BookDialog({ chart, onClose }: { chart: Chart; onClose: 
           {tab === 'practice' && (
             <fieldset>
               <legend>Your practice</legend>
-              <p className="muted">Printed on the cover, the title page and beside each of your notes. Leave the name empty for an unbranded book.</p>
-              <label>Name<input value={brand.name} onChange={(e) => setBrand((b) => ({ ...b, name: e.target.value }))} placeholder="e.g. Asha Rao, Jyotishi" /></label>
-              <label>Tagline<input value={brand.tagline ?? ''} onChange={(e) => setBrand((b) => ({ ...b, tagline: e.target.value }))} placeholder="optional" /></label>
-              <label>Contact<input value={brand.contact ?? ''} onChange={(e) => setBrand((b) => ({ ...b, contact: e.target.value }))} placeholder="website, email or phone (optional)" /></label>
-              {brand.logo && <p className="muted">Your logo from the consultation export is used on the cover.</p>}
+              <p className="muted">Printed on the cover, the title page, beside each of your notes and at the foot of every page. Leave your name empty for an unbranded book. This is the same branding as your other PDFs.</p>
+              <BrandingFields showEveryPdf={false} />
               <label>Book title<input value={draft.title} onChange={(e) => set('title', e.target.value)} /></label>
             </fieldset>
           )}
