@@ -18,8 +18,3 @@ createRoot(document.getElementById('root')!).render(
     </I18nProvider>
   </StrictMode>,
 )
-
-// works offline once opened, and offers a reload when a new version is out (see lib/offline.ts);
-// loaded after the page, so it adds nothing to the first load
-// a navigation while it loads cancels the import; that is not an error worth reporting
-void import('../lib/offline').then((m) => m.initOffline(), () => {})
