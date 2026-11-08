@@ -24,7 +24,7 @@ import {
   ordinal,
 } from '@vedic/timing';
 import { WATCH_KINDS, houseFacts, natalPromise, placementPhrase, type HouseFacts, type Point } from './areas';
-import { isoDay, joinList, monthYear, subPeriods, type ConsultContext } from './context';
+import { joinList, monthYear, subPeriods, type ConsultContext } from './context';
 
 export interface QuestionTopic {
   id: string;
@@ -219,4 +219,3 @@ export function windowLine(w: TimingWindow, house?: number): string {
   return `${monthYear(w.start)} – ${monthYear(w.end)} (${w.strength}): ${w.path[0]}–${w.path[1]}${w.doubleTransit ? `, with the double transit${house ? ` on the ${ordinal(house)}` : ''}` : ''}`;
 }
 
-export const windowIso = (w: TimingWindow) => `${isoDay(w.start)}/${isoDay(w.end)}`;

@@ -105,6 +105,15 @@ describe('talking points', () => {
     expect(career.promise[0].text).toMatch(/^Your 10th \(.+\) lord: (Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn) is /);
   });
 
+  it('labels health and loss windows as periods to watch', () => {
+    const [health, career] = talkingPoints(ctx, ['health', 'career']);
+    expect(health.watch).toBe(true);
+    expect(career.watch).toBe(false);
+    for (const p of health.next) if (health.windows.length) expect(p.tone).toBe('hard');
+    expect(talkingPointsText('Sample', [health])).toContain('Period to watch');
+    expect(answerQuestion(ctx, 'How do I clear my loan debts')!.watch).toBe(true);
+  });
+
   it('renders as plain text', () => {
     const txt = talkingPointsText('Sample', talkingPoints(ctx, ['marriage', 'money']));
     expect(txt).toContain('MARRIAGE AND PARTNERSHIP');
