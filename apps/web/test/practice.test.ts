@@ -3,7 +3,7 @@ import { exportAll, mergeTab, restoreAll } from '../src/lib/backup';
 import { parseTab, type Tab, type Workspace } from '../src/lib/tabs';
 import {
   allPredictions, dueForCheck, draftInvoice, invoiceTotals, parseInvoices, parsePractice, parseRemedies, predictionsCsv, safeLink, scheduleCheckIns, score,
-  blankPractice, type RemedyPlan,
+  blankPractice, mergePractice, type RemedyPlan,
 } from '../src/lib/practice';
 import { invoiceHtml, remedyChecklistHtml } from '../src/lib/practicePrint';
 
@@ -105,5 +105,14 @@ describe('backup and sync', () => {
     expect(m.invoices?.[0].status).toBe('paid');
     expect(m.remedies?.checkIns[0]).toMatchObject({ status: 'done', note: 'daily' });
     expect(mergeTab(m, there).remedies?.checkIns).toHaveLength(2);
+  });
+  it('joins practice details from another device without losing local ones', () => {
+    const here = { ...blankPractice(), nextInvoice: 3, business: { ...blankPractice().business, name: 'Jyoti' }, packages: [{ id: 'a', name: 'Reading', description: '', price: 10, sessions: 1 }] };
+    const there = { ...blankPractice(), nextInvoice: 9, business: { ...blankPractice().business, name: 'Other', paymentLink: 'https://pay.example/j' }, packages: [{ id: 'a', name: 'Changed', description: '', price: 99, sessions: 1 }, { id: 'b', name: 'Package', description: '', price: 20, sessions: 3 }] };
+    const m = mergePractice(here, there);
+    expect(m.business.name).toBe('Jyoti');
+    expect(m.business.paymentLink).toBe('https://pay.example/j');
+    expect(m.packages.map((p) => `${p.id}:${p.name}`)).toEqual(['a:Reading', 'b:Package']);
+    expect(m.nextInvoice).toBe(9);
   });
 });
