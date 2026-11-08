@@ -25,6 +25,21 @@ export interface LogEntry {
   outcome?: Outcome;
 }
 
+/** A session held with the client, for the client list. */
+export interface Reading {
+  id: string;
+  /** YYYY-MM-DD */
+  date: string;
+  summary: string;
+}
+
+/** When to get back in touch, and why. */
+export interface FollowUp {
+  /** YYYY-MM-DD */
+  date: string;
+  note?: string;
+}
+
 export interface Tab {
   id: string;
   label: string;
@@ -42,6 +57,10 @@ export interface Tab {
   named?: boolean;
   /** Notes pinned to houses and planets of this chart. */
   annotations?: Annotation[];
+  /** Sessions held, newest first. */
+  readings?: Reading[];
+  /** Next time to contact this client. */
+  followUp?: FollowUp;
 }
 
 export interface Workspace {
@@ -54,7 +73,8 @@ export interface Workspace {
 
 export const MAX_ARCHIVED = 500;
 /** A tab worth keeping when it is closed. */
-export const hasContent = (t: Tab) => !!t.input || !!t.notes.trim() || t.log.length > 0 || t.events.length > 0 || !!t.annotations?.length;
+export const hasContent = (t: Tab) =>
+  !!t.input || !!t.notes.trim() || t.log.length > 0 || t.events.length > 0 || !!t.annotations?.length || !!t.readings?.length || !!t.followUp;
 
 const KEY = 'vedic.tabs.v1';
 export const MAX_TABS = 24;
@@ -87,6 +107,34 @@ function parseLog(raw: unknown): LogEntry[] {
   return out;
 }
 
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+const isDay = (v: unknown): v is string => typeof v === 'string' && DAY_RE.test(v) && !Number.isNaN(Date.parse(v));
+
+export function parseReadings(raw: unknown): Reading[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const out: Reading[] = [];
+  for (const e of raw.slice(0, 1000)) {
+    if (!e || typeof e !== 'object') continue;
+    const r = e as Record<string, unknown>;
+    if (!isDay(r.date)) continue;
+    out.push({
+      id: typeof r.id === 'string' && r.id ? r.id.slice(0, 64) : newTabId(),
+      date: r.date,
+      summary: typeof r.summary === 'string' ? r.summary.slice(0, 5000) : '',
+    });
+  }
+  out.sort((a, b) => b.date.localeCompare(a.date));
+  return out.length ? out : undefined;
+}
+
+export function parseFollowUp(raw: unknown): FollowUp | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const r = raw as Record<string, unknown>;
+  if (!isDay(r.date)) return undefined;
+  const note = typeof r.note === 'string' && r.note.trim() ? r.note.slice(0, 500) : undefined;
+  return { date: r.date, ...(note ? { note } : {}) };
+}
+
 /** Reads one stored or imported tab; null when it is not a tab. */
 export function parseTab(t: unknown, n: number): Tab | null {
   if (!t || typeof t !== 'object') return null;
@@ -104,6 +152,8 @@ export function parseTab(t: unknown, n: number): Tab | null {
     varga: typeof r.varga === 'string' && /^D\d{1,2}$/.test(r.varga) ? (r.varga as VargaId) : undefined,
     named: r.named === true,
     annotations: Array.isArray(r.annotations) && r.annotations.length ? parseAnnotations(r.annotations) : undefined,
+    readings: parseReadings(r.readings),
+    followUp: parseFollowUp(r.followUp),
   };
 }
 

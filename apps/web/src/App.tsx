@@ -8,7 +8,9 @@ import { TabBar } from './components/TabBar';
 import { Presenter } from './components/Presenter';
 import { buildSteps, type Step } from './lib/walkthrough';
 import { loadEvents } from './lib/lifeEvents';
-import { blankTab, hasContent, labelFor, loadWorkspace, MAX_ARCHIVED, MAX_TABS, storeWorkspace, type Tab, type Workspace } from './lib/tabs';
+import { blankTab, hasContent, labelFor, loadWorkspace, MAX_ARCHIVED, MAX_TABS, newTabId, storeWorkspace, type Tab, type Workspace } from './lib/tabs';
+import type { ClientRow } from './lib/clients';
+import type { ClientPatch } from './components/ClientManager';
 import { backupFileName, downloadText, exportAll, restoreAll } from './lib/backup';
 import { ClientHistory } from './components/ClientHistory';
 import { loadProfiles, parseShareHash, sameBirth, storeProfiles, upsertProfile, type Profile } from './lib/profiles';
@@ -66,6 +68,7 @@ const RectificationSection = lazy(() => import('./components/RectificationSectio
 const VarshaphalSection = lazy(() => import('./components/VarshaphalSection'));
 const SkyEvents = lazy(() => import('./components/SkyEvents'));
 const Personal = lazy(() => import('./personal/Personal'));
+const ClientManager = lazy(() => import('./components/ClientManager'));
 const ClassicalTiming = lazy(() => import('./components/ClassicalTiming').then((m) => ({ default: m.ClassicalTiming })));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
@@ -129,6 +132,7 @@ export default function App() {
   const [presenting, setPresenting] = useState(false);
   const [showFamous, setShowFamous] = useState(false);
   const [showBatch, setShowBatch] = useState(false);
+  const [showClients, setShowClients] = useState(false);
   const [exportTab, setExportTab] = useState<ExportTab | null>(null);
   const [annotating, setAnnotating] = useState(false);
   const [focusNote, setFocusNote] = useState<string | null>(null);
@@ -292,6 +296,26 @@ export default function App() {
     setWs(wsRef.current);
     switchTab(tab.id);
   };
+  /** Opens a client from the client list: its tab, its closed tab, or its saved chart. */
+  const openClient = (row: ClientRow) => {
+    setShowClients(false);
+    if (row.where === 'open') switchTab(row.key);
+    else if (row.where === 'closed' && row.tab) reopenTab(row.tab);
+    else if (row.input) openInTab(row.input);
+  };
+  /** Readings and follow-ups for a client. A saved chart with no tab gets a closed tab to keep them in. */
+  const patchClient = (row: ClientRow, patch: ClientPatch) => {
+    const w = wsRef.current;
+    const apply = (t: Tab) => (t.id === row.key ? { ...t, ...patch } : t);
+    if (row.where === 'saved') {
+      if (!row.input) return;
+      const tab: Tab = { id: newTabId(), label: row.label, input: row.input, notes: '', log: [], events: loadEvents(row.input), named: true, ...patch };
+      wsRef.current = { ...w, archived: [tab, ...w.archived].slice(0, MAX_ARCHIVED) };
+    } else {
+      wsRef.current = { ...w, tabs: w.tabs.map(apply), archived: w.archived.map(apply) };
+    }
+    setWs(wsRef.current);
+  };
   const forgetTab = (tab: Tab) => setWs((w) => ({ ...w, archived: w.archived.filter((t) => t.id !== tab.id) }));
   const backup = () => downloadText(exportAll(wsRef.current, profiles), backupFileName());
   const restore = (text: string, sync = false) => {
@@ -440,6 +464,7 @@ export default function App() {
       { id: 'notes', group: 'Tools', title: 'Pin notes to the chart', keywords: 'annotate annotation note house planet', run: () => { setAnnotating(true); jumpTo('chart'); } },
       ...(speechSupported() ? [{ id: 'listen', group: 'Tools', title: 'Listen to this chart read aloud', keywords: 'audio narration speak voice read', run: () => setNarrating(true) }] : []),
     ] : []),
+    { id: 'clients', group: 'Clients', title: 'Client list and upcoming alerts', keywords: 'clients follow up readings predictions dasha transit alerts reminders', run: () => { setShowClients(true); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
     { id: 'backup', group: 'Tools', title: 'Back up all tabs and charts', keywords: 'export download file save', run: backup },
     { id: 'data', group: 'Tools', title: 'Import, export and encrypted sync', keywords: 'csv json aaf jhd jagannatha astro.com astrodatabank paste bulk sync devices passphrase', run: () => { setEditing(true); requestAnimationFrame(() => { const d = document.getElementById('data-tools') as HTMLDetailsElement | null; if (d) { d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }); } },
     ...(profiles.length > 1 ? [{ id: 'batch', group: 'Tools', title: 'Batch view of all saved charts', keywords: 'clients table list overview', run: () => setShowBatch(true) }] : []),
@@ -483,6 +508,7 @@ export default function App() {
           <QuickSwitch commands={commands} />
           <LanguageSwitcher />
           <DisplaySettings />
+          <button className="btn-ghost" aria-expanded={showClients} onClick={() => setShowClients((x) => !x)} title="Your clients, their readings and follow-ups, and dasha and transit alerts coming up">Clients</button>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}study/`}>Study</a>
           <button className="btn-ghost" aria-expanded={showFamous} onClick={() => setShowFamous((v) => !v)}>Famous charts</button>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`}>Compare charts</a>
@@ -518,6 +544,22 @@ export default function App() {
 
       {!chart && busy && activeTab.input && (
         <div className="card tab-loading" role="status">Opening {activeTab.label}'s chart…</div>
+      )}
+
+      {showClients && !presenting && (
+        <Suspense fallback={<div className="card tab-loading" role="status">Opening the client list…</div>}>
+          <ClientManager
+            ws={ws}
+            profiles={profiles}
+            busy={busy}
+            onOpen={openClient}
+            onPatch={patchClient}
+            onNew={() => { setShowClients(false); newTab(); requestAnimationFrame(() => document.querySelector<HTMLInputElement>('.birth-form input')?.focus()); }}
+            onBackup={backup}
+            onRestore={restore}
+            onClose={() => setShowClients(false)}
+          />
+        </Suspense>
       )}
 
       {showBatch && (

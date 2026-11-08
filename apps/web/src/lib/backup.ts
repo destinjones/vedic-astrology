@@ -54,7 +54,10 @@ export function mergeTab(here: Tab, there: Tab): Tab {
   const events = byId(here.events, there.events).sort((a, b) => a.date.localeCompare(b.date));
   const a = here.notes.trim(), b = there.notes.trim();
   const notes = !b || a.includes(b) ? here.notes : !a || b.includes(a) ? there.notes : `${here.notes.trimEnd()}\n\n— from another device —\n${there.notes.trim()}`;
-  return { ...here, log, events, notes, input: here.input ?? there.input };
+  const readings = here.readings || there.readings ? byId(here.readings ?? [], there.readings ?? []).sort((x, y) => y.date.localeCompare(x.date)) : undefined;
+  // a follow-up set on either side is kept; when both have one, the sooner date wins
+  const followUp = !here.followUp ? there.followUp : !there.followUp ? here.followUp : there.followUp.date < here.followUp.date ? there.followUp : here.followUp;
+  return { ...here, log, events, notes, input: here.input ?? there.input, readings, followUp };
 }
 
 /** Merges a backup into what is here. Accepts this format and the older saved-charts-only file. Throws on anything else. */
