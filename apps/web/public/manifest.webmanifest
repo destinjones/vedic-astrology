@@ -1,11 +1,25 @@
 {
+  "id": "./app/",
   "name": "Jyotisha Explorer",
   "short_name": "Jyotisha",
-  "description": "Your full Vedic chart, free: 16 divisional charts, yogas, doshas, a 3D sky and a lifetime timeline.",
-  "start_url": "/vedic-astrology/app/",
-  "scope": "/vedic-astrology/",
+  "description": "Your full Vedic chart, free: 16 divisional charts, yogas, doshas, a 3D sky and a lifetime timeline. Works offline once opened.",
+  "start_url": "./app/",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#0b0a1a",
   "theme_color": "#0b0a1a",
-  "icons": [{ "src": "/vedic-astrology/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+  "categories": ["lifestyle", "education", "reference"],
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Birth chart", "url": "./app/" },
+    { "name": "Compare charts", "url": "./compare/" },
+    { "name": "Match making", "url": "./match/" },
+    { "name": "KP, Prashna and Muhurta", "url": "./tools/" }
+  ]
 }

@@ -40,3 +40,7 @@ fill('translators', data.translators as Person[], 'No one yet. Seven languages a
 const authors = document.getElementById('reading-authors')!;
 if (READING_CREDITS.length) for (const c of READING_CREDITS) authors.append(item(c.name, undefined, `${c.readings} reading${c.readings === 1 ? '' : 's'}: ${c.kinds.map((k) => KINDS[k] ?? k).join(', ')}`));
 else fill('reading-authors', [], 'Be the first: <a href="https://github.com/destinjones/vedic-astrology/blob/main/packages/interpretations/content/README.md">write a nakshatra reading</a>.');
+
+// works offline once opened, and offers a reload when a new version is out (see lib/offline.ts);
+// loaded after the page, so it adds nothing to the first load
+void import('../lib/offline').then((m) => m.initOffline());

@@ -29,3 +29,7 @@ if (!reduce && 'IntersectionObserver' in window) {
   }, { threshold: 0.6 });
   document.querySelectorAll('[data-count]').forEach((el) => io.observe(el));
 }
+
+// works offline once opened, and offers a reload when a new version is out (see lib/offline.ts);
+// loaded after the page, so it adds nothing to the first load
+void import('../lib/offline').then((m) => m.initOffline());

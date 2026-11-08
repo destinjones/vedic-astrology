@@ -43,6 +43,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Site check and accessibility (axe-core)
         run: npm run smoke
+      - name: Installs as an app, works offline, and offers updates
+        run: npm run offline
       - uses: actions/upload-artifact@v7
         with:
           name: site
