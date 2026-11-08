@@ -5,6 +5,9 @@ import type { Brand } from '../report/types';
 import { BOOK_CHAPTERS, draftKey, emptyDraft, normaliseDraft, type BookDraft } from '../report/book/draft';
 import { PLANET_BY_ID, signInfo } from '../data/constants';
 import { useI18n } from '../i18n';
+import { PhraseTools } from '../practice/PhraseTools';
+import { bookTopic, topicKeys } from '../practice/placements';
+import { phrasesFor, usePhrases, withPhrase } from '../practice/store';
 
 const BRAND_KEY = 'vedic.consultBrand';
 const IDS: PlanetId[] = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn', 'rahu', 'ketu'];
@@ -84,8 +87,36 @@ export default function BookDialog({ chart, onClose }: { chart: Chart; onClose: 
     }
   };
 
-  const area = (label: string, k: string, hint: string, rows = 3) => (
-    <label key={k}>{label}<textarea rows={rows} value={note(k)} onChange={(e) => setNote(k, e.target.value)} placeholder={hint} /></label>
+  const phrases = usePhrases();
+  const phraseFound = useMemo(() => found && { yogas: found.yogas, doshas: found.doshas }, [found]);
+  const area = (label: string, k: string, hint: string, rows = 3) => {
+    const topic = bookTopic(k);
+    return (
+      <div key={k} className="book-note">
+        <label>{label}<textarea rows={rows} value={note(k)} onChange={(e) => setNote(k, e.target.value)} placeholder={hint} /></label>
+        {topic && <PhraseTools chart={chart} topics={[topic]} found={phraseFound} value={note(k)} onChange={(v) => setNote(k, v)} compact />}
+      </div>
+    );
+  };
+  /** Every note key on screen in the editor that a saved phrase could fill. */
+  const phraseKeys = () => [
+    'chapter:lagna',
+    ...IDS.map((id) => `graha:${id}`), ...Array.from({ length: 12 }, (_, i) => `house:${i + 1}`),
+    ...(found?.yogas.map((y) => `yoga:${y.id}`) ?? []), ...(found?.doshas.filter((d) => d.present).map((d) => `dosha:${d.id}`) ?? []),
+  ];
+  const fillFromPhrases = () => {
+    let n = 0;
+    const notes = { ...draft.notes };
+    for (const k of phraseKeys()) {
+      if (notes[k]?.trim()) continue;
+      const text = phrasesFor(phrases, topicKeys(chart, bookTopic(k)!, phraseFound)).reduce((acc, p) => withPhrase(acc, p.text), '');
+      if (text) { notes[k] = text; n++; }
+    }
+    set('notes', notes);
+    setDone(n ? `Filled ${n} empty note${n === 1 ? '' : 's'} from your saved phrases.` : 'None of your saved phrases match an empty note.');
+  };
+  const fillButton = phrases.length > 0 && (
+    <button type="button" className="btn-ghost sm book-fill" onClick={fillFromPhrases} title="Fill every empty planet, house, yoga and dosha note with your saved phrases for this chart's placements">Fill empty notes from my saved phrases</button>
   );
 
   return (
@@ -148,6 +179,7 @@ export default function BookDialog({ chart, onClose }: { chart: Chart; onClose: 
             <fieldset>
               <legend>Notes on planets and houses</legend>
               <p className="muted">Each note goes on that planet’s pages or after that house, under the reading the book writes.</p>
+              {fillButton}
               <div className="book-two">
                 <div>
                   {IDS.map((id) => {
@@ -168,6 +200,7 @@ export default function BookDialog({ chart, onClose }: { chart: Chart; onClose: 
           {tab === 'yogas' && (
             <fieldset>
               <legend>Notes on yogas, doshas and remedies</legend>
+              {fillButton}
               {!found && <p className="muted">Available once the Swiss Ephemeris has loaded.</p>}
               {found?.yogas.map((y, i) => <div key={`${y.id}-${i}`}>{area(`${y.name} (${y.strength})`, `yoga:${y.id}`, 'optional', 2)}</div>)}
               {found?.doshas.filter((d) => d.present).map((d) => <div key={d.id}>{area(`${d.name} (${d.severity})`, `dosha:${d.id}`, 'optional', 2)}</div>)}

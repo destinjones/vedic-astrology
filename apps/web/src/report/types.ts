@@ -27,6 +27,8 @@ export interface ReportContext {
   brand?: Brand;
   /** Optional personal note from the astrologer, printed after the cover. */
   note?: string;
+  /** The astrologer's own reading, written from one of their templates. Printed after the note. */
+  reading?: ClientReading;
   /** Glossary terms any section can add; the glossary chapter prints them all. */
   glossary: Map<string, string>;
   /**
@@ -34,6 +36,13 @@ export interface ReportContext {
    * ("graha:mars", "house:7", "yoga:gaja-kesari"…) where it has one. Sections call it after each item.
    */
   annotate?: (doc: ReportDoc, key: string) => void;
+}
+
+/** A reading the astrologer wrote in Readings and phrases: their headings and their words. */
+export interface ClientReading {
+  title: string;
+  intro?: string;
+  sections: { heading: string; text: string }[];
 }
 
 export interface Brand {

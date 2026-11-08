@@ -1,0 +1,34 @@
+/* Saved phrases and reading templates */
+.phrase-tools { display: flex; flex-direction: column; gap: 6px; margin-top: 2px; }
+.phrase-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12.5px; }
+.phrase-chip { background: var(--bg-2); border: 1px dashed var(--accent); border-radius: 999px; padding: 3px 10px; color: var(--text); font: inherit; font-size: 12.5px; cursor: pointer; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.phrase-chip:hover:not(:disabled) { border-style: solid; }
+.phrase-chip.used { border-style: solid; border-color: var(--line-soft); color: var(--muted); cursor: default; }
+.phrase-save-link { align-self: flex-start; background: none; border: none; padding: 0; color: var(--accent); font: inherit; font-size: 12.5px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.phrase-save { display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--line-soft); border-radius: 10px; padding: 10px; background: var(--bg-2); }
+.phrase-save input:not([type]) { background: var(--surface); border: 1px solid var(--line-soft); border-radius: 8px; padding: 6px 8px; color: var(--text); font: inherit; font-size: 13px; }
+.phrase-keys { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: 12.5px; }
+.consult-dialog label.phrase-key, label.phrase-key { flex-direction: row; align-items: center; gap: 4px; color: var(--text); font-size: 12.5px; }
+.phrase-key input { accent-color: var(--accent); }
+.phrase-save-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.btn-primary.sm { padding: 5px 12px; font-size: 12.5px; }
+
+.practice-dialog .practice-list { display: flex; flex-direction: column; gap: 10px; }
+.practice-item { border: 1px solid var(--line-soft); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.practice-item h4 { margin: 0; font: 600 16px/1.2 var(--serif); color: var(--text); }
+.practice-item p { margin: 0; font-size: 13px; color: var(--muted); white-space: pre-wrap; }
+.practice-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.practice-row.end { justify-content: flex-end; }
+.practice-row .grow { flex: 1; min-width: 160px; }
+.practice-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.practice-tag { font-size: 11.5px; border: 1px solid var(--line-soft); border-radius: 999px; padding: 1px 8px; color: var(--muted); }
+.practice-tag.hit { border-color: var(--accent); color: var(--text); }
+.practice-tag button { background: none; border: none; color: inherit; padding: 0 0 0 4px; cursor: pointer; font: inherit; }
+.practice-dialog select, .practice-dialog input[type='search'] { background: var(--bg-2); border: 1px solid var(--line-soft); border-radius: 8px; padding: 6px 8px; color: var(--text); font: inherit; font-size: 13px; }
+.practice-section { border-left: 2px solid var(--accent); padding-left: 12px; display: flex; flex-direction: column; gap: 6px; }
+.practice-section .practice-row input:not([type]) { flex: 1; }
+.practice-guide { font-size: 12.5px; color: var(--muted); font-style: italic; margin: 0; }
+.practice-topics { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12.5px; }
+.practice-count { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 6px; border-radius: 999px; background: var(--accent); color: #1a1405; font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; }
+.book-note { display: flex; flex-direction: column; gap: 4px; }
+.book-fill { align-self: flex-start; }

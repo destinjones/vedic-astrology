@@ -4,6 +4,9 @@ import { CONSULT_DEFAULT, sectionChoices } from '../report/registry';
 import type { Brand } from '../report/types';
 import { useI18n } from '../i18n';
 import { LifeChartBookButton } from './LifeChartBook';
+import { PracticeButton } from '../practice/PracticeButton';
+import { PhraseTools } from '../practice/PhraseTools';
+import { hasText, useReading, type Reading } from '../practice/store';
 
 const BRAND_KEY = 'vedic.consultBrand';
 const SECTIONS_KEY = 'vedic.consultSections';
@@ -67,16 +70,19 @@ export function ReportActions({ chart }: { chart: Chart }) {
       </button>
       <button className="btn-ghost" disabled={!ready || !!busy} onClick={() => setOpen(true)}>Consultation export</button>
       <LifeChartBookButton chart={chart} disabled={!!busy} />
+      <PracticeButton chart={chart} disabled={!!busy} />
       {error && !open && <span className="report-error" role="alert">{error}</span>}
-      {open && <ConsultDialog busy={busy} error={error} onClose={() => setOpen(false)} onExport={async (o) => { if (await run({ ...o, kind: 'consultation' })) setOpen(false); }} />}
+      {open && <ConsultDialog chart={chart} busy={busy} error={error} onClose={() => setOpen(false)} onExport={async (o) => { if (await run({ ...o, kind: 'consultation' })) setOpen(false); }} />}
     </div>
   );
 }
 
-function ConsultDialog({ busy, error, onClose, onExport }: {
-  busy: string | null; error: string | null; onClose: () => void;
-  onExport: (o: { brand: Brand; note: string; sections: string[] }) => void;
+function ConsultDialog({ chart, busy, error, onClose, onExport }: {
+  chart: Chart; busy: string | null; error: string | null; onClose: () => void;
+  onExport: (o: { brand: Brand; note: string; sections: string[]; reading?: Reading }) => void;
 }) {
+  const reading = useReading(chart.input);
+  const [withReading, setWithReading] = useState(true);
   const [brand, setBrand] = useState<Brand>(() => read<Brand>(BRAND_KEY, { name: '', tagline: '', contact: '' }));
   const [sections, setSections] = useState<string[]>(() => readList(SECTIONS_KEY, CONSULT_DEFAULT));
   const [note, setNote] = useState('');
@@ -93,7 +99,7 @@ function ConsultDialog({ busy, error, onClose, onExport }: {
 
   return (
     <dialog ref={dialog} className="consult-dialog" onClose={onClose} onCancel={onClose}>
-      <form method="dialog" onSubmit={(e) => { e.preventDefault(); if (sections.length) onExport({ brand, note, sections }); }}>
+      <form method="dialog" onSubmit={(e) => { e.preventDefault(); if (sections.length) onExport({ brand, note, sections, reading: withReading && hasText(reading) ? reading : undefined }); }}>
         <header>
           <h3>Consultation export</h3>
           <p className="muted">A short PDF for your client, with your name and logo. Your details stay in this browser.</p>
@@ -118,9 +124,16 @@ function ConsultDialog({ busy, error, onClose, onExport }: {
             </div>
             {logoError && <p className="report-error">{logoError}</p>}
             <label>Note to your client<textarea rows={5} value={note} onChange={(e) => setNote(e.target.value)} placeholder="optional, printed on its own page after the cover" /></label>
+            <PhraseTools chart={chart} topics={['all']} value={note} onChange={setNote} compact />
           </fieldset>
           <fieldset>
             <legend>Sections</legend>
+            {hasText(reading) && (
+              <label className="consult-section">
+                <input type="checkbox" checked={withReading} onChange={(e) => setWithReading(e.target.checked)} />
+                <span><b>Your reading: {reading.title}</b><small className="muted">From Readings and phrases, printed after your note ({reading.sections.filter((x) => x.text.trim()).length} sections)</small></span>
+              </label>
+            )}
             {choices.map((c) => (
               <label key={c.id} className="consult-section">
                 <input type="checkbox" checked={sections.includes(c.id)} onChange={() => toggle(c.id)} />

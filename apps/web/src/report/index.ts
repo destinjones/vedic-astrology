@@ -10,7 +10,7 @@ import { LOCALE_SCRIPT, scriptsIn } from './indic';
 import { registeredSections, FULL_REPORT } from './registry';
 import { roman } from './theme';
 import { longDate } from './format';
-import type { Brand, ReportContext, ReportSection } from './types';
+import type { Brand, ClientReading, ReportContext, ReportSection } from './types';
 import { cover, drawContents, reserveContents, welcome } from './sections/front';
 import { glance } from './sections/glance';
 import { grahas } from './sections/grahas';
@@ -21,6 +21,7 @@ import { dasha } from './sections/dasha';
 import { timing } from './sections/timing';
 import { glossary, colophon } from './sections/glossary';
 import { note, summary } from './sections/summary';
+import { clientReading, readingText } from './sections/reading';
 
 export type { Brand, ReportContext, ReportSection } from './types';
 export { registerReportSection } from './registry';
@@ -44,6 +45,8 @@ export interface ReportOptions {
   brand?: Brand;
   /** Personal note printed after the cover. */
   note?: string;
+  /** The astrologer's own reading, printed after the note. */
+  reading?: ClientReading;
   onProgress?: (message: string) => void;
   /** The app's language: readings are printed in it where a translation exists, and its script's fonts are embedded. */
   locale?: string;
@@ -84,7 +87,7 @@ export async function generateReport(chart: Chart, opts: ReportOptions = {}): Pr
   say('Preparing the artwork…');
   const pdf = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
   // fonts for the language's script, and for any other script in what the person typed
-  const scripts = scriptsIn(chart.input.name, chart.input.place, opts.note, opts.brand?.name, opts.brand?.tagline, opts.brand?.contact);
+  const scripts = scriptsIn(chart.input.name, chart.input.place, opts.note, ...readingText(opts.reading), opts.brand?.name, opts.brand?.tagline, opts.brand?.contact);
   const own = opts.locale ? LOCALE_SCRIPT[opts.locale] : undefined;
   if (own) scripts.add(own);
   const [art, indic] = await Promise.all([loadArt(chart.ascendant.longitude), registerFonts(pdf, scripts)]);
@@ -92,7 +95,7 @@ export async function generateReport(chart: Chart, opts: ReportOptions = {}): Pr
   const name = chart.input.name?.trim() || longDate(chart.input.date);
   const ctx: ReportContext = {
     chart, engine, engineChart: ec, report, getNakshatra, dashas, timeline, art, now, name,
-    brand: opts.brand?.name ? opts.brand : undefined, note: opts.note, glossary: new Map(),
+    brand: opts.brand?.name ? opts.brand : undefined, note: opts.note, reading: opts.reading, glossary: new Map(),
   };
   const doc = new ReportDoc(pdf, ctx.brand ? `${ctx.brand.name}  ·  for ${name}` : `${chart.input.name?.trim() ? name : 'Birth chart'}  ·  Vedic birth chart`, indic);
 
@@ -101,6 +104,7 @@ export async function generateReport(chart: Chart, opts: ReportOptions = {}): Pr
   const contentsPage = reserveContents(doc);
   if (ctx.note) note(doc, ctx);
   else if (!ctx.brand) welcome(doc, ctx);
+  if (ctx.reading) clientReading(doc, ctx);
 
   const sections = [...BUILTIN, ...registeredSections()]
     .filter((s) => wanted.has(s.id) && (s.available?.(ctx) ?? true))
