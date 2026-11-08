@@ -15,13 +15,18 @@ interface Props {
   onSample?: () => void;
   /** Text on the submit button. Defaults to the translated "Reveal my chart". */
   submitLabel?: string;
+  /**
+   * For someone filling in their own details (the client intake page): no Rodden rating or
+   * ayanamsa, the coordinates tucked away, and the place must be picked or typed in.
+   */
+  simple?: boolean;
 }
 
 const ZONES: string[] = (() => {
   try { return (Intl as unknown as { supportedValuesOf(k: string): string[] }).supportedValuesOf('timeZone'); } catch { return []; }
 })();
 
-export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel }: Props) {
+export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel, simple }: Props) {
   const { t } = useI18n();
   const [f, setF] = useState<BirthInput>(initial);
   const [error, setError] = useState<string | null>(null);
@@ -96,12 +101,32 @@ export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel }: Pr
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!f.date || !f.time) return setError(t('form.errRequired'));
+    if (simple && (!f.place.trim() || !Number.isFinite(f.latitude) || !Number.isFinite(f.longitude) || !f.timezone))
+      return setError('Pick your birth place from the list that appears as you type. If your town is not listed, choose the nearest larger town.');
     if (!Number.isFinite(f.latitude) && !Number.isFinite(f.longitude)) return setError('Pick the place of birth from the list, or type its latitude and longitude.');
     if (!Number.isFinite(f.latitude) || Math.abs(f.latitude) > 90) return setError(t('form.errLatitude'));
     if (!Number.isFinite(f.longitude) || Math.abs(f.longitude) > 180) return setError(t('form.errLongitude'));
     setError(null);
     onSubmit(f);
   };
+
+  const coordFields = (
+    <>
+      <label className="field">
+        <span>{t('form.latitude')}</span>
+        <input type="number" step="0.0001" value={Number.isFinite(f.latitude) ? f.latitude : ''} onChange={(e) => { set('latitude', parseFloat(e.target.value)); setLocated(true); }} />
+      </label>
+      <label className="field">
+        <span>{t('form.longitude')}</span>
+        <input type="number" step="0.0001" value={Number.isFinite(f.longitude) ? f.longitude : ''} onChange={(e) => { set('longitude', parseFloat(e.target.value)); setLocated(true); }} />
+      </label>
+      <label className="field">
+        <span>{t('form.timezone')}</span>
+        <input list="zones" value={f.timezone} onChange={(e) => set('timezone', e.target.value)} />
+        <datalist id="zones">{ZONES.map((z) => <option key={z} value={z} />)}</datalist>
+      </label>
+    </>
+  );
 
   return (
     <form className="birth-form" onSubmit={submit} autoComplete="off">
@@ -160,19 +185,12 @@ export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel }: Pr
           formerly={picked?.name === f.place ? picked.formerly : undefined}
         />
       )}
-      <label className="field">
-        <span>{t('form.latitude')}</span>
-        <input type="number" step="0.0001" value={Number.isFinite(f.latitude) ? f.latitude : ''} onChange={(e) => { set('latitude', parseFloat(e.target.value)); setLocated(true); }} />
-      </label>
-      <label className="field">
-        <span>{t('form.longitude')}</span>
-        <input type="number" step="0.0001" value={Number.isFinite(f.longitude) ? f.longitude : ''} onChange={(e) => { set('longitude', parseFloat(e.target.value)); setLocated(true); }} />
-      </label>
-      <label className="field">
-        <span>{t('form.timezone')}</span>
-        <input list="zones" value={f.timezone} onChange={(e) => set('timezone', e.target.value)} />
-        <datalist id="zones">{ZONES.map((z) => <option key={z} value={z} />)}</datalist>
-      </label>
+      {simple ? (
+        <details className="span-2 coords-more">
+          <summary>Exact coordinates <small className="muted">filled in when you pick a place</small></summary>
+          <div className="birth-form">{coordFields}</div>
+        </details>
+      ) : coordFields}
       {showCalendar && (
         <label className="field span-2">
           <span>Calendar of this date</span>
@@ -183,13 +201,15 @@ export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel }: Pr
           </select>
         </label>
       )}
-      <label className="field">
-        <span>Time source <small className="muted">Rodden rating</small></span>
-        <select value={f.rodden ?? ''} onChange={(e) => set('rodden', (e.target.value || undefined) as RoddenRating | undefined)}>
-          <option value="">Unrated</option>
-          {RODDEN_RATINGS.map((r) => <option key={r} value={r}>{RODDEN_LABEL[r]}</option>)}
-        </select>
-      </label>
+      {!simple && (
+        <label className="field">
+          <span>Time source <small className="muted">Rodden rating</small></span>
+          <select value={f.rodden ?? ''} onChange={(e) => set('rodden', (e.target.value || undefined) as RoddenRating | undefined)}>
+            <option value="">Unrated</option>
+            {RODDEN_RATINGS.map((r) => <option key={r} value={r}>{RODDEN_LABEL[r]}</option>)}
+          </select>
+        </label>
+      )}
       <label className="field">
         <span>How exact is the time?</span>
         <select value={f.timeConfidence ?? ''} onChange={(e) => set('timeConfidence', (e.target.value || undefined) as TimeConfidence | undefined)}>
@@ -197,15 +217,17 @@ export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel }: Pr
           {TIME_CONFIDENCES.map((c) => <option key={c} value={c}>{TIME_CONFIDENCE_LABEL[c]}</option>)}
         </select>
       </label>
-      <label className="field">
-        <span>{t('form.ayanamsa')}</span>
-        <select value={f.ayanamsa} onChange={(e) => set('ayanamsa', e.target.value as Ayanamsa)}>
-          <option value="lahiri">{t('form.ayanamsaLahiri')}</option>
-          <option value="true_chitra">{t('form.ayanamsaTrueChitra')}</option>
-          <option value="raman">{t('form.ayanamsaRaman')}</option>
-          <option value="krishnamurti">{t('form.ayanamsaKp')}</option>
-        </select>
-      </label>
+      {!simple && (
+        <label className="field">
+          <span>{t('form.ayanamsa')}</span>
+          <select value={f.ayanamsa} onChange={(e) => set('ayanamsa', e.target.value as Ayanamsa)}>
+            <option value="lahiri">{t('form.ayanamsaLahiri')}</option>
+            <option value="true_chitra">{t('form.ayanamsaTrueChitra')}</option>
+            <option value="raman">{t('form.ayanamsaRaman')}</option>
+            <option value="krishnamurti">{t('form.ayanamsaKp')}</option>
+          </select>
+        </label>
+      )}
       {error && <p className="form-error span-2" role="alert">{error}</p>}
       <button className="btn-primary span-2" disabled={busy}>{busy ? t('form.calculating') : submitLabel ?? t('form.submit')}</button>
       {onSample && <button type="button" className="btn-ghost span-2" disabled={busy} onClick={onSample}>{t('form.sample')}</button>}
