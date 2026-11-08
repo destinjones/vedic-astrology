@@ -66,6 +66,7 @@ const RectificationSection = lazy(() => import('./components/RectificationSectio
 const VarshaphalSection = lazy(() => import('./components/VarshaphalSection'));
 const SkyEvents = lazy(() => import('./components/SkyEvents'));
 const Personal = lazy(() => import('./personal/Personal'));
+const SessionPrep = lazy(() => import('./consult/SessionPrep'));
 const ClassicalTiming = lazy(() => import('./components/ClassicalTiming').then((m) => ({ default: m.ClassicalTiming })));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
@@ -679,6 +680,14 @@ export default function App() {
           </div>
 
           {caseStudyFor(famous?.id) && <CaseStudyCard study={caseStudyFor(famous?.id)!} report={knowledge?.report} />}
+
+          {knowledge && chart.engineContext && (
+            <WhenVisible minHeight={320}>
+              <Suspense fallback={null}>
+                <SessionPrep chart={chart} report={knowledge.report} />
+              </Suspense>
+            </WhenVisible>
+          )}
 
           {chart.engineContext && (
             <WhenVisible minHeight={560}>
