@@ -1,0 +1,28 @@
+{
+  "name": "@vedic/consult",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Consultation prep for astrologers: a one-page client snapshot, talking points by life area, and a question finder that maps a client's question to houses, karakas and timing windows. Rule-based, no AI service.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@vedic/engine": "*",
+    "@vedic/interpretations": "*",
+    "@vedic/personal": "*",
+    "@vedic/timing": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  },
+  "sideEffects": false
+}

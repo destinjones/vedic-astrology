@@ -232,7 +232,9 @@ try {
   problems.push(...(await checkA11y(browser, url, BASE)).problems);
 } catch (e) {
   // a step that throws still reports what went wrong before it
-  problems.push(`stopped: ${e.message.split('\n')[0]}`);
+  // name the step, so a timeout in CI can be traced without a rerun
+  const at = e.stack?.match(/tools\/(\w+\.mjs:\d+)/)?.[1];
+  problems.push(`stopped${at ? ` at tools/${at}` : ''}: ${e.message.split('\n')[0]}`);
 } finally {
   await browser.close();
   await close();
