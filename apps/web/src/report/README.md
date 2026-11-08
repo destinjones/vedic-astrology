@@ -12,6 +12,15 @@ The illustrated PDF behind **Download PDF report** and **Consultation export**. 
 The app passes its language as `locale`: readings print in it when a translation exists (Hindi today), otherwise in English. The report's own headings and explanations are still English.
 - `sections/`: one file per chapter.
 
+## The Life Chart Book
+
+`book/` builds a much longer book from the same pieces, for an astrologer to give a client. It sits beside the report and the consultation export and changes neither.
+
+- `book/draft.ts`: what the astrologer writes (title, dedication, letters, key points, notes keyed `chapter:<id>`, `graha:<id>`, `house:<n>`, `yoga:<id>`, `dosha:<id>`, `remedy:<id>`, `year:<yyyy>`) and the format options. No PDF dependencies; the editor in `components/LifeChartBook.tsx` imports it eagerly and keeps one draft per birth in `localStorage`.
+- `book/index.ts`: `generateBook` and `downloadBook`. It reuses the report's own chapters (glance, grahas, houses, yogas, vargas, dasha, timing, glossary) and adds the book's: front matter (`front.ts`), the teaching chapters on the language of the chart, the lagna and the Moon (`teach.ts`), the dasha wall chart and the year-by-year forecast (`forecast.ts`), remedies from `@vedic/remedies` with numbered sources (`remedies.ts`) and the sources chapter, closing letter, notes pages and covers (`back.ts`).
+- Astrologer notes reach the reused chapters through `ctx.annotate(doc, key)`, which the report leaves unset.
+- Print edition: `ReportDoc` takes `{ bleed, recto }`. With a bleed every page is shifted so layout keeps its trim coordinates and full-page backgrounds run past the trim; with `recto` each chapter opener lands on a right-hand page, the left-hand page before it filled by `doc.filler` (a ruled notes page) or left blank. The interior is padded to a multiple of four pages, and `coverSpread` draws back cover, spine and front cover on one sheet. The spine width is Lulu's paperback estimate unless the astrologer types the one from their printer's template.
+
 ## Adding a section from another feature
 
 Register it from your feature's own code. `registry.ts` has no PDF dependencies, so importing it costs nothing:
@@ -38,4 +47,4 @@ registerReportSection({
 
 ## Checking a change
 
-`npm run smoke` builds nothing itself but, after `npm run build:pages`, downloads a report from the sample chart and checks it is a real PDF. To look at the pages, save one from the app and run `pdftoppm -r 60 -png report.pdf page`.
+`npm run smoke` builds nothing itself but, after `npm run build:pages`, downloads a report and a Life Chart Book from the sample chart and checks they are real PDFs. To look at the pages, save one from the app and run `pdftoppm -r 60 -png report.pdf page`.

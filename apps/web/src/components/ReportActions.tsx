@@ -3,6 +3,7 @@ import type { Chart } from '../types/chart';
 import { CONSULT_DEFAULT, sectionChoices } from '../report/registry';
 import type { Brand } from '../report/types';
 import { useI18n } from '../i18n';
+import { LifeChartBookButton } from './LifeChartBook';
 
 const BRAND_KEY = 'vedic.consultBrand';
 const SECTIONS_KEY = 'vedic.consultSections';
@@ -34,7 +35,7 @@ function logoToDataUrl(file: File): Promise<string> {
   });
 }
 
-/** "Download PDF report" and "Consultation export", both generated in the browser. */
+/** "Download PDF report", "Consultation export" and the "Life Chart Book", all generated in the browser. */
 export function ReportActions({ chart }: { chart: Chart }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +66,7 @@ export function ReportActions({ chart }: { chart: Chart }) {
         {busy && !open ? busy : 'Download PDF report'}
       </button>
       <button className="btn-ghost" disabled={!ready || !!busy} onClick={() => setOpen(true)}>Consultation export</button>
+      <LifeChartBookButton chart={chart} disabled={!!busy} />
       {error && !open && <span className="report-error" role="alert">{error}</span>}
       {open && <ConsultDialog busy={busy} error={error} onClose={() => setOpen(false)} onExport={async (o) => { if (await run({ ...o, kind: 'consultation' })) setOpen(false); }} />}
     </div>

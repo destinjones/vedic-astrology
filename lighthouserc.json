@@ -14,7 +14,8 @@
       "settings": {
         "preset": "desktop",
         "chromeFlags": "--no-sandbox --headless=new --use-angle=swiftshader --enable-unsafe-swiftshader",
-        "skipAudits": ["uses-http2", "uses-long-cache-ttl", "uses-text-compression"]
+        "disableFullPageScreenshot": true,
+        "skipAudits": ["uses-http2", "uses-long-cache-ttl", "uses-text-compression", "screenshot-thumbnails", "final-screenshot"]
       }
     },
     "assert": {
