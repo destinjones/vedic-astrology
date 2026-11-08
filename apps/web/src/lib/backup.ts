@@ -4,13 +4,14 @@
  * here is lost and running a restore twice adds nothing new.
  */
 import { importProfiles, type Profile } from './profiles';
+import { mergeInvoices, mergePractice, mergeRemedies, parsePractice, type Practice } from './practice';
 import { hasContent, MAX_ARCHIVED, MAX_TABS, parseTabs, type Tab, type Workspace } from './tabs';
 
 export const BACKUP_VERSION = 2;
 
-export function exportAll(ws: Workspace, profiles: Profile[]): string {
+export function exportAll(ws: Workspace, profiles: Profile[], practice?: Practice): string {
   return JSON.stringify(
-    { app: 'jyotisha-explorer', version: BACKUP_VERSION, exportedAt: new Date().toISOString(), workspace: ws, profiles },
+    { app: 'jyotisha-explorer', version: BACKUP_VERSION, exportedAt: new Date().toISOString(), workspace: ws, profiles, ...(practice ? { practice } : {}) },
     null,
     2,
   );
@@ -34,6 +35,8 @@ export interface RestoreResult {
   profiles: Profile[];
   tabsAdded: number;
   chartsAdded: number;
+  /** Packages and business details from the backup joined with these; undefined when the file has none. */
+  practice?: Practice;
 }
 
 const byId = <T extends { id: string }>(a: T[], b: T[]) => {
@@ -47,19 +50,24 @@ const byId = <T extends { id: string }>(a: T[], b: T[]) => {
  * and notes written on both sides are kept, one after the other.
  */
 export function mergeTab(here: Tab, there: Tab): Tab {
-  const marked = new Map(there.log.filter((e) => e.outcome && e.outcome !== 'open').map((e) => [e.id, e.outcome]));
+  const marked = new Map(there.log.filter((e) => e.outcome && e.outcome !== 'open').map((e) => [e.id, e]));
   const log = byId(here.log, there.log)
-    .map((e) => (e.outcome === 'open' && marked.has(e.id) ? { ...e, outcome: marked.get(e.id) } : e))
+    .map((e) => {
+      const o = marked.get(e.id);
+      return e.outcome === 'open' && o ? { ...e, outcome: o.outcome, ...(o.markedAt ? { markedAt: o.markedAt } : {}) } : e;
+    })
     .sort((a, b) => b.at.localeCompare(a.at));
   const events = byId(here.events, there.events).sort((a, b) => a.date.localeCompare(b.date));
   const a = here.notes.trim(), b = there.notes.trim();
   const notes = !b || a.includes(b) ? here.notes : !a || b.includes(a) ? there.notes : `${here.notes.trimEnd()}\n\n— from another device —\n${there.notes.trim()}`;
-  return { ...here, log, events, notes, input: here.input ?? there.input };
+  const remedies = mergeRemedies(here.remedies, there.remedies);
+  const invoices = mergeInvoices(here.invoices, there.invoices);
+  return { ...here, log, events, notes, input: here.input ?? there.input, ...(remedies ? { remedies } : {}), ...(invoices ? { invoices } : {}) };
 }
 
 /** Merges a backup into what is here. Accepts this format and the older saved-charts-only file. Throws on anything else. */
-export function restoreAll(ws: Workspace, profiles: Profile[], text: string, opts: { mergeExisting?: boolean } = {}): RestoreResult {
-  const data = JSON.parse(text) as { workspace?: { tabs?: unknown; archived?: unknown }; profiles?: unknown };
+export function restoreAll(ws: Workspace, profiles: Profile[], text: string, opts: { mergeExisting?: boolean; practice?: Practice } = {}): RestoreResult {
+  const data = JSON.parse(text) as { workspace?: { tabs?: unknown; archived?: unknown }; profiles?: unknown; practice?: unknown };
   if (!data || typeof data !== 'object' || (!data.workspace && !data.profiles)) throw new Error('not a backup');
 
   if (opts.mergeExisting) {
@@ -96,5 +104,6 @@ export function restoreAll(ws: Workspace, profiles: Profile[], text: string, opt
     nextProfiles = r.list;
     chartsAdded = r.added;
   }
-  return { ws: { tabs, activeId, archived }, profiles: nextProfiles, tabsAdded: incomingOpen.length + incomingClosed.length, chartsAdded };
+  const practice = data.practice ? mergePractice(opts.practice ?? parsePractice(null), parsePractice(data.practice)) : undefined;
+  return { ws: { tabs, activeId, archived }, profiles: nextProfiles, tabsAdded: incomingOpen.length + incomingClosed.length, chartsAdded, ...(practice ? { practice } : {}) };
 }

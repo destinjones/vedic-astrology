@@ -8,6 +8,7 @@ import type { LifeEvent } from '@vedic/timing';
 import { sanitizeInput } from './profiles';
 import { loadEvents, sanitizeEvents } from './lifeEvents';
 import { parseAnnotations, type Annotation } from './annotations';
+import { AREAS, parseInvoices, parseRemedies, type Invoice, type PredictionArea, type RemedyPlan } from './practice';
 
 export type EntryKind = 'question' | 'prediction' | 'note';
 export type Outcome = 'open' | 'came-true' | 'partly' | 'did-not';
@@ -23,6 +24,10 @@ export interface LogEntry {
   about?: string;
   /** predictions: marked later */
   outcome?: Outcome;
+  /** predictions: the part of life it is about, for the track record */
+  area?: PredictionArea;
+  /** predictions: ISO date-time the outcome was last marked */
+  markedAt?: string;
 }
 
 export interface Tab {
@@ -42,6 +47,10 @@ export interface Tab {
   named?: boolean;
   /** Notes pinned to houses and planets of this chart. */
   annotations?: Annotation[];
+  /** Remedy follow-up: what the client does and when to check in. */
+  remedies?: RemedyPlan;
+  /** Invoices and receipts for this client, newest first. */
+  invoices?: Invoice[];
 }
 
 export interface Workspace {
@@ -54,7 +63,7 @@ export interface Workspace {
 
 export const MAX_ARCHIVED = 500;
 /** A tab worth keeping when it is closed. */
-export const hasContent = (t: Tab) => !!t.input || !!t.notes.trim() || t.log.length > 0 || t.events.length > 0 || !!t.annotations?.length;
+export const hasContent = (t: Tab) => !!t.input || !!t.notes.trim() || t.log.length > 0 || t.events.length > 0 || !!t.annotations?.length || !!t.remedies || !!t.invoices?.length;
 
 const KEY = 'vedic.tabs.v1';
 export const MAX_TABS = 24;
@@ -82,6 +91,8 @@ function parseLog(raw: unknown): LogEntry[] {
       at: typeof r.at === 'string' && !Number.isNaN(Date.parse(r.at)) ? r.at : new Date().toISOString(),
       about: typeof r.about === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(r.about) ? r.about : undefined,
       outcome: kind === 'prediction' ? (OUTCOMES.includes(r.outcome as Outcome) ? (r.outcome as Outcome) : 'open') : undefined,
+      ...(kind === 'prediction' && AREAS.includes(r.area as PredictionArea) ? { area: r.area as PredictionArea } : {}),
+      ...(kind === 'prediction' && typeof r.markedAt === 'string' && !Number.isNaN(Date.parse(r.markedAt)) ? { markedAt: r.markedAt } : {}),
     });
   }
   return out;
@@ -104,6 +115,8 @@ export function parseTab(t: unknown, n: number): Tab | null {
     varga: typeof r.varga === 'string' && /^D\d{1,2}$/.test(r.varga) ? (r.varga as VargaId) : undefined,
     named: r.named === true,
     annotations: Array.isArray(r.annotations) && r.annotations.length ? parseAnnotations(r.annotations) : undefined,
+    remedies: parseRemedies(r.remedies),
+    invoices: parseInvoices(r.invoices),
   };
 }
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AREAS, AREA_LABEL, type PredictionArea } from '../lib/practice';
 import { newTabId, type EntryKind, type LogEntry, type Outcome, type Tab } from '../lib/tabs';
 
 interface Props {
@@ -25,6 +26,7 @@ export function ClientHistory({ tab, onNotes, onLog }: Props) {
   const [kind, setKind] = useState<EntryKind>('question');
   const [text, setText] = useState('');
   const [about, setAbout] = useState('');
+  const [area, setArea] = useState<PredictionArea | ''>('');
   const [filter, setFilter] = useState<Filter>('all');
 
   const add = (e: React.FormEvent) => {
@@ -35,11 +37,12 @@ export function ClientHistory({ tab, onNotes, onLog }: Props) {
       kind,
       text: text.trim().slice(0, 5000),
       at: new Date().toISOString(),
-      ...(kind === 'prediction' ? { outcome: 'open' as const, ...(about ? { about } : {}) } : {}),
+      ...(kind === 'prediction' ? { outcome: 'open' as const, ...(about ? { about } : {}), ...(area ? { area } : {}) } : {}),
     };
     onLog([entry, ...tab.log]);
     setText('');
     setAbout('');
+    setArea('');
   };
   const update = (id: string, patch: Partial<LogEntry>) => onLog(tab.log.map((x) => (x.id === id ? { ...x, ...patch } : x)));
   const remove = (id: string) => onLog(tab.log.filter((x) => x.id !== id));
@@ -86,6 +89,15 @@ export function ClientHistory({ tab, onNotes, onLog }: Props) {
                   <input type="date" value={about} onChange={(e) => setAbout(e.target.value)} />
                 </label>
               )}
+              {kind === 'prediction' && (
+                <label className="log-about">
+                  <span className="muted">Area</span>
+                  <select value={area} onChange={(e) => setArea(e.target.value as PredictionArea | '')}>
+                    <option value="">Any</option>
+                    {AREAS.map((a) => <option key={a} value={a}>{AREA_LABEL[a]}</option>)}
+                  </select>
+                </label>
+              )}
               <button className="btn-primary" disabled={!text.trim()}>Add {KIND_LABEL[kind].toLowerCase()}</button>
             </div>
           </form>
@@ -116,6 +128,7 @@ export function ClientHistory({ tab, onNotes, onLog }: Props) {
                     <span className="log-kind">{KIND_LABEL[x.kind]}</span>
                     <span className="muted">{fmt(x.at)}</span>
                     {x.about && <span className="muted">· about {fmtDay(x.about)}</span>}
+                    {x.area && <span className="muted">· {AREA_LABEL[x.area]}</span>}
                     {due && <span className="log-due">time to check</span>}
                     <button type="button" className="tab-x" onClick={() => remove(x.id)} aria-label="Delete entry" title="Delete">✕</button>
                   </div>
@@ -123,7 +136,7 @@ export function ClientHistory({ tab, onNotes, onLog }: Props) {
                   {x.kind === 'prediction' && (
                     <div className="log-outcome" role="radiogroup" aria-label="Did it come true?">
                       {(Object.keys(OUTCOME_LABEL) as Outcome[]).map((o) => (
-                        <button key={o} type="button" role="radio" aria-checked={x.outcome === o} className={`chip ${x.outcome === o ? 'is-active' : ''} o-${o}`} onClick={() => update(x.id, { outcome: o })}>
+                        <button key={o} type="button" role="radio" aria-checked={x.outcome === o} className={`chip ${x.outcome === o ? 'is-active' : ''} o-${o}`} onClick={() => update(x.id, { outcome: o, markedAt: o === 'open' ? undefined : new Date().toISOString() })}>
                           {OUTCOME_LABEL[o]}
                         </button>
                       ))}
