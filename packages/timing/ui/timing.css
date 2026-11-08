@@ -9,6 +9,8 @@
   --text-muted: #7a7974;
   --grid: #e7e5e0;
   --accent: #6250d6;
+  /* text on an --accent fill: white on the deep light-theme violet, near-black on the paler dark-theme ones */
+  --on-accent: #fff;
   --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100; --series-5: #e87ba4;
   --good: #2a78d6; --bad: #e34948;
   --gold: #b07a00;
@@ -23,7 +25,7 @@
     color-scheme: dark;
     --surface-0: #0f0f17; --surface-1: #181824; --surface-2: #22222f; --border: #2e2e3d;
     --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8e88; --grid: #2a2a37;
-    --accent: #9085e9;
+    --accent: #9085e9; --on-accent: #0f0f17;
     --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500; --series-5: #d55181;
     --good: #3987e5; --bad: #e66767; --gold: #e0b44a;
   }
@@ -32,7 +34,7 @@
   color-scheme: dark;
   --surface-0: #0f0f17; --surface-1: #181824; --surface-2: #22222f; --border: #2e2e3d;
   --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8e88; --grid: #2a2a37;
-  --accent: #9085e9;
+  --accent: #9085e9; --on-accent: #0f0f17;
   --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500; --series-5: #d55181;
   --good: #3987e5; --bad: #e66767; --gold: #e0b44a;
 }
@@ -104,7 +106,7 @@ table.vt-table { border-collapse: separate; border-spacing: 2px; width: 100%; fo
 .vt-ask { display: flex; gap: 8px; }
 .vt-ask input { flex: 1; min-width: 0; font: inherit; font-size: 14px; padding: 8px 12px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface-0); color: var(--text-primary); }
 .vt-ask input:focus-visible, .vt-builder select:focus-visible, .vt-builder input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.vt-btn { font: inherit; font-size: 13px; font-weight: 600; border: 0; border-radius: 9px; padding: 7px 14px; background: var(--accent); color: #fff; cursor: pointer; white-space: nowrap; }
+.vt-btn { font: inherit; font-size: 13px; font-weight: 600; border: 0; border-radius: 9px; padding: 7px 14px; background: var(--accent); color: var(--on-accent, #fff); cursor: pointer; white-space: nowrap; }
 .vt-btn:disabled { opacity: 0.55; cursor: default; }
 .vt-chip-btn { border: 0; cursor: pointer; font: inherit; font-size: 12px; }
 .vt-chip-btn:hover { color: var(--text-primary); }

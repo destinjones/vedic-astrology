@@ -389,7 +389,7 @@ html .app .timing-host .vt-root {
   color-scheme: dark;
   --surface-0: transparent; --surface-1: rgba(255,255,255,.03); --surface-2: rgba(255,255,255,.06); --border: var(--line-soft);
   --text-primary: var(--text); --text-secondary: #c9c3dc; --text-muted: var(--muted); --grid: rgba(255,255,255,.08);
-  --accent: #b48cff; --good: #3987e5; --bad: #e66767; --gold: var(--accent);
+  --accent: #b48cff; --on-accent: #140d26; --good: #3987e5; --bad: #e66767; --gold: var(--accent);
   --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500; --series-5: #d55181;
   background: transparent; min-width: 0;
 }

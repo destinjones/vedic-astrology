@@ -1,11 +1,11 @@
 {
-  "$comment": "Bytes. Set about 10% above the size on 2026-11-07, then raised the same day to about 10% above the size after PRs #29-#42 landed together (learn pages, docs, export, link previews, study page and new chart sections). The chart app first load grew most; splitting it is the next thing to do. Raise a number in the pull request that needs it, and say why. Then raised for #42's offline gazetteer (25,506 places, about 495 KB gzip), which loads only when the place search is used. Then All CSS raised for session mode and the multi-chart dashboard (about 3 KB gzip of their own CSS, loaded only when either view is opened).",
+  "$comment": "Bytes. Set about 10% above the size on 2026-11-07, then raised the same day to about 10% above the size after PRs #29-#42 landed together (learn pages, docs, export, link previews, study page and new chart sections). The chart app first load grew most; splitting it is the next thing to do. Raise a number in the pull request that needs it, and say why. Then raised for #42's offline gazetteer (25,506 places, about 495 KB gzip), which loads only when the place search is used. Then All CSS raised for session mode and the multi-chart dashboard (about 3 KB gzip of their own CSS, loaded only when either view is opened). Then, when #45-#54 (astrologer tools: clients, intake, family, practice, templates, session prep and mode, branding, offline) landed together, the consultation dialog, branding editor and intake card were moved out of the first load, and Chart app first load was raised for what is left (the client, practice and family stores that backups and tabs need, about 9 KB gzip) All CSS for the new views' styles (about 4 KB gzip) and Whole site for the app icons and the family and intake pages.",
   "Landing page first load (JS+CSS, gzip)": 14200,
-  "Chart app first load (JS+CSS, gzip)": 372000,
+  "Chart app first load (JS+CSS, gzip)": 395000,
   "All JavaScript (gzip)": 1930000,
-  "All CSS (gzip)": 70000,
+  "All CSS (gzip)": 79000,
   "Largest JS chunk (gzip)": 545000,
   "Swiss Ephemeris WASM + data (raw)": 2900000,
   "3D art in cosmos/ (raw)": 8800000,
-  "Whole site (raw)": 46400000
+  "Whole site (raw)": 49000000
 }

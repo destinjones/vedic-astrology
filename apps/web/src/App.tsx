@@ -15,7 +15,6 @@ import { backupFileName, downloadText, exportAll, restoreAll } from './lib/backu
 import { storeLinks } from './lib/family';
 import { ClientHistory } from './components/ClientHistory';
 import { practiceStore } from './lib/practice';
-import { ClientIntakeTools, IncomingIntake } from './components/ClientIntake';
 import { isReplyHash, parseReply, type IntakeReply } from './lib/intake';
 import { loadProfiles, parseShareHash, sameBirth, storeProfiles, upsertProfile, type Profile } from './lib/profiles';
 import { NorthChart } from './components/NorthChart';
@@ -76,6 +75,8 @@ const VarshaphalSection = lazy(() => import('./components/VarshaphalSection'));
 const SkyEvents = lazy(() => import('./components/SkyEvents'));
 const Personal = lazy(() => import('./personal/Personal'));
 const ClientManager = lazy(() => import('./components/ClientManager'));
+const ClientIntakeTools = lazy(() => import('./components/ClientIntake').then((m) => ({ default: m.ClientIntakeTools })));
+const IncomingIntake = lazy(() => import('./components/ClientIntake').then((m) => ({ default: m.IncomingIntake })));
 const SessionPrep = lazy(() => import('./consult/SessionPrep'));
 const SessionMode = lazy(() => import('./components/SessionMode').then((m) => ({ default: m.SessionMode })));
 const ChartDashboard = lazy(() => import('./components/ChartDashboard').then((m) => ({ default: m.ChartDashboard })));
@@ -633,7 +634,7 @@ export default function App() {
         </div>
       )}
 
-      {incomingIntake && <IncomingIntake reply={incomingIntake} onAdd={addIntake} onDismiss={() => setIncomingIntake(null)} />}
+      {incomingIntake && <Suspense fallback={null}><IncomingIntake reply={incomingIntake} onAdd={addIntake} onDismiss={() => setIncomingIntake(null)} /></Suspense>}
 
       {!chart && busy && activeTab.input && (
         <div className="card tab-loading" role="status">Opening {activeTab.label}'s chart…</div>
@@ -695,7 +696,7 @@ export default function App() {
               onImport={importMany}
               onBatch={() => { setShowBatch(true); requestAnimationFrame(() => document.getElementById('batch')?.scrollIntoView({ behavior: 'smooth', block: 'start' })); }}
             />
-            <ClientIntakeTools onAdd={addIntake} />
+            <Suspense fallback={null}><ClientIntakeTools onAdd={addIntake} /></Suspense>
             {editingId && (
               <p className="editing-note">
                 Editing <b>{profiles.find((p) => p.id === editingId)?.label}</b>. Your changes update this saved chart.{' '}
