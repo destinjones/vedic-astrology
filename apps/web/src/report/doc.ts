@@ -70,10 +70,13 @@ export class ReportDoc {
   readonly recto: boolean;
   /** Fills the left-hand page left over before a recto chapter (a notes page, say). It must add exactly one page. Blank when unset. */
   filler?: (doc: ReportDoc) => void;
+  /** Printed small at the foot of every numbered page: the astrologer's name and contact details, when the PDF is branded. */
+  readonly footer?: [string, string];
 
-  constructor(pdf: jsPDF, owner: string, indic?: IndicFonts, o: { bleed?: number; recto?: boolean } = {}) {
+  constructor(pdf: jsPDF, owner: string, indic?: IndicFonts, o: { bleed?: number; recto?: boolean; footer?: [string, string] } = {}) {
     this.pdf = pdf;
     this.owner = owner;
+    this.footer = o.footer;
     this.indic = indic;
     this.bleed = o.bleed ?? 0;
     this.recto = !!o.recto;
@@ -498,6 +501,20 @@ export class ReportDoc {
 
   // ------------------------------------------------------------------ finishing
 
+  /** Branding beside the folio, on the left or the right, cut short so it never runs into the page number. */
+  private footLine(full: string, y: number, right: boolean) {
+    if (!full.trim()) return;
+    const room = PAGE.w / 2 - 26 - MARGIN.left;
+    const o = { font: F.sans, size: 6.4, color: C.muted } as const;
+    let [text = '', ...rest] = this.wrap(full.trim(), room, o.font, o.size);
+    if (rest.length) {
+      while (text.length > 1 && this.width(`${text}...`, o.font, o.size) > room) text = text.slice(0, -1);
+      text = `${text.trimEnd()}...`;
+    }
+    if (right) this.line(text, PAGE.w - MARGIN.right, y, { ...o, align: 'right' });
+    else this.line(text, MARGIN.left, y, o);
+  }
+
   /** Running headers and folios, drawn once the page count is known. */
   finish(skipFolioOn: number[] = []) {
     const n = this.page;
@@ -516,6 +533,10 @@ export class ReportDoc {
         this.diamond(PAGE.w / 2 - 16, fy + 4, 1.4);
         this.diamond(PAGE.w / 2 + 16, fy + 4, 1.4);
         this.line(String(p), PAGE.w / 2, fy, { font: F.serifBold, size: 10, color: C.ink, align: 'center' });
+        if (this.footer) {
+          this.footLine(this.footer[0], fy + 2, false);
+          this.footLine(this.footer[1], fy + 2, true);
+        }
       }
     }
   }

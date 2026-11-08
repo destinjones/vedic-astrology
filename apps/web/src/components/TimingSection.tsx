@@ -50,7 +50,8 @@ export default function TimingSection({ context, name, input }: { context: NonNu
     setPrinting(true);
     try {
       const { downloadYearPdf } = await import('../report/yearTimeline');
-      await downloadYearPdf(engine, chart, input);
+      const { everyPdfBrand, loadBranding } = await import('../lib/branding');
+      await downloadYearPdf(engine, chart, input, { brand: everyPdfBrand(loadBranding()) });
     } catch (e) {
       console.error(e);
       alert('The yearly PDF could not be made. Please try again.');

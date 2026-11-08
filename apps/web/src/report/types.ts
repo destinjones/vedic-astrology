@@ -23,8 +23,10 @@ export interface ReportContext {
   now: Date;
   /** Display name for the person (or "Your chart"). */
   name: string;
-  /** Set for a consultation export: the astrologer's own name and logo. */
+  /** The astrologer's own name, practice, contact and logo, when they have set their branding. */
   brand?: Brand;
+  /** A consultation export (a short client summary), rather than the full report. */
+  consultation?: boolean;
   /** Optional personal note from the astrologer, printed after the cover. */
   note?: string;
   /** Glossary terms any section can add; the glossary chapter prints them all. */
@@ -37,8 +39,12 @@ export interface ReportContext {
 }
 
 export interface Brand {
+  /** The astrologer's name. */
   name: string;
+  /** Practice or business name. */
+  practice?: string;
   tagline?: string;
+  /** Website, email, phone and address on one line. */
   contact?: string;
   /** PNG or JPEG data URL. */
   logo?: string;
@@ -65,4 +71,14 @@ export interface ReportSection {
   /** Skip the section when this returns false. */
   available?: (ctx: ReportContext) => boolean;
   render: (doc: ReportDoc, ctx: ReportContext, h: SectionHelpers) => void | Promise<void>;
+}
+
+/** "Lotus Jyotish  ·  Vedic astrologer since 2004": the practice and tagline, for under the name. */
+export function brandSub(b: Brand) {
+  return [b.practice, b.tagline].map((s) => s?.trim()).filter(Boolean).join('  ·  ');
+}
+
+/** The foot of every branded page: who prepared it on the left of the page number, how to reach them on the right. */
+export function brandFooter(b: Brand): [string, string] {
+  return [b.practice?.trim() ? `${b.name}, ${b.practice.trim()}` : b.name, b.contact?.trim() ?? ''];
 }

@@ -4,6 +4,7 @@ import { fromTiming, longDate, monthYear } from '../format';
 import { C, CONTENT_W, F, MARGIN, PAGE } from '../theme';
 import { astrologerNote, type BookContext, prose } from './common';
 import { lines, paragraphs } from './draft';
+import { brandSub } from '../types';
 
 const named = (ctx: BookContext) => ctx.chart.input.name?.trim() || '';
 const first = (ctx: BookContext) => named(ctx).split(/\s+/)[0] || '';
@@ -91,7 +92,7 @@ export function titlePages(doc: ReportDoc, ctx: BookContext) {
   if (ctx.brand) {
     doc.line('PREPARED BY', PAGE.w / 2, PAGE.h - 190, { font: F.sansBold, size: 6.8, color: C.muted, charSpace: 2, align: 'center' });
     doc.line(ctx.brand.name, PAGE.w / 2, PAGE.h - 174, { font: F.serifBold, size: 20, color: C.ink, align: 'center' });
-    if (ctx.brand.tagline) doc.line(ctx.brand.tagline, PAGE.w / 2, PAGE.h - 148, { font: F.serifItalic, size: 12, color: C.muted, align: 'center' });
+    if (brandSub(ctx.brand)) doc.line(brandSub(ctx.brand), PAGE.w / 2, PAGE.h - 148, { font: F.serifItalic, size: 12, color: C.muted, align: 'center' });
   }
   doc.line(longDate(ctx.now), PAGE.w / 2, PAGE.h - 110, { font: F.sans, size: 8, color: C.muted, align: 'center', charSpace: 0.5 });
 
@@ -107,7 +108,7 @@ export function titlePages(doc: ReportDoc, ctx: BookContext) {
     ['Place', i.place],
   ], 3, { size: 11 });
   doc.para(`Latitude ${i.latitude.toFixed(4)}°, longitude ${i.longitude.toFixed(4)}°, ${m.timezone}. Universal time ${m.utc.replace('T', ' ').slice(0, 16)}. Sidereal zodiac, ${m.ayanamsaName} ayanamsa ${ctx.chart.meta.ayanamsaValue.toFixed(4)}°. Whole-sign houses, ${m.nodeType === 'true' ? 'true' : 'mean'} lunar nodes, Vimshottari dashas with a 365.25-day year. Positions from the Swiss Ephemeris.${m.localMeanTime ? ' The birth predates standard time in this zone, so local mean time was used.' : ''}`, { size: 8.2, color: C.muted, after: 14 });
-  doc.para(`Prepared ${longDate(ctx.now)}${ctx.brand ? ` by ${ctx.brand.name}${ctx.brand.contact ? ` (${ctx.brand.contact})` : ''}` : ''} with Jyotisha Explorer, a free and open-source Vedic astrology toolkit. The calculations and readings were made in a web browser; nothing about this chart was sent anywhere to make this book.`, { size: 8.2, color: C.muted, after: 14 });
+  doc.para(`Prepared ${longDate(ctx.now)}${ctx.brand ? ` by ${ctx.brand.name}${ctx.brand.practice ? `, ${ctx.brand.practice}` : ''}${ctx.brand.contact ? ` (${ctx.brand.contact})` : ''}` : ''} with Jyotisha Explorer, a free and open-source Vedic astrology toolkit. The calculations and readings were made in a web browser; nothing about this chart was sent anywhere to make this book.`, { size: 8.2, color: C.muted, after: 14 });
   doc.para('This book is for reflection and education. It is not medical, legal, financial or psychological advice. A birth time a few minutes out can move the ascendant degree, the divisional charts and the dasha dates, so check the time on your birth record if you can.', { size: 8.2, color: C.muted });
 }
 

@@ -67,6 +67,7 @@ export function closing(doc: ReportDoc, ctx: BookContext) {
   if (ctx.brand) {
     doc.y += 10;
     doc.para(ctx.brand.name, { font: F.serifItalic, size: 17, color: C.ink, after: 2 });
+    if (ctx.brand.practice) doc.para(ctx.brand.practice, { size: 9, color: C.body, after: 2 });
     if (ctx.brand.contact) doc.para(ctx.brand.contact, { size: 8.4, color: C.muted });
   }
 }
@@ -111,6 +112,6 @@ export function backCover(doc: ReportDoc, ctx: BookContext, b = 0, chapters: str
   }
   doc.ornament(PAGE.w / 2, PAGE.h - 190, 80, C.goldLight);
   doc.line('As above, so below.', PAGE.w / 2, PAGE.h - 172, { font: F.serifItalic, size: 16, color: C.starlight, align: 'center' });
-  doc.line((ctx.brand?.name ?? 'Jyotisha Explorer').toUpperCase(), PAGE.w / 2, PAGE.h - 132, { font: F.sansBold, size: 7.4, color: C.goldLight, charSpace: 2.4, align: 'center' });
+  doc.line((ctx.brand ? ctx.brand.practice || ctx.brand.name : 'Jyotisha Explorer').toUpperCase(), PAGE.w / 2, PAGE.h - 132, { font: F.sansBold, size: 7.4, color: C.goldLight, charSpace: 2.4, align: 'center' });
   if (ctx.brand?.contact) doc.line(ctx.brand.contact, PAGE.w / 2, PAGE.h - 116, { font: F.sans, size: 7.6, color: C.starlight, align: 'center' });
 }
