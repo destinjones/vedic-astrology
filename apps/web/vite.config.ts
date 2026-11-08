@@ -1,5 +1,6 @@
 import { execSync } from 'node:child_process'
-import { createReadStream, readdirSync, readFileSync, statSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { createReadStream, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, extname, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -182,6 +183,47 @@ function sharePages(): Plugin {
 
 
 /**
+ * Offline use. After the build, list every file in dist/ and write that list
+ * into dist/sw.js (public/sw.js holds a `const OFFLINE = null` placeholder).
+ * The worker downloads the "core" files when it installs, so the app, the
+ * Swiss Ephemeris and the built-in place list work with no connection, and
+ * keeps the rest of the list ("lazy") once they have been opened. It never
+ * stores anything that is not on this list, so it only ever holds the same
+ * public files every visitor gets. The version is a hash of every file, so
+ * any change to the site makes a new worker, and the page offers a reload.
+ */
+const LAZY = [
+  /^learn\//, // 300+ static pages: kept once read
+  /^(c|og|media|feeds|docs)\//, /^og\.jpg$/, // share pages, link-preview cards, landing demos
+  /\.woff$/, // older duplicates of the .woff2 fonts
+  /^(SHA256SUMS|robots\.txt|sitemap\.xml|sw\.js)$/,
+]
+function offlineManifest(): Plugin {
+  let outDir = ''
+  return {
+    name: 'offline-manifest',
+    apply: 'build',
+    configResolved(c) { outDir = resolve(c.root, c.build.outDir) },
+    closeBundle() {
+      const files = walk(outDir).map((f) => relative(outDir, f).split(sep).join('/')).sort()
+      const hash = createHash('sha256')
+      for (const f of files) if (f !== 'sw.js') hash.update(f).update('\0').update(readFileSync(join(outDir, f)))
+      const url = (f: string) => (f === 'index.html' ? '' : f.endsWith('/index.html') ? f.slice(0, -'index.html'.length) : f)
+      const core: string[] = []
+      const lazy: string[] = []
+      for (const f of files) (LAZY.some((r) => r.test(f)) ? lazy : core).push(url(f))
+      lazy.splice(lazy.indexOf('sw.js'), 1)
+      const sw = join(outDir, 'sw.js')
+      const src = readFileSync(sw, 'utf8')
+      const line = 'const OFFLINE = null;'
+      if (!src.includes(line)) this.error(`offline-manifest: ${line} not found in sw.js`)
+      const data = { version: hash.digest('hex').slice(0, 16), core, lazy }
+      writeFileSync(sw, src.replace(line, `const OFFLINE = ${JSON.stringify(data)};`))
+    },
+  }
+}
+
+/**
  * What the footer prints: the Swiss Ephemeris version actually compiled into
  * the WASM, the wrapper and engine versions, the commit and the build date.
  * Anyone can then match a deployed page to a tag and a known ephemeris.
@@ -214,7 +256,7 @@ export default defineConfig(async () => ({
   define: { __BUILD_INFO__: JSON.stringify(await buildInfo()) },
   // GitHub Pages serves the site from /vedic-astrology/; the workflow sets VITE_BASE.
   base: process.env.VITE_BASE ?? '/',
-  plugins: [react(), swissEphAssets(), cosmosAssets(), learnPagesPlugin(), sharePages()],
+  plugins: [react(), swissEphAssets(), cosmosAssets(), learnPagesPlugin(), sharePages(), offlineManifest()],
   // the reader's text-size setting scales every font size (see textScale.ts)
   css: { postcss: { plugins: [textScale()] } },
   build: {
