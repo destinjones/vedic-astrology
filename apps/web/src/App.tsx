@@ -8,9 +8,11 @@ import { TabBar } from './components/TabBar';
 import { Presenter } from './components/Presenter';
 import { buildSteps, type Step } from './lib/walkthrough';
 import { loadEvents } from './lib/lifeEvents';
-import { blankTab, hasContent, labelFor, loadWorkspace, MAX_ARCHIVED, MAX_TABS, storeWorkspace, type Tab, type Workspace } from './lib/tabs';
+import { blankTab, hasContent, labelFor, loadWorkspace, MAX_ARCHIVED, MAX_TABS, newTabId, storeWorkspace, type LogEntry, type Tab, type Workspace } from './lib/tabs';
 import { backupFileName, downloadText, exportAll, restoreAll } from './lib/backup';
 import { ClientHistory } from './components/ClientHistory';
+import { ClientIntakeTools, IncomingIntake } from './components/ClientIntake';
+import { isReplyHash, parseReply, type IntakeReply } from './lib/intake';
 import { loadProfiles, parseShareHash, sameBirth, storeProfiles, upsertProfile, type Profile } from './lib/profiles';
 import { NorthChart } from './components/NorthChart';
 import { SouthChart } from './components/SouthChart';
@@ -218,6 +220,13 @@ export default function App() {
   // and a share link (/app/#d=…&t=…) opens the chart it carries.
   useEffect(() => {
     const open = () => {
+      // /app/#intake&... is a client's reply to an intake link: show it and let the astrologer add it
+      if (isReplyHash(location.hash)) {
+        setIncomingIntake(parseReply(location.hash) ?? 'invalid');
+        history.replaceState(null, '', location.pathname + location.search);
+        window.scrollTo({ top: 0 });
+        return false;
+      }
       // /app/#famous opens the famous charts library, /app/#famous=<id> opens one chart
       const fm = /^#famous(?:=([\w-]+))?$/.exec(location.hash);
       const famousLinked = fm?.[1] ? famousChartById(fm[1])?.input : undefined;
@@ -306,6 +315,31 @@ export default function App() {
     } catch {
       return 'That file is not a Jyotisha Explorer backup.';
     }
+  };
+
+  /** A client's intake reply: save the chart, open it, and put their questions in the tab's history. */
+  const [incomingIntake, setIncomingIntake] = useState<IntakeReply | 'invalid' | null>(null);
+  const addIntake = (r: IntakeReply) => {
+    const label = r.input.name?.trim() || 'New client';
+    saveProfiles(upsertProfile(loadProfiles(), label, r.input));
+    openInTab(r.input);
+    const id = wsRef.current.activeId;
+    const at = r.sentOn ? `${r.sentOn}T12:00:00.000Z` : new Date().toISOString();
+    const note = [`Sent their birth details through the intake link${r.sentOn ? ` on ${r.sentOn}` : ''}.`, r.contact && `Contact: ${r.contact}`].filter(Boolean).join(' ');
+    const entries: LogEntry[] = [
+      ...r.questions.map((text) => ({ id: newTabId(), kind: 'question' as const, text, at })),
+      { id: newTabId(), kind: 'note', text: note, at },
+    ];
+    // a reply added twice does not repeat its questions
+    setWs((w) => ({
+      ...w,
+      tabs: w.tabs.map((t) => (t.id === id ? {
+        ...t, label, named: true,
+        log: [...entries.filter((e) => !t.log.some((x) => x.kind === e.kind && x.text === e.text)), ...t.log],
+      } : t)),
+    }));
+    setIncomingIntake(null);
+    trackEvent('intake-added');
   };
 
   /** Opens a chart: its tab if one is open, this tab if empty, otherwise a new tab. */
@@ -516,6 +550,8 @@ export default function App() {
         </div>
       )}
 
+      {incomingIntake && <IncomingIntake reply={incomingIntake} onAdd={addIntake} onDismiss={() => setIncomingIntake(null)} />}
+
       {!chart && busy && activeTab.input && (
         <div className="card tab-loading" role="status">Opening {activeTab.label}'s chart…</div>
       )}
@@ -554,6 +590,7 @@ export default function App() {
               onImport={importMany}
               onBatch={() => { setShowBatch(true); requestAnimationFrame(() => document.getElementById('batch')?.scrollIntoView({ behavior: 'smooth', block: 'start' })); }}
             />
+            <ClientIntakeTools onAdd={addIntake} />
             {editingId && (
               <p className="editing-note">
                 Editing <b>{profiles.find((p) => p.id === editingId)?.label}</b>. Your changes update this saved chart.{' '}
