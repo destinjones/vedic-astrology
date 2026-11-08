@@ -448,7 +448,7 @@ export default function App() {
     requestAnimationFrame(() => document.querySelector<HTMLInputElement>('.birth-form input')?.focus());
   };
   /** Brings a client to the front from the practice view, reopening a closed tab. */
-  const openClient = (id: string) => {
+  const openPracticeClient = (id: string) => {
     const closed = wsRef.current.archived.find((t) => t.id === id);
     if (closed) reopenTab(closed);
     switchTab(id);
@@ -612,7 +612,7 @@ export default function App() {
 
       {showPractice && (
         <Suspense fallback={null}>
-          <PracticeView tabs={ws.tabs} archived={ws.archived} onPatch={patchAnyTab} onOpen={openClient} onClose={() => setShowPractice(false)} />
+          <PracticeView tabs={ws.tabs} archived={ws.archived} onPatch={patchAnyTab} onOpen={openPracticeClient} onClose={() => setShowPractice(false)} />
         </Suspense>
       )}
 
