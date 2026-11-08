@@ -33,7 +33,7 @@ try {
   if (offsite.size) problems.push(`landing page called other sites: ${[...offsite].join(', ')}`);
 
   // the other pages render (a page error is recorded by the handler above)
-  for (const p of ['compare/', 'match/', 'tools/', 'check/', 'study/']) {
+  for (const p of ['compare/', 'match/', 'family/', 'tools/', 'check/', 'study/']) {
     await page.goto(`${url}${BASE}${p}`, { waitUntil: 'networkidle' });
     if (!(await page.locator('#root').innerText()).trim()) problems.push(`${p}: page is blank`);
   }

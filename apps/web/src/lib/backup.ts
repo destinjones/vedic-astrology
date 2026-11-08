@@ -1,16 +1,17 @@
 /**
  * One file with everything this browser keeps: open and closed tabs (charts,
- * notes, client history) and saved charts. Restoring merges, so nothing already
+ * notes, client history), saved charts and the family links between them. Restoring merges, so nothing already
  * here is lost and running a restore twice adds nothing new.
  */
-import { importProfiles, type Profile } from './profiles';
+import { loadLinks, mergeLinks, type FamilyLink } from './family';
+import { importProfiles, sameBirth, sanitizeInput, type Profile } from './profiles';
 import { hasContent, MAX_ARCHIVED, MAX_TABS, parseTabs, type Tab, type Workspace } from './tabs';
 
 export const BACKUP_VERSION = 2;
 
-export function exportAll(ws: Workspace, profiles: Profile[]): string {
+export function exportAll(ws: Workspace, profiles: Profile[], family: FamilyLink[] = loadLinks()): string {
   return JSON.stringify(
-    { app: 'jyotisha-explorer', version: BACKUP_VERSION, exportedAt: new Date().toISOString(), workspace: ws, profiles },
+    { app: 'jyotisha-explorer', version: BACKUP_VERSION, exportedAt: new Date().toISOString(), workspace: ws, profiles, family },
     null,
     2,
   );
@@ -34,6 +35,9 @@ export interface RestoreResult {
   profiles: Profile[];
   tabsAdded: number;
   chartsAdded: number;
+  /** Family links after the merge; write them with storeLinks(). */
+  family: FamilyLink[];
+  linksAdded: number;
 }
 
 const byId = <T extends { id: string }>(a: T[], b: T[]) => {
@@ -61,8 +65,8 @@ export function mergeTab(here: Tab, there: Tab): Tab {
 }
 
 /** Merges a backup into what is here. Accepts this format and the older saved-charts-only file. Throws on anything else. */
-export function restoreAll(ws: Workspace, profiles: Profile[], text: string, opts: { mergeExisting?: boolean } = {}): RestoreResult {
-  const data = JSON.parse(text) as { workspace?: { tabs?: unknown; archived?: unknown }; profiles?: unknown };
+export function restoreAll(ws: Workspace, profiles: Profile[], text: string, opts: { mergeExisting?: boolean; family?: FamilyLink[] } = {}): RestoreResult {
+  const data = JSON.parse(text) as { workspace?: { tabs?: unknown; archived?: unknown }; profiles?: unknown; family?: unknown };
   if (!data || typeof data !== 'object' || (!data.workspace && !data.profiles)) throw new Error('not a backup');
 
   if (opts.mergeExisting) {
@@ -99,5 +103,25 @@ export function restoreAll(ws: Workspace, profiles: Profile[], text: string, opt
     nextProfiles = r.list;
     chartsAdded = r.added;
   }
-  return { ws: { tabs, activeId, archived }, profiles: nextProfiles, tabsAdded: incomingOpen.length + incomingClosed.length, chartsAdded };
+
+  // Family links name saved charts by id. A chart that was already here under
+  // another id keeps its id, so the backup's links are pointed at it.
+  let family = opts.family ?? loadLinks();
+  let linksAdded = 0;
+  if (Array.isArray(data.family)) {
+    const idMap = new Map<string, string>();
+    for (const raw of Array.isArray(data.profiles) ? (data.profiles as Record<string, unknown>[]) : []) {
+      const input = raw && typeof raw.id === 'string' ? sanitizeInput(raw.input) : null;
+      const local = input && nextProfiles.find((p) => sameBirth(p.input, input));
+      if (local) idMap.set(raw.id as string, local.id);
+    }
+    const remapped = (data.family as Record<string, unknown>[]).map((l) => (l && typeof l === 'object'
+      ? { ...l, fromId: idMap.get(String(l.fromId)) ?? l.fromId, toId: idMap.get(String(l.toId)) ?? l.toId }
+      : l));
+    const known = new Set(nextProfiles.map((p) => p.id));
+    const r = mergeLinks(family, remapped.filter((l) => l && known.has(String(l.fromId)) && known.has(String(l.toId))));
+    family = r.list;
+    linksAdded = r.added;
+  }
+  return { ws: { tabs, activeId, archived }, profiles: nextProfiles, tabsAdded: incomingOpen.length + incomingClosed.length, chartsAdded, family, linksAdded };
 }
