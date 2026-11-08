@@ -77,6 +77,8 @@ const SkyEvents = lazy(() => import('./components/SkyEvents'));
 const Personal = lazy(() => import('./personal/Personal'));
 const ClientManager = lazy(() => import('./components/ClientManager'));
 const SessionPrep = lazy(() => import('./consult/SessionPrep'));
+const SessionMode = lazy(() => import('./components/SessionMode').then((m) => ({ default: m.SessionMode })));
+const ChartDashboard = lazy(() => import('./components/ChartDashboard').then((m) => ({ default: m.ChartDashboard })));
 const ClassicalTiming = lazy(() => import('./components/ClassicalTiming').then((m) => ({ default: m.ClassicalTiming })));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
@@ -154,6 +156,10 @@ export default function App() {
   const [annotating, setAnnotating] = useState(false);
   const [focusNote, setFocusNote] = useState<string | null>(null);
   const [narrating, setNarrating] = useState(false);
+  // session mode: a clean screen to share with a client; the dashboard: several charts on one screen
+  const [session, setSession] = useState(false);
+  const [dashboard, setDashboard] = useState(() => { try { return localStorage.getItem('vedic.view') === 'dashboard'; } catch { return false; } });
+  useEffect(() => { try { localStorage.setItem('vedic.view', dashboard ? 'dashboard' : 'explorer'); } catch { /* ignore */ } }, [dashboard]);
   // worked-out charts per tab, so switching tabs is instant
   const charts = useRef(new Map<string, Chart>());
   const wsRef = useRef(ws);
@@ -534,6 +540,10 @@ export default function App() {
     { id: 'compare', group: 'Tools', title: 'Compare charts side by side', keywords: 'side by side two charts compatibility', run: () => { location.href = `${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`; } },
     ...(chart ? [{ id: 'present', group: 'Tools', title: 'Present this chart', keywords: 'full screen walkthrough screen share recording', run: startPresent }] : []),
     ...(chart ? [
+      { id: 'session', group: 'Tools', title: 'Session mode for a client call', keywords: 'video call zoom share screen client talking points clean', run: () => setSession(true) },
+      { id: 'dashboard', group: 'Tools', title: dashboard ? 'Back to the full chart' : 'Multi-chart dashboard', keywords: 'd1 d9 d10 dasha grid several charts one screen layout', run: () => { setDashboard((d) => !d); window.scrollTo({ top: 0 }); } },
+    ] : []),
+    ...(chart ? [
       { id: 'export.image', group: 'Tools', title: 'Export chart image (PNG or SVG)', keywords: 'download picture png svg print', run: () => setExportTab('image') },
       { id: 'export.card', group: 'Tools', title: 'Share card for WhatsApp or Telegram', keywords: 'share image whatsapp telegram social', run: () => setExportTab('card') },
       { id: 'export.embed', group: 'Tools', title: 'Embed this chart on a website', keywords: 'iframe blog widget', run: () => setExportTab('embed') },
@@ -582,7 +592,7 @@ export default function App() {
           </div>
         </a>
         <div className="topbar-actions">
-          <QuickSwitch commands={commands} />
+          <QuickSwitch commands={session ? [] : commands} />
           <LanguageSwitcher />
           <DisplaySettings />
           <button className="btn-ghost" aria-expanded={showClients} onClick={() => setShowClients((x) => !x)} title="Your clients, their readings and follow-ups, and dasha and transit alerts coming up">Clients</button>
@@ -596,6 +606,8 @@ export default function App() {
           {chart && (
             <>
               <button className="btn-ghost" onClick={startPresent} title="Full screen walkthrough for a client, a screen share or a recording">▶ Present</button>
+              <button className="btn-ghost" onClick={() => setSession(true)} title="A clean screen to share on a video call: the chart and your talking points, never your private notes">◉ Session</button>
+              <button className="btn-ghost" aria-pressed={dashboard} onClick={() => { setDashboard((d) => !d); window.scrollTo({ top: 0 }); }} title="D1, D9, D10 and the dasha on one screen, arranged your way">▦ Dashboard</button>
               {speechSupported() && <button className="btn-ghost" aria-pressed={narrating} onClick={() => setNarrating((x) => !x)} title="Read the chart aloud, moving through it as it goes">🔊 Listen</button>}
               <ReportActions chart={chart} />
               <ChartActions input={chart.input} profiles={profiles} onSave={saveCurrent} onShowSaved={showSaved} famousId={famous?.id} onExport={() => setExportTab('card')} />
@@ -695,7 +707,13 @@ export default function App() {
         </section>
       )}
 
-      {chart && varga && (
+      {chart && varga && dashboard && (
+        <Suspense fallback={<div className="card tab-loading" role="status">Opening the dashboard…</div>}>
+          <ChartDashboard chart={chart} style={style} onStyle={setStyle} selection={selection} onSelect={pick} onClose={() => setDashboard(false)} />
+        </Suspense>
+      )}
+
+      {chart && varga && !dashboard && (
         <main className="explorer">
           <section className="summary-strip">
             <div className="summary-item">
@@ -1004,6 +1022,11 @@ export default function App() {
         </main>
       )}
 
+      {session && chart && (
+        <Suspense fallback={null}>
+          <SessionMode key={activeTab.id} chart={chart} tabId={activeTab.id} initialVarga={vargaId} style={style} onStyle={setStyle} onClose={() => setSession(false)} />
+        </Suspense>
+      )}
       {presenting && chart && <Presenter key={activeTab.id} steps={steps} onStep={showStep} onExit={stopPresent} />}
       {narrating && chart && !presenting && (
         <Narrator key={activeTab.id} steps={steps} knowledge={knowledge} onStep={showStep}
