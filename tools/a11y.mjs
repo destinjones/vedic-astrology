@@ -12,7 +12,7 @@ import { AxeBuilder } from '@axe-core/playwright';
 
 const BASELINE = join(dirname(fileURLToPath(import.meta.url)), 'a11y-baseline.json');
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
-const PAGES = ['', 'compare/', 'match/', 'tools/', 'app/#sample'];
+const PAGES = ['', 'compare/', 'match/', 'family/', 'tools/', 'app/#sample'];
 
 async function openEverySection(page) {
   await page.waitForSelector('#yogas', { timeout: 60000 });

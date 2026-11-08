@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { fromEngineChart, interpretChart } from '@vedic/interpretations';
 import type { Chart, PlanetId } from '../types/chart';
-import type { Brand } from '../report/types';
+import { toBrand, useBranding } from '../lib/branding';
+import { BrandingFields } from './Branding';
 import { BOOK_CHAPTERS, draftKey, emptyDraft, normaliseDraft, type BookDraft } from '../report/book/draft';
 import { PLANET_BY_ID, signInfo } from '../data/constants';
 import { useI18n } from '../i18n';
+import { PhraseTools } from '../practice/PhraseTools';
+import { bookTopic, topicKeys } from '../practice/placements';
+import { phrasesFor, usePhrases, withPhrase } from '../practice/store';
 
-const BRAND_KEY = 'vedic.consultBrand';
 const IDS: PlanetId[] = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn', 'rahu', 'ketu'];
 const ORD = (n: number) => `${n}${n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th'}`;
 
@@ -22,7 +25,7 @@ const writeJSON = (key: string, v: unknown) => { try { localStorage.setItem(key,
 export default function BookDialog({ chart, onClose }: { chart: Chart; onClose: () => void }) {
   const key = draftKey(chart.input);
   const [draft, setDraft] = useState<BookDraft>(() => normaliseDraft(readJSON(key) ?? emptyDraft()));
-  const [brand, setBrand] = useState<Brand>(() => ({ name: '', tagline: '', contact: '', ...(readJSON(BRAND_KEY) as Brand | null ?? {}) }));
+  const [branding] = useBranding();
   const [tab, setTab] = useState<Tab>('practice');
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +38,6 @@ export default function BookDialog({ chart, onClose }: { chart: Chart; onClose: 
 
   useEffect(() => { dialog.current?.showModal(); }, []);
   useEffect(() => { writeJSON(key, draft); }, [key, draft]);
-  useEffect(() => { writeJSON(BRAND_KEY, brand); }, [brand]);
 
   const set = <K extends keyof BookDraft>(k: K, v: BookDraft[K]) => setDraft((d) => ({ ...d, [k]: v }));
   const note = (k: string) => draft.notes[k] ?? '';
@@ -55,7 +57,7 @@ export default function BookDialog({ chart, onClose }: { chart: Chart; onClose: 
     setDone(null);
     try {
       const { downloadBook } = await import('../report/book');
-      const r = await downloadBook(chart, { draft, brand, locale, onProgress: setBusy });
+      const r = await downloadBook(chart, { draft, brand: toBrand(branding), locale, onProgress: setBusy });
       setDone(r.cover ? `Done: ${r.pages} interior pages and a cover with a ${r.spineMm} mm spine, in one zip.` : `Done: ${r.pages} pages.`);
     } catch (e) {
       console.error(e);
@@ -84,8 +86,36 @@ export default function BookDialog({ chart, onClose }: { chart: Chart; onClose: 
     }
   };
 
-  const area = (label: string, k: string, hint: string, rows = 3) => (
-    <label key={k}>{label}<textarea rows={rows} value={note(k)} onChange={(e) => setNote(k, e.target.value)} placeholder={hint} /></label>
+  const phrases = usePhrases();
+  const phraseFound = useMemo(() => found && { yogas: found.yogas, doshas: found.doshas }, [found]);
+  const area = (label: string, k: string, hint: string, rows = 3) => {
+    const topic = bookTopic(k);
+    return (
+      <div key={k} className="book-note">
+        <label>{label}<textarea rows={rows} value={note(k)} onChange={(e) => setNote(k, e.target.value)} placeholder={hint} /></label>
+        {topic && <PhraseTools chart={chart} topics={[topic]} found={phraseFound} value={note(k)} onChange={(v) => setNote(k, v)} compact />}
+      </div>
+    );
+  };
+  /** Every note key on screen in the editor that a saved phrase could fill. */
+  const phraseKeys = () => [
+    'chapter:lagna',
+    ...IDS.map((id) => `graha:${id}`), ...Array.from({ length: 12 }, (_, i) => `house:${i + 1}`),
+    ...(found?.yogas.map((y) => `yoga:${y.id}`) ?? []), ...(found?.doshas.filter((d) => d.present).map((d) => `dosha:${d.id}`) ?? []),
+  ];
+  const fillFromPhrases = () => {
+    let n = 0;
+    const notes = { ...draft.notes };
+    for (const k of phraseKeys()) {
+      if (notes[k]?.trim()) continue;
+      const text = phrasesFor(phrases, topicKeys(chart, bookTopic(k)!, phraseFound)).reduce((acc, p) => withPhrase(acc, p.text), '');
+      if (text) { notes[k] = text; n++; }
+    }
+    set('notes', notes);
+    setDone(n ? `Filled ${n} empty note${n === 1 ? '' : 's'} from your saved phrases.` : 'None of your saved phrases match an empty note.');
+  };
+  const fillButton = phrases.length > 0 && (
+    <button type="button" className="btn-ghost sm book-fill" onClick={fillFromPhrases} title="Fill every empty planet, house, yoga and dosha note with your saved phrases for this chart's placements">Fill empty notes from my saved phrases</button>
   );
 
   return (
@@ -108,11 +138,8 @@ export default function BookDialog({ chart, onClose }: { chart: Chart; onClose: 
           {tab === 'practice' && (
             <fieldset>
               <legend>Your practice</legend>
-              <p className="muted">Printed on the cover, the title page and beside each of your notes. Leave the name empty for an unbranded book.</p>
-              <label>Name<input value={brand.name} onChange={(e) => setBrand((b) => ({ ...b, name: e.target.value }))} placeholder="e.g. Asha Rao, Jyotishi" /></label>
-              <label>Tagline<input value={brand.tagline ?? ''} onChange={(e) => setBrand((b) => ({ ...b, tagline: e.target.value }))} placeholder="optional" /></label>
-              <label>Contact<input value={brand.contact ?? ''} onChange={(e) => setBrand((b) => ({ ...b, contact: e.target.value }))} placeholder="website, email or phone (optional)" /></label>
-              {brand.logo && <p className="muted">Your logo from the consultation export is used on the cover.</p>}
+              <p className="muted">Printed on the cover, the title page, beside each of your notes and at the foot of every page. Leave your name empty for an unbranded book. This is the same branding as your other PDFs.</p>
+              <BrandingFields showEveryPdf={false} />
               <label>Book title<input value={draft.title} onChange={(e) => set('title', e.target.value)} /></label>
             </fieldset>
           )}
@@ -148,6 +175,7 @@ export default function BookDialog({ chart, onClose }: { chart: Chart; onClose: 
             <fieldset>
               <legend>Notes on planets and houses</legend>
               <p className="muted">Each note goes on that planet’s pages or after that house, under the reading the book writes.</p>
+              {fillButton}
               <div className="book-two">
                 <div>
                   {IDS.map((id) => {
@@ -168,6 +196,7 @@ export default function BookDialog({ chart, onClose }: { chart: Chart; onClose: 
           {tab === 'yogas' && (
             <fieldset>
               <legend>Notes on yogas, doshas and remedies</legend>
+              {fillButton}
               {!found && <p className="muted">Available once the Swiss Ephemeris has loaded.</p>}
               {found?.yogas.map((y, i) => <div key={`${y.id}-${i}`}>{area(`${y.name} (${y.strength})`, `yoga:${y.id}`, 'optional', 2)}</div>)}
               {found?.doshas.filter((d) => d.present).map((d) => <div key={d.id}>{area(`${d.name} (${d.severity})`, `dosha:${d.id}`, 'optional', 2)}</div>)}

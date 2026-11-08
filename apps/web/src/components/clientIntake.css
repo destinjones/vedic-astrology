@@ -1,0 +1,31 @@
+/* Client intake link (ClientIntake.tsx): under Saved charts, and the reply card at the top of the app. */
+
+.client-intake { margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--line-soft); }
+.client-intake > summary { cursor: pointer; list-style-position: inside; }
+.client-intake > summary b { font: 600 18px/1.2 var(--serif); }
+.client-intake-body { display: grid; gap: 18px; margin-top: 12px; }
+.client-intake-step { display: grid; gap: 10px; }
+.client-intake-sub { margin: 0; font-weight: 600; }
+.client-intake-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.client-intake-linkrow { display: flex; gap: 8px; align-items: center; }
+.client-intake-linkrow input, .client-intake textarea {
+  flex: 1; min-width: 0; width: 100%; box-sizing: border-box; padding: 9px 11px; border-radius: 10px; border: 1px solid var(--line-soft);
+  background: rgba(11, 10, 26, .6); color: var(--text); font: inherit; font-size: 13px;
+}
+.client-intake textarea { resize: vertical; }
+.client-intake .small, .client-intake-incoming .small { font-size: 13px; margin: 0; }
+
+.client-intake-incoming { max-width: 720px; margin: 0 auto 20px; border-color: var(--accent); }
+.client-intake-reply { display: grid; gap: 10px; padding: 12px; border-radius: 12px; background: rgba(232, 182, 90, .06); border: 1px solid var(--line-soft); }
+.client-intake-incoming .client-intake-reply { background: none; border: 0; padding: 0; }
+.client-intake-who { margin: 0; font-size: 17px; }
+.client-intake-facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0; }
+.client-intake-facts dt { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; padding-top: 2px; }
+.client-intake-facts dd { margin: 0; }
+.client-intake-questions { margin: 0; padding-left: 22px; display: grid; gap: 4px; }
+.client-intake-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+@media (max-width: 560px) {
+  .client-intake-grid { grid-template-columns: 1fr; }
+  .client-intake-grid .span-2 { grid-column: auto; }
+}

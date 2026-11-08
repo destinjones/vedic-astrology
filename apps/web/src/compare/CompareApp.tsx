@@ -11,6 +11,7 @@ import type { ChartOverlay } from '../components/chartShared';
 import { NAKSHATRAS, PLANETS, PLANET_BY_ID, signInfo } from '../data/constants';
 import { dignityOf, dignityTone, getVarga, houseOf, ordinal } from '../lib/astro';
 import { TrustFooter } from '../trust/TrustFooter';
+import { readVisit, writeVisit } from '../lib/lastChart';
 import {
   COUNTRY_NAMES, birthParams, compareHash, famousCharts, parseCompareHash, parsePastedLink, sameBirth, savedCharts,
   toChartInput, type SourceChart,
@@ -35,7 +36,7 @@ function loadStored(): BirthInput[] {
   const fromHash = parseCompareHash(location.hash).inputs;
   if (fromHash.length) return fromHash.slice(0, MAX);
   try {
-    const raw = JSON.parse(localStorage.getItem(STORE_KEY) ?? '[]') as unknown;
+    const raw = readVisit(STORE_KEY) ?? [];
     if (!Array.isArray(raw)) return [];
     return raw.flatMap((r) => parsePastedLink('#' + String(r)).inputs).slice(0, MAX);
   } catch { return []; }
@@ -74,7 +75,7 @@ export default function CompareApp() {
   useEffect(() => {
     const inputs = entries.map((e) => e.input);
     history.replaceState(null, '', location.pathname + location.search + compareHash(inputs));
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(inputs.map(birthParams))); } catch { /* ignore */ }
+    writeVisit(STORE_KEY, inputs.map(birthParams));
   }, [entries]);
 
   // `#famous=<id>` or `#f=<id>` links add a chart from the library.

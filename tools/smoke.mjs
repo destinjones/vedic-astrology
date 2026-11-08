@@ -33,7 +33,7 @@ try {
   if (offsite.size) problems.push(`landing page called other sites: ${[...offsite].join(', ')}`);
 
   // the other pages render (a page error is recorded by the handler above)
-  for (const p of ['compare/', 'match/', 'tools/', 'check/', 'study/']) {
+  for (const p of ['compare/', 'match/', 'family/', 'tools/', 'check/', 'study/', 'intake/']) {
     await page.goto(`${url}${BASE}${p}`, { waitUntil: 'networkidle' });
     if (!(await page.locator('#root').innerText()).trim()) problems.push(`${p}: page is blank`);
   }
@@ -94,7 +94,14 @@ try {
   if (!/\d/.test(await page.locator('#sade-sati .fy-count b').innerText().catch(() => ''))) problems.push('Sade Sati countdown shows no number');
   await page.waitForSelector('#rarity .fy-count b', { timeout: 60000 }).catch(() => problems.push('rarity percentile did not appear'));
   const reach = async (sel) => {
-    for (let i = 0; i < 60 && !(await page.locator(sel).count()); i++) { await page.mouse.wheel(0, 600); await page.waitForTimeout(100); }
+    // Sweep down from the top: the section may sit above where the last step left the page.
+    // Two frames after each step, so sections that mount when scrolled near (IntersectionObserver)
+    // see every position even when a software GPU draws only a few frames a second.
+    if (!(await page.locator(sel).count())) await page.evaluate(() => window.scrollTo(0, 0));
+    for (let i = 0; i < 150 && !(await page.locator(sel).count()); i++) {
+      // scroll the window itself: a wheel over a scrollable panel would scroll only that panel
+      await page.evaluate(() => new Promise((r) => { window.scrollBy(0, 600); requestAnimationFrame(() => requestAnimationFrame(r)); }));
+    }
     return page.locator(sel).first().scrollIntoViewIfNeeded().then(() => true, () => false);
   };
   if (await reach('#birth-time input[type=range]')) {
@@ -232,7 +239,9 @@ try {
   problems.push(...(await checkA11y(browser, url, BASE)).problems);
 } catch (e) {
   // a step that throws still reports what went wrong before it
-  problems.push(`stopped: ${e.message.split('\n')[0]}`);
+  // name the step, so a timeout in CI can be traced without a rerun
+  const at = e.stack?.match(/tools\/(\w+\.mjs:\d+)/)?.[1];
+  problems.push(`stopped${at ? ` at tools/${at}` : ''}: ${e.message.split('\n')[0]}`);
 } finally {
   await browser.close();
   await close();

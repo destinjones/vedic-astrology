@@ -15,7 +15,8 @@ import { ReportDoc } from './doc';
 import { registerFonts } from './fonts';
 import { scriptsIn } from './indic';
 import { fromTiming, longDate, monthYear, shortDate } from './format';
-import { C, CONTENT_W, F, MARGIN } from './theme';
+import { C, CONTENT_W, F, MARGIN, PAGE } from './theme';
+import { brandFooter, brandSub, type Brand } from './types';
 
 const MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const abbr = (p: string) => PLANET_BY_ID[fromTiming(p)].abbr;
@@ -27,6 +28,11 @@ const signed = (n: number) => (n > 0 ? `+${n}` : `${n}`);
 export interface YearOptions {
   /** First month of the year shown; default this month */
   start?: Date;
+}
+
+export interface YearPdfOptions extends YearOptions {
+  /** The astrologer's branding, printed at the top of the first page and the foot of every page. */
+  brand?: Brand;
 }
 
 export interface YearData {
@@ -77,17 +83,19 @@ export function yearData(engine: Engine, ec: EngineChart, opts: YearOptions = {}
   return { start, end, timeline, months, periods };
 }
 
-export async function generateYearPdf(engine: Engine, ec: EngineChart, input: BirthInput, opts: YearOptions = {}): Promise<Blob> {
+export async function generateYearPdf(engine: Engine, ec: EngineChart, input: BirthInput, opts: YearPdfOptions = {}): Promise<Blob> {
   const y = yearData(engine, ec, opts);
+  const brand = opts.brand?.name?.trim() ? opts.brand : undefined;
   const pdf = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
-  const indic = await registerFonts(pdf, scriptsIn(input.name, input.place));
+  const indic = await registerFonts(pdf, scriptsIn(input.name, input.place, brand?.name, brand?.practice, brand?.tagline, brand?.contact));
   const name = input.name?.trim() || longDate(input.date);
-  const doc = new ReportDoc(pdf, `${name}  ·  the year ahead`, indic);
+  const doc = new ReportDoc(pdf, brand ? `${brand.name}  ·  for ${name}` : `${name}  ·  the year ahead`, indic, { footer: brand ? brandFooter(brand) : undefined });
   const last = new Date(y.end.getTime() - 86_400_000);
   const range = `${monthYear(y.start)} to ${monthYear(last)}`;
 
   doc.newPage();
   doc.setRunning('The year ahead');
+  if (brand) brandStrip(doc, brand);
   doc.h2(`Your year, ${range}`, { kicker: input.name?.trim() ? `For ${input.name.trim()}` : 'Vedic timeline' });
   const moon = signInfo(Math.floor(ec.planets.moon.longitude / 30) + 1).name;
   const lagna = signInfo(Math.floor(ec.ascendant.longitude / 30) + 1).name;
@@ -178,13 +186,36 @@ export async function generateYearPdf(engine: Engine, ec: EngineChart, input: Bi
     body: 'A traditional reading for reflection and planning, not a prediction you can rely on, and not medical, legal or financial advice. The scores weigh classical rules in this site’s own way. A birth time a few minutes off moves the dasha dates by days or weeks.',
     edge: C.mixed,
   });
-  doc.para('Made with Jyotisha Explorer, free and open source (AGPL-3.0). Positions from the Swiss Ephemeris.', { size: 7.6, color: C.muted });
+  doc.para(`${brand ? `Prepared by ${brand.name}${brand.practice ? `, ${brand.practice}` : ''}. ` : ''}Made with Jyotisha Explorer, free and open source (AGPL-3.0). Positions from the Swiss Ephemeris.`, { size: 7.6, color: C.muted });
   doc.finish();
-  pdf.setProperties({ title: `${name} · the year ahead (${range})`, creator: 'Jyotisha Explorer', subject: 'Vedic yearly timeline' });
+  pdf.setProperties({ title: `${name} · the year ahead (${range})`, creator: 'Jyotisha Explorer', subject: 'Vedic yearly timeline', ...(brand ? { author: brand.name } : {}) });
   return pdf.output('blob');
 }
 
-export async function downloadYearPdf(engine: Engine, ec: EngineChart, input: BirthInput, opts: YearOptions = {}) {
+/** The astrologer's logo, name, practice and contact across the top of the first page. */
+function brandStrip(doc: ReportDoc, brand: Brand) {
+  const { pdf } = doc;
+  let x = MARGIN.left;
+  const top = doc.y;
+  let h = 30;
+  if (brand.logo) {
+    const props = pdf.getImageProperties(brand.logo);
+    const k = Math.min(90 / props.width, 40 / props.height);
+    pdf.addImage(brand.logo, props.fileType || 'PNG', x, top, props.width * k, props.height * k, 'brand-logo', 'FAST');
+    x += props.width * k + 12;
+    h = Math.max(h, props.height * k);
+  }
+  doc.line(brand.name, x, top + 2, { font: F.serifBold, size: 14, color: C.ink });
+  const sub = brandSub(brand);
+  if (sub) doc.line(sub, x, top + 19, { font: F.serifItalic, size: 9.5, color: C.muted });
+  if (brand.contact) doc.line(brand.contact, x, top + (sub ? 33 : 20), { font: F.sans, size: 7.4, color: C.muted });
+  if (sub && brand.contact) h = Math.max(h, 42);
+  doc.y = top + h + 10;
+  doc.stroke(C.rule, 0.5).pdf.line(MARGIN.left, doc.y, PAGE.w - MARGIN.right, doc.y);
+  doc.y += 16;
+}
+
+export async function downloadYearPdf(engine: Engine, ec: EngineChart, input: BirthInput, opts: YearPdfOptions = {}) {
   const blob = await generateYearPdf(engine, ec, input, opts);
   const who = (input.name?.trim() || input.date).replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '');
   const start = opts.start ?? new Date();

@@ -17,12 +17,30 @@ test('landing page renders', async ({ page }) => {
   await expect(page.locator('h1')).toContainText('Your birth chart');
 });
 
-for (const p of ['compare/', 'match/', 'tools/']) {
+for (const p of ['compare/', 'match/', 'family/', 'tools/']) {
   test(`${p} renders`, async ({ page }) => {
     await page.goto(p);
     await expect(page.locator('#root')).not.toBeEmpty();
   });
 }
+
+test('family page reads a linked relative', async ({ page }) => {
+  const at = '2026-01-01T00:00:00Z';
+  const input = (name, date) => ({ name, date, time: '06:30', place: 'New Delhi, India', latitude: 28.6139, longitude: 77.209, timezone: 'Asia/Kolkata', ayanamsa: 'lahiri' });
+  await page.goto('family/');
+  await page.evaluate(([profiles, links]) => {
+    localStorage.setItem('vedic.profiles.v1', JSON.stringify(profiles));
+    localStorage.setItem('vedic.family.v1', JSON.stringify(links));
+  }, [
+    [{ id: 'a', label: 'Asha', input: input('Asha', '1985-04-12'), savedAt: at, updatedAt: at }, { id: 'r', label: 'Riya', input: input('Riya', '2012-08-19'), savedAt: at, updatedAt: at }],
+    [{ id: 'l', fromId: 'a', toId: 'r', relation: 'child', updatedAt: at }],
+  ]);
+  await page.goto('family/#p=a');
+  await page.reload();
+  await page.getByRole('button', { name: /Riya/ }).click();
+  await expect(page.getByRole('heading', { name: 'Classical link' })).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByRole('heading', { name: /Moon to Moon/ })).toBeVisible();
+});
 
 test('sample chart calculates with the Swiss Ephemeris', async ({ page }) => {
   await page.goto('app/#sample');

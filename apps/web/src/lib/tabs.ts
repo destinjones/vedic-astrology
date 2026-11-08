@@ -8,6 +8,7 @@ import type { LifeEvent } from '@vedic/timing';
 import { sanitizeInput } from './profiles';
 import { loadEvents, sanitizeEvents } from './lifeEvents';
 import { parseAnnotations, type Annotation } from './annotations';
+import { AREAS, parseInvoices, parseRemedies, type Invoice, type PredictionArea, type RemedyPlan } from './practice';
 
 export type EntryKind = 'question' | 'prediction' | 'note';
 export type Outcome = 'open' | 'came-true' | 'partly' | 'did-not';
@@ -23,6 +24,25 @@ export interface LogEntry {
   about?: string;
   /** predictions: marked later */
   outcome?: Outcome;
+  /** predictions: the part of life it is about, for the track record */
+  area?: PredictionArea;
+  /** predictions: ISO date-time the outcome was last marked */
+  markedAt?: string;
+}
+
+/** A session held with the client, for the client list. */
+export interface Reading {
+  id: string;
+  /** YYYY-MM-DD */
+  date: string;
+  summary: string;
+}
+
+/** When to get back in touch, and why. */
+export interface FollowUp {
+  /** YYYY-MM-DD */
+  date: string;
+  note?: string;
 }
 
 export interface Tab {
@@ -42,6 +62,14 @@ export interface Tab {
   named?: boolean;
   /** Notes pinned to houses and planets of this chart. */
   annotations?: Annotation[];
+  /** Sessions held, newest first. */
+  readings?: Reading[];
+  /** Next time to contact this client. */
+  followUp?: FollowUp;
+  /** Remedy follow-up: what the client does and when to check in. */
+  remedies?: RemedyPlan;
+  /** Invoices and receipts for this client, newest first. */
+  invoices?: Invoice[];
 }
 
 export interface Workspace {
@@ -54,7 +82,8 @@ export interface Workspace {
 
 export const MAX_ARCHIVED = 500;
 /** A tab worth keeping when it is closed. */
-export const hasContent = (t: Tab) => !!t.input || !!t.notes.trim() || t.log.length > 0 || t.events.length > 0 || !!t.annotations?.length;
+export const hasContent = (t: Tab) =>
+  !!t.input || !!t.notes.trim() || t.log.length > 0 || t.events.length > 0 || !!t.annotations?.length || !!t.readings?.length || !!t.followUp || !!t.remedies || !!t.invoices?.length;
 
 const KEY = 'vedic.tabs.v1';
 export const MAX_TABS = 24;
@@ -82,9 +111,39 @@ function parseLog(raw: unknown): LogEntry[] {
       at: typeof r.at === 'string' && !Number.isNaN(Date.parse(r.at)) ? r.at : new Date().toISOString(),
       about: typeof r.about === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(r.about) ? r.about : undefined,
       outcome: kind === 'prediction' ? (OUTCOMES.includes(r.outcome as Outcome) ? (r.outcome as Outcome) : 'open') : undefined,
+      ...(kind === 'prediction' && AREAS.includes(r.area as PredictionArea) ? { area: r.area as PredictionArea } : {}),
+      ...(kind === 'prediction' && typeof r.markedAt === 'string' && !Number.isNaN(Date.parse(r.markedAt)) ? { markedAt: r.markedAt } : {}),
     });
   }
   return out;
+}
+
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+const isDay = (v: unknown): v is string => typeof v === 'string' && DAY_RE.test(v) && !Number.isNaN(Date.parse(v));
+
+export function parseReadings(raw: unknown): Reading[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const out: Reading[] = [];
+  for (const e of raw.slice(0, 1000)) {
+    if (!e || typeof e !== 'object') continue;
+    const r = e as Record<string, unknown>;
+    if (!isDay(r.date)) continue;
+    out.push({
+      id: typeof r.id === 'string' && r.id ? r.id.slice(0, 64) : newTabId(),
+      date: r.date,
+      summary: typeof r.summary === 'string' ? r.summary.slice(0, 5000) : '',
+    });
+  }
+  out.sort((a, b) => b.date.localeCompare(a.date));
+  return out.length ? out : undefined;
+}
+
+export function parseFollowUp(raw: unknown): FollowUp | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const r = raw as Record<string, unknown>;
+  if (!isDay(r.date)) return undefined;
+  const note = typeof r.note === 'string' && r.note.trim() ? r.note.slice(0, 500) : undefined;
+  return { date: r.date, ...(note ? { note } : {}) };
 }
 
 /** Reads one stored or imported tab; null when it is not a tab. */
@@ -104,6 +163,10 @@ export function parseTab(t: unknown, n: number): Tab | null {
     varga: typeof r.varga === 'string' && /^D\d{1,2}$/.test(r.varga) ? (r.varga as VargaId) : undefined,
     named: r.named === true,
     annotations: Array.isArray(r.annotations) && r.annotations.length ? parseAnnotations(r.annotations) : undefined,
+    readings: parseReadings(r.readings),
+    followUp: parseFollowUp(r.followUp),
+    remedies: parseRemedies(r.remedies),
+    invoices: parseInvoices(r.invoices),
   };
 }
 

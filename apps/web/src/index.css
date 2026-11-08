@@ -389,7 +389,7 @@ html .app .timing-host .vt-root {
   color-scheme: dark;
   --surface-0: transparent; --surface-1: rgba(255,255,255,.03); --surface-2: rgba(255,255,255,.06); --border: var(--line-soft);
   --text-primary: var(--text); --text-secondary: #c9c3dc; --text-muted: var(--muted); --grid: rgba(255,255,255,.08);
-  --accent: #b48cff; --good: #3987e5; --bad: #e66767; --gold: var(--accent);
+  --accent: #b48cff; --on-accent: #140d26; --good: #3987e5; --bad: #e66767; --gold: var(--accent);
   --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500; --series-5: #d55181;
   background: transparent; min-width: 0;
 }
@@ -720,6 +720,20 @@ kbd {
 .consult-section span { display: flex; flex-direction: column; }
 .consult-section small { font-size: 12px; }
 .consult-dialog footer { display: flex; justify-content: flex-end; align-items: center; gap: 10px; flex-wrap: wrap; }
+.consult-dialog input:is([type='text'], [type='email'], [type='tel'], [type='url']) { background: var(--bg-2); border: 1px solid var(--line-soft); border-radius: 8px; padding: 8px 10px; color: var(--text); font: inherit; font-size: 14px; }
+.branding-dialog { width: min(720px, calc(100vw - 32px)); }
+.branding-dialog form { max-height: calc(100vh - 34px); overflow-y: auto; }
+.branding-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.branding-fields > :is(.consult-logo, .consult-section, .report-error) { grid-column: 1 / -1; }
+.consult-grid .branding-fields, .book-panel .branding-fields { grid-template-columns: 1fr; }
+@media (min-width: 721px) { .book-panel .branding-fields { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .branding-fields { grid-template-columns: 1fr; } }
+.branding-summary { display: flex; align-items: center; gap: 14px; }
+.branding-summary img { max-height: 48px; max-width: 120px; background: #0d1232; border-radius: 6px; padding: 4px; }
+.branding-summary span { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.branding-summary b { font: 600 18px/1.2 var(--serif); }
+.branding-summary small { font-size: 12.5px; }
+.branding-dialog fieldset p.muted, .consult-dialog fieldset > p.muted { margin: 0; font-size: 13px; }
 .book-dialog { width: min(920px, calc(100vw - 32px)); }
 .book-dialog form { max-height: calc(100vh - 34px); }
 .book-tabs { display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid var(--line-soft); padding-bottom: 10px; }

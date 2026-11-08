@@ -14,6 +14,9 @@ const FLAT = 'body, .card { background: #17142f !important; backdrop-filter: non
 // at about two frames a second; Playwright's stable-element checks then time out on CI. Reduced
 // motion stops it (as the site does for visitors who ask) and leaves the chart itself unchanged.
 test.use({ reducedMotion: 'reduce' });
+// The offline service worker shows a "saved for offline use" notice on a first visit, fixed to the
+// bottom of the window, where it can sit over the chart. These pictures are of the chart alone.
+test.use({ serviceWorkers: 'block' });
 
 for (const [size, viewport] of Object.entries(BREAKPOINTS)) {
   for (const [style, label] of Object.entries(STYLES)) {

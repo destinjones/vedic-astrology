@@ -1,5 +1,6 @@
 import type { ChartInput } from '@vedic/interpretations';
 import type { BirthInput, Chart } from '../types/chart';
+import { readLastChart } from '../lib/lastChart';
 
 /** The sample chart the app opens with, used when this browser has no chart of its own yet. */
 export const SAMPLE_INPUT: BirthInput = {
@@ -10,8 +11,7 @@ export const SAMPLE_INPUT: BirthInput = {
 /** The chart last opened in the explorer, if any. */
 export function lastInput(): BirthInput | null {
   try {
-    const s = localStorage.getItem('vedic.lastInput');
-    const o = s ? JSON.parse(s) : null;
+    const o = readLastChart() as Partial<BirthInput> | null;
     if (o && typeof o.date === 'string' && typeof o.time === 'string' && Number.isFinite(o.latitude) && Number.isFinite(o.longitude)) return { ...SAMPLE_INPUT, name: '', ...o };
   } catch { /* ignore */ }
   return null;

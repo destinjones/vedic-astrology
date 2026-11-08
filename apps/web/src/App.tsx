@@ -8,9 +8,14 @@ import { TabBar } from './components/TabBar';
 import { Presenter } from './components/Presenter';
 import { buildSteps, type Step } from './lib/walkthrough';
 import { loadEvents } from './lib/lifeEvents';
-import { blankTab, hasContent, labelFor, loadWorkspace, MAX_ARCHIVED, MAX_TABS, storeWorkspace, type Tab, type Workspace } from './lib/tabs';
+import { blankTab, hasContent, labelFor, loadWorkspace, MAX_ARCHIVED, MAX_TABS, newTabId, storeWorkspace, type LogEntry, type Tab, type Workspace } from './lib/tabs';
+import type { ClientRow } from './lib/clients';
+import type { ClientPatch } from './components/ClientManager';
 import { backupFileName, downloadText, exportAll, restoreAll } from './lib/backup';
+import { storeLinks } from './lib/family';
 import { ClientHistory } from './components/ClientHistory';
+import { practiceStore } from './lib/practice';
+import { isReplyHash, parseReply, type IntakeReply } from './lib/intake';
 import { loadProfiles, parseShareHash, sameBirth, storeProfiles, upsertProfile, type Profile } from './lib/profiles';
 import { NorthChart } from './components/NorthChart';
 import { SouthChart } from './components/SouthChart';
@@ -56,16 +61,25 @@ import { ChartTable } from './components/ChartTable';
 import { setDisplay, useDisplay } from './lib/display';
 import { trackEvent, trackOnce } from './lib/analytics';
 import { TrustFooter } from './trust/TrustFooter';
+import { forgetLegacyVisitData, writeLastChart } from './lib/lastChart';
 
 const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
 const EventChecker = lazy(() => import('./components/EventChecker'));
 const JaiminiSection = lazy(() => import('./components/JaiminiSection'));
 const RemediesSection = lazy(() => import('./components/RemediesSection'));
+const ClientPractice = lazy(() => import('./components/ClientPractice').then((m) => ({ default: m.ClientPractice })));
+const PracticeView = lazy(() => import('./components/PracticeView').then((m) => ({ default: m.PracticeView })));
 const RectificationSection = lazy(() => import('./components/RectificationSection'));
 const VarshaphalSection = lazy(() => import('./components/VarshaphalSection'));
 const SkyEvents = lazy(() => import('./components/SkyEvents'));
 const Personal = lazy(() => import('./personal/Personal'));
+const ClientManager = lazy(() => import('./components/ClientManager'));
+const ClientIntakeTools = lazy(() => import('./components/ClientIntake').then((m) => ({ default: m.ClientIntakeTools })));
+const IncomingIntake = lazy(() => import('./components/ClientIntake').then((m) => ({ default: m.IncomingIntake })));
+const SessionPrep = lazy(() => import('./consult/SessionPrep'));
+const SessionMode = lazy(() => import('./components/SessionMode').then((m) => ({ default: m.SessionMode })));
+const ChartDashboard = lazy(() => import('./components/ChartDashboard').then((m) => ({ default: m.ChartDashboard })));
 const ClassicalTiming = lazy(() => import('./components/ClassicalTiming').then((m) => ({ default: m.ClassicalTiming })));
 
 /** Mounts children once the placeholder scrolls near the viewport. */
@@ -92,14 +106,22 @@ const DEFAULT_INPUT: BirthInput = {
   ayanamsa: 'lahiri',
 };
 
-const STORE_KEY = 'vedic.lastInput';
-const loadInput = (): BirthInput => {
-  try { const s = localStorage.getItem(STORE_KEY); if (s) return { ...DEFAULT_INPUT, ...JSON.parse(s) }; } catch { /* ignore */ }
-  return DEFAULT_INPUT;
+// older versions kept the last person's details in localStorage; clear them once
+if (typeof window !== 'undefined') forgetLegacyVisitData();
+
+/**
+ * What the form shows for a new chart: nothing filled in. The sample above is
+ * only opened on request ("Or try a sample chart", /app/#sample), and the
+ * previous person's details are never carried into the next new chart.
+ */
+const blankInput = (): BirthInput => {
+  let timezone = 'UTC';
+  try { timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { /* ignore */ }
+  return { name: '', date: '', time: '', place: '', latitude: Number.NaN, longitude: Number.NaN, timezone, ayanamsa: 'lahiri' };
 };
 
 export default function App() {
-  const [input, setInput] = useState<BirthInput>(loadInput);
+  const [input, setInput] = useState<BirthInput>(blankInput);
   const [chart, setChart] = useState<Chart | null>(null);
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(true);
@@ -129,10 +151,16 @@ export default function App() {
   const [presenting, setPresenting] = useState(false);
   const [showFamous, setShowFamous] = useState(false);
   const [showBatch, setShowBatch] = useState(false);
+  const [showClients, setShowClients] = useState(false);
+  const [showPractice, setShowPractice] = useState(false);
   const [exportTab, setExportTab] = useState<ExportTab | null>(null);
   const [annotating, setAnnotating] = useState(false);
   const [focusNote, setFocusNote] = useState<string | null>(null);
   const [narrating, setNarrating] = useState(false);
+  // session mode: a clean screen to share with a client; the dashboard: several charts on one screen
+  const [session, setSession] = useState(false);
+  const [dashboard, setDashboard] = useState(() => { try { return localStorage.getItem('vedic.view') === 'dashboard'; } catch { return false; } });
+  useEffect(() => { try { localStorage.setItem('vedic.view', dashboard ? 'dashboard' : 'explorer'); } catch { /* ignore */ } }, [dashboard]);
   // worked-out charts per tab, so switching tabs is instant
   const charts = useRef(new Map<string, Chart>());
   const wsRef = useRef(ws);
@@ -146,6 +174,13 @@ export default function App() {
   useEffect(() => { storeWorkspace(ws); }, [ws]);
   const patchTab = (id: string, patch: Partial<Tab>) =>
     setWs((w) => ({ ...w, tabs: w.tabs.map((t) => (t.id === id ? { ...t, ...patch } : t)) }));
+  /** Changes a client's tab whether it is open or closed (the practice view works across both). */
+  const patchAnyTab = (id: string, patch: Partial<Tab>) =>
+    setWs((w) => ({
+      ...w,
+      tabs: w.tabs.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+      archived: w.archived.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+    }));
   // notes pinned to this tab's chart
   const notes = activeTab.annotations ?? [];
   const setNotes = (list: Annotation[]) => patchTab(activeTab.id, { annotations: list.length ? list : undefined });
@@ -197,7 +232,7 @@ export default function App() {
       setShowFamous(false);
       // a famous chart never replaces the visitor's own saved details
       if (!FAMOUS_CHARTS.some((f) => sameBirth(f.input, i))) {
-        try { localStorage.setItem(STORE_KEY, JSON.stringify(i)); } catch { /* ignore */ }
+        writeLastChart(i);
       }
     } finally {
       setBusy(false);
@@ -218,6 +253,13 @@ export default function App() {
   // and a share link (/app/#d=…&t=…) opens the chart it carries.
   useEffect(() => {
     const open = () => {
+      // /app/#intake&... is a client's reply to an intake link: show it and let the astrologer add it
+      if (isReplyHash(location.hash)) {
+        setIncomingIntake(parseReply(location.hash) ?? 'invalid');
+        history.replaceState(null, '', location.pathname + location.search);
+        window.scrollTo({ top: 0 });
+        return false;
+      }
       // /app/#famous opens the famous charts library, /app/#famous=<id> opens one chart
       const fm = /^#famous(?:=([\w-]+))?$/.exec(location.hash);
       const famousLinked = fm?.[1] ? famousChartById(fm[1])?.input : undefined;
@@ -244,7 +286,7 @@ export default function App() {
     wsRef.current = { ...wsRef.current, activeId: id };
     setWs((w) => ({ ...w, activeId: id }));
     setEditingId(null);
-    setInput(tab.input ?? loadInput());
+    setInput(tab.input ?? blankInput());
     setFormKey((k) => k + 1);
     setStyle(tab.style ?? 'north');
     setVargaId(tab.varga ?? 'D1');
@@ -292,20 +334,72 @@ export default function App() {
     setWs(wsRef.current);
     switchTab(tab.id);
   };
+  /** Opens a client from the client list: its tab, its closed tab, or its saved chart. */
+  const openClient = (row: ClientRow) => {
+    setShowClients(false);
+    if (row.where === 'open') switchTab(row.key);
+    else if (row.where === 'closed' && row.tab) reopenTab(row.tab);
+    else if (row.input) openInTab(row.input);
+  };
+  /** Readings and follow-ups for a client. A saved chart with no tab gets a closed tab to keep them in. */
+  const patchClient = (row: ClientRow, patch: ClientPatch) => {
+    const w = wsRef.current;
+    const apply = (t: Tab) => (t.id === row.key ? { ...t, ...patch } : t);
+    if (row.where === 'saved') {
+      if (!row.input) return;
+      const tab: Tab = { id: newTabId(), label: row.label, input: row.input, notes: '', log: [], events: loadEvents(row.input), named: true, ...patch };
+      wsRef.current = { ...w, archived: [tab, ...w.archived].slice(0, MAX_ARCHIVED) };
+    } else {
+      wsRef.current = { ...w, tabs: w.tabs.map(apply), archived: w.archived.map(apply) };
+    }
+    setWs(wsRef.current);
+  };
   const forgetTab = (tab: Tab) => setWs((w) => ({ ...w, archived: w.archived.filter((t) => t.id !== tab.id) }));
-  const backup = () => downloadText(exportAll(wsRef.current, profiles), backupFileName());
+  /** The family page, opened on this chart when it is saved. */
+  const familyHref = () => {
+    const saved = chart && profiles.find((p) => sameBirth(p.input, chart.input));
+    return `${import.meta.env.BASE_URL}family/${saved ? `#p=${encodeURIComponent(saved.id)}` : ''}`;
+  };
+  const backup = () => downloadText(exportAll(wsRef.current, profiles, { practice: practiceStore.get() }), backupFileName());
   const restore = (text: string, sync = false) => {
     try {
-      const r = restoreAll(wsRef.current, profiles, text, { mergeExisting: sync });
+      const r = restoreAll(wsRef.current, profiles, text, { mergeExisting: sync, practice: practiceStore.get() });
+      if (r.practice) practiceStore.set(r.practice);
       wsRef.current = r.ws;
       setWs(r.ws);
       saveProfiles(r.profiles);
+      storeLinks(r.family);
       if (sync) return `Merged ${r.tabsAdded} new tab${r.tabsAdded === 1 ? '' : 's'} and ${r.chartsAdded} new saved chart${r.chartsAdded === 1 ? '' : 's'}, and joined notes and history on the rest.`;
-      if (!r.tabsAdded && !r.chartsAdded) return 'Everything in that backup is already here.';
+      if (!r.tabsAdded && !r.chartsAdded && !r.linksAdded) return 'Everything in that backup is already here.';
       return `Restored ${r.tabsAdded} tab${r.tabsAdded === 1 ? '' : 's'} and ${r.chartsAdded} saved chart${r.chartsAdded === 1 ? '' : 's'}.`;
     } catch {
       return 'That file is not a Jyotisha Explorer backup.';
     }
+  };
+
+  /** A client's intake reply: save the chart, open it, and put their questions in the tab's history. */
+  const [incomingIntake, setIncomingIntake] = useState<IntakeReply | 'invalid' | null>(null);
+  const addIntake = (r: IntakeReply) => {
+    const label = r.input.name?.trim() || 'New client';
+    saveProfiles(upsertProfile(loadProfiles(), label, r.input));
+    openInTab(r.input);
+    const id = wsRef.current.activeId;
+    const at = r.sentOn ? `${r.sentOn}T12:00:00.000Z` : new Date().toISOString();
+    const note = [`Sent their birth details through the intake link${r.sentOn ? ` on ${r.sentOn}` : ''}.`, r.contact && `Contact: ${r.contact}`].filter(Boolean).join(' ');
+    const entries: LogEntry[] = [
+      ...r.questions.map((text) => ({ id: newTabId(), kind: 'question' as const, text, at })),
+      { id: newTabId(), kind: 'note', text: note, at },
+    ];
+    // a reply added twice does not repeat its questions
+    setWs((w) => ({
+      ...w,
+      tabs: w.tabs.map((t) => (t.id === id ? {
+        ...t, label, named: true,
+        log: [...entries.filter((e) => !t.log.some((x) => x.kind === e.kind && x.text === e.text)), ...t.log],
+      } : t)),
+    }));
+    setIncomingIntake(null);
+    trackEvent('intake-added');
   };
 
   /** Opens a chart: its tab if one is open, this tab if empty, otherwise a new tab. */
@@ -395,6 +489,18 @@ export default function App() {
     setEditing(true);
     requestAnimationFrame(() => document.querySelector<HTMLInputElement>('.birth-form input')?.focus());
   };
+  /** Brings a client to the front from the practice view, reopening a closed tab. */
+  const openPracticeClient = (id: string) => {
+    const closed = wsRef.current.archived.find((t) => t.id === id);
+    if (closed) reopenTab(closed);
+    switchTab(id);
+    setShowPractice(false);
+    requestAnimationFrame(() => document.getElementById('client-history')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  };
+  const openPractice = () => {
+    setShowPractice(true);
+    requestAnimationFrame(() => document.getElementById('practice')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  };
   // Keyboard and quick-switch commands: client tabs first, then the open chart.
   const tabIndex = ws.tabs.findIndex((x) => x.id === ws.activeId);
   const stepTab = (d: number) => { if (ws.tabs.length > 1) switchTab(ws.tabs[(tabIndex + d + ws.tabs.length) % ws.tabs.length].id); };
@@ -411,6 +517,7 @@ export default function App() {
     })),
     { id: 'tab.next', group: 'Clients', title: 'Next tab', shortcut: 'Alt+]', keywords: 'client tab forward', run: () => stepTab(1) },
     { id: 'tab.prev', group: 'Clients', title: 'Previous tab', shortcut: 'Alt+[', keywords: 'client tab back', run: () => stepTab(-1) },
+    { id: 'practice.open', group: 'Clients', title: 'Your practice: track record, invoices, packages', keywords: 'prediction hit miss score invoice receipt payment package price remedies check-in', run: openPractice },
     { id: 'tab.new', group: 'Clients', title: 'New tab', shortcut: 'Alt+n', keywords: 'client person add blank', run: () => { newTab(); requestAnimationFrame(() => document.querySelector<HTMLInputElement>('.birth-form input')?.focus()); } },
     { id: 'tab.close', group: 'Clients', title: `Close ${activeTab.label}`, keywords: 'client tab close archive', hint: 'kept under closed tabs', run: () => closeTab(activeTab.id) },
     ...ws.archived.map((x): Command => ({
@@ -430,8 +537,13 @@ export default function App() {
       run: () => openInTab(pr.input),
     })),
     { id: 'famous', group: 'Tools', title: 'Famous charts library', keywords: 'celebrity public figures india america britain', run: () => { setShowFamous(true); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+    { id: 'family', group: 'Tools', title: 'Family charts: link spouse, children and parents', keywords: 'family relatives spouse children parents siblings linked', run: () => { location.href = familyHref(); } },
     { id: 'compare', group: 'Tools', title: 'Compare charts side by side', keywords: 'side by side two charts compatibility', run: () => { location.href = `${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`; } },
     ...(chart ? [{ id: 'present', group: 'Tools', title: 'Present this chart', keywords: 'full screen walkthrough screen share recording', run: startPresent }] : []),
+    ...(chart ? [
+      { id: 'session', group: 'Tools', title: 'Session mode for a client call', keywords: 'video call zoom share screen client talking points clean', run: () => setSession(true) },
+      { id: 'dashboard', group: 'Tools', title: dashboard ? 'Back to the full chart' : 'Multi-chart dashboard', keywords: 'd1 d9 d10 dasha grid several charts one screen layout', run: () => { setDashboard((d) => !d); window.scrollTo({ top: 0 }); } },
+    ] : []),
     ...(chart ? [
       { id: 'export.image', group: 'Tools', title: 'Export chart image (PNG or SVG)', keywords: 'download picture png svg print', run: () => setExportTab('image') },
       { id: 'export.card', group: 'Tools', title: 'Share card for WhatsApp or Telegram', keywords: 'share image whatsapp telegram social', run: () => setExportTab('card') },
@@ -440,6 +552,7 @@ export default function App() {
       { id: 'notes', group: 'Tools', title: 'Pin notes to the chart', keywords: 'annotate annotation note house planet', run: () => { setAnnotating(true); jumpTo('chart'); } },
       ...(speechSupported() ? [{ id: 'listen', group: 'Tools', title: 'Listen to this chart read aloud', keywords: 'audio narration speak voice read', run: () => setNarrating(true) }] : []),
     ] : []),
+    { id: 'clients', group: 'Clients', title: 'Client list and upcoming alerts', keywords: 'clients follow up readings predictions dasha transit alerts reminders', run: () => { setShowClients(true); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
     { id: 'backup', group: 'Tools', title: 'Back up all tabs and charts', keywords: 'export download file save', run: backup },
     { id: 'data', group: 'Tools', title: 'Import, export and encrypted sync', keywords: 'csv json aaf jhd jagannatha astro.com astrodatabank paste bulk sync devices passphrase', run: () => { setEditing(true); requestAnimationFrame(() => { const d = document.getElementById('data-tools') as HTMLDetailsElement | null; if (d) { d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }); } },
     ...(profiles.length > 1 ? [{ id: 'batch', group: 'Tools', title: 'Batch view of all saved charts', keywords: 'clients table list overview', run: () => setShowBatch(true) }] : []),
@@ -480,17 +593,22 @@ export default function App() {
           </div>
         </a>
         <div className="topbar-actions">
-          <QuickSwitch commands={commands} />
+          <QuickSwitch commands={session ? [] : commands} />
           <LanguageSwitcher />
           <DisplaySettings />
+          <button className="btn-ghost" aria-expanded={showClients} onClick={() => setShowClients((x) => !x)} title="Your clients, their readings and follow-ups, and dasha and transit alerts coming up">Clients</button>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}study/`}>Study</a>
           <button className="btn-ghost" aria-expanded={showFamous} onClick={() => setShowFamous((v) => !v)}>Famous charts</button>
+          <button className="btn-ghost" aria-expanded={showPractice} onClick={() => (showPractice ? setShowPractice(false) : openPractice())} title="Prediction track record, invoices and packages">Practice</button>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`}>Compare charts</a>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}match/`}>Compatibility</a>
+          <a className="btn-ghost" href={familyHref()}>Family charts</a>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}tools/`}>KP · Prashna · Muhurta</a>
           {chart && (
             <>
               <button className="btn-ghost" onClick={startPresent} title="Full screen walkthrough for a client, a screen share or a recording">▶ Present</button>
+              <button className="btn-ghost" onClick={() => setSession(true)} title="A clean screen to share on a video call: the chart and your talking points, never your private notes">◉ Session</button>
+              <button className="btn-ghost" aria-pressed={dashboard} onClick={() => { setDashboard((d) => !d); window.scrollTo({ top: 0 }); }} title="D1, D9, D10 and the dasha on one screen, arranged your way">▦ Dashboard</button>
               {speechSupported() && <button className="btn-ghost" aria-pressed={narrating} onClick={() => setNarrating((x) => !x)} title="Read the chart aloud, moving through it as it goes">🔊 Listen</button>}
               <ReportActions chart={chart} />
               <ChartActions input={chart.input} profiles={profiles} onSave={saveCurrent} onShowSaved={showSaved} famousId={famous?.id} onExport={() => setExportTab('card')} />
@@ -516,12 +634,36 @@ export default function App() {
         </div>
       )}
 
+      {incomingIntake && <Suspense fallback={null}><IncomingIntake reply={incomingIntake} onAdd={addIntake} onDismiss={() => setIncomingIntake(null)} /></Suspense>}
+
       {!chart && busy && activeTab.input && (
         <div className="card tab-loading" role="status">Opening {activeTab.label}'s chart…</div>
       )}
 
+      {showClients && !presenting && (
+        <Suspense fallback={<div className="card tab-loading" role="status">Opening the client list…</div>}>
+          <ClientManager
+            ws={ws}
+            profiles={profiles}
+            busy={busy}
+            onOpen={openClient}
+            onPatch={patchClient}
+            onNew={() => { setShowClients(false); newTab(); requestAnimationFrame(() => document.querySelector<HTMLInputElement>('.birth-form input')?.focus()); }}
+            onBackup={backup}
+            onRestore={restore}
+            onClose={() => setShowClients(false)}
+          />
+        </Suspense>
+      )}
+
       {showBatch && (
         <BatchView profiles={profiles} busy={busy} onOpen={(p) => { setShowBatch(false); openInTab(p.input); }} onClose={() => setShowBatch(false)} />
+      )}
+
+      {showPractice && (
+        <Suspense fallback={null}>
+          <PracticeView tabs={ws.tabs} archived={ws.archived} onPatch={patchAnyTab} onOpen={openPracticeClient} onClose={() => setShowPractice(false)} />
+        </Suspense>
       )}
 
       {showFamous && (
@@ -550,10 +692,11 @@ export default function App() {
               onBackup={backup}
               onRestore={restore}
               onSyncMerge={(text) => restore(text, true)}
-              backupText={() => exportAll(wsRef.current, profiles)}
+              backupText={() => exportAll(wsRef.current, profiles, { practice: practiceStore.get() })}
               onImport={importMany}
               onBatch={() => { setShowBatch(true); requestAnimationFrame(() => document.getElementById('batch')?.scrollIntoView({ behavior: 'smooth', block: 'start' })); }}
             />
+            <Suspense fallback={null}><ClientIntakeTools onAdd={addIntake} /></Suspense>
             {editingId && (
               <p className="editing-note">
                 Editing <b>{profiles.find((p) => p.id === editingId)?.label}</b>. Your changes update this saved chart.{' '}
@@ -565,7 +708,13 @@ export default function App() {
         </section>
       )}
 
-      {chart && varga && (
+      {chart && varga && dashboard && (
+        <Suspense fallback={<div className="card tab-loading" role="status">Opening the dashboard…</div>}>
+          <ChartDashboard chart={chart} style={style} onStyle={setStyle} selection={selection} onSelect={pick} onClose={() => setDashboard(false)} />
+        </Suspense>
+      )}
+
+      {chart && varga && !dashboard && (
         <main className="explorer">
           <section className="summary-strip">
             <div className="summary-item">
@@ -679,6 +828,14 @@ export default function App() {
           </div>
 
           {caseStudyFor(famous?.id) && <CaseStudyCard study={caseStudyFor(famous?.id)!} report={knowledge?.report} />}
+
+          {knowledge && chart.engineContext && (
+            <WhenVisible minHeight={320}>
+              <Suspense fallback={null}>
+                <SessionPrep chart={chart} report={knowledge.report} />
+              </Suspense>
+            </WhenVisible>
+          )}
 
           {chart.engineContext && (
             <WhenVisible minHeight={560}>
@@ -854,9 +1011,23 @@ export default function App() {
             onNotes={(notes) => patchTab(activeTab.id, { notes })}
             onLog={(log) => patchTab(activeTab.id, { log })}
           />
+          <Suspense fallback={null}>
+            <ClientPractice
+              tab={activeTab}
+              chart={chart.engineContext?.chart}
+              onRemedies={(remedies) => patchTab(activeTab.id, { remedies })}
+              onInvoices={(invoices) => patchTab(activeTab.id, { invoices })}
+              onOpenPractice={openPractice}
+            />
+          </Suspense>
         </main>
       )}
 
+      {session && chart && (
+        <Suspense fallback={null}>
+          <SessionMode key={activeTab.id} chart={chart} tabId={activeTab.id} initialVarga={vargaId} style={style} onStyle={setStyle} onClose={() => setSession(false)} />
+        </Suspense>
+      )}
       {presenting && chart && <Presenter key={activeTab.id} steps={steps} onStep={showStep} onExit={stopPresent} />}
       {narrating && chart && !presenting && (
         <Narrator key={activeTab.id} steps={steps} knowledge={knowledge} onStep={showStep}

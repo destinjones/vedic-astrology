@@ -10,7 +10,7 @@ import { registerFonts } from '../fonts';
 import { LOCALE_SCRIPT, scriptsIn } from '../indic';
 import { longDate } from '../format';
 import { C, F, PAGE, roman } from '../theme';
-import type { Brand, ReportContext } from '../types';
+import { brandFooter, type Brand, type ReportContext } from '../types';
 import { glance } from '../sections/glance';
 import { grahas } from '../sections/grahas';
 import { houses } from '../sections/houses';
@@ -108,7 +108,7 @@ export async function generateBook(chart: Chart, opts: BookOptions): Promise<Boo
   say('Preparing the artwork…');
   const pdf = new jsPDF({ unit: 'pt', format: [PAGE.w + 2 * b, PAGE.h + 2 * b], compress: true });
   const allText = [draft.title, draft.dedication, draft.letter, draft.closing, draft.takeaways, ...Object.values(draft.notes)];
-  const scripts = scriptsIn(chart.input.name, chart.input.place, opts.brand?.name, opts.brand?.tagline, opts.brand?.contact, ...allText);
+  const scripts = scriptsIn(chart.input.name, chart.input.place, opts.brand?.name, opts.brand?.practice, opts.brand?.tagline, opts.brand?.contact, ...allText);
   const own = opts.locale ? LOCALE_SCRIPT[opts.locale] : undefined;
   if (own) scripts.add(own);
   const [art, indic] = await Promise.all([loadArt(chart.ascendant.longitude), registerFonts(pdf, scripts)]);
@@ -127,7 +127,7 @@ export async function generateBook(chart: Chart, opts: BookOptions): Promise<Boo
   const ctx: BookContext = { ...base, draft, by: brand?.name.trim() ?? '', numerals, forecast: full, cited: new Map() };
   ctx.annotate = (d, key) => astrologerNote(d, ctx, key);
 
-  const doc = new ReportDoc(pdf, `${name}  ·  ${draft.title || 'The Life Chart Book'}`, indic, { bleed: b, recto: print });
+  const doc = new ReportDoc(pdf, `${name}  ·  ${draft.title || 'The Life Chart Book'}`, indic, { bleed: b, recto: print, footer: brand ? brandFooter(brand) : undefined });
   if (print && draft.notesPages) doc.filler = (d) => notesPage(d);
 
   say('Laying out the front pages…');
@@ -211,7 +211,7 @@ async function coverSpread(ctx: BookContext, chapters: string[], spine: number):
   const W = 2 * PAGE.w + spine + 2 * b;
   const H = PAGE.h + 2 * b;
   const pdf = new jsPDF({ unit: 'pt', format: [W, H], orientation: 'landscape', compress: true });
-  const indic = await registerFonts(pdf, scriptsIn(ctx.chart.input.name, ctx.brand?.name, ctx.draft.title));
+  const indic = await registerFonts(pdf, scriptsIn(ctx.chart.input.name, ctx.brand?.name, ctx.brand?.practice, ctx.brand?.contact, ctx.draft.title));
   const doc = new ReportDoc(pdf, '', indic);
   doc.fill(C.night).pdf.rect(0, 0, W, H, 'F');
   // each panel is drawn in its own trim coordinates, shifted into place and clipped to its edges

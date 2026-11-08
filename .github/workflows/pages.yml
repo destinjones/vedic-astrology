@@ -43,6 +43,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Check the site before publishing it
         run: npm run smoke
+      - name: Installs as an app, works offline, and offers updates
+        run: npm run offline
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

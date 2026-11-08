@@ -2,7 +2,7 @@ import { NAKSHATRAS, signInfo } from '../../data/constants';
 import type { ReportDoc } from '../doc';
 import { longDate } from '../format';
 import { C, F, MARGIN, PAGE } from '../theme';
-import type { ReportContext } from '../types';
+import { brandSub, type ReportContext } from '../types';
 
 export async function cover(doc: ReportDoc, ctx: ReportContext) {
   const { chart, art } = ctx;
@@ -40,7 +40,7 @@ export async function cover(doc: ReportDoc, ctx: ReportContext) {
       by += lh + 10;
     }
     doc.line(brand.name.toUpperCase(), PAGE.w / 2, by, { font: F.sansBold, size: 8, color: '#FFFFFF', charSpace: 2.2, align: 'center' });
-    if (brand.tagline) doc.line(brand.tagline, PAGE.w / 2, by + 14, { font: F.serifItalic, size: 11, color: C.goldLight, align: 'center' });
+    if (brandSub(brand)) doc.line(brandSub(brand), PAGE.w / 2, by + 14, { font: F.serifItalic, size: 11, color: C.goldLight, align: 'center' });
   } else {
     doc.line('JYOTISHA  ·  A VEDIC BIRTH CHART REPORT', PAGE.w / 2, 46, { font: F.sansBold, size: 7.2, color: C.goldLight, charSpace: 2.4, align: 'center' });
   }
@@ -78,7 +78,7 @@ export async function cover(doc: ReportDoc, ctx: ReportContext) {
   });
 
   if (brand?.contact) doc.line(brand.contact, PAGE.w / 2, PAGE.h - 66, { font: F.sans, size: 7.4, color: C.starlight, align: 'center', charSpace: 0.4 });
-  doc.line(`${brand ? `A consultation summary prepared by ${brand.name}` : 'Sidereal zodiac'}  ·  ${ctx.engineChart.meta.ayanamsaName} ayanamsa  ·  ${longDate(ctx.now)}`, PAGE.w / 2, PAGE.h - 52, { font: F.sans, size: 6.8, color: C.faint, align: 'center', charSpace: 0.6 });
+  doc.line(`${brand ? `${ctx.consultation ? 'A consultation summary prepared' : 'Prepared'} by ${brand.name}` : 'Sidereal zodiac'}  ·  ${ctx.engineChart.meta.ayanamsaName} ayanamsa  ·  ${longDate(ctx.now)}`, PAGE.w / 2, PAGE.h - 52, { font: F.sans, size: 6.8, color: C.faint, align: 'center', charSpace: 0.6 });
 }
 
 /** Page 2 is reserved for the contents and filled in at the end, when page numbers are known. */

@@ -65,6 +65,7 @@ export function note(doc: ReportDoc, ctx: ReportContext) {
   if (ctx.brand) {
     doc.y += 8;
     doc.para(ctx.brand.name, { font: F.serifItalic, size: 16, color: C.ink, after: 2 });
+    if (ctx.brand.practice) doc.para(ctx.brand.practice, { size: 9, color: C.body, after: 2 });
     if (ctx.brand.contact) doc.para(ctx.brand.contact, { size: 8.4, color: C.muted });
   }
 }

@@ -17,7 +17,13 @@ import './rectification.css';
 type Precision = 'day' | 'month' | 'year';
 interface Row { id: number; kind: LifeEventKind; precision: Precision; date: string }
 
-const STORE_KEY = 'vedic.rectify.v2';
+// The time window and life events are kept per person (birth date and place;
+// not the time, which is what the finder changes), so one client's events never
+// show up on the next client's chart. v2 kept a single set for everyone and is dropped.
+const STORE_KEY = 'vedic.rectify.v3';
+const LEGACY_KEY = 'vedic.rectify.v2';
+const MAX_PEOPLE = 200;
+const personKey = (i: { date: string; place: { latitude: number; longitude: number } }) => `${i.date}|${i.place.latitude.toFixed(4)}|${i.place.longitude.toFixed(4)}`;
 const GROUPS: EventGroup[] = ['Relationships', 'Career and money', 'Home and movement', 'Health and loss', 'Other'];
 
 const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
@@ -28,9 +34,27 @@ const fullDate = (row: Row) => (row.precision === 'year' ? `${datePart(row)}-01-
 const valid = (row: Row) => (row.precision === 'year' ? /^\d{4}$/ : row.precision === 'month' ? /^\d{4}-\d{2}$/ : /^\d{4}-\d{2}-\d{2}$/).test(datePart(row));
 
 interface Saved { rows: Row[]; from?: string; to?: string; likely?: string; plusMinus?: number; useLikely?: boolean }
-const load = (): Saved => {
-  try { const s = localStorage.getItem(STORE_KEY); if (s) return JSON.parse(s) as Saved; } catch { /* ignore */ }
-  return { rows: [] };
+const readAll = (): Record<string, Saved> => {
+  try {
+    localStorage.removeItem(LEGACY_KEY);
+    const v = JSON.parse(localStorage.getItem(STORE_KEY) ?? '{}') as unknown;
+    return v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, Saved>) : {};
+  } catch { return {}; }
+};
+const load = (key: string): Saved => {
+  const s = readAll()[key];
+  return s && Array.isArray(s.rows) ? s : { rows: [] };
+};
+const store = (key: string, s: Saved) => {
+  try {
+    const all = readAll();
+    delete all[key];
+    if (s.rows.length) all[key] = s;
+    // newest last; keep the most recent people only
+    const keys = Object.keys(all);
+    for (const k of keys.slice(0, Math.max(0, keys.length - MAX_PEOPLE))) delete all[k];
+    localStorage.setItem(STORE_KEY, JSON.stringify(all));
+  } catch { /* storage full or blocked */ }
 };
 
 /**
@@ -45,7 +69,8 @@ export default function RectificationSection({ context, onApply, savedEvents = [
 }) {
   const { engine, chart } = context;
   const input = chart.meta.input;
-  const saved = useMemo(load, []);
+  const key = personKey(input);
+  const saved = useMemo(() => load(key), [key]);
   const t = toMin(input.time.slice(0, 5));
   const [from, setFrom] = useState(saved.from ?? fromMin(t - 120));
   const [to, setTo] = useState(saved.to ?? fromMin(t + 120));
@@ -59,8 +84,8 @@ export default function RectificationSection({ context, onApply, savedEvents = [
   const [open, setOpen] = useState<number>(1);
 
   useEffect(() => {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify({ rows, from, to, likely, plusMinus, useLikely })); } catch { /* ignore */ }
-  }, [rows, from, to, likely, plusMinus, useLikely]);
+    store(key, { rows, from, to, likely, plusMinus, useLikely });
+  }, [key, rows, from, to, likely, plusMinus, useLikely]);
 
   const add = (kind: LifeEventKind) => setRows((r) => [...r, { id: Date.now() + Math.random(), kind, precision: 'month', date: '' }]);
   const update = (id: number, patch: Partial<Row>) => setRows((r) => r.map((x) => (x.id === id ? { ...x, ...patch } : x)));
