@@ -15,6 +15,15 @@ describe('Life Chart Book drafts', () => {
     expect(emptyDraft().chapters).toEqual(BOOK_CHAPTERS.map((c) => c.id));
   });
 
+  it('starts unsigned, and keeps "Prepared by" apart from the practice name', () => {
+    expect(emptyDraft().author).toBe('');
+    expect(emptyDraft().authorTitle).toBe('');
+    const d = normaliseDraft({ author: '  Asha Rao ', authorTitle: 'Jyotishi', name: 'ignored' });
+    expect(d.author).toBe('Asha Rao');
+    expect(d.authorTitle).toBe('Jyotishi');
+    expect(normaliseDraft({ author: 5 }).author).toBe('');
+  });
+
   it('keeps one draft per birth', () => {
     const a = { name: 'Sam', date: '1990-08-15', time: '06:30', latitude: 28.61, longitude: 77.21 };
     expect(draftKey(a)).toBe(draftKey({ ...a }));

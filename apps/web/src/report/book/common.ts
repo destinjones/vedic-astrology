@@ -7,8 +7,10 @@ import { paragraphs, type BookDraft } from './draft';
 /** Everything a book chapter can draw from: the report's context plus the astrologer's draft. */
 export interface BookContext extends ReportContext {
   draft: BookDraft;
-  /** The astrologer's name, or '' when the book is not branded. */
+  /** The astrologer's name from "Prepared by", or '' when the book is unsigned. Never the practice name. */
   by: string;
+  /** The astrologer's name with their title, for signatures and the title page ("Asha Rao, Jyotishi"). */
+  byline: string;
   /** Chapter numeral by id, filled in as chapters are laid out (and known in advance for cross-references). */
   numerals: Record<string, string>;
   /** Timeline for the whole forecast span (the timing chapter gets a five-year slice of it). */
@@ -21,6 +23,17 @@ export interface BookContext extends ReportContext {
  * The embedded fonts are Latin subsets without the IAST accents (ā, ṣ, ṃ…).
  * Remedy texts quote Sanskrit in IAST, so fold those letters to plain ones rather than lose them.
  */
+/** Sign a letter: the astrologer's name, their title, then the practice and its contact. */
+export function signature(doc: ReportDoc, ctx: BookContext) {
+  if (!ctx.by && !ctx.brand) return;
+  doc.y += 10;
+  if (ctx.by) doc.para(ctx.by, { font: F.serifItalic, size: 17, color: C.ink, after: 2 });
+  const sub = [ctx.draft.authorTitle, ctx.brand?.name !== ctx.by ? ctx.brand?.name : ''].filter(Boolean).join(', ');
+  if (!ctx.by && ctx.brand) doc.para(ctx.brand.name, { font: F.serifItalic, size: 17, color: C.ink, after: 2 });
+  else if (sub) doc.para(sub, { size: 9, color: C.muted, after: 2 });
+  if (ctx.brand?.contact) doc.para(ctx.brand.contact, { size: 8.4, color: C.muted });
+}
+
 export const fold = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').normalize('NFC');
 
 /** "Chapter IV" for a chapter that is in the book, or '' when it is not. */

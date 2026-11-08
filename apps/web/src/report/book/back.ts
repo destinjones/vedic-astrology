@@ -3,7 +3,7 @@ import type { ReportDoc } from '../doc';
 import { longDate } from '../format';
 import { C, F, PAGE } from '../theme';
 import type { SectionHelpers } from '../types';
-import { astrologerNote, type BookContext, notesPage, prose } from './common';
+import { astrologerNote, type BookContext, notesPage, prose, signature } from './common';
 import { paragraphs } from './draft';
 
 /** Every classical citation behind the readings in this book, by text. */
@@ -64,11 +64,7 @@ export function closing(doc: ReportDoc, ctx: BookContext) {
   prose(doc, own.length ? own : [
     'A chart is not read once. As the dashas turn and the planets move, different parts of it come forward, and what reads as a puzzle today often makes sense in a year or two. Keep this book, mark what proves true, and bring your questions to our next conversation.',
   ], { size: 12.4 });
-  if (ctx.brand) {
-    doc.y += 10;
-    doc.para(ctx.brand.name, { font: F.serifItalic, size: 17, color: C.ink, after: 2 });
-    if (ctx.brand.contact) doc.para(ctx.brand.contact, { size: 8.4, color: C.muted });
-  }
+  signature(doc, ctx);
 }
 
 export function colophon(doc: ReportDoc, ctx: BookContext) {

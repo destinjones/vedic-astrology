@@ -31,6 +31,10 @@ export const BOOK_CHAPTERS: BookChapter[] = [
 export interface BookDraft {
   /** Printed on the cover and title page. */
   title: string;
+  /** "Prepared by": the astrologer who wrote this book. Empty leaves the book unsigned. */
+  author: string;
+  /** Optional line under the astrologer's name, such as a title or practice ("Jyotishi"). */
+  authorTitle: string;
   dedication: string;
   /** Opening letter, after the contents. Blank paragraphs separate paragraphs. */
   letter: string;
@@ -55,6 +59,8 @@ export const BOOK_TITLE = 'The Life Chart Book';
 
 export const emptyDraft = (): BookDraft => ({
   title: BOOK_TITLE,
+  author: '',
+  authorTitle: '',
   dedication: '',
   letter: '',
   closing: '',
@@ -86,6 +92,8 @@ export function normaliseDraft(x: unknown): BookDraft {
   const known = new Set(BOOK_CHAPTERS.map((c) => c.id));
   return {
     title: str('title') || BOOK_TITLE,
+    author: str('author').trim(),
+    authorTitle: str('authorTitle').trim(),
     dedication: str('dedication'),
     letter: str('letter'),
     closing: str('closing'),

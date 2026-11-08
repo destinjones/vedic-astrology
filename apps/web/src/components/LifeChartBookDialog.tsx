@@ -106,15 +106,23 @@ export default function BookDialog({ chart, onClose }: { chart: Chart; onClose: 
 
         <div className="book-panel" role="tabpanel">
           {tab === 'practice' && (
+            <>
             <fieldset>
-              <legend>Your practice</legend>
-              <p className="muted">Printed on the cover, the title page and beside each of your notes. Leave the name empty for an unbranded book.</p>
-              <label>Name<input value={brand.name} onChange={(e) => setBrand((b) => ({ ...b, name: e.target.value }))} placeholder="e.g. Asha Rao, Jyotishi" /></label>
+              <legend>Prepared by</legend>
+              <p className="muted">The astrologer writing this book. Printed on the cover, the title page, the letters and beside each of your notes. Leave it empty for an unsigned book.</p>
+              <label>Astrologer's name<input value={draft.author} onChange={(e) => set('author', e.target.value)} placeholder="e.g. Asha Rao" autoComplete="off" /></label>
+              <label>Title or practice<input value={draft.authorTitle} onChange={(e) => set('authorTitle', e.target.value)} placeholder="optional, e.g. Jyotishi" autoComplete="off" /></label>
+            </fieldset>
+            <fieldset>
+              <legend>Practice branding</legend>
+              <p className="muted">Optional. A business name, tagline and contact for the top of the cover and the back cover, shared with the consultation export.</p>
+              <label>Practice name<input value={brand.name} onChange={(e) => setBrand((b) => ({ ...b, name: e.target.value }))} placeholder="optional, e.g. Rao Jyotish" /></label>
               <label>Tagline<input value={brand.tagline ?? ''} onChange={(e) => setBrand((b) => ({ ...b, tagline: e.target.value }))} placeholder="optional" /></label>
               <label>Contact<input value={brand.contact ?? ''} onChange={(e) => setBrand((b) => ({ ...b, contact: e.target.value }))} placeholder="website, email or phone (optional)" /></label>
               {brand.logo && <p className="muted">Your logo from the consultation export is used on the cover.</p>}
               <label>Book title<input value={draft.title} onChange={(e) => set('title', e.target.value)} /></label>
             </fieldset>
+            </>
           )}
 
           {tab === 'letters' && (

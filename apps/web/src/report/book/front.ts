@@ -2,7 +2,7 @@ import { NAKSHATRAS, PLANET_BY_ID, signInfo } from '../../data/constants';
 import type { ReportDoc } from '../doc';
 import { fromTiming, longDate, monthYear } from '../format';
 import { C, CONTENT_W, F, MARGIN, PAGE } from '../theme';
-import { astrologerNote, type BookContext, prose } from './common';
+import { astrologerNote, type BookContext, prose, signature } from './common';
 import { lines, paragraphs } from './draft';
 
 const named = (ctx: BookContext) => ctx.chart.input.name?.trim() || '';
@@ -70,7 +70,7 @@ export async function frontCover(doc: ReportDoc, ctx: BookContext, b = 0) {
     doc.line(labels[i][0].toUpperCase(), x + size / 2, my + size + 10, { font: F.sansBold, size: 6.6, color: C.goldLight, charSpace: 1.6, align: 'center' });
     doc.line(labels[i][1], x + size / 2, my + size + 22, { font: F.serif, size: 11.5, color: '#FFFFFF', align: 'center' });
   });
-  doc.line(brand ? `Prepared by ${brand.name}` : 'A personal book of the birth chart', PAGE.w / 2, PAGE.h - 56, { font: F.serifItalic, size: 11, color: C.goldLight, align: 'center' });
+  doc.line(ctx.byline ? `Prepared by ${ctx.byline}` : 'A personal book of the birth chart', PAGE.w / 2, PAGE.h - 56, { font: F.serifItalic, size: 11, color: C.goldLight, align: 'center' });
 }
 
 /** Title page (a right-hand page) and its back: the birth details and how they were calculated. */
@@ -88,8 +88,12 @@ export function titlePages(doc: ReportDoc, ctx: BookContext) {
   y += 22;
   doc.line('A birth chart read through Jyotisha, the astrology of India,', PAGE.w / 2, y, { font: F.serifItalic, size: 14, color: C.body, align: 'center' });
   doc.line('with the teaching behind every reading', PAGE.w / 2, y + 19, { font: F.serifItalic, size: 14, color: C.body, align: 'center' });
-  if (ctx.brand) {
+  if (ctx.by) {
     doc.line('PREPARED BY', PAGE.w / 2, PAGE.h - 190, { font: F.sansBold, size: 6.8, color: C.muted, charSpace: 2, align: 'center' });
+    doc.line(ctx.by, PAGE.w / 2, PAGE.h - 174, { font: F.serifBold, size: 20, color: C.ink, align: 'center' });
+    const sub = [ctx.draft.authorTitle, ctx.brand && ctx.brand.name !== ctx.by ? ctx.brand.name : ''].filter(Boolean).join(', ');
+    if (sub) doc.line(sub, PAGE.w / 2, PAGE.h - 148, { font: F.serifItalic, size: 12, color: C.muted, align: 'center' });
+  } else if (ctx.brand) {
     doc.line(ctx.brand.name, PAGE.w / 2, PAGE.h - 174, { font: F.serifBold, size: 20, color: C.ink, align: 'center' });
     if (ctx.brand.tagline) doc.line(ctx.brand.tagline, PAGE.w / 2, PAGE.h - 148, { font: F.serifItalic, size: 12, color: C.muted, align: 'center' });
   }
@@ -107,7 +111,8 @@ export function titlePages(doc: ReportDoc, ctx: BookContext) {
     ['Place', i.place],
   ], 3, { size: 11 });
   doc.para(`Latitude ${i.latitude.toFixed(4)}°, longitude ${i.longitude.toFixed(4)}°, ${m.timezone}. Universal time ${m.utc.replace('T', ' ').slice(0, 16)}. Sidereal zodiac, ${m.ayanamsaName} ayanamsa ${ctx.chart.meta.ayanamsaValue.toFixed(4)}°. Whole-sign houses, ${m.nodeType === 'true' ? 'true' : 'mean'} lunar nodes, Vimshottari dashas with a 365.25-day year. Positions from the Swiss Ephemeris.${m.localMeanTime ? ' The birth predates standard time in this zone, so local mean time was used.' : ''}`, { size: 8.2, color: C.muted, after: 14 });
-  doc.para(`Prepared ${longDate(ctx.now)}${ctx.brand ? ` by ${ctx.brand.name}${ctx.brand.contact ? ` (${ctx.brand.contact})` : ''}` : ''} with Jyotisha Explorer, a free and open-source Vedic astrology toolkit. The calculations and readings were made in a web browser; nothing about this chart was sent anywhere to make this book.`, { size: 8.2, color: C.muted, after: 14 });
+  const who = [ctx.byline, ctx.brand && ctx.brand.name !== ctx.by ? ctx.brand.name : ''].filter(Boolean).join(', ');
+  doc.para(`Prepared ${longDate(ctx.now)}${who ? ` by ${who}` : ''}${ctx.brand?.contact ? ` (${ctx.brand.contact})` : ''} with Jyotisha Explorer, a free and open-source Vedic astrology toolkit. The calculations and readings were made in a web browser; nothing about this chart was sent anywhere to make this book.`, { size: 8.2, color: C.muted, after: 14 });
   doc.para('This book is for reflection and education. It is not medical, legal, financial or psychological advice. A birth time a few minutes out can move the ascendant degree, the divisional charts and the dasha dates, so check the time on your birth record if you can.', { size: 8.2, color: C.muted });
 }
 
@@ -187,11 +192,7 @@ export function letter(doc: ReportDoc, ctx: BookContext) {
   doc.para(first(ctx) ? `Dear ${first(ctx)},` : 'Dear reader,', { font: F.serifBold, size: 24, color: C.ink, leading: 1.2, after: 12 });
   const own = paragraphs(ctx.draft.letter);
   prose(doc, own.length ? own : DEFAULT_LETTER, { size: 12.4 });
-  if (ctx.brand) {
-    doc.y += 10;
-    doc.para(ctx.brand.name, { font: F.serifItalic, size: 17, color: C.ink, after: 2 });
-    if (ctx.brand.contact) doc.para(ctx.brand.contact, { size: 8.4, color: C.muted });
-  }
+  signature(doc, ctx);
 }
 
 /** "The heart of your chart": the astrologer's takeaways, or the strongest findings when there are none. */

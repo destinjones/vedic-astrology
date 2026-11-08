@@ -108,7 +108,7 @@ export async function generateBook(chart: Chart, opts: BookOptions): Promise<Boo
   say('Preparing the artwork…');
   const pdf = new jsPDF({ unit: 'pt', format: [PAGE.w + 2 * b, PAGE.h + 2 * b], compress: true });
   const allText = [draft.title, draft.dedication, draft.letter, draft.closing, draft.takeaways, ...Object.values(draft.notes)];
-  const scripts = scriptsIn(chart.input.name, chart.input.place, opts.brand?.name, opts.brand?.tagline, opts.brand?.contact, ...allText);
+  const scripts = scriptsIn(chart.input.name, chart.input.place, draft.author, draft.authorTitle, opts.brand?.name, opts.brand?.tagline, opts.brand?.contact, ...allText);
   const own = opts.locale ? LOCALE_SCRIPT[opts.locale] : undefined;
   if (own) scripts.add(own);
   const [art, indic] = await Promise.all([loadArt(chart.ascendant.longitude), registerFonts(pdf, scripts)]);
@@ -124,7 +124,7 @@ export async function generateBook(chart: Chart, opts: BookOptions): Promise<Boo
   const chapters = BOOK_CHAPTERS.filter((c) => want.has(c.id) && !(c.id === 'timing' && !fiveYears) && !(c.id === 'forecast' && !full));
   const numerals: Record<string, string> = {};
   chapters.forEach((c, i) => { numerals[c.id] = roman(i + 1); });
-  const ctx: BookContext = { ...base, draft, by: brand?.name.trim() ?? '', numerals, forecast: full, cited: new Map() };
+  const ctx: BookContext = { ...base, draft, by: draft.author, byline: [draft.author, draft.authorTitle].filter(Boolean).join(', '), numerals, forecast: full, cited: new Map() };
   ctx.annotate = (d, key) => astrologerNote(d, ctx, key);
 
   const doc = new ReportDoc(pdf, `${name}  ·  ${draft.title || 'The Life Chart Book'}`, indic, { bleed: b, recto: print });
@@ -191,7 +191,7 @@ export async function generateBook(chart: Chart, opts: BookOptions): Promise<Boo
   pdf.setProperties({
     title: `${name} · ${draft.title || 'The Life Chart Book'}`,
     subject: 'A personal Jyotisha (Vedic astrology) book of the birth chart',
-    author: brand?.name ?? 'Jyotisha Explorer',
+    author: draft.author || brand?.name || 'Jyotisha Explorer',
     creator: 'Jyotisha Explorer',
     keywords: 'vedic astrology, jyotisha, birth chart, kundli, life chart book',
   });
@@ -211,7 +211,7 @@ async function coverSpread(ctx: BookContext, chapters: string[], spine: number):
   const W = 2 * PAGE.w + spine + 2 * b;
   const H = PAGE.h + 2 * b;
   const pdf = new jsPDF({ unit: 'pt', format: [W, H], orientation: 'landscape', compress: true });
-  const indic = await registerFonts(pdf, scriptsIn(ctx.chart.input.name, ctx.brand?.name, ctx.draft.title));
+  const indic = await registerFonts(pdf, scriptsIn(ctx.chart.input.name, ctx.draft.author, ctx.brand?.name, ctx.draft.title));
   const doc = new ReportDoc(pdf, '', indic);
   doc.fill(C.night).pdf.rect(0, 0, W, H, 'F');
   // each panel is drawn in its own trim coordinates, shifted into place and clipped to its edges
