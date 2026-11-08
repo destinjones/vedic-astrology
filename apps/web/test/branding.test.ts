@@ -31,6 +31,8 @@ describe('astrologer branding', () => {
     expect(brand).toEqual({ name: 'Asha Rao', practice: 'Lotus Jyotish', contact: 'lotusjyotish.com  ·  asha@lotusjyotish.com' });
     expect(brandSub(brand)).toBe('Lotus Jyotish');
     expect(brandFooter(brand)).toEqual(['Asha Rao, Lotus Jyotish', 'lotusjyotish.com  ·  asha@lotusjyotish.com']);
+    expect(brandFooter({ name: 'Asha Rao' })).toEqual(['Asha Rao', '']);
+    expect(brandSub({ name: 'Asha Rao', tagline: 'Since 2004' })).toBe('Since 2004');
     expect(everyPdfBrand({ ...b, everyPdf: false })).toBeUndefined();
     expect(everyPdfBrand(b)?.name).toBe('Asha Rao');
   });
