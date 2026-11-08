@@ -2,7 +2,7 @@
 
 The illustrated PDF behind **Download PDF report** and **Consultation export**. It is made entirely in the browser with jsPDF, as its own lazily loaded chunk, so nothing about a person's chart leaves their machine.
 
-- `index.ts`: `generateReport(chart, options)` and `downloadReport`. Options pick the sections, and for a consultation add the astrologer's `brand` (name, tagline, contact, logo) and a personal `note`.
+- `index.ts`: `generateReport(chart, options)` and `downloadReport`. Options pick the sections, and for a consultation add the astrologer's `brand` (name, tagline, contact, logo), a personal `note` and their own `reading` (a title, an opening line and headed sections, written from one of their templates in `src/practice/`), which `sections/reading.ts` prints after the note.
 - `doc.ts`: a small flow-layout layer (headings, wrapping paragraphs across pages and columns, callouts, tables, chapter openers, running heads and folios).
 - `charts.ts`: vector North and South Indian charts, the Blender wheel with each graha at its longitude, the life weather chart, dasha band and ashtakavarga bars.
 - `assets.ts`: loads the Blender art from `assets/3d` and flattens it to JPEG for the page it sits on.
@@ -18,7 +18,7 @@ The app passes its language as `locale`: readings print in it when a translation
 
 - `book/draft.ts`: what the astrologer writes (title, dedication, letters, key points, notes keyed `chapter:<id>`, `graha:<id>`, `house:<n>`, `yoga:<id>`, `dosha:<id>`, `remedy:<id>`, `year:<yyyy>`) and the format options. No PDF dependencies; the editor in `components/LifeChartBook.tsx` imports it eagerly and keeps one draft per birth in `localStorage`.
 - `book/index.ts`: `generateBook` and `downloadBook`. It reuses the report's own chapters (glance, grahas, houses, yogas, vargas, dasha, timing, glossary) and adds the book's: front matter (`front.ts`), the teaching chapters on the language of the chart, the lagna and the Moon (`teach.ts`), the dasha wall chart and the year-by-year forecast (`forecast.ts`), remedies from `@vedic/remedies` with numbered sources (`remedies.ts`) and the sources chapter, closing letter, notes pages and covers (`back.ts`).
-- Astrologer notes reach the reused chapters through `ctx.annotate(doc, key)`, which the report leaves unset.
+- Astrologer notes reach the reused chapters through `ctx.annotate(doc, key)`, which the report leaves unset. The editor offers the astrologer's saved phrases (`src/practice/`) under each planet, house, yoga and dosha note, matched by placement.
 - Print edition: `ReportDoc` takes `{ bleed, recto }`. With a bleed every page is shifted so layout keeps its trim coordinates and full-page backgrounds run past the trim; with `recto` each chapter opener lands on a right-hand page, the left-hand page before it filled by `doc.filler` (a ruled notes page) or left blank. The interior is padded to a multiple of four pages, and `coverSpread` draws back cover, spine and front cover on one sheet. The spine width is Lulu's paperback estimate unless the astrologer types the one from their printer's template.
 
 ## Adding a section from another feature
