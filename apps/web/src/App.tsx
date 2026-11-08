@@ -14,6 +14,7 @@ import type { ClientPatch } from './components/ClientManager';
 import { backupFileName, downloadText, exportAll, restoreAll } from './lib/backup';
 import { storeLinks } from './lib/family';
 import { ClientHistory } from './components/ClientHistory';
+import { practiceStore } from './lib/practice';
 import { loadProfiles, parseShareHash, sameBirth, storeProfiles, upsertProfile, type Profile } from './lib/profiles';
 import { NorthChart } from './components/NorthChart';
 import { SouthChart } from './components/SouthChart';
@@ -66,6 +67,8 @@ const TimingSection = lazy(() => import('./components/TimingSection'));
 const EventChecker = lazy(() => import('./components/EventChecker'));
 const JaiminiSection = lazy(() => import('./components/JaiminiSection'));
 const RemediesSection = lazy(() => import('./components/RemediesSection'));
+const ClientPractice = lazy(() => import('./components/ClientPractice').then((m) => ({ default: m.ClientPractice })));
+const PracticeView = lazy(() => import('./components/PracticeView').then((m) => ({ default: m.PracticeView })));
 const RectificationSection = lazy(() => import('./components/RectificationSection'));
 const VarshaphalSection = lazy(() => import('./components/VarshaphalSection'));
 const SkyEvents = lazy(() => import('./components/SkyEvents'));
@@ -143,6 +146,7 @@ export default function App() {
   const [showFamous, setShowFamous] = useState(false);
   const [showBatch, setShowBatch] = useState(false);
   const [showClients, setShowClients] = useState(false);
+  const [showPractice, setShowPractice] = useState(false);
   const [exportTab, setExportTab] = useState<ExportTab | null>(null);
   const [annotating, setAnnotating] = useState(false);
   const [focusNote, setFocusNote] = useState<string | null>(null);
@@ -160,6 +164,13 @@ export default function App() {
   useEffect(() => { storeWorkspace(ws); }, [ws]);
   const patchTab = (id: string, patch: Partial<Tab>) =>
     setWs((w) => ({ ...w, tabs: w.tabs.map((t) => (t.id === id ? { ...t, ...patch } : t)) }));
+  /** Changes a client's tab whether it is open or closed (the practice view works across both). */
+  const patchAnyTab = (id: string, patch: Partial<Tab>) =>
+    setWs((w) => ({
+      ...w,
+      tabs: w.tabs.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+      archived: w.archived.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+    }));
   // notes pinned to this tab's chart
   const notes = activeTab.annotations ?? [];
   const setNotes = (list: Annotation[]) => patchTab(activeTab.id, { annotations: list.length ? list : undefined });
@@ -332,10 +343,11 @@ export default function App() {
     const saved = chart && profiles.find((p) => sameBirth(p.input, chart.input));
     return `${import.meta.env.BASE_URL}family/${saved ? `#p=${encodeURIComponent(saved.id)}` : ''}`;
   };
-  const backup = () => downloadText(exportAll(wsRef.current, profiles), backupFileName());
+  const backup = () => downloadText(exportAll(wsRef.current, profiles, { practice: practiceStore.get() }), backupFileName());
   const restore = (text: string, sync = false) => {
     try {
-      const r = restoreAll(wsRef.current, profiles, text, { mergeExisting: sync });
+      const r = restoreAll(wsRef.current, profiles, text, { mergeExisting: sync, practice: practiceStore.get() });
+      if (r.practice) practiceStore.set(r.practice);
       wsRef.current = r.ws;
       setWs(r.ws);
       saveProfiles(r.profiles);
@@ -435,6 +447,18 @@ export default function App() {
     setEditing(true);
     requestAnimationFrame(() => document.querySelector<HTMLInputElement>('.birth-form input')?.focus());
   };
+  /** Brings a client to the front from the practice view, reopening a closed tab. */
+  const openClient = (id: string) => {
+    const closed = wsRef.current.archived.find((t) => t.id === id);
+    if (closed) reopenTab(closed);
+    switchTab(id);
+    setShowPractice(false);
+    requestAnimationFrame(() => document.getElementById('client-history')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  };
+  const openPractice = () => {
+    setShowPractice(true);
+    requestAnimationFrame(() => document.getElementById('practice')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  };
   // Keyboard and quick-switch commands: client tabs first, then the open chart.
   const tabIndex = ws.tabs.findIndex((x) => x.id === ws.activeId);
   const stepTab = (d: number) => { if (ws.tabs.length > 1) switchTab(ws.tabs[(tabIndex + d + ws.tabs.length) % ws.tabs.length].id); };
@@ -451,6 +475,7 @@ export default function App() {
     })),
     { id: 'tab.next', group: 'Clients', title: 'Next tab', shortcut: 'Alt+]', keywords: 'client tab forward', run: () => stepTab(1) },
     { id: 'tab.prev', group: 'Clients', title: 'Previous tab', shortcut: 'Alt+[', keywords: 'client tab back', run: () => stepTab(-1) },
+    { id: 'practice.open', group: 'Clients', title: 'Your practice: track record, invoices, packages', keywords: 'prediction hit miss score invoice receipt payment package price remedies check-in', run: openPractice },
     { id: 'tab.new', group: 'Clients', title: 'New tab', shortcut: 'Alt+n', keywords: 'client person add blank', run: () => { newTab(); requestAnimationFrame(() => document.querySelector<HTMLInputElement>('.birth-form input')?.focus()); } },
     { id: 'tab.close', group: 'Clients', title: `Close ${activeTab.label}`, keywords: 'client tab close archive', hint: 'kept under closed tabs', run: () => closeTab(activeTab.id) },
     ...ws.archived.map((x): Command => ({
@@ -528,6 +553,7 @@ export default function App() {
           <button className="btn-ghost" aria-expanded={showClients} onClick={() => setShowClients((x) => !x)} title="Your clients, their readings and follow-ups, and dasha and transit alerts coming up">Clients</button>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}study/`}>Study</a>
           <button className="btn-ghost" aria-expanded={showFamous} onClick={() => setShowFamous((v) => !v)}>Famous charts</button>
+          <button className="btn-ghost" aria-expanded={showPractice} onClick={() => (showPractice ? setShowPractice(false) : openPractice())} title="Prediction track record, invoices and packages">Practice</button>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}compare/${chart ? compareHash([chart.input]) : ''}`}>Compare charts</a>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}match/`}>Compatibility</a>
           <a className="btn-ghost" href={familyHref()}>Family charts</a>
@@ -584,6 +610,12 @@ export default function App() {
         <BatchView profiles={profiles} busy={busy} onOpen={(p) => { setShowBatch(false); openInTab(p.input); }} onClose={() => setShowBatch(false)} />
       )}
 
+      {showPractice && (
+        <Suspense fallback={null}>
+          <PracticeView tabs={ws.tabs} archived={ws.archived} onPatch={patchAnyTab} onOpen={openClient} onClose={() => setShowPractice(false)} />
+        </Suspense>
+      )}
+
       {showFamous && (
         <FamousCharts busy={busy} onOpen={(c) => openInTab(c.input)} onClose={() => setShowFamous(false)} />
       )}
@@ -610,7 +642,7 @@ export default function App() {
               onBackup={backup}
               onRestore={restore}
               onSyncMerge={(text) => restore(text, true)}
-              backupText={() => exportAll(wsRef.current, profiles)}
+              backupText={() => exportAll(wsRef.current, profiles, { practice: practiceStore.get() })}
               onImport={importMany}
               onBatch={() => { setShowBatch(true); requestAnimationFrame(() => document.getElementById('batch')?.scrollIntoView({ behavior: 'smooth', block: 'start' })); }}
             />
@@ -914,6 +946,15 @@ export default function App() {
             onNotes={(notes) => patchTab(activeTab.id, { notes })}
             onLog={(log) => patchTab(activeTab.id, { log })}
           />
+          <Suspense fallback={null}>
+            <ClientPractice
+              tab={activeTab}
+              chart={chart.engineContext?.chart}
+              onRemedies={(remedies) => patchTab(activeTab.id, { remedies })}
+              onInvoices={(invoices) => patchTab(activeTab.id, { invoices })}
+              onOpenPractice={openPractice}
+            />
+          </Suspense>
         </main>
       )}
 

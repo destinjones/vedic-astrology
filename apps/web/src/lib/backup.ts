@@ -5,13 +5,16 @@
  */
 import { loadLinks, mergeLinks, type FamilyLink } from './family';
 import { importProfiles, sameBirth, sanitizeInput, type Profile } from './profiles';
+import { mergeInvoices, mergePractice, mergeRemedies, parsePractice, type Practice } from './practice';
 import { hasContent, MAX_ARCHIVED, MAX_TABS, parseTabs, type Tab, type Workspace } from './tabs';
 
 export const BACKUP_VERSION = 2;
 
-export function exportAll(ws: Workspace, profiles: Profile[], family: FamilyLink[] = loadLinks()): string {
+export function exportAll(ws: Workspace, profiles: Profile[], opts: { family?: FamilyLink[]; practice?: Practice } = {}): string {
+  const family = opts.family ?? loadLinks();
+  const practice = opts.practice;
   return JSON.stringify(
-    { app: 'jyotisha-explorer', version: BACKUP_VERSION, exportedAt: new Date().toISOString(), workspace: ws, profiles, family },
+    { app: 'jyotisha-explorer', version: BACKUP_VERSION, exportedAt: new Date().toISOString(), workspace: ws, profiles, family, ...(practice ? { practice } : {}) },
     null,
     2,
   );
@@ -38,6 +41,8 @@ export interface RestoreResult {
   /** Family links after the merge; write them with storeLinks(). */
   family: FamilyLink[];
   linksAdded: number;
+  /** Packages and business details from the backup joined with these; undefined when the file has none. */
+  practice?: Practice;
 }
 
 const byId = <T extends { id: string }>(a: T[], b: T[]) => {
@@ -51,9 +56,12 @@ const byId = <T extends { id: string }>(a: T[], b: T[]) => {
  * and notes written on both sides are kept, one after the other.
  */
 export function mergeTab(here: Tab, there: Tab): Tab {
-  const marked = new Map(there.log.filter((e) => e.outcome && e.outcome !== 'open').map((e) => [e.id, e.outcome]));
+  const marked = new Map(there.log.filter((e) => e.outcome && e.outcome !== 'open').map((e) => [e.id, e]));
   const log = byId(here.log, there.log)
-    .map((e) => (e.outcome === 'open' && marked.has(e.id) ? { ...e, outcome: marked.get(e.id) } : e))
+    .map((e) => {
+      const o = marked.get(e.id);
+      return e.outcome === 'open' && o ? { ...e, outcome: o.outcome, ...(o.markedAt ? { markedAt: o.markedAt } : {}) } : e;
+    })
     .sort((a, b) => b.at.localeCompare(a.at));
   const events = byId(here.events, there.events).sort((a, b) => a.date.localeCompare(b.date));
   const a = here.notes.trim(), b = there.notes.trim();
@@ -61,12 +69,14 @@ export function mergeTab(here: Tab, there: Tab): Tab {
   const readings = here.readings || there.readings ? byId(here.readings ?? [], there.readings ?? []).sort((x, y) => y.date.localeCompare(x.date)) : undefined;
   // a follow-up set on either side is kept; when both have one, the sooner date wins
   const followUp = !here.followUp ? there.followUp : !there.followUp ? here.followUp : there.followUp.date < here.followUp.date ? there.followUp : here.followUp;
-  return { ...here, log, events, notes, input: here.input ?? there.input, readings, followUp };
+  const remedies = mergeRemedies(here.remedies, there.remedies);
+  const invoices = mergeInvoices(here.invoices, there.invoices);
+  return { ...here, log, events, notes, input: here.input ?? there.input, readings, followUp, ...(remedies ? { remedies } : {}), ...(invoices ? { invoices } : {}) };
 }
 
 /** Merges a backup into what is here. Accepts this format and the older saved-charts-only file. Throws on anything else. */
-export function restoreAll(ws: Workspace, profiles: Profile[], text: string, opts: { mergeExisting?: boolean; family?: FamilyLink[] } = {}): RestoreResult {
-  const data = JSON.parse(text) as { workspace?: { tabs?: unknown; archived?: unknown }; profiles?: unknown; family?: unknown };
+export function restoreAll(ws: Workspace, profiles: Profile[], text: string, opts: { mergeExisting?: boolean; family?: FamilyLink[]; practice?: Practice } = {}): RestoreResult {
+  const data = JSON.parse(text) as { workspace?: { tabs?: unknown; archived?: unknown }; profiles?: unknown; family?: unknown; practice?: unknown };
   if (!data || typeof data !== 'object' || (!data.workspace && !data.profiles)) throw new Error('not a backup');
 
   if (opts.mergeExisting) {
@@ -123,5 +133,6 @@ export function restoreAll(ws: Workspace, profiles: Profile[], text: string, opt
     family = r.list;
     linksAdded = r.added;
   }
-  return { ws: { tabs, activeId, archived }, profiles: nextProfiles, tabsAdded: incomingOpen.length + incomingClosed.length, chartsAdded, family, linksAdded };
+  const practice = data.practice ? mergePractice(opts.practice ?? parsePractice(null), parsePractice(data.practice)) : undefined;
+  return { ws: { tabs, activeId, archived }, profiles: nextProfiles, tabsAdded: incomingOpen.length + incomingClosed.length, chartsAdded, family, linksAdded, ...(practice ? { practice } : {}) };
 }

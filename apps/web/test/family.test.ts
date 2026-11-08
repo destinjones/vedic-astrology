@@ -111,7 +111,7 @@ describe('backup', () => {
 
   it('carries family links and points them at charts already saved under another id', () => {
     const theirs = [prof('x1', '1980-01-01'), prof('x2', '2010-01-01')];
-    const text = exportAll(ws, theirs, linkPeople([], 'x1', 'x2', 'child', '', T));
+    const text = exportAll(ws, theirs, { family: linkPeople([], 'x1', 'x2', 'child', '', T) });
     // the first chart is already here as 'mine'
     const r = restoreAll(ws, [prof('mine', '1980-01-01')], text, { family: [] });
     expect(r.linksAdded).toBe(1);
