@@ -7,6 +7,7 @@ import type { BirthInput, Chart, PlanetId } from '../types/chart';
 import type { ChartInput, SignNumber } from '@vedic/interpretations';
 import { decodeChartRequest } from '@vedic/engine/request';
 import { fromChartRequest, sanitizeInput, shareHash } from '../lib/profiles';
+import { readLastChart } from '../lib/lastChart';
 
 /** A clean BirthInput, or null when anything is missing or out of range. Shared with the explorer. */
 export const cleanInput = sanitizeInput;
@@ -43,7 +44,7 @@ export function savedCharts(): SourceChart[] {
     }
   } catch { /* nothing saved, or storage blocked */ }
   try {
-    const last = cleanInput(JSON.parse(localStorage.getItem('vedic.lastInput') ?? 'null'));
+    const last = cleanInput(readLastChart());
     if (last && !out.some((s) => sameBirth(s.input, last))) {
       out.push({ id: 'last', label: last.name || 'Chart open in the explorer', sub: `${last.date} · ${last.place}`, input: last });
     }

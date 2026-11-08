@@ -56,6 +56,7 @@ import { ChartTable } from './components/ChartTable';
 import { setDisplay, useDisplay } from './lib/display';
 import { trackEvent, trackOnce } from './lib/analytics';
 import { TrustFooter } from './trust/TrustFooter';
+import { forgetLegacyVisitData, writeLastChart } from './lib/lastChart';
 
 const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
@@ -92,14 +93,22 @@ const DEFAULT_INPUT: BirthInput = {
   ayanamsa: 'lahiri',
 };
 
-const STORE_KEY = 'vedic.lastInput';
-const loadInput = (): BirthInput => {
-  try { const s = localStorage.getItem(STORE_KEY); if (s) return { ...DEFAULT_INPUT, ...JSON.parse(s) }; } catch { /* ignore */ }
-  return DEFAULT_INPUT;
+// older versions kept the last person's details in localStorage; clear them once
+if (typeof window !== 'undefined') forgetLegacyVisitData();
+
+/**
+ * What the form shows for a new chart: nothing filled in. The sample above is
+ * only opened on request ("Or try a sample chart", /app/#sample), and the
+ * previous person's details are never carried into the next new chart.
+ */
+const blankInput = (): BirthInput => {
+  let timezone = 'UTC';
+  try { timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { /* ignore */ }
+  return { name: '', date: '', time: '', place: '', latitude: Number.NaN, longitude: Number.NaN, timezone, ayanamsa: 'lahiri' };
 };
 
 export default function App() {
-  const [input, setInput] = useState<BirthInput>(loadInput);
+  const [input, setInput] = useState<BirthInput>(blankInput);
   const [chart, setChart] = useState<Chart | null>(null);
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState(true);
@@ -197,7 +206,7 @@ export default function App() {
       setShowFamous(false);
       // a famous chart never replaces the visitor's own saved details
       if (!FAMOUS_CHARTS.some((f) => sameBirth(f.input, i))) {
-        try { localStorage.setItem(STORE_KEY, JSON.stringify(i)); } catch { /* ignore */ }
+        writeLastChart(i);
       }
     } finally {
       setBusy(false);
@@ -244,7 +253,7 @@ export default function App() {
     wsRef.current = { ...wsRef.current, activeId: id };
     setWs((w) => ({ ...w, activeId: id }));
     setEditingId(null);
-    setInput(tab.input ?? loadInput());
+    setInput(tab.input ?? blankInput());
     setFormKey((k) => k + 1);
     setStyle(tab.style ?? 'north');
     setVargaId(tab.varga ?? 'D1');

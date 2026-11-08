@@ -3,6 +3,7 @@ import type { KootaResult, ManglikComparison, ManglikSide, MatchResult, Porutham
 import type { JaiminiMatch } from '@vedic/jaimini';
 import type { Engine, MuhurtaNatal } from '@vedic/engine';
 import type { BirthInput } from '../types/chart';
+import { readLastChart, readVisit, writeVisit } from '../lib/lastChart';
 import { BirthForm } from '../components/BirthForm';
 import { computeChart } from '../engine';
 import { ART, grahaArt } from '../data/art';
@@ -18,14 +19,13 @@ const SAMPLE: Record<Seat, BirthInput> = {
 const BLANK: BirthInput = { name: '', date: '', time: '', place: '', latitude: NaN, longitude: NaN, timezone: '', ayanamsa: 'lahiri' };
 
 const STORE_KEY = 'vedic.match';
-const LAST_CHART_KEY = 'vedic.lastInput';
 
 function loadPeople(): Record<Seat, BirthInput | null> {
   try {
-    const s = localStorage.getItem(STORE_KEY);
-    if (s) { const v = JSON.parse(s); return { a: v.a ?? null, b: v.b ?? null }; }
-    const last = localStorage.getItem(LAST_CHART_KEY);
-    if (last) return { a: JSON.parse(last), b: null };
+    const v = readVisit(STORE_KEY) as Partial<Record<Seat, BirthInput | null>> | null;
+    if (v) return { a: v.a ?? null, b: v.b ?? null };
+    const last = readLastChart() as BirthInput | null;
+    if (last) return { a: last, b: null };
   } catch { /* storage unavailable */ }
   return { a: null, b: null };
 }
@@ -49,7 +49,7 @@ export default function MatchApp() {
   const [extra, setExtra] = useState<Extra | null>(null);
 
   useEffect(() => {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(people)); } catch { /* ignore */ }
+    writeVisit(STORE_KEY, people);
   }, [people]);
 
   const match = async (p: Record<Seat, BirthInput | null>) => {

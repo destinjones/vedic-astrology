@@ -96,6 +96,7 @@ export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel }: Pr
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!f.date || !f.time) return setError(t('form.errRequired'));
+    if (!Number.isFinite(f.latitude) && !Number.isFinite(f.longitude)) return setError('Pick the place of birth from the list, or type its latitude and longitude.');
     if (!Number.isFinite(f.latitude) || Math.abs(f.latitude) > 90) return setError(t('form.errLatitude'));
     if (!Number.isFinite(f.longitude) || Math.abs(f.longitude) > 180) return setError(t('form.errLongitude'));
     setError(null);
@@ -161,11 +162,11 @@ export function BirthForm({ initial, busy, onSubmit, onSample, submitLabel }: Pr
       )}
       <label className="field">
         <span>{t('form.latitude')}</span>
-        <input type="number" step="0.0001" value={f.latitude} onChange={(e) => { set('latitude', parseFloat(e.target.value)); setLocated(true); }} />
+        <input type="number" step="0.0001" value={Number.isFinite(f.latitude) ? f.latitude : ''} onChange={(e) => { set('latitude', parseFloat(e.target.value)); setLocated(true); }} />
       </label>
       <label className="field">
         <span>{t('form.longitude')}</span>
-        <input type="number" step="0.0001" value={f.longitude} onChange={(e) => { set('longitude', parseFloat(e.target.value)); setLocated(true); }} />
+        <input type="number" step="0.0001" value={Number.isFinite(f.longitude) ? f.longitude : ''} onChange={(e) => { set('longitude', parseFloat(e.target.value)); setLocated(true); }} />
       </label>
       <label className="field">
         <span>{t('form.timezone')}</span>

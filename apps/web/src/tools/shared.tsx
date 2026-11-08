@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Engine, GrahaId, KpChart } from '@vedic/engine';
 import { CITIES, type City } from '../data/cities';
+import { readLastChart } from '../lib/lastChart';
 import { NAKSHATRAS, PLANET_BY_ID, signInfo } from '../data/constants';
 import { searchPlaces } from '../engine';
 
@@ -32,9 +33,7 @@ export interface SavedBirth { name?: string; date: string; time: string; place: 
 /** The birth details last used in the chart explorer (same browser) */
 export function loadSavedBirth(): SavedBirth | null {
   try {
-    const s = localStorage.getItem('vedic.lastInput');
-    if (!s) return null;
-    const v = JSON.parse(s);
+    const v = readLastChart() as SavedBirth | null;
     if (typeof v?.date === 'string' && typeof v?.time === 'string' && Number.isFinite(v?.latitude)) return v;
   } catch { /* ignore */ }
   return null;
