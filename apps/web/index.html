@@ -32,6 +32,7 @@
           <a href="app/#famous">Famous charts</a>
         </span>
       </nav>
+      <div class="hero-body">
       <div class="hero-copy">
         <p class="eyebrow">Free Vedic astrology</p>
         <h1>Your birth chart,<br /><em>read for your life.</em></h1>
@@ -50,6 +51,15 @@
           <li>Your birth details stay on your device</li>
           <li>No ads</li>
         </ul>
+      </div>
+      <figure class="hero-reel">
+        <video id="promo" muted loop playsinline preload="none" width="1120" height="700" poster="%BASE_URL%media/promo.jpg" aria-label="A 30-second look at the app: the chart and its vargas, readings with sources, timing, the 3D sky, session prep, clients and the Life Chart Book.">
+          <source src="%BASE_URL%media/promo.mp4" type="video/mp4" />
+          <track kind="captions" srclang="en" label="English" src="%BASE_URL%media/promo.vtt" />
+        </video>
+        <button type="button" class="reel-toggle" id="promo-toggle" hidden>Pause video</button>
+        <figcaption><a href="#tour">▶ Watch the full video tour</a></figcaption>
+      </figure>
       </div>
     </header>
 
@@ -81,6 +91,27 @@
             <b>What kind of work suits me?</b>
             <span>Read your 10th house, its lord and the D10 career chart, plus any yogas for status and wealth.</span>
           </a>
+        </div>
+      </section>
+
+      <section class="tour" id="tour" aria-labelledby="tour-h">
+        <div class="tour-head">
+          <p class="eyebrow">Video tour for astrologers</p>
+          <h2 id="tour-h">Every part of the tool, explained.</h2>
+          <p>A guided walk through the whole app, chapter by chapter: what each part shows, what it means and how to use it with clients. Jump to the part you need. The same tour is in the app, under Tutorial, whenever you want it.</p>
+        </div>
+        <div class="tour-body">
+          <figure class="tour-player">
+            <video id="tour-video" controls playsinline preload="none" width="1120" height="700" poster="%BASE_URL%media/tutorial.jpg">
+              <source src="%BASE_URL%media/tutorial.mp4" type="video/mp4" />
+              <track kind="captions" srclang="en" label="English" src="%BASE_URL%media/tutorial.vtt" />
+              <a href="%BASE_URL%media/tutorial.mp4">Download the video tour</a>
+            </video>
+          </figure>
+          <nav class="tour-chapters" aria-label="Chapters of the video tour">
+            <h3>Chapters</h3>
+            <ol id="tour-chapters"><li><a href="app/">Open the app</a> and press Tutorial to watch it chapter by chapter.</li></ol>
+          </nav>
         </div>
       </section>
 

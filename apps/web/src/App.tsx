@@ -62,6 +62,8 @@ import { setDisplay, useDisplay } from './lib/display';
 import { trackEvent, trackOnce } from './lib/analytics';
 import { TrustFooter } from './trust/TrustFooter';
 import { forgetLegacyVisitData, writeLastChart } from './lib/lastChart';
+import { TutorialHost } from './tutorial/TutorialHost';
+import { openTutorial } from './tutorial/open';
 
 const SkyView = lazy(() => import('./components/SkyView'));
 const TimingSection = lazy(() => import('./components/TimingSection'));
@@ -517,6 +519,7 @@ export default function App() {
     })),
     { id: 'tab.next', group: 'Clients', title: 'Next tab', shortcut: 'Alt+]', keywords: 'client tab forward', run: () => stepTab(1) },
     { id: 'tab.prev', group: 'Clients', title: 'Previous tab', shortcut: 'Alt+[', keywords: 'client tab back', run: () => stepTab(-1) },
+    { id: 'tutorial.open', group: 'Help', title: 'Watch the tutorial', hint: 'every part of the app, chapter by chapter', keywords: 'help video tour guide how learn', run: () => openTutorial() },
     { id: 'practice.open', group: 'Clients', title: 'Your practice: track record, invoices, packages', keywords: 'prediction hit miss score invoice receipt payment package price remedies check-in', run: openPractice },
     { id: 'tab.new', group: 'Clients', title: 'New tab', shortcut: 'Alt+n', keywords: 'client person add blank', run: () => { newTab(); requestAnimationFrame(() => document.querySelector<HTMLInputElement>('.birth-form input')?.focus()); } },
     { id: 'tab.close', group: 'Clients', title: `Close ${activeTab.label}`, keywords: 'client tab close archive', hint: 'kept under closed tabs', run: () => closeTab(activeTab.id) },
@@ -596,6 +599,7 @@ export default function App() {
           <QuickSwitch commands={session ? [] : commands} />
           <LanguageSwitcher />
           <DisplaySettings />
+          <button className="btn-ghost" onClick={() => openTutorial()} title="A video tour of every part of the app, chapter by chapter">▶ Tutorial</button>
           <button className="btn-ghost" aria-expanded={showClients} onClick={() => setShowClients((x) => !x)} title="Your clients, their readings and follow-ups, and dasha and transit alerts coming up">Clients</button>
           <a className="btn-ghost" href={`${import.meta.env.BASE_URL}study/`}>Study</a>
           <button className="btn-ghost" aria-expanded={showFamous} onClick={() => setShowFamous((v) => !v)}>Famous charts</button>
@@ -1036,6 +1040,8 @@ export default function App() {
       {exportTab && chart && varga && (
         <ExportDialog chart={chart} varga={varga} style={style} notes={notes} knowledge={knowledge} initialTab={exportTab} onClose={() => setExportTab(null)} />
       )}
+
+      {!presenting && !session && <TutorialHost />}
 
       <footer className="foot muted">
         <p>{t('footer.system', { ayanamsa: ayanamsaName(t, input.ayanamsa) })}</p>

@@ -5,12 +5,13 @@ import { dirname, extname, join, normalize, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const BASE = '/vedic-astrology/';
-const DIST = join(dirname(fileURLToPath(import.meta.url)), '../apps/web/dist');
+// SERVE_DIST serves a copy instead, so a long recording can run while the site is rebuilt
+const DIST = process.env.SERVE_DIST ?? join(dirname(fileURLToPath(import.meta.url)), '../apps/web/dist');
 const MIME = {
   '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml',
   '.webp': 'image/webp', '.gif': 'image/gif', '.jpg': 'image/jpeg', '.png': 'image/png', '.glb': 'model/gltf-binary',
   '.wasm': 'application/wasm', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.woff': 'font/woff', '.webmanifest': 'application/manifest+json',
-  '.xml': 'application/xml', '.txt': 'text/plain',
+  '.xml': 'application/xml', '.txt': 'text/plain', '.mp4': 'video/mp4', '.vtt': 'text/vtt',
 };
 
 export function serveDist(port = 0) {
@@ -21,7 +22,19 @@ export function serveDist(port = 0) {
     if (!file.startsWith(DIST + sep) && file !== DIST) { res.writeHead(403).end(); return; }
     if (existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
     if (!existsSync(file)) { res.writeHead(404).end(); return; }
-    res.writeHead(200, { 'Content-Type': MIME[extname(file)] ?? 'application/octet-stream' });
+    const type = MIME[extname(file)] ?? 'application/octet-stream';
+    // byte ranges, as GitHub Pages serves them, so videos can seek
+    const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range ?? '');
+    if (range) {
+      const size = statSync(file).size;
+      const start = range[1] ? Number(range[1]) : Math.max(0, size - Number(range[2]));
+      const end = range[1] && range[2] ? Math.min(Number(range[2]), size - 1) : size - 1;
+      if (start >= size || start > end) { res.writeHead(416, { 'Content-Range': `bytes */${size}` }).end(); return; }
+      res.writeHead(206, { 'Content-Type': type, 'Accept-Ranges': 'bytes', 'Content-Range': `bytes ${start}-${end}/${size}`, 'Content-Length': end - start + 1 });
+      createReadStream(file, { start, end }).pipe(res);
+      return;
+    }
+    res.writeHead(200, { 'Content-Type': type, 'Accept-Ranges': 'bytes' });
     createReadStream(file).pipe(res);
   });
   return new Promise((resolve) => {
