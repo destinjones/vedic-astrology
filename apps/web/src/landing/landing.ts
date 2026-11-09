@@ -33,3 +33,7 @@ if (!reduce && 'IntersectionObserver' in window) {
 // works offline once opened, and offers a reload when a new version is out (see lib/offline.ts);
 // loaded after the page, so it adds nothing to the first load
 void import('../lib/offline').then((m) => m.initOffline());
+
+
+// the hero reel and the video tour's chapter list, loaded after the page so they add nothing to the first load
+void import('./video');

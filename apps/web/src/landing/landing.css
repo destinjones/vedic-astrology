@@ -34,7 +34,23 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.04; mar
 .nav-links { display: flex; gap: 20px; flex-wrap: wrap; justify-content: flex-end; }
 .wordmark { font: 600 22px var(--serif); }
 .wordmark span { color: var(--gold); }
-.hero-copy { margin-block: auto; padding: 24px clamp(16px, 5vw, 64px) 72px; max-width: 920px; }
+.hero-body { margin-block: auto; display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: 8px clamp(24px, 3vw, 48px);
+  padding: 24px clamp(16px, 5vw, 64px) 72px; }
+.hero-copy { max-width: 920px; }
+.hero-reel { position: relative; margin: 0; }
+.hero-reel video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: 18px; background: var(--bg-2);
+  border: 1px solid var(--line); box-shadow: 0 40px 120px -30px rgba(180, 140, 255, .55), 0 0 0 6px rgba(232, 182, 90, .06); }
+.hero-reel figcaption { margin-top: 12px; font-size: 15px; }
+.hero-reel figcaption a { color: var(--gold-2); text-decoration: none; }
+.hero-reel figcaption a:hover { text-decoration: underline; }
+.reel-toggle { position: absolute; top: 12px; right: 12px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line);
+  background: rgba(11, 10, 26, .72); color: var(--text); font: 600 13px var(--sans); cursor: pointer; backdrop-filter: blur(6px); }
+.reel-toggle:hover { border-color: var(--gold); }
+.reel-toggle:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@media (min-width: 1100px) {
+  .hero-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); }
+  .hero-copy h1 { font-size: clamp(50px, 5vw, 86px); }
+}
 h1 { font-size: clamp(50px, 6.6vw, 100px); letter-spacing: -.01em; }
 h1 em { font-style: italic; font-weight: 500; color: var(--gold-2); }
 .lede { max-width: 56ch; margin: 24px 0 30px; font-size: clamp(17px, 1.6vw, 20px); color: #d8d3e8; }
@@ -46,6 +62,28 @@ h1 em { font-style: italic; font-weight: 500; color: var(--gold-2); }
 .cta.ghost { background: rgba(255,255,255,.06); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); backdrop-filter: blur(6px); }
 .promises { display: flex; flex-wrap: wrap; gap: 6px 20px; list-style: none; margin: 28px 0 0; padding: 0; font-size: 14px; color: #cfc9e2; }
 .promises li::before { content: '✦ '; color: var(--gold); }
+
+/* Video tour */
+.tour { max-width: 1320px; margin-inline: auto; padding: clamp(56px, 8vw, 100px) clamp(16px, 5vw, 64px) 0; }
+.tour-head { max-width: 760px; }
+.tour-head h2 { font-size: clamp(36px, 5vw, 60px); margin-bottom: 16px; }
+.tour-head p { margin: 0 0 28px; color: #d3cee3; }
+.tour-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 320px); gap: 24px; align-items: start; }
+.tour-player { margin: 0; }
+.tour-player video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: 16px; background: var(--bg-2);
+  border: 1px solid var(--line); box-shadow: 0 30px 90px -30px rgba(180, 140, 255, .45); }
+.tour-chapters { max-height: min(560px, 62vw); overflow: auto; padding: 18px 8px 18px 18px; border-radius: 16px; background: rgba(255,255,255,.03); box-shadow: inset 0 0 0 1px var(--line); }
+.tour-chapters h3 { font: 600 13px var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--gold); margin: 0 0 10px; }
+.tour-chapters ol { list-style: none; margin: 0; padding: 0; font-size: 15px; }
+.tour-chapters button { display: flex; gap: 10px; width: 100%; padding: 7px 10px; border: 0; border-radius: 10px; background: none; color: #d8d3e8;
+  font: inherit; text-align: left; cursor: pointer; }
+.tour-chapters button:hover, .tour-chapters button[aria-current='true'] { background: rgba(232, 182, 90, .12); color: #fff; }
+.tour-chapters button:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.tour-chapters time { flex: none; min-width: 3.2em; color: var(--gold); font-variant-numeric: tabular-nums; }
+@media (max-width: 900px) {
+  .tour-body { grid-template-columns: minmax(0, 1fr); }
+  .tour-chapters { max-height: none; }
+}
 
 /* Questions */
 .asks { max-width: 1320px; margin-inline: auto; padding: clamp(56px, 8vw, 100px) clamp(16px, 5vw, 64px) 0; }
