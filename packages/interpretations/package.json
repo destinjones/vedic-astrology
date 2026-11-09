@@ -1,6 +1,6 @@
 {
   "name": "@vedic/interpretations",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Original Vedic astrology interpretation knowledge base: placements, dignities, house lords, conjunctions, aspects, yogas and doshas with detection rules.",

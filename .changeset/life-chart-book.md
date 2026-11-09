@@ -1,5 +1,0 @@
----
-"@vedic/web": minor
----
-
-Life Chart Book: a long, printable book of a chart for an astrologer to give a client, next to the PDF report and the consultation export (both unchanged). It has a cover, title page, dedication, an opening letter, "the heart of your chart", and chapters that teach each idea before reading it in the chart with its classical source: the language of the chart, the rising sign, the Moon and birth star, the grahas, houses, yogas, vargas, dashas with a lifetime wall chart, a five- or ten-year forecast year by year, the seasons ahead, remedies with numbered sources, the glossary and a sources chapter. The astrologer writes their own letters, key points and notes on any chapter, planet, house, yoga, dosha, remedy or year in an editor that keeps drafts per client in the browser and can save them to a file. A screen edition downloads as one PDF; a print edition downloads an A4 interior with 3 mm bleed, chapters on right-hand pages and ruled notes pages, plus a cover sheet with the spine, for print-on-demand services such as Lulu.

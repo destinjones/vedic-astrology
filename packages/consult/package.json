@@ -1,6 +1,6 @@
 {
   "name": "@vedic/consult",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Consultation prep for astrologers: a one-page client snapshot, talking points by life area, and a question finder that maps a client's question to houses, karakas and timing windows. Rule-based, no AI service.",
   "type": "module",
