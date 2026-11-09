@@ -73,7 +73,7 @@ async function recordTutorial() {
   if (missing.length && !process.env.CHAPTERS) throw new Error(`Chapters with no recording: ${missing.join(', ')}`);
   await cap.pause();
   const duration = cap.encode(join(OUT, 'tutorial.mp4'), { fps: 15, crf: 38, width: 1120, height: 700 });
-  cap.poster(d.chapters[2].start + 6, join(OUT, 'tutorial.jpg'), { width: 1120, height: 700 });
+  cap.poster(d.chapters[Math.min(2, d.chapters.length - 1)].start + 6, join(OUT, 'tutorial.jpg'), { width: 1120, height: 700 });
   writeFileSync(join(OUT, 'tutorial.vtt'), vtt(d.cues));
   writeFileSync(join(OUT, 'tutorial.json'), `${JSON.stringify({
     duration: +duration.toFixed(2),

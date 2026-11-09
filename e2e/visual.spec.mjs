@@ -17,6 +17,8 @@ test.use({ reducedMotion: 'reduce' });
 // The offline service worker shows a "saved for offline use" notice on a first visit, fixed to the
 // bottom of the window, where it can sit over the chart. These pictures are of the chart alone.
 test.use({ serviceWorkers: 'block' });
+// The "How this works" tutorial link is fixed to the bottom of the window too, so it is hidden the same way.
+test.beforeEach(async ({ page }) => { await page.addInitScript(() => { try { localStorage.setItem('vedic.tutorialHint', 'off'); } catch { /* blocked */ } }); });
 
 for (const [size, viewport] of Object.entries(BREAKPOINTS)) {
   for (const [style, label] of Object.entries(STYLES)) {

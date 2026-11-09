@@ -4,7 +4,9 @@
 (() => {
   if (window.top !== window || window.__dir) return;
   const css = `
-  #__dir { position: fixed; inset: 0; pointer-events: none; z-index: 2147483647; font-family: Inter, system-ui, sans-serif; }
+  #__dir { position: fixed; inset: 0; pointer-events: none; z-index: 2147483647; font-family: Inter, system-ui, sans-serif;
+    width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: transparent; overflow: visible; color: inherit; }
+  #__dir::backdrop { display: none; }
   #__dir .cap { position: absolute; left: 50%; bottom: 26px; transform: translate(-50%, 12px); width: min(1060px, calc(100% - 64px));
     background: rgba(9, 7, 24, .9); border: 1px solid rgba(240, 196, 110, .55); border-radius: 16px; padding: 14px 24px 16px;
     box-shadow: 0 18px 50px rgba(0,0,0,.55); opacity: 0; transition: opacity .28s ease, transform .28s ease; }
@@ -46,8 +48,12 @@
     root = document.createElement('div');
     root.id = '__dir';
     root.setAttribute('aria-hidden', 'true');
+    // a popover sits in the top layer, so captions stay above modal dialogs; it is raised again whenever one opens
+    if ('popover' in root) root.popover = 'manual';
     root.innerHTML = `<div class="ring"></div><div class="promo"><h2></h2><p></p></div><div class="cap"><small></small><p></p></div><div class="card"><span class="mark">✦</span><small></small><h1></h1><p></p></div><div class="ptr">${ptrSvg}</div>`;
     document.body.append(root);
+    raise();
+    new MutationObserver(raise).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['open'], childList: true });
     [ring, promo, cap, card, ptr] = ['.ring', '.promo', '.cap', '.card', '.ptr'].map((s) => root.querySelector(s));
     const h = document.querySelector('h1, h2, h3');
     if (h) root.style.setProperty('--dir-serif', getComputedStyle(h).fontFamily);
@@ -67,6 +73,13 @@
       requestAnimationFrame(follow);
     };
     requestAnimationFrame(follow);
+  }
+  function raise() {
+    if (!root || !root.showPopover) return;
+    const top = [...document.querySelectorAll('dialog[open]')].length;
+    if (top === raise.dialogs && root.matches(':popover-open')) return;
+    raise.dialogs = top;
+    try { if (root.matches(':popover-open')) root.hidePopover(); root.showPopover(); } catch { /* not connected yet */ }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 

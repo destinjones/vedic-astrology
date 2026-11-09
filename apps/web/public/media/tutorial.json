@@ -1,0 +1,295 @@
+{
+ "duration": 1182.97,
+ "chapters": [
+  {
+   "id": "start",
+   "title": "Your first chart",
+   "sub": "Birth details, places, saved charts and tabs",
+   "start": 2.22,
+   "lines": [
+    "Jyotisha Explorer is a full Vedic chart workbench that runs in your browser. Charts are calculated on your own computer with the Swiss Ephemeris, and no client details are sent anywhere.",
+    "To cast a chart, type the client’s name, birth date and the exact birth time. The lagna, the houses and every divisional chart move with the time, so use the most exact time you have.",
+    "Start typing the birthplace and pick it from the list. With online search off, 25,000 places are searched inside your browser and nothing is sent. Latitude, longitude and the historical time zone fill in for you.",
+    "You can check or override the coordinates, record how exact the birth time is and its Rodden rating, and choose the ayanamsa: Lahiri, True Chitra, Raman or KP. Then calculate.",
+    "Each chart opens in its own tab, so you can keep several clients open side by side. The tabs are kept between visits, and every chart you open joins your client list."
+   ]
+  },
+  {
+   "id": "overview",
+   "title": "The chart at a glance",
+   "sub": "The summary strip, the birth-time rating, today and Sade Sati",
+   "start": 71.55,
+   "lines": [
+    "The summary strip gives you the essentials at once: lagna, Moon sign, janma nakshatra with its pada, Sun sign, the retrograde planets, and the birth data.",
+    "When a birth time has no Rodden rating the app says so, and reminds you that the lagna, the houses, the D9 and finer vargas and the dasha dates all depend on it. Rate it under Edit birth details.",
+    "Today for you reads the current day against this chart: the tithi, where the Moon is, tara bala from the birth star, and whether it is Chandrashtama.",
+    "Beside it, the Sade Sati countdown with the dates of its rising, peak and setting phases, and how rare this chart’s yogas are compared with ten thousand random charts."
+   ]
+  },
+  {
+   "id": "chart",
+   "title": "The chart and its vargas",
+   "sub": "North and South style, all sixteen divisional charts, Bhava Chalit and notes",
+   "start": 121.66,
+   "lines": [
+    "This is the birth chart. Switch between North and South Indian style at the top; the app remembers your choice for every chart.",
+    "The row of tabs holds all sixteen Parashari vargas, from D1 to D60. Each planet keeps its colour, so you can follow it from the rashi into the navamsha and the dashamsha.",
+    "On the rashi chart you can switch the houses to Bhava Chalit, by Sripati or another house system, to see which planets cross a cusp. The chalit house is what the readings then use.",
+    "Notes pins your own remarks to a house or planet for this client. Export gives you the chart as a PNG or SVG, a share card or an embed. And Show as a table lists every placement for screen readers."
+   ]
+  },
+  {
+   "id": "readings",
+   "title": "Reading a planet or a house",
+   "sub": "Dignity, lordship, aspects and the classical source for every line",
+   "start": 183.19,
+   "lines": [
+    "Click any planet, any house or the lagna. The panel beside the chart reads it for this chart: its sign and dignity, the houses it rules, the aspects it gives and receives, and its nakshatra.",
+    "Every line of a reading names the rule it comes from, with the text and verse, such as BPHS or Phaladeepika. Nothing is a black box: you can always see why a reading says what it says.",
+    "Houses read the same way: the sign on the cusp, its lord and where that lord sits, the planets inside and the karakas for that house."
+   ]
+  },
+  {
+   "id": "prep",
+   "title": "Session prep",
+   "sub": "A client snapshot, talking points and a question finder",
+   "start": 223.21,
+   "lines": [
+    "Session prep gathers what you need before a consultation. The client snapshot lists the top strengths and challenges with their sources, the running dasha and its theme, and the main transits now.",
+    "Talking points sorts the chart by life area: what the chart promises for career, marriage, money or health, what is active right now, and the best windows ahead. Copy them all as text for your notes.",
+    "Question finder takes the client’s question in their own words. It finds the matching houses and karakas, then lists the antardashas whose lords are linked to the topic, marking the ones with a Jupiter–Saturn double transit.",
+    "Print one page makes a plain A4 sheet of the snapshot for your desk. Everything here is built from the chart’s rules, with no AI service and nothing sent anywhere."
+   ]
+  },
+  {
+   "id": "birth-time",
+   "title": "The birth-time slider",
+   "sub": "What changes if the recorded time is a few minutes off",
+   "start": 276.86,
+   "lines": [
+    "Birth times are often rounded. The birth-time slider shows what changes as the time moves: step a minute at a time, or press play to sweep through the range.",
+    "Watch the lagna degree, the D9 and D10 lagnas and the dasha balance. If a varga lagna changes sign within a few minutes, treat that varga with care until the time is confirmed."
+   ]
+  },
+  {
+   "id": "yogas",
+   "title": "Yogas, doshas and the chart story",
+   "sub": "Every combination with its rule, its strength and its source",
+   "start": 328.19,
+   "lines": [
+    "Yogas and doshas lists every combination found in this chart, each with its strength, the rule that forms it, and the classical verses it comes from.",
+    "Open one to see why it forms here: the planets and houses involved, what strengthens or weakens it, and any cancellation, as with Manglik dosha or Neecha Bhanga.",
+    "The chart as a story reads the chart in plain sentences for a client, chapter by chapter. Show it in the chart lights up the placements behind each sentence."
+   ]
+  },
+  {
+   "id": "condition",
+   "title": "Panchanga, condition and strength",
+   "sub": "Birth panchanga, avasthas, Shadbala and Bhava Bala",
+   "start": 364.47,
+   "lines": [
+    "The panchanga of the birth moment: tithi, vara, nakshatra, yoga and karana, with the same five limbs for any other date you pick.",
+    "Planet condition gives each graha’s avasthas, its age and state, combustion and planetary war, with the critical degrees such as gandanta and mrityu bhaga, and the classical ayurdaya.",
+    "Shadbala in rupas against each planet’s required minimum, ranked, with all six components. Below it, dignity across the seven vargas and Bhava Bala for the twelve houses.",
+    "Four ayanamsas side by side: Lahiri, True Chitra, Raman and KP. You see at once which planets or lagnas change sign or nakshatra with the ayanamsa, so a borderline placement never surprises you."
+   ]
+  },
+  {
+   "id": "sky",
+   "title": "Sky view, wheel and positions",
+   "sub": "The 3D birth sky, the nakshatra wheel and the full position table",
+   "start": 413.85,
+   "lines": [
+    "The sky view puts the nine grahas on a 3D wheel of the signs and nakshatras, each at its true longitude for the birth moment. Drag to turn it, and click a planet to read it.",
+    "Real stars switches the artwork backdrop for the actual star field, and Sky tonight shows where the grahas are now. It is a good way to show a client their chart.",
+    "The nakshatra wheel shows all 27 nakshatras and their padas, with every planet on its exact degree. Switch between the artwork and a plain diagram.",
+    "Planetary positions is the full table: longitude, sign, nakshatra and pada, its lord, dignity and retrograde status for every graha."
+   ]
+  },
+  {
+   "id": "dasha",
+   "title": "Dashas and their junctions",
+   "sub": "Vimshottari, Yogini, Ashtottari and Kalachakra, sandhi and double transits",
+   "start": 472.01,
+   "lines": [
+    "The dasha card shows the Vimshottari sequence for the whole life. Click a mahadasha to open its antardashas, and an antardasha for its pratyantardashas.",
+    "Switch to Yogini, Ashtottari or Kalachakra dasha to compare systems on the same timeline.",
+    "Dasha junctions marks each sandhi, where one mahadasha hands over to the next, and the chidra at the end of a period, when changes often arrive.",
+    "Below, the Saturn–Jupiter double transit over each house, or its lord, in the next ten or thirty years or the past twenty. Use it to confirm the timing a dasha suggests."
+   ]
+  },
+  {
+   "id": "jaimini",
+   "title": "Jaimini",
+   "sub": "Chara karakas, arudha padas, rashi drishti and chara dasha",
+   "start": 523.57,
+   "lines": [
+    "The Jaimini layer: the chara karakas, with a switch between the seven and eight karaka schemes, the Atmakaraka and Karakamsa, and what each means for this chart.",
+    "Further down, the arudha padas with the Arudha Lagna and Upapada, rashi drishti between the signs, and the chara dasha with its sign periods."
+   ]
+  },
+  {
+   "id": "remedies",
+   "title": "Remedies",
+   "sub": "What the texts prescribe for each afflicted graha, with sources",
+   "start": 546.84,
+   "lines": [
+    "Remedies lists the afflicted grahas, worst first, and why each counts as afflicted. For each one you get the mantra, the deity, fasting day, charity and gemstone, each with the text it comes from.",
+    "Gemstone advice carries the classical cautions, so you can decide what is safe to recommend. Add any remedy to the client’s tracker with one click."
+   ]
+  },
+  {
+   "id": "timing",
+   "title": "Timing and transits",
+   "sub": "Life weather, transit search, Sade Sati and ashtakavarga",
+   "start": 572.79,
+   "lines": [
+    "Timing brings the dashas and transits together. Right now scores the running mahadasha, antardasha and pratyantardasha for this chart, with the reasons for each score.",
+    "Transit search answers the usual questions in one click: when Saturn next crosses the Moon, the next Jupiter return, when a planet enters a sign, or your own search.",
+    "Life weather blends the dashas with the transits over the Moon into one line, from one year to a lifetime. Bright stretches favour action; dark ones ask for patience.",
+    "Below it, the dasha map, the transits for any date with the ashtakavarga bindus, upcoming good and careful windows, every retrograde and the Saturn phases."
+   ]
+  },
+  {
+   "id": "events",
+   "title": "Event checking and rectification",
+   "sub": "What was running on a date, and a birth time finder",
+   "start": 624.66,
+   "lines": [
+    "The life event checker tells you what was running on a date: pick the kind of event and when it happened, and it lists the dasha lords and transits active then and whether they fit the event.",
+    "The birth time finder narrows an uncertain time. Give the window the birth could fall in, then add life events: marriage, children, career moves, bereavements.",
+    "It tests each candidate time against those events with the dashas and transits, and ranks the times that explain them best. Apply the best one to the chart with one click."
+   ]
+  },
+  {
+   "id": "varshaphal",
+   "title": "Varshaphal",
+   "sub": "The Tajika annual chart, Muntha, year lord and sahams",
+   "start": 664.47,
+   "lines": [
+    "Varshaphal casts the Tajika annual chart for the exact second the Sun returns to its natal degree, for this year or any other, and for where the client lives now.",
+    "It names the year lord from the five office-bearers, places the Muntha, and runs the Mudda dasha. Then the Tajika yogas and the sahams, each explained."
+   ]
+  },
+  {
+   "id": "eclipses",
+   "title": "Eclipses and keepsakes",
+   "sub": "Eclipses on the chart, Sankrantis, posters and calendars",
+   "start": 689.49,
+   "lines": [
+    "Eclipses and Sankrantis lists coming eclipses and where each falls on this chart, by house and near which natal points, plus the Sankranti charts for the Sun’s ingresses.",
+    "For clients there are keepsakes: the chart as a printable poster, a time capsule they can seal until a date, and the panchanga as a calendar file for their phone."
+   ]
+  },
+  {
+   "id": "client-notes",
+   "title": "Client notes, remedies and invoices",
+   "sub": "Questions, predictions, a remedy tracker and billing for this client",
+   "start": 716.53,
+   "lines": [
+    "Client notes and history keeps your record for this client: their questions, your predictions and notes. Give a prediction the date it is about and it is checked later in your track record.",
+    "Remedies and billing tracks the remedies you gave: the start and end dates, a printable checklist for the client, and follow-ups. Below it, invoices and receipts for this client."
+   ]
+  },
+  {
+   "id": "clients",
+   "title": "Your client list and alerts",
+   "sub": "Search, follow-ups, and dasha and transit alerts across every client",
+   "start": 744.81,
+   "lines": [
+    "Clients lists everyone whose chart you have opened, with their last reading, the next follow-up and what you predicted last time. Search by name, place, notes or readings, and sort by follow-up.",
+    "Upcoming alerts looks across all your clients for dasha changes and major transits coming up, so you know who to contact before it happens.",
+    "The client list is kept in this browser only. It is never put in share links and is hidden while you present. Back up writes everything to one file you can restore anywhere."
+   ]
+  },
+  {
+   "id": "intake",
+   "title": "Client intake links",
+   "sub": "Let a client send you their own birth details and questions",
+   "start": 793.99,
+   "lines": [
+    "A client intake link lets new clients enter their own birth details and questions. Add your name and a note, then copy the link and send it by email or message.",
+    "The client fills in a simple form and gets a reply link to send back. Paste it here and the chart is added to your clients. Nothing is uploaded: the details travel only in the messages you exchange."
+   ]
+  },
+  {
+   "id": "practice",
+   "title": "Your practice",
+   "sub": "Prediction track record, invoices and packages",
+   "start": 835.4,
+   "lines": [
+    "Your practice is the view across all clients. Track record lists the predictions you logged, and when their date comes it asks whether each one came true, so you build an honest hit rate.",
+    "Invoices collects every invoice and receipt, paid or due. Packages and details holds your services and prices and the business details printed on invoices."
+   ]
+  },
+  {
+   "id": "phrases",
+   "title": "Readings and phrases",
+   "sub": "Your own templates and wording, reused for every client",
+   "start": 871.04,
+   "lines": [
+    "Readings and phrases holds your own wording. Start a reading for this client from a template, and each section begins with your saved phrases for the placements it covers.",
+    "Save a phrase for a placement, such as Saturn in the 10th, and it is suggested whenever that placement comes up again: here, in the consultation PDF and in the Life Chart Book.",
+    "Write your own templates, and export them all to keep a copy or move them to another computer."
+   ]
+  },
+  {
+   "id": "session",
+   "title": "Session mode and the dashboard",
+   "sub": "A clean client screen for calls, and D1, D9, D10 and the dasha on one screen",
+   "start": 914,
+   "lines": [
+    "Session mode is for consultations over a video call. This screen is yours alone: pick a varga, click a planet, house or the lagna, and add it to your talking points.",
+    "Go live shows a clean client screen to share: the chart and your points, never your notes. Or open it in its own window. Use the arrow keys to step through, B to blank the screen and Esc to end.",
+    "The dashboard puts the D1, D9 and D10 and the running dasha on one screen. Arrange lets you choose and order the panels, and the layout is remembered.",
+    "Two more ways to talk a client through the chart: Present runs a full-screen walkthrough, and Listen reads the chart aloud, moving through it as it goes."
+   ]
+  },
+  {
+   "id": "reports",
+   "title": "Reports, branding and the Life Chart Book",
+   "sub": "PDF reports, consultation exports and a printed book under your name",
+   "start": 979.01,
+   "lines": [
+    "Download PDF report makes a complete written report of the chart. Consultation export builds a shorter PDF from the points you choose, in your own words.",
+    "Your branding puts your name, practice, contact details and logo on the cover and at the foot of every page you give a client. Leave it empty for unbranded PDFs.",
+    "The Life Chart Book is a long, printed book for a client. Each chapter teaches the idea first, then reads it in their chart, with sources. Add your own letters and notes anywhere.",
+    "Choose the chapters and the years to cover, then export the book as a PDF ready for print. Drafts are saved in this browser, and as a file you can open again later."
+   ]
+  },
+  {
+   "id": "share",
+   "title": "Export and share",
+   "sub": "Chart images, share cards, embeds and links",
+   "start": 1048.85,
+   "lines": [
+    "Export gives the chart as a PNG or SVG image, a share card sized for social media, embed code for your own website, and planet stickers.",
+    "Share link copies a link that opens this chart anywhere, with no account. Save keeps the chart in this browser’s saved charts."
+   ]
+  },
+  {
+   "id": "more-tools",
+   "title": "Compare, match, family and KP",
+   "sub": "Synastry, kundali matching, family charts, KP, Prashna and Muhurta",
+   "start": 1084.28,
+   "lines": [
+    "Compare charts sets up to four charts side by side, with synastry between two: how each person’s planets fall in the other’s houses.",
+    "Compatibility runs Ashtakoota matching on all eight kootas out of 36, with Manglik dosha and its cancellations for both people, plus the South Indian porutham and other traditions.",
+    "Family charts keeps a household together: each member’s chart, and how their placements and running dashas relate to one another.",
+    "KP, Prashna and Muhurta: KP cusps with star and sub lords, a horary chart for a question asked now, and a search for auspicious times."
+   ]
+  },
+  {
+   "id": "everyday",
+   "title": "Working fast, offline and in your language",
+   "sub": "Quick switch, shortcuts, nine languages, display settings, backups and offline use",
+   "start": 1132.01,
+   "lines": [
+    "Quick switch, or Ctrl K, jumps to any client, chart, varga or section by typing a few letters. Press the question mark to see every keyboard shortcut.",
+    "The app speaks nine languages, including Hindi, Tamil and Telugu. Display sets the text size, contrast, motion and a dyslexia-friendly font, and whether terms appear in English, IAST or Devanagari.",
+    "Your charts, clients and notes live in this browser. Under Saved charts, back up everything to one file, restore it on another computer, or sync between your own devices.",
+    "Once opened, the whole app works offline and can be installed like an ordinary app, so you can read charts with no connection at all. That is the tour: open any section’s video again from the Tutorial button."
+   ]
+  }
+ ]
+}

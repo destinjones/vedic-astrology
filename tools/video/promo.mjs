@@ -1,4 +1,4 @@
-// The landing-page promo: about thirty seconds of the real app with headlines over it.
+// The landing-page promo: about forty seconds of the real app with headlines over it.
 // It plays muted on a loop, so everything it says is in the headlines.
 
 const clickText = (page, scope, text) => page.evaluate(([s, t]) => {
@@ -22,9 +22,10 @@ const jump = (d, sel, offset = 0) => d.page.evaluate(([s, o]) => {
 
 export async function promo(d) {
   const p = d.page;
-  await d.open('app/#sample', '#yogas');
+  // load with the capture not yet started, so the video opens on the first scene
+  await p.goto(`${d.base}app/#sample`);
+  await p.waitForSelector('#yogas', { timeout: 60000 });
   await d.offscreen(async () => {
-    await p.addStyleTag({ content: '.topbar, .tabbar, .tab-bar { display: none !important; } ::-webkit-scrollbar { display: none; }' });
     for (let pass = 0; pass < 2; pass++) {
       for (let y = 0; y < (await p.evaluate(() => document.body.scrollHeight)); y += 600) {
         await p.evaluate((v) => window.scrollTo(0, v), y);
@@ -32,6 +33,7 @@ export async function promo(d) {
       }
     }
     for (const s of ['#session-prep h4', '#timing .vt-card', '#sky canvas']) await p.waitForSelector(s, { timeout: 60000 }).catch(() => console.warn(`not ready: ${s}`));
+    await clickText(p, '#sky', 'Pause rotation');
     await jump(d, '#chart', 8);
     await p.waitForTimeout(800);
   });
@@ -39,7 +41,7 @@ export async function promo(d) {
   // 1. the chart and its vargas
   await headline(d, 'Every chart. <em>Every varga.</em>', 'All sixteen divisional charts, North or South Indian style.');
   d.posterAt = d.cap.now() + 1.6;
-  for (const v of ['D9', 'D10', 'D60']) {
+  for (const v of ['D9', 'D60']) {
     await d.wait(650);
     await p.getByRole('tab', { name: v, exact: true }).first().click();
   }
@@ -65,14 +67,12 @@ export async function promo(d) {
     await p.waitForTimeout(500);
   });
   await headline(d, 'See the <em>years ahead.</em>', 'Dashas and transits blended into one forecast.');
-  for (const label of ['7 yrs', '20 yrs', 'Lifetime']) {
-    await d.wait(900);
-    await p.getByRole('button', { name: label, exact: true }).first().click();
-  }
-  await d.wait(900);
+  await d.wait(1100);
+  await p.getByRole('button', { name: 'Lifetime', exact: true }).first().click();
+  await d.wait(1600);
 
   // 4. the sky
-  await d.offscreen(async () => { await d.run(() => window.__dir.promo()); await jump(d, '#sky', 8); await p.waitForTimeout(4000); });
+  await d.offscreen(async () => { await d.run(() => window.__dir.promo()); await jump(d, '#sky', 8); await p.waitForSelector('#sky canvas', { timeout: 60000 }); await clickText(p, '#sky', 'Rotate'); await p.waitForTimeout(9000); });
   await headline(d, 'The birth sky, <em>in 3D.</em>', 'Nine grahas on a wheel of signs and nakshatras.');
   await d.wait(3200);
 
@@ -80,7 +80,11 @@ export async function promo(d) {
   await d.offscreen(async () => {
     await d.run(() => window.__dir.promo());
     await jump(d, '#session-prep', 8);
+    await p.waitForSelector('#session-prep [role=tab]', { timeout: 60000 });
+    await jump(d, '#session-prep', 8);
+    await clickText(p, '#sky', 'Pause rotation');
     await clickText(p, '#session-prep', 'Question finder');
+    await p.waitForSelector('#prep-q');
     await p.waitForTimeout(400);
   });
   await headline(d, 'Prep a session <em>in a minute.</em>', 'Ask the client’s question, get the timing windows and why.');
@@ -115,18 +119,18 @@ export async function promo(d) {
   await clickText(p, '.ss-prep', 'D10');
   await d.wait(1600);
 
-  // 8. the Life Chart Book
+  // 8. the dashboard (a modal dialog would sit above the headline, so the Life Chart Book is left to the tutorial)
   await d.offscreen(async () => {
     await d.run(() => window.__dir.promo());
     await clickText(p, '.ss-prep', 'Close session');
     await p.waitForTimeout(300);
-    await clickText(p, '.topbar-actions', 'Life Chart Book');
-    await p.waitForSelector('.book-dialog[open]');
-    await p.waitForTimeout(500);
+    await clickText(p, '.topbar-actions', '▦ Dashboard');
+    await p.waitForSelector('#dashboard');
+    await jump(d, '#dashboard', 8);
+    await p.waitForTimeout(600);
   });
-  await headline(d, 'A printed book, <em>under your name.</em>', 'Reports, consultation PDFs and the Life Chart Book.');
-  for (const t of ['Chapters', 'Years']) { await d.wait(1200); await clickText(p, '.book-dialog', t); }
-  await d.wait(900);
+  await headline(d, 'D1, D9, D10 and the dasha, <em>on one screen.</em>', 'Plus reports, consultation PDFs and a Life Chart Book under your name.');
+  await d.wait(3400);
 
   // 9. end card
   await d.run(() => window.__dir.promo());

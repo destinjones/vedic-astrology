@@ -476,9 +476,9 @@ const scenes = {
     await d.chapterById('more-tools');
     await d.open('compare/', '#root h1, #root h2, #root h3'); await d.offscreen(() => d.wait(1500));
     await d.say('Compare charts sets up to four charts side by side, with synastry between two: how each person’s planets fall in the other’s houses.', async () => {
-      await tap(d, p.locator('button', { hasText: /^Add$/ }), { after: 1100 });
+      await tap(d, p.getByText('Add', { exact: true }), { after: 1100 });
       await tap(d, button(p, 'Famous', true), { after: 900 });
-      await tap(d, p.locator('button', { hasText: /^Add$/ }), { after: 1400 });
+      await tap(d, p.getByText('Add', { exact: true }), { after: 1400 });
       await d.scrollBy(380, 1400);
     });
     await d.open('match/', '#root h1, #root h2, #root h3'); await d.offscreen(() => d.wait(1500));
